@@ -118,6 +118,13 @@ th[aria-sort="ascending"] .sort::after { border-bottom: 5px solid var(--accent);
 .h-n5 { background: var(--h-n5); }
 .grid tbody tr:hover td[class*="h-"] { filter: brightness(1.08); }
 
+/* 실시간 체결로 현재가가 바뀌면 한 번 반짝인다. */
+@keyframes flash-up { from { background: var(--h-p4); } to { background: transparent; } }
+@keyframes flash-down { from { background: var(--h-n4); } to { background: transparent; } }
+.grid td.flash-up { animation: flash-up 1.2s ease-out; }
+.grid td.flash-down { animation: flash-down 1.2s ease-out; }
+@media (prefers-reduced-motion: reduce) { .grid td.flash-up, .grid td.flash-down { animation: none; } }
+
 .spark { display: block; margin-left: auto; }
 .spark rect { fill: var(--line-group); }
 .spark rect.last { fill: var(--brand); }

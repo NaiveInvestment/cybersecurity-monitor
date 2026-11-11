@@ -18,6 +18,7 @@
 | `scripts/fetch-news.mjs` | `data/news.json` 생성(이전 보관분과 병합, 180일 보존) |
 | `scripts/build-site.mjs` | `_site/` 조립 |
 | `scripts/live-poller.mjs` | 장중 60초 시세를 `live` 브랜치 `live.json`으로 푸시 |
+| `src/live-local.mjs`, `scripts/serve.mjs --live` | 로컬 실시간 서버(키움 중계 + 네이버 10초) |
 | `scripts/verify-site.mjs` | 조립된 사이트의 채움률, 정합성, 금지 문자 검사 |
 
 ## 실행
@@ -30,6 +31,18 @@ node scripts/verify-site.mjs _site
 ```
 
 로컬 빌드는 실시간 폴링을 끈 스냅샷 화면이다. `node scripts/build-site.mjs --live owner/repo`로 켤 수 있다.
+
+## 로컬 실시간
+
+```
+npm run live      # http://127.0.0.1:8858/
+```
+
+- 국내 35종목은 홍대현 Universe 로컬 서버(`127.0.0.1:8848`)가 중계하는 키움 실시간 체결(KRX)을 받아 쓴다. 키움에 직접 접속하지 않으므로 이 저장소에는 키가 없다
+- 해외 종목, 지수, 등락률 기준값, 거래대금은 서버가 네이버를 10초마다 조회한다. Universe 서버가 꺼져 있으면 국내도 네이버 10초 갱신으로 떨어진다
+- 화면은 같은 서버의 `live.json`을 2초마다 읽고, 현재가가 바뀐 칸은 한 번 반짝인다. 상태 표시는 `/health`
+- 서버는 시작할 때와 3시간마다 스냅샷과 헤드라인을 다시 받아 조립한다
+- 바탕화면 바로가기는 `AIWorkspace\bin\launch-cybersecurity-monitor.ps1`을 실행한다. Universe 서버를 먼저 깨우고, 코드가 서버 시작 뒤에 바뀌었으면 서버를 다시 띄운 다음 Chrome으로 연다
 
 ## 배포와 갱신
 

@@ -2,7 +2,9 @@
 import { pct, valuation, mean } from "./lib/calc.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 
-const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, liveAsOf: null, liveSessions: null };
+const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, liveAsOf: null, liveRev: null, liveSource: null };
+// 방금 값이 바뀐 종목. 현재가 칸을 한 번 반짝이게 한다.
+const flash = new Map();
 let snapshot = null;
 let meta = null;
 
@@ -63,7 +65,7 @@ const COLUMNS = [
   { key: "name", group: "id", label: "종목", cls: "name", sort: (s) => s.name,
     cell: (s) => ({ html: `<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}" title="${esc(s.market)}, ${esc(s.desc)} (관련 뉴스 보기)">${esc(s.name)}</a>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
-  { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>` }) },
+  { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
   { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
   { key: "cap", group: "quote", label: "시가총액", sort: (s, d) => d.cap, cell: (s, d) => ({ html: money(s, d, "cap") }) },
   { key: "tv", group: "quote", label: "거래대금", sort: (s, d) => d.tv, cell: (s, d) => ({ html: fmtEok(d.tv) }) },
@@ -184,7 +186,7 @@ function renderStatus() {
   badge.textContent = label;
   badge.dataset.state = tone;
   badge.hidden = false;
-  $("#status-text").textContent = `시세 ${fmtKst(latest)} KST, 네이버 금융`;
+  $("#status-text").textContent = `시세 ${fmtKst(latest)} KST, ${state.liveSource || "네이버 금융"}`;
 }
 
 function renderNotes() {
@@ -202,26 +204,34 @@ function renderAll() {
 
 function applyLive(live) {
   if (!live?.q) return;
+  state.liveAsOf = live.asOf;
+  state.liveSource = live.source || null;
+  // 로컬 실시간은 2초마다 읽는다. 바뀐 것이 없으면(rev 동일) 표를 다시 그리지 않는다.
+  if (live.rev != null && live.rev === state.liveRev) { renderStatus(); return; }
+  state.liveRev = live.rev ?? null;
   for (const stock of snapshot.stocks) {
     const row = live.q[stock.id];
     if (!row) continue;
     const [p, chg, cap, capKrw, tv, at, st] = row;
     if (stock.q?.at && Date.parse(at) < Date.parse(stock.q.at)) continue;
+    if (stock.q?.p != null && p !== stock.q.p) flash.set(stock.id, p > stock.q.p ? "up" : "down");
     stock.q = { p, chg, cap, capKrw, tv, at, st };
   }
   for (const [id, quote] of Object.entries(live.idx || {})) {
     const index = snapshot.indices[id];
     if (index && (!index.q?.at || Date.parse(quote.at) >= Date.parse(index.q.at))) index.q = quote;
   }
-  state.liveAsOf = live.asOf;
   renderAll();
+  flash.clear();
 }
 
-// live 브랜치의 live.json을 읽는다. 무인증 API 한도(시간당 60회)를 넘지 않게 75초 간격, 숨은 탭에서는 쉰다.
+// 실시간 시세를 읽는다. 숨은 탭에서는 쉰다.
+// 배포본: live 브랜치의 live.json. 무인증 API 한도(시간당 60회)를 넘지 않게 75초 간격.
+// 로컬 실시간 서버: meta.live.url(같은 서버의 live.json)을 2초 간격.
 async function pollLive() {
   if (!meta?.live || document.hidden) return;
-  const { repo, branch, file } = meta.live;
-  const attempts = [
+  const { repo, branch, file, url } = meta.live;
+  const attempts = url ? [() => fetch(url, { cache: "no-store" })] : [
     () => fetch(`https://api.github.com/repos/${repo}/contents/${file}?ref=${branch}`, { headers: { Accept: "application/vnd.github.raw+json" }, cache: "no-store" }),
     () => fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${file}`, { cache: "no-store" }),
   ];
@@ -292,7 +302,7 @@ async function main() {
   renderNotes();
   if (meta.live) {
     pollLive();
-    setInterval(pollLive, 75000);
+    setInterval(pollLive, meta.live.interval || 75000);
     document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
   }
   narrow.addEventListener("change", renderTable);

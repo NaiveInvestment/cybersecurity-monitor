@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { composeQuote } from "../src/live-local.mjs";
 import { toNum, pct, shiftDate, baseClose, returnBases, normalizeQuote, financeMetrics, valuation, mean } from "../public/lib/calc.js";
 
 test("toNum: 쉼표, 결측 표기", () => {
@@ -106,4 +107,20 @@ test("valuation: 적자는 N/M, 결측은 null", () => {
 test("mean: 결측 제외", () => {
   assert.equal(mean([1, null, 3]), 2);
   assert.equal(mean([null]), null);
+});
+
+test("composeQuote: 키움 체결이 더 새로우면 가격과 시총을 바꾸고 등락률은 전일 종가 대비로 다시 계산", () => {
+  const base = { p: 110000, chg: 10, cap: 12000, capKrw: 12000, tv: 700, at: "2026-11-11T10:30:00+09:00", st: "OPEN" };
+  const live = composeQuote(base, { p: 112000, cap: 12218.2, at: "2026-11-11T01:30:05.000Z" });
+  assert.deepEqual(live, { p: 112000, chg: 12, cap: 12218.2, capKrw: 12218.2, tv: 700, at: "2026-11-11T01:30:05.000Z", st: "OPEN", src: "kiwoom" });
+});
+
+test("composeQuote: 체결이 없거나 더 오래됐으면 네이버 값 그대로, 시총이 없으면 가격 비례", () => {
+  const base = { p: 100, chg: -5, cap: 500, capKrw: 500, tv: 3, at: "2026-11-11T10:30:00+09:00", st: "CLOSE" };
+  assert.equal(composeQuote(base, null).src, "naver");
+  assert.equal(composeQuote(base, { p: 101, cap: 505, at: "2026-11-11T01:29:00.000Z" }).p, 100);
+  assert.equal(composeQuote(null, { p: 101, cap: 505, at: "2026-11-11T01:31:00.000Z" }), null);
+  const scaled = composeQuote(base, { p: 110, cap: null, at: "2026-11-11T01:31:00.000Z" });
+  assert.equal(scaled.cap, 550);
+  assert.equal(scaled.chg, 4.5);
 });

@@ -11,6 +11,7 @@
     "site": "node scripts/build-site.mjs",
     "build": "node scripts/build-data.mjs && node scripts/fetch-news.mjs && node scripts/build-site.mjs",
     "serve": "node scripts/serve.mjs",
+    "live": "node scripts/serve.mjs --live",
     "test": "node --test"
   }
 }
