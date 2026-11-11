@@ -1,5 +1,6 @@
 // 헤드라인 수집용 순수 함수: RSS/Atom 파싱, 분류, 중복 제거, 종목 연결. 요약문은 만들지 않는다.
 import { createHash } from "node:crypto";
+import { titleKey, similarity } from "../public/lib/text.js";
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", "#39": "'" };
 
@@ -72,24 +73,7 @@ export function splitPublisher(title, source = "") {
   return { title, publisher: "" };
 }
 
-export const titleKey = (title) => title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
-
-function bigrams(text) {
-  const key = titleKey(text);
-  const set = new Set();
-  for (let index = 0; index < key.length - 1; index += 1) set.add(key.slice(index, index + 2));
-  return set;
-}
-
-// 문자 2-gram 자카드 유사도. 한글 제목에서도 어순이 조금 달라진 같은 기사를 잡는다.
-export function similarity(a, b) {
-  const left = bigrams(a);
-  const right = bigrams(b);
-  if (!left.size || !right.size) return 0;
-  let shared = 0;
-  for (const gram of left) if (right.has(gram)) shared += 1;
-  return shared / (left.size + right.size - shared);
-}
+export { titleKey, similarity };
 
 const RULES = {
   incident: [
@@ -181,7 +165,7 @@ export function assignGroups(items, { threshold = 0.4, windowDays = 3 } = {}) {
     for (let index = groups.length - 1; index >= 0 && !home; index -= 1) {
       const group = groups[index];
       if (group.r !== item.r || group.c !== item.c || time - group.last > windowMs) continue;
-      if (group.members.some((other) => time - Date.parse(other.d) <= windowMs && similarity(other.t, item.t) >= threshold)) home = group;
+      if (group.members.some((other) => time - Date.parse(other.d) <= windowMs && similarity(other.t, item.t) >= threshold && sameSubject(other.t, item.t))) home = group;
     }
     if (home) {
       home.members.push(item);
@@ -190,6 +174,122 @@ export function assignGroups(items, { threshold = 0.4, windowDays = 3 } = {}) {
       groups.push({ r: item.r, c: item.c, last: time, members: [item] });
     }
   }
-  for (const group of groups) for (const member of group.members) member.g = group.members[0].id;
-  return groups.length;
+  const merged = mergeByAnchor(groups, windowMs);
+  for (const group of merged) {
+    group.members.sort((a, b) => a.d.localeCompare(b.d));
+    for (const member of group.members) member.g = group.members[0].id;
+  }
+  return merged.length;
+}
+
+// 영문 제목은 "X Data Breach Exposes Sensitive Information"처럼 틀이 같아 글자 유사도만으로는 다른 회사 사건이 붙는다.
+// 두 제목 모두 주체 낱말이 있는데 하나도 겹치지 않으면 다른 사건으로 본다. 한글 제목은 표기가 다양해 이 조건을 걸지 않는다.
+function sameSubject(a, b) {
+  if (/[가-힣]/.test(a) || /[가-힣]/.test(b)) return true;
+  const left = anchorTokens(a);
+  const right = anchorTokens(b);
+  if (!left.size || !right.size) return true;
+  for (const token of left) if (right.has(token)) return true;
+  return false;
+}
+
+// 제목에서 사건의 주체가 될 만한 낱말을 뽑는다. 한글은 조사 하나를 떼고 4자 이상, 영문은 6자 이상.
+// 어느 기사에나 나오는 보안 일반어는 뺀다.
+const ANCHOR_STOP = new Set([
+  "개인정보", "정보보호", "사이버보안", "정보보안", "랜섬웨어", "악성코드", "해킹사고", "보안사고", "유출사고", "침해사고",
+  "개인정보위", "개인정보보호", "개인정보보호위원회", "과기정통부", "금융위원회", "금융감독원", "금융당국", "보안업계", "소프트웨어",
+  "인공지능", "가이드라인", "제로트러스트", "클라우드", "데이터센터", "사이버공격", "보이스피싱", "피싱사이트", "가상자산", "비트코인",
+  "개인정보유출", "정보유출", "보안투자", "정보보호예산", "국정감사", "대한민국", "스타트업", "업데이트", "네트워크", "컨퍼런스",
+  "기자수첩", "이슈종합", "사이버보안주", "보안기업", "보안전문가", "전문가들", "이용자들", "피해자들", "고객정보", "금융회사",
+  "breach", "breaches", "attack", "attacks", "hacker", "hackers", "hacked", "hacking", "cyberattack", "cyberattacks", "cybersecurity",
+  "security", "ransomware", "company", "companies", "million", "billion", "customers", "customer", "personal", "information", "exposed",
+  "exposes", "exposure", "affected", "affecting", "affects", "discloses", "disclosed", "confirms", "confirmed", "settlement", "action",
+  "lawsuit", "university", "hospital", "health", "healthcare", "medical", "center", "system", "systems", "network", "networks", "service",
+  "services", "government", "federal", "agency", "report", "reports", "warning", "critical", "vulnerability", "vulnerabilities", "update",
+  "updates", "software", "password", "passwords", "account", "accounts", "records", "privacy", "online", "digital", "global", "people",
+  "individuals", "sensitive", "incident", "investigation", "following", "impacted", "impacts", "through", "should", "startup", "raises",
+  "funding", "series", "acquire", "acquires", "acquisition", "budget", "investment", "market", "regulation", "executive", "school",
+  "schools", "county", "district", "police", "credit", "public", "library", "notice", "notification", "stolen", "access", "numbers",
+  "social", "protect", "protection", "threat", "threats", "against", "targets", "targeted", "alleged", "allegedly", "claims", "probes",
+  "employee", "employees", "patient", "patients", "client", "clients", "member", "members", "student", "students", "thousands", "hundreds",
+  "details", "involving", "reveals", "revealed", "reported", "suffers", "latest", "exploit", "exploits", "exploited", "access", "bypass",
+  "federal", "americas", "americans", "giant", "leaked", "leaks", "hacked", "breached", "stolen",
+]);
+// 같은 기관을 가리키는 약칭. 주체 낱말을 뽑을 때 본 이름으로 바꾼다.
+const ANCHOR_ALIAS = new Map([["금보원", "금융보안원"]]);
+const PARTICLE = /(으로부터|에게서|이라는|까지|마저|조차|부터|에서|에게|으로|라는|이나|처럼|보다|은|는|이|가|을|를|의|에|도|로|과|와|만)$/;
+
+// 짧은 낱말 둘이 붙어 주체가 되는 경우("4대 은행")를 위한 일반어 목록. 이 낱말이 낀 두 낱말 조합은 쓰지 않는다.
+const SHORT_STOP = new Set([
+  "해킹", "유출", "보안", "정보", "피해", "공격", "사고", "금융", "내년", "올해", "관련", "대응", "확대", "강화", "투자", "예산",
+  "정부", "기업", "국내", "해외", "미국", "중국", "북한", "개인", "고객", "직원", "회사", "업계", "시장", "발표", "추진", "계획",
+  "논란", "우려", "긴급", "단독", "종합", "속보", "포토", "영상", "이번", "지난", "최근", "다시", "사이버", "데이터", "서비스", "시스템",
+]);
+
+export function anchorTokens(title) {
+  const tokens = new Set();
+  const text = String(title).replace(/\[[^\]]*\]|\([^)]*\)/g, " ");
+  let previousShort = null;
+  for (const raw of text.split(/[^\p{L}\p{N}]+/u)) {
+    if (!raw) continue;
+    let short = null;
+    if (/[가-힣]/.test(raw)) {
+      // 조사를 먼저 떼고 4자 이상만 남긴다("해킹으로"는 "해킹"이 돼 빠진다). 서술어("유출됐다")도 뺀다.
+      const stripped = raw.replace(PARTICLE, "");
+      const token = ANCHOR_ALIAS.get(stripped) || stripped;
+      if (token.length >= 4) {
+        if (!token.endsWith("다") && !ANCHOR_STOP.has(token)) tokens.add(token);
+      } else if (token.length >= 2 && !SHORT_STOP.has(token)) {
+        // 짧은 낱말은 바로 앞의 짧은 낱말과 붙여 본다("4대" + "은행").
+        if (previousShort && !ANCHOR_STOP.has(previousShort + token)) tokens.add(previousShort + token);
+        short = token;
+      }
+    } else if (/^[A-Za-z]/.test(raw) && raw.length >= 6) {
+      const token = raw.toLowerCase();
+      if (!ANCHOR_STOP.has(token)) tokens.add(token);
+    }
+    previousShort = short;
+  }
+  return tokens;
+}
+
+// 제목이 서로 달라 갈라진 묶음을 주체 낱말로 다시 합친다.
+// 기준이 되는 것은 기사 3건 이상인 묶음이고, 그 묶음 제목의 절반 이상에 나오는 낱말이 주체 낱말이다.
+// 기준 묶음끼리는 주체 낱말이 같으면 합치고, 작은 묶음은 주체 낱말을 가진 가장 큰 기준 묶음 하나에만 붙인다.
+// 작은 묶음끼리는 합치지 않는다(낱말 하나로 서로 다른 기사가 줄줄이 이어지는 것을 막는다).
+function mergeByAnchor(groups, windowMs) {
+  const signature = groups.map((group) => {
+    const counts = new Map();
+    for (const member of group.members) for (const token of anchorTokens(member.t)) counts.set(token, (counts.get(token) || 0) + 1);
+    return new Set([...counts].filter(([, count]) => count * 2 >= group.members.length).map(([token]) => token));
+  });
+  const first = groups.map((group) => Date.parse(group.members[0].d));
+  const near = (a, b) => groups[a].r === groups[b].r && groups[a].c === groups[b].c
+    && Math.max(first[a], first[b]) - Math.min(groups[a].last, groups[b].last) <= windowMs;
+  const shares = (a, b) => [...signature[a]].some((token) => signature[b].has(token));
+  const parent = groups.map((_, index) => index);
+  const find = (index) => (parent[index] === index ? index : (parent[index] = find(parent[index])));
+  const seeds = groups.map((_, index) => index).filter((index) => groups[index].members.length >= 3 && signature[index].size > 0);
+  for (let at = 0; at < seeds.length; at += 1) {
+    for (let other = at + 1; other < seeds.length; other += 1) {
+      if (near(seeds[at], seeds[other]) && shares(seeds[at], seeds[other])) parent[find(seeds[other])] = find(seeds[at]);
+    }
+  }
+  const seedSet = new Set(seeds);
+  groups.forEach((group, index) => {
+    if (seedSet.has(index) || !signature[index].size) return;
+    const matches = seeds.filter((seed) => near(seed, index) && shares(seed, index));
+    if (!matches.length) return;
+    const best = matches.reduce((a, b) => (groups[b].members.length > groups[a].members.length ? b : a));
+    parent[find(index)] = find(best);
+  });
+  const merged = new Map();
+  groups.forEach((group, index) => {
+    const root = find(index);
+    if (!merged.has(root)) merged.set(root, { r: group.r, c: group.c, last: group.last, members: [] });
+    const target = merged.get(root);
+    target.members.push(...group.members);
+    target.last = Math.max(target.last, group.last);
+  });
+  return [...merged.values()];
 }

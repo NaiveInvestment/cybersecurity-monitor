@@ -13,6 +13,7 @@ const option = (name, fallback) => {
 };
 const outDir = option("--out", join(ROOT, "_site"));
 const liveRepo = option("--live", process.env.GITHUB_REPOSITORY || null);
+const defaultTheme = option("--default-theme", "dark");
 
 const publicDir = join(ROOT, "public");
 mkdirSync(join(outDir, "data"), { recursive: true });
@@ -59,9 +60,8 @@ const hashOf = (paths) => {
 const scripts = [...readdirSync(outDir).filter((name) => name.endsWith(".js")).map((name) => join(outDir, name)),
   ...readdirSync(join(outDir, "lib")).map((name) => join(outDir, "lib", name))].sort();
 const versions = { "styles.css": hashOf([join(outDir, "styles.css")]), js: hashOf(scripts) };
-// app.js, news.js가 가져오는 모듈 경로에도 같은 해시를 붙여 새 파일과 옛 캐시가 섞이지 않게 한다.
-for (const name of readdirSync(outDir).filter((file) => file.endsWith(".js"))) {
-  const path = join(outDir, name);
+// 모든 스크립트(lib 폴더 포함)의 import 경로에도 같은 해시를 붙여 새 파일과 옛 캐시가 섞이지 않게 한다.
+for (const path of scripts) {
   const source = readFileSync(path, "utf8");
   const rewritten = source.replace(/(from "\.\/[\w./-]+\.js)(")/g, `$1?v=${versions.js}$2`);
   if (rewritten !== source) writeFileSync(path, rewritten);
@@ -70,7 +70,8 @@ for (const name of readdirSync(outDir).filter((file) => file.endsWith(".html")))
   const path = join(outDir, name);
   const html = readFileSync(path, "utf8")
     .replace(/(href="styles\.css)(")/g, `$1?v=${versions["styles.css"]}$2`)
-    .replace(/(src="[\w-]+\.js)(")/g, `$1?v=${versions.js}$2`);
+    .replace(/(src="[\w-]+\.js)(")/g, `$1?v=${versions.js}$2`)
+    .replace('data-default-theme="dark"', `data-default-theme="${defaultTheme === "light" ? "light" : "dark"}"`);
   writeFileSync(path, html);
 }
 console.log(`site: ${outDir}, 카드 ${cards.cards.length}장, live ${liveRepo || "꺼짐"}`);

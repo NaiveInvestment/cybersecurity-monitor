@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-default-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,10 @@
 </head>
 <body class="app">
 <header class="top">
-  <h1>사이버보안 <span>모니터</span></h1>
+  <a class="brand" href="index.html" aria-label="사이버보안 모니터 첫 화면">
+    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path d="M10 1 2 4v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m6.5 11 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>사이버보안 <span>모니터</span></h1>
+  </a>
   <nav aria-label="페이지">
     <a href="index.html" aria-current="page">종목</a>
     <a href="news.html">뉴스</a>
@@ -22,6 +25,7 @@
     <button type="button" class="theme-btn" data-theme-toggle>라이트 모드</button>
   </div>
 </header>
+<a class="issue-bar" id="issue-bar" href="news.html" hidden></a>
 <main>
   <section class="kpis" id="kpis" aria-label="섹터 요약"></section>
   <section class="table-section" aria-label="종목 표">

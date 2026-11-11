@@ -17,7 +17,8 @@ const option = (name, fallback) => {
 };
 const liveMode = args.includes("--live");
 const port = Number(option("--port", /^\d+$/.test(args[0] || "") ? args[0] : liveMode ? 8858 : 8895));
-const root = join(ROOT, "_site");
+// 실시간 모드는 _live에 따로 조립한다. 검사와 배포용 _site를 서버의 주기 재조립이 건드리지 않게 하기 위해서다.
+const root = join(ROOT, liveMode ? "_live" : "_site");
 const startedAt = new Date().toISOString();
 const REBUILD_MS = 3 * 3600 * 1000;
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".txt": "text/plain; charset=utf-8" };
@@ -30,10 +31,10 @@ let building = false;
 function buildSteps(full) {
   const steps = [];
   if (full) {
-    steps.push([script("build-data.mjs"), ...(existsSync(snapshotPath) ? ["--prev", snapshotPath] : [])]);
-    steps.push([script("fetch-news.mjs")]);
+    steps.push([script("build-data.mjs"), "--out", join(root, "data"), ...(existsSync(snapshotPath) ? ["--prev", snapshotPath] : [])]);
+    steps.push([script("fetch-news.mjs"), "--out", join(root, "data")]);
   }
-  steps.push([script("build-site.mjs")]);
+  steps.push([script("build-site.mjs"), "--out", root]);
   return steps;
 }
 

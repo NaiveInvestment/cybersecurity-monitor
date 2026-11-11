@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-default-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,9 +9,12 @@
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="reading">
 <header class="top">
-  <h1>사이버보안 <span>모니터</span></h1>
+  <a class="brand" href="index.html" aria-label="사이버보안 모니터 첫 화면">
+    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path d="M10 1 2 4v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m6.5 11 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>사이버보안 <span>모니터</span></h1>
+  </a>
   <nav aria-label="페이지">
     <a href="index.html">종목</a>
     <a href="news.html" aria-current="page">뉴스</a>
@@ -22,18 +25,26 @@
   </div>
 </header>
 <main>
+  <section class="issues" aria-labelledby="issues-title">
+    <header class="sec-head">
+      <h2 id="issues-title">지금 주요 이슈</h2>
+      <p>최근 3일, 보도한 매체 수 순</p>
+      <div class="seg-switch" role="group" aria-label="지역" id="region-switch">
+        <button type="button" data-region="ALL" aria-pressed="true">전체</button>
+        <button type="button" data-region="KR" aria-pressed="false">국내</button>
+        <button type="button" data-region="GL" aria-pressed="false">해외</button>
+      </div>
+    </header>
+    <div class="issues-grid" id="issues"></div>
+  </section>
+
   <div class="tabs" role="tablist" aria-label="뉴스 범주" id="tabs">
     <button type="button" role="tab" data-tab="incident" aria-selected="true">해킹 사례<small></small></button>
     <button type="button" role="tab" data-tab="policy" aria-selected="false">정책<small></small></button>
     <button type="button" role="tab" data-tab="spending" aria-selected="false">기업 대응과 지출<small></small></button>
   </div>
   <div class="tools">
-    <div class="seg-switch" role="group" aria-label="지역" id="region-switch">
-      <button type="button" data-region="ALL" aria-pressed="true">전체</button>
-      <button type="button" data-region="KR" aria-pressed="false">국내</button>
-      <button type="button" data-region="GL" aria-pressed="false">해외</button>
-    </div>
-    <div class="seg-switch" role="group" aria-label="헤드라인 기간" id="period-switch">
+    <div class="seg-switch" role="group" aria-label="기사 기간" id="period-switch">
       <button type="button" data-period="7" aria-pressed="false">7일</button>
       <button type="button" data-period="30" aria-pressed="true">30일</button>
       <button type="button" data-period="0" aria-pressed="false">전체</button>
@@ -41,15 +52,15 @@
     <input class="search" id="search" type="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
     <span class="count" id="count"></span>
   </div>
-  <p class="jump"><a href="#cards-title">정리 카드</a><a href="#headlines-title">자동 수집 헤드라인</a></p>
+  <p class="jump"><a href="#feed-title">최신 기사</a><a href="#digest-title">사건과 정책 정리</a></p>
   <div class="news-layout">
-    <section class="panel" aria-labelledby="cards-title">
-      <header><h2 id="cards-title">주요 사건과 정책 정리</h2><p>1차 출처를 확인해 정리한 카드</p></header>
-      <div id="cards"></div>
+    <section class="panel" aria-labelledby="feed-title">
+      <header><h2 id="feed-title">최신 기사</h2><p id="feed-sub"></p></header>
+      <div id="feed"></div>
     </section>
-    <section class="panel" aria-labelledby="headlines-title">
-      <header><h2 id="headlines-title">자동 수집 헤드라인</h2><p id="headlines-sub"></p></header>
-      <div id="headlines"></div>
+    <section class="panel" aria-labelledby="digest-title">
+      <header><h2 id="digest-title">사건과 정책 정리</h2><p>출처를 직접 확인해 정리한 기록</p></header>
+      <div id="digest"></div>
     </section>
   </div>
   <p class="notes" id="notes"></p>

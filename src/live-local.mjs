@@ -99,6 +99,7 @@ export class LocalLive {
       const krx = quote.venues?.KRX;   // 가격 기준은 KRX. 넥스트레이드 체결은 쓰지 않는다.
       if (!(krx?.price > 0)) return;
       const previous = this.ticks[quote.code];
+      // Universe가 중계하는 값: price는 원, marketCap은 억원(키움 실시간 항목 311), observedAt은 ISO 시각.
       this.ticks[quote.code] = { p: krx.price, cap: krx.marketCap ?? null, at: krx.observedAt };
       this.feed.lastAt = new Date().toISOString();
       this.feed.count += 1;

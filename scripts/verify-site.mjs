@@ -20,7 +20,7 @@ const walk = (root) => readdirSync(root).flatMap((name) => {
   return statSync(path).isDirectory() ? walk(path) : [path];
 });
 
-for (const file of ["index.html", "news.html", "styles.css", "theme.js", "common.js", "app.js", "news.js", "lib/calc.js", "lib/status.js", "data/snapshot.json", "data/news.json", "data/cards.json", "data/meta.json", "robots.txt"]) {
+for (const file of ["index.html", "news.html", "styles.css", "theme.js", "common.js", "app.js", "news.js", "lib/calc.js", "lib/status.js", "lib/text.js", "lib/issues.js", "data/snapshot.json", "data/news.json", "data/cards.json", "data/meta.json", "robots.txt"]) {
   check(existsSync(join(dir, file)), `파일 없음: ${file}`);
 }
 
@@ -89,7 +89,7 @@ if (!failures.length) {
     }
   }
   // 가져오는 모듈 경로에도 캐시 해시가 붙어 있어야 한다.
-  for (const name of ["app.js", "news.js"]) check(!/from "\.\/[\w./-]+\.js"/.test(read(name)), `${name}: 해시 없는 import 경로`);
+  for (const file of walk(dir).filter((path) => path.endsWith(".js"))) check(!/from "\.\.?\/[\w./-]+\.js"/.test(readFileSync(file, "utf8")), `${relative(dir, file)}: 해시 없는 import 경로`);
   if (snapshot.warnings?.length) console.log(`원천 확인 필요 ${snapshot.warnings.length}건:\n  ${snapshot.warnings.join("\n  ")}`);
   if (!failures.length) console.log(`verify-site ok: 국내 ${kr.length}, 해외 ${gl.length}, 카드 ${cards.length}장, 헤드라인 ${news.items.length}건, 채움률 ${JSON.stringify(snapshot.coverage)}`);
 }

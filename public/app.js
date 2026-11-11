@@ -1,5 +1,6 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { pct, valuation, mean } from "./lib/calc.js";
+import { groupStories, topIssues } from "./lib/issues.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 
 const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, liveAsOf: null, liveRev: null, liveSource: null };
@@ -163,7 +164,7 @@ function renderKpis() {
       <table><thead><tr><td></td>${keys.map(([, label]) => `<th scope="col">${label}</th>`).join("")}</tr></thead>
       <tbody><tr><th scope="row">동일가중 평균</th>${cells(basket)}</tr>
       <tr><th scope="row">${esc(index?.name || "지수")}</th>${cells(bench)}</tr>
-      <tr><th scope="row">차이(%p)</th>${gap.map((value) => `<td class="${signClass(value)}">${value == null ? "-" : `${value > 0 ? "+" : ""}${value.toFixed(1)}`}</td>`).join("")}</tr></tbody></table>
+      <tr><th scope="row">차이(%p)</th>${gap.map((value) => `<td class="${signClass(Math.abs(value ?? 1) < 0.05 ? 0 : value)}">${value == null ? "-" : Math.abs(value) < 0.05 ? "0.0" : `${value > 0 ? "+" : ""}${value.toFixed(1)}`}</td>`).join("")}</tr></tbody></table>
     </article>`;
   }).join("");
 }
@@ -194,6 +195,18 @@ function renderNotes() {
   const jpy = snapshot.fx.JPY ? `100엔 ${(snapshot.fx.JPY * 100).toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
   $("#notes").innerHTML = `출처: 네이버 금융 (재무 갱신 ${fmtKst(snapshot.generatedAt)} KST). 종목 구성 기준일 ${esc(snapshot.universeAsOf)}.<br>`
     + `수익률은 수정주가 종가 대비, 국내 시세와 거래대금은 KRX 기준, 해외 영업이익은 EBIT, PER은 직전 4개 분기 순이익 기준이며 적자는 N/M. 원화 환산은 현재 환율(${[usd, jpy].filter(Boolean).join(", ")}).`;
+}
+
+// 가장 많이 보도된 사건 하나를 종목 표 위에 한 줄로 보여 준다. 세 매체 이상이 다룬 사건이 없으면 숨긴다.
+async function renderIssueBar() {
+  try {
+    const news = await loadJson("data/news.json");
+    const [top] = topIssues(groupStories(news.items), { limit: 1 });
+    if (!top || top.sources < 3) return;
+    const bar = $("#issue-bar");
+    bar.innerHTML = `<span class="label">주요 이슈</span><span class="title">${esc(top.lead.t)}</span><span class="meta">${top.sources}개 매체 ${top.count}건</span><span class="go">뉴스에서 보기</span>`;
+    bar.hidden = false;
+  } catch { /* 뉴스를 못 읽어도 종목 표는 그대로 둔다 */ }
 }
 
 function renderAll() {
@@ -300,6 +313,7 @@ async function main() {
   }
   renderAll();
   renderNotes();
+  renderIssueBar();
   if (meta.live) {
     pollLive();
     setInterval(pollLive, meta.live.interval || 75000);
