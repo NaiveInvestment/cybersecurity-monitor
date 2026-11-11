@@ -1,0 +1,60 @@
+name: Build and deploy
+
+# 3시간마다 시세 스냅샷, 분기 재무, 헤드라인을 다시 받아 GitHub Pages에 배포한다.
+# 헤드라인 보관분과 직전 스냅샷은 data 브랜치(단일 커밋)에 둔다. 무료 스케줄러는 지연될 수 있다.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Unit tests
+        run: node --test
+      - name: Restore state from data branch
+        run: |
+          mkdir -p state
+          if git ls-remote --exit-code --heads origin data >/dev/null; then
+            git fetch --depth=1 origin data
+            git show FETCH_HEAD:news.json > state/news.json
+            git show FETCH_HEAD:snapshot.json > state/snapshot.json || rm -f state/snapshot.json
+          else
+            echo "data 브랜치 없음, 빈 상태로 시작"
+          fi
+      - name: Build snapshot
+        run: node scripts/build-data.mjs --prev state/snapshot.json
+      - name: Fetch headlines
+        run: node scripts/fetch-news.mjs --state state/news.json
+      - name: Assemble site
+        run: node scripts/build-site.mjs
+      - name: Verify assembled site
+        run: node scripts/verify-site.mjs _site
+      - name: Save state to data branch
+        run: node scripts/save-state.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

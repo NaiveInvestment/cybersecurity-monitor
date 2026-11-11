@@ -1,0 +1,819 @@
+{
+ "asOf": "2026-11-11",
+ "note": "국내 35종목은 홍대현 Universe 사이버보안 섹터 정본(2026-11-02)과 동일. 분야 태그와 해외 목록은 초안이며 사용자 확정 대상.",
+ "segments": [
+  {
+   "id": "network",
+   "label": "네트워크"
+  },
+  {
+   "id": "endpoint",
+   "label": "엔드포인트"
+  },
+  {
+   "id": "identity",
+   "label": "인증과 ID"
+  },
+  {
+   "id": "data",
+   "label": "데이터"
+  },
+  {
+   "id": "cloud",
+   "label": "클라우드와 웹"
+  },
+  {
+   "id": "secops",
+   "label": "관제와 진단"
+  },
+  {
+   "id": "embedded",
+   "label": "자동차와 반도체"
+  },
+  {
+   "id": "content",
+   "label": "콘텐츠와 차단"
+  }
+ ],
+ "countries": {
+  "KR": "한국",
+  "US": "미국",
+  "IL": "이스라엘",
+  "JP": "일본",
+  "CA": "캐나다"
+ },
+ "indices": [
+  {
+   "id": "KOSDAQ",
+   "kind": "KR",
+   "code": "KOSDAQ",
+   "name": "코스닥"
+  },
+  {
+   "id": "IXIC",
+   "kind": "GL",
+   "code": ".IXIC",
+   "name": "나스닥 종합"
+  }
+ ],
+ "domestic": [
+  {
+   "code": "456010",
+   "name": "아이씨티케이",
+   "market": "KOSDAQ",
+   "seg": "embedded",
+   "desc": "PUF 보안 반도체"
+  },
+  {
+   "code": "053800",
+   "name": "안랩",
+   "market": "KOSDAQ",
+   "seg": "endpoint",
+   "desc": "엔드포인트, 네트워크와 클라우드 보안"
+  },
+  {
+   "code": "042510",
+   "name": "라온시큐어",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "인증, 디지털 신원과 모바일 보안"
+  },
+  {
+   "code": "263860",
+   "name": "지니언스",
+   "market": "KOSDAQ",
+   "seg": "network",
+   "desc": "NAC, ZTNA와 EDR"
+  },
+  {
+   "code": "411080",
+   "name": "샌즈랩",
+   "market": "KOSDAQ",
+   "seg": "secops",
+   "desc": "사이버 위협 인텔리전스와 NDR"
+  },
+  {
+   "code": "053350",
+   "name": "이니텍",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "인증과 암호화 보안"
+  },
+  {
+   "code": "434480",
+   "name": "모니터랩",
+   "market": "KOSDAQ",
+   "seg": "cloud",
+   "desc": "웹, API와 클라우드 보안"
+  },
+  {
+   "code": "150900",
+   "name": "파수AI",
+   "market": "KOSDAQ",
+   "seg": "data",
+   "desc": "데이터, 문서와 애플리케이션 보안"
+  },
+  {
+   "code": "136540",
+   "name": "윈스테크넷",
+   "market": "KOSDAQ",
+   "seg": "network",
+   "desc": "침입방지, DDoS와 네트워크 보안"
+  },
+  {
+   "code": "067920",
+   "name": "이글루",
+   "market": "KOSDAQ",
+   "seg": "secops",
+   "desc": "보안관제와 SIEM, SOAR"
+  },
+  {
+   "code": "203650",
+   "name": "드림시큐리티",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "암호, 인증과 양자내성 보안"
+  },
+  {
+   "code": "053300",
+   "name": "한국정보인증",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "전자서명, 인증과 보안 서비스"
+  },
+  {
+   "code": "041460",
+   "name": "한국전자인증",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "전자 인증과 보안 인증서"
+  },
+  {
+   "code": "158430",
+   "name": "아톤",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "핀테크 보안과 인증"
+  },
+  {
+   "code": "054920",
+   "name": "한컴위드",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "PKI, 암호화와 디지털 포렌식"
+  },
+  {
+   "code": "192250",
+   "name": "케이사인",
+   "market": "KOSDAQ",
+   "seg": "data",
+   "desc": "DB 암호화와 인증 보안"
+  },
+  {
+   "code": "258790",
+   "name": "소프트캠프",
+   "market": "KOSDAQ",
+   "seg": "data",
+   "desc": "문서 보안, 원격접속과 제로트러스트"
+  },
+  {
+   "code": "430690",
+   "name": "한싹",
+   "market": "KOSDAQ",
+   "seg": "network",
+   "desc": "망간자료전송과 보안 솔루션"
+  },
+  {
+   "code": "356680",
+   "name": "엑스게이트",
+   "market": "KOSDAQ",
+   "seg": "network",
+   "desc": "방화벽, VPN과 네트워크 보안"
+  },
+  {
+   "code": "290270",
+   "name": "휴네시온",
+   "market": "KOSDAQ",
+   "seg": "network",
+   "desc": "망연계와 접근통제"
+  },
+  {
+   "code": "050960",
+   "name": "수산아이앤티",
+   "market": "KOSDAQ",
+   "seg": "content",
+   "desc": "유해정보 차단과 네트워크 보안"
+  },
+  {
+   "code": "170790",
+   "name": "파이오링크",
+   "market": "KOSDAQ",
+   "seg": "network",
+   "desc": "보안 스위치와 보안관제"
+  },
+  {
+   "code": "356890",
+   "name": "싸이버원",
+   "market": "KOSDAQ",
+   "seg": "secops",
+   "desc": "보안관제와 보안 컨설팅"
+  },
+  {
+   "code": "275630",
+   "name": "에스에스알",
+   "market": "KOSDAQ",
+   "seg": "secops",
+   "desc": "취약점 진단과 보안 컨설팅"
+  },
+  {
+   "code": "208350",
+   "name": "지란지교시큐리티",
+   "market": "KOSDAQ",
+   "seg": "data",
+   "desc": "메일, 문서와 모바일 보안"
+  },
+  {
+   "code": "184230",
+   "name": "SGA솔루션즈",
+   "market": "KOSDAQ",
+   "seg": "endpoint",
+   "desc": "서버, 시스템과 클라우드 보안"
+  },
+  {
+   "code": "131090",
+   "name": "시큐브",
+   "market": "KOSDAQ",
+   "seg": "endpoint",
+   "desc": "보안 운영체제와 서버 보안"
+  },
+  {
+   "code": "232830",
+   "name": "아이티센피엔에스",
+   "market": "KOSDAQ",
+   "seg": "identity",
+   "desc": "구 시큐센, 생체인증과 디지털 금융 보안"
+  },
+  {
+   "code": "488280",
+   "name": "에스투더블유",
+   "market": "KOSDAQ",
+   "seg": "secops",
+   "desc": "다크웹과 사이버 위협 인텔리전스"
+  },
+  {
+   "code": "465480",
+   "name": "인스피언",
+   "market": "KOSDAQ",
+   "seg": "data",
+   "desc": "SAP 보안, 개인정보 보호와 접근통제"
+  },
+  {
+   "code": "331740",
+   "name": "아우토크립트",
+   "market": "KOSDAQ",
+   "seg": "embedded",
+   "desc": "자동차와 모빌리티 사이버보안"
+  },
+  {
+   "code": "0015S0",
+   "name": "페스카로",
+   "market": "KOSDAQ",
+   "seg": "embedded",
+   "desc": "자동차 사이버보안과 소프트웨어 보안"
+  },
+  {
+   "code": "197140",
+   "name": "디지캡",
+   "market": "KOSDAQ",
+   "seg": "content",
+   "desc": "디지털 콘텐츠 보안과 DRM"
+  },
+  {
+   "code": "075130",
+   "name": "플랜티넷",
+   "market": "KOSDAQ",
+   "seg": "content",
+   "desc": "유해정보 차단과 인터넷 보안"
+  },
+  {
+   "code": "047560",
+   "name": "이스트소프트",
+   "market": "KOSDAQ",
+   "seg": "endpoint",
+   "desc": "이스트시큐리티 자회사의 알약과 엔드포인트 보안"
+  }
+ ],
+ "overseas": [
+  {
+   "symbol": "PANW",
+   "reuters": "PANW.O",
+   "name": "팔로알토 네트웍스",
+   "nameEn": "Palo Alto Networks",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "방화벽, SASE, 보안운영 플랫폼",
+   "aliases": [
+    "Palo Alto"
+   ]
+  },
+  {
+   "symbol": "FTNT",
+   "reuters": "FTNT.O",
+   "name": "포티넷",
+   "nameEn": "Fortinet",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "방화벽, SD-WAN, 보안 어플라이언스",
+   "aliases": [
+    "Fortinet"
+   ]
+  },
+  {
+   "symbol": "CHKP",
+   "reuters": "CHKP.O",
+   "name": "체크포인트",
+   "nameEn": "Check Point Software",
+   "market": "NASDAQ",
+   "country": "IL",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "방화벽, 위협 차단 플랫폼",
+   "aliases": [
+    "Check Point"
+   ]
+  },
+  {
+   "symbol": "CRWD",
+   "reuters": "CRWD.O",
+   "name": "크라우드스트라이크",
+   "nameEn": "CrowdStrike",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "endpoint",
+   "desc": "엔드포인트 EDR, XDR 플랫폼",
+   "aliases": [
+    "CrowdStrike"
+   ]
+  },
+  {
+   "symbol": "NET",
+   "reuters": "NET",
+   "name": "클라우드플레어",
+   "nameEn": "Cloudflare",
+   "market": "NYSE",
+   "country": "US",
+   "cur": "USD",
+   "seg": "cloud",
+   "desc": "CDN, WAF, 제로트러스트 접속",
+   "aliases": [
+    "Cloudflare"
+   ]
+  },
+  {
+   "symbol": "ZS",
+   "reuters": "ZS.O",
+   "name": "지스케일러",
+   "nameEn": "Zscaler",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "cloud",
+   "desc": "클라우드 보안 게이트웨이, 제로트러스트",
+   "aliases": [
+    "Zscaler"
+   ]
+  },
+  {
+   "symbol": "OKTA",
+   "reuters": "OKTA.O",
+   "name": "옥타",
+   "nameEn": "Okta",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "identity",
+   "desc": "인력, 고객 ID 관리",
+   "aliases": [
+    "Okta"
+   ]
+  },
+  {
+   "symbol": "RBRK",
+   "reuters": "RBRK.K",
+   "name": "루브릭",
+   "nameEn": "Rubrik",
+   "market": "NYSE",
+   "country": "US",
+   "cur": "USD",
+   "seg": "data",
+   "desc": "백업, 랜섬웨어 복구, 데이터 보안",
+   "aliases": [
+    "Rubrik"
+   ]
+  },
+  {
+   "symbol": "FFIV",
+   "reuters": "FFIV.O",
+   "name": "F5",
+   "nameEn": "F5",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "cloud",
+   "desc": "앱 전송, WAF, API 보안",
+   "aliases": [
+    "F5 Networks",
+    "F5 Inc"
+   ]
+  },
+  {
+   "symbol": "GEN",
+   "reuters": "GEN.O",
+   "name": "젠 디지털",
+   "nameEn": "Gen Digital",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "endpoint",
+   "desc": "소비자 보안(노턴, 어베스트)",
+   "aliases": [
+    "Gen Digital",
+    "Norton"
+   ]
+  },
+  {
+   "symbol": "AKAM",
+   "reuters": "AKAM.O",
+   "name": "아카마이",
+   "nameEn": "Akamai",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "cloud",
+   "desc": "CDN, 웹과 API 보안, 세분화",
+   "aliases": [
+    "Akamai"
+   ]
+  },
+  {
+   "symbol": "SAIL",
+   "reuters": "SAIL.O",
+   "name": "세일포인트",
+   "nameEn": "SailPoint",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "identity",
+   "desc": "ID 거버넌스",
+   "aliases": [
+    "SailPoint"
+   ]
+  },
+  {
+   "symbol": "NTSK",
+   "reuters": "NTSK.O",
+   "name": "넷스코프",
+   "nameEn": "Netskope",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "cloud",
+   "desc": "SASE, 클라우드 접근 보안",
+   "aliases": [
+    "Netskope"
+   ],
+   "finExclude": {
+    "2025-07": "네이버 분기 열 값 328.49가 다음 분기 184.17의 1.8배로 분기 매출이 아닌 누적값으로 판단해 제외(2026-11-11 독립 검토에서 발견)"
+   }
+  },
+  {
+   "symbol": "S",
+   "reuters": "S",
+   "name": "센티넬원",
+   "nameEn": "SentinelOne",
+   "market": "NYSE",
+   "country": "US",
+   "cur": "USD",
+   "seg": "endpoint",
+   "desc": "엔드포인트 EDR, XDR",
+   "aliases": [
+    "SentinelOne"
+   ]
+  },
+  {
+   "symbol": "CVLT",
+   "reuters": "CVLT.O",
+   "name": "컴볼트",
+   "nameEn": "Commvault",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "data",
+   "desc": "백업, 사이버 복구",
+   "aliases": [
+    "Commvault"
+   ]
+  },
+  {
+   "symbol": "QLYS",
+   "reuters": "QLYS.O",
+   "name": "퀄리스",
+   "nameEn": "Qualys",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "secops",
+   "desc": "취약점 관리, 컴플라이언스",
+   "aliases": [
+    "Qualys"
+   ]
+  },
+  {
+   "symbol": "VRNS",
+   "reuters": "VRNS.O",
+   "name": "바로니스",
+   "nameEn": "Varonis",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "data",
+   "desc": "데이터 접근 가시화와 보호",
+   "aliases": [
+    "Varonis"
+   ]
+  },
+  {
+   "symbol": "BB",
+   "reuters": "BB",
+   "name": "블랙베리",
+   "nameEn": "BlackBerry",
+   "market": "NYSE",
+   "country": "CA",
+   "cur": "USD",
+   "seg": "embedded",
+   "desc": "차량용 QNX, 보안 통신",
+   "aliases": [
+    "BlackBerry"
+   ]
+  },
+  {
+   "symbol": "TENB",
+   "reuters": "TENB.O",
+   "name": "테너블",
+   "nameEn": "Tenable",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "secops",
+   "desc": "취약점, 노출 관리",
+   "aliases": [
+    "Tenable"
+   ]
+  },
+  {
+   "symbol": "CLBT",
+   "reuters": "CLBT.O",
+   "name": "셀레브라이트",
+   "nameEn": "Cellebrite",
+   "market": "NASDAQ",
+   "country": "IL",
+   "cur": "USD",
+   "seg": "secops",
+   "desc": "디지털 포렌식",
+   "aliases": [
+    "Cellebrite"
+   ]
+  },
+  {
+   "symbol": "NTCT",
+   "reuters": "NTCT.O",
+   "name": "넷스카우트",
+   "nameEn": "NetScout",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "네트워크 가시성, DDoS 방어",
+   "aliases": [
+    "NetScout"
+   ]
+  },
+  {
+   "symbol": "ATEN",
+   "reuters": "ATEN.K",
+   "name": "A10 네트웍스",
+   "nameEn": "A10 Networks",
+   "market": "NYSE",
+   "country": "US",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "ADC, DDoS 방어",
+   "aliases": [
+    "A10 Networks"
+   ]
+  },
+  {
+   "symbol": "RDWR",
+   "reuters": "RDWR.O",
+   "name": "라드웨어",
+   "nameEn": "Radware",
+   "market": "NASDAQ",
+   "country": "IL",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "DDoS 방어, WAF",
+   "aliases": [
+    "Radware"
+   ]
+  },
+  {
+   "symbol": "RPD",
+   "reuters": "RPD.O",
+   "name": "래피드7",
+   "nameEn": "Rapid7",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "secops",
+   "desc": "취약점 관리, 탐지와 대응",
+   "aliases": [
+    "Rapid7"
+   ]
+  },
+  {
+   "symbol": "MITK",
+   "reuters": "MITK.O",
+   "name": "마이텍",
+   "nameEn": "Mitek Systems",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "identity",
+   "desc": "신원 확인, 사기 방지",
+   "aliases": [
+    "Mitek"
+   ]
+  },
+  {
+   "symbol": "OSPN",
+   "reuters": "OSPN.O",
+   "name": "원스팬",
+   "nameEn": "OneSpan",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "identity",
+   "desc": "금융 인증, 전자서명",
+   "aliases": [
+    "OneSpan"
+   ]
+  },
+  {
+   "symbol": "CGNT",
+   "reuters": "CGNT.O",
+   "name": "코그나이트",
+   "nameEn": "Cognyte",
+   "market": "NASDAQ",
+   "country": "IL",
+   "cur": "USD",
+   "seg": "secops",
+   "desc": "수사, 정보 분석 소프트웨어",
+   "aliases": [
+    "Cognyte"
+   ]
+  },
+  {
+   "symbol": "TLS",
+   "reuters": "TLS.O",
+   "name": "텔로스",
+   "nameEn": "Telos",
+   "market": "NASDAQ",
+   "country": "US",
+   "cur": "USD",
+   "seg": "secops",
+   "desc": "미국 정부 대상 보안, 신원 서비스",
+   "aliases": [
+    "Telos Corp"
+   ]
+  },
+  {
+   "symbol": "ALLT",
+   "reuters": "ALLT.O",
+   "name": "앨럿",
+   "nameEn": "Allot",
+   "market": "NASDAQ",
+   "country": "IL",
+   "cur": "USD",
+   "seg": "network",
+   "desc": "통신사 대상 네트워크 보안",
+   "aliases": [
+    "Allot"
+   ]
+  },
+  {
+   "symbol": "4704",
+   "reuters": "4704.T",
+   "name": "트렌드마이크로",
+   "nameEn": "Trend Micro",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "endpoint",
+   "desc": "엔드포인트, 클라우드 보안",
+   "aliases": [
+    "Trend Micro"
+   ]
+  },
+  {
+   "symbol": "4417",
+   "reuters": "4417.T",
+   "name": "글로벌시큐리티엑스퍼츠",
+   "nameEn": "Global Security Experts",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "secops",
+   "desc": "보안 컨설팅, 교육",
+   "aliases": []
+  },
+  {
+   "symbol": "4475",
+   "reuters": "4475.T",
+   "name": "헨게",
+   "nameEn": "HENNGE",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "identity",
+   "desc": "클라우드 ID, 접근 통제 SaaS",
+   "aliases": [
+    "HENNGE"
+   ]
+  },
+  {
+   "symbol": "2326",
+   "reuters": "2326.T",
+   "name": "디지털아츠",
+   "nameEn": "Digital Arts",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "content",
+   "desc": "웹, 메일 필터링",
+   "aliases": [
+    "Digital Arts"
+   ],
+   "finExclude": {
+    "2026-03": "네이버 분기 열에서 2026.03과 2026.06의 매출(2,711), EBIT(1,035), 순이익(718)이 모두 같아 한쪽이 복제값임. 어느 쪽인지 회사 공시로 확인하기 전까지 둘 다 제외(2026-11-11 독립 검토에서 발견)",
+    "2026-06": "네이버 분기 열에서 2026.03과 2026.06의 매출(2,711), EBIT(1,035), 순이익(718)이 모두 같아 한쪽이 복제값임. 어느 쪽인지 회사 공시로 확인하기 전까지 둘 다 제외(2026-11-11 독립 검토에서 발견)"
+   }
+  },
+  {
+   "symbol": "3692",
+   "reuters": "3692.T",
+   "name": "FFRI 시큐리티",
+   "nameEn": "FFRI Security",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "endpoint",
+   "desc": "엔드포인트 보안, 국가 안보 연구",
+   "aliases": [
+    "FFRI"
+   ]
+  },
+  {
+   "symbol": "3040",
+   "reuters": "3040.T",
+   "name": "솔리톤시스템즈",
+   "nameEn": "Soliton Systems",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "identity",
+   "desc": "인증, 원격 접속",
+   "aliases": [
+    "Soliton Systems"
+   ]
+  },
+  {
+   "symbol": "4493",
+   "reuters": "4493.T",
+   "name": "사이버시큐리티클라우드",
+   "nameEn": "Cyber Security Cloud",
+   "market": "TSE",
+   "country": "JP",
+   "cur": "JPY",
+   "seg": "cloud",
+   "desc": "클라우드 WAF",
+   "aliases": [
+    "Cyber Security Cloud"
+   ]
+  }
+ ]
+}

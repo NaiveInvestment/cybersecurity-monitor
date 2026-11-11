@@ -1,0 +1,272 @@
+// 조립된 사이트를 실제 브라우저(Edge 또는 Chrome 헤드리스)로 열어 주요 조작을 검사한다.
+// 사용: node scripts/interaction-check.mjs <사이트 폴더> [--shots <폴더>]
+// 보기 전환, 통화 전환, 정렬, 검색, 분야 필터, 뉴스 탭과 지역, 검색어 진입, 묶음 펼치기, 테마 전환, 가로 넘침을 본다.
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { spawn } from "node:child_process";
+import { join, normalize, extname } from "node:path";
+import { tmpdir } from "node:os";
+
+const args = process.argv.slice(2);
+const root = normalize(args[0] || "_site");
+const shotsDir = args.includes("--shots") ? args[args.indexOf("--shots") + 1] : null;
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8" };
+const BROWSERS = [
+  "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe", "C:/Program Files/Microsoft/Edge/Application/msedge.exe",
+  "C:/Program Files/Google/Chrome/Application/chrome.exe", "/usr/bin/google-chrome", "/usr/bin/chromium-browser",
+];
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const server = createServer(async (request, response) => {
+  const pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
+  const file = normalize(join(root, pathname.endsWith("/") ? `${pathname}index.html` : pathname));
+  try {
+    const body = await readFile(file);
+    response.writeHead(200, { "content-type": TYPES[extname(file)] || "application/octet-stream", "cache-control": "no-store" });
+    response.end(body);
+  } catch {
+    response.writeHead(404).end();
+  }
+});
+await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+const base = `http://127.0.0.1:${server.address().port}`;
+
+const browserPath = BROWSERS.find((path) => existsSync(path));
+if (!browserPath) { console.error("브라우저를 찾지 못함"); process.exit(1); }
+const profile = mkdtempSync(join(tmpdir(), "csm-check-"));
+const debugPort = 9300 + Math.floor(Math.random() * 500);
+const browser = spawn(browserPath, ["--headless=new", "--disable-gpu", "--no-first-run", "--hide-scrollbars", `--remote-debugging-port=${debugPort}`, `--user-data-dir=${profile}`, "about:blank"], { stdio: "ignore" });
+
+async function connect() {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    try {
+      const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json`)).json();
+      const page = targets.find((target) => target.type === "page");
+      if (page) return page.webSocketDebuggerUrl;
+    } catch { /* 아직 기동 중 */ }
+    await sleep(200);
+  }
+  throw new Error("브라우저 디버깅 포트 연결 실패");
+}
+
+const socket = new WebSocket(await connect());
+await new Promise((resolve, reject) => { socket.onopen = resolve; socket.onerror = reject; });
+let sequence = 0;
+const pending = new Map();
+const consoleErrors = [];
+socket.onmessage = (event) => {
+  const message = JSON.parse(event.data);
+  if (message.id && pending.has(message.id)) {
+    const { resolve, reject } = pending.get(message.id);
+    pending.delete(message.id);
+    if (message.error) reject(new Error(message.error.message)); else resolve(message.result);
+  } else if (message.method === "Runtime.exceptionThrown") {
+    consoleErrors.push(message.params.exceptionDetails?.exception?.description || message.params.exceptionDetails?.text);
+  } else if (message.method === "Runtime.consoleAPICalled" && message.params.type === "error") {
+    consoleErrors.push(message.params.args.map((arg) => arg.value ?? arg.description).join(" "));
+  }
+};
+const send = (method, params = {}) => new Promise((resolve, reject) => {
+  sequence += 1;
+  pending.set(sequence, { resolve, reject });
+  socket.send(JSON.stringify({ id: sequence, method, params }));
+});
+const evaluate = async (expression) => {
+  const result = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true });
+  if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text);
+  return result.result.value;
+};
+async function open(path, { width = 1440, height = 1000, scheme = "light" } = {}) {
+  await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: width < 600 });
+  await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: scheme }] });
+  await send("Page.navigate", { url: `${base}/${path}` });
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    await sleep(150);
+    const ready = await evaluate("document.readyState === 'complete' && (document.querySelector('.grid tbody tr, .card, .empty') !== null)").catch(() => false);
+    if (ready) return;
+  }
+  throw new Error(`${path}: 화면이 준비되지 않음`);
+}
+async function shot(name) {
+  if (!shotsDir) return;
+  mkdirSync(shotsDir, { recursive: true });
+  const { data } = await send("Page.captureScreenshot", { format: "png" });
+  writeFileSync(join(shotsDir, `${name}.png`), Buffer.from(data, "base64"));
+}
+
+const failures = [];
+const check = (ok, message) => { if (!ok) failures.push(message); };
+const TABLE = `(() => { const rows = [...document.querySelectorAll('.grid tbody tr')]; return {
+  count: rows.length, first: rows[0]?.querySelector('.stock')?.textContent, last: rows.at(-1)?.querySelector('.stock')?.textContent,
+  heads: [...document.querySelectorAll('.grid thead tr.cols th')].map((th) => th.textContent.trim()),
+  sorted: document.querySelector('.grid th[aria-sort]')?.textContent.trim() + ':' + document.querySelector('.grid th[aria-sort]')?.getAttribute('aria-sort'),
+  capCell: rows[0]?.children[[...document.querySelectorAll('.grid thead tr.cols th')].findIndex((th) => th.textContent.trim() === '시가총액')]?.textContent,
+  overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+  wrapOverflow: document.querySelector('#table-wrap').scrollWidth > document.querySelector('#table-wrap').clientWidth,
+  count_label: document.querySelector('#count').textContent, theme: document.documentElement.dataset.theme,
+}; })()`;
+const click = (selector) => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+const type = (selector, text) => evaluate(`(() => { const el = document.querySelector(${JSON.stringify(selector)}); el.value = ${JSON.stringify(text)}; el.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+
+try {
+  await send("Page.enable");
+  await send("Runtime.enable");
+
+  // ---- 종목 페이지, 데스크톱 ----
+  await open("index.html");
+  let table = await evaluate(TABLE);
+  check(table.count === 35, `국내 보기 행 수 ${table.count}`);
+  check(table.sorted === "시가총액:descending", `기본 정렬 ${table.sorted}`);
+  check(!table.overflow && !table.wrapOverflow, "1440 국내 보기에서 가로 넘침");
+  check(/억|조/.test(table.capCell), `시가총액 표기 ${table.capCell}`);
+  const kpi = await evaluate("[...document.querySelectorAll('.kpi')].map((el) => el.textContent.replace(/\\s+/g, ' ').trim())");
+  check(kpi.length === 2 && kpi[0].includes("35종목") && kpi[1].includes("36종목") && kpi.every((text) => text.includes("차이(%p)")), "요약 띠 구성 오류");
+  check(/시세 \d\d-\d\d \d\d:\d\d KST/.test(await evaluate("document.querySelector('#status-text').textContent")), "기준 시각 표시 없음");
+
+  await click('#view-switch [data-view="GL"]');
+  table = await evaluate(TABLE);
+  check(table.count === 36, `해외 보기 행 수 ${table.count}`);
+  check(!table.overflow && !table.wrapOverflow, "1440 해외 보기에서 가로 넘침");
+  await shot("index-desktop-overseas-krw");
+  await click('#cur-switch [data-cur="local"]');
+  table = await evaluate(TABLE);
+  check(/[$¥]/.test(table.capCell), `현지 통화 시가총액 표기 ${table.capCell}`);
+  check(!table.wrapOverflow, "1440 해외 현지 통화 보기에서 표 가로 넘침");
+  await shot("index-desktop-overseas-local");
+  await click('#cur-switch [data-cur="krw"]');
+  check(/조|억/.test((await evaluate(TABLE)).capCell), "원화 환산 복귀 실패");
+
+  await click('#view-switch [data-view="ALL"]');
+  table = await evaluate(TABLE);
+  check(table.count === 71, `전체 보기 행 수 ${table.count}`);
+  check(!table.overflow && !table.wrapOverflow, "1440 전체 보기에서 가로 넘침");
+  await click('[data-sort="yoy"]');
+  table = await evaluate(TABLE);
+  check(table.sorted.endsWith(":descending") && table.sorted.includes("YoY"), `YoY 정렬 ${table.sorted}`);
+  const yoyDesc = await evaluate(`(() => { const i = [...document.querySelectorAll('.grid thead tr.cols th')].findIndex((th) => th.textContent.includes('YoY')); return [...document.querySelectorAll('.grid tbody tr')].map((tr) => tr.children[i].textContent); })()`);
+  const numeric = yoyDesc.filter((text) => text !== "-").map((text) => Number(text.replace(/[+%,]/g, "")));
+  check(numeric.every((value, index) => index === 0 || numeric[index - 1] >= value), "YoY 내림차순 정렬이 어긋남");
+  check(yoyDesc.indexOf("-") === -1 || yoyDesc.slice(yoyDesc.indexOf("-")).every((text) => text === "-"), "결측이 맨 아래가 아님");
+  await click('[data-sort="yoy"]');
+  check((await evaluate(TABLE)).sorted.endsWith(":ascending"), "오름차순 전환 실패");
+  await click('[data-sort="cap"]');
+
+  await type("#search", "crowd");
+  table = await evaluate(TABLE);
+  check(table.count === 1 && table.first === "크라우드스트라이크", `영문 검색 결과 ${table.count} ${table.first}`);
+  await type("#search", "없는종목");
+  check(await evaluate("document.querySelector('.empty') !== null"), "빈 결과 안내 없음");
+  await type("#search", "");
+  await click('#seg-chips [data-seg="identity"]');
+  table = await evaluate(TABLE);
+  const identityAll = await evaluate("[...document.querySelectorAll('.grid tbody tr td.tag')].every((td) => td.textContent === '인증과 ID')");
+  check(table.count > 5 && table.count < 71 && identityAll, `분야 필터 결과 ${table.count}`);
+  await click('#seg-chips [data-seg="identity"]');
+  check((await evaluate(TABLE)).count === 71, "분야 필터 해제 실패");
+
+  const before = (await evaluate(TABLE)).theme;
+  await click("[data-theme-toggle]");
+  const after = (await evaluate(TABLE)).theme;
+  check(before !== after, "테마 전환 실패");
+  await shot("index-desktop-all-toggled-theme");
+  await click("[data-theme-toggle]");
+  // 저장된 선택은 시스템 설정보다 우선한다. 이후 검사는 저장값 없이 시스템 설정을 따르는지 본다.
+  check(await evaluate("localStorage.getItem('csm-theme')") === before, "테마 선택이 저장되지 않음");
+  await evaluate("localStorage.removeItem('csm-theme')");
+
+  const link = await evaluate("document.querySelector('.grid tbody tr .stock').getAttribute('href')");
+  check(/^news\.html\?q=/.test(link), `종목명 링크 ${link}`);
+
+  // ---- 종목 페이지, 모바일 ----
+  await open("index.html", { width: 390, height: 844, scheme: "dark" });
+  table = await evaluate(TABLE);
+  check(table.theme === "dark", "시스템 다크 설정을 따르지 않음");
+  check(!table.overflow, "모바일 페이지 가로 넘침");
+  check(!table.heads.includes("분야") && table.heads[1] === "현재가", `모바일 열 구성 ${table.heads.slice(0, 4).join(",")}`);
+  await click('#view-switch [data-view="GL"]');
+  await shot("index-mobile-dark-overseas");
+
+  // ---- 뉴스 페이지 ----
+  await open("news.html");
+  const NEWS = `(() => ({
+    cards: document.querySelectorAll('.card').length, headlines: document.querySelectorAll('.headline').length,
+    tab: document.querySelector('#tabs [aria-selected="true"]').dataset.tab, count: document.querySelector('#count').textContent,
+    countries: [...new Set([...document.querySelectorAll('.card-date')].map((el) => el.lastChild.textContent.trim()))],
+    related: document.querySelectorAll('details.related').length, more: document.querySelector('#more') !== null,
+    overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    firstCardDate: document.querySelector('.card-date b')?.textContent,
+  }))()`;
+  let page = await evaluate(NEWS);
+  check(page.tab === "incident" && page.cards >= 10 && page.headlines >= 20, `뉴스 첫 화면 카드 ${page.cards}, 헤드라인 ${page.headlines}`);
+  check(page.related >= 1, "같은 사건 묶음이 없음");
+  check(!page.overflow, "뉴스 페이지 가로 넘침");
+  const dates = await evaluate("[...document.querySelectorAll('.card-date b')].map((el) => el.textContent)");
+  check(dates.every((date, index) => index === 0 || dates[index - 1] >= date), "카드가 날짜 내림차순이 아님");
+  await evaluate("document.querySelector('details.related summary').click()");
+  check(await evaluate("document.querySelector('details.related').open && document.querySelectorAll('details.related[open] li a').length >= 1"), "묶음 펼치기 실패");
+  await shot("news-desktop-related-open");
+
+  await click('#region-switch [data-region="KR"]');
+  page = await evaluate(NEWS);
+  check(page.countries.length === 1 && page.countries[0] === "한국", `국내 필터 뒤 국가 ${page.countries.join(",")}`);
+  check(await evaluate("[...document.querySelectorAll('.headline > .meta')].every((el) => el.textContent.includes('국내'))"), "국내 필터 뒤 해외 헤드라인이 남음");
+  await click('#region-switch [data-region="GL"]');
+  page = await evaluate(NEWS);
+  check(!page.countries.includes("한국") && page.cards >= 4, `해외 필터 뒤 카드 ${page.cards}`);
+  await click('#region-switch [data-region="ALL"]');
+
+  await click('#tabs [data-tab="policy"]');
+  const tones = await evaluate("Object.fromEntries([...document.querySelectorAll('.card .state')].map((el) => [el.textContent, el.dataset.tone]))");
+  check(tones["시행 예정"] === "plan" && tones["제소"] === "plan" && tones["시행"] === "done", `상태 색 ${JSON.stringify(tones)}`);
+  check(await evaluate("[...document.querySelectorAll('.card-date .when')].some((el) => el.textContent === '시행')"), "카드 날짜 의미 표시 없음");
+  for (const tab of ["policy", "spending"]) {
+    await click(`#tabs [data-tab="${tab}"]`);
+    page = await evaluate(NEWS);
+    check(page.tab === tab && page.cards >= 8 && page.headlines >= 5, `${tab} 탭 카드 ${page.cards}, 헤드라인 ${page.headlines}`);
+  }
+  await shot("news-desktop-spending");
+  const sevenDays = await evaluate("(() => { document.querySelector('#period-switch [data-period=\"7\"]').click(); return document.querySelectorAll('.headline').length; })()");
+  const allDays = await evaluate("(() => { document.querySelector('#period-switch [data-period=\"0\"]').click(); return document.querySelectorAll('.headline').length; })()");
+  check(sevenDays <= allDays, "기간 필터 결과가 어긋남");
+  await type("#search", "KT");
+  page = await evaluate(NEWS);
+  check(page.cards >= 1 && page.cards <= 6, `검색 뒤 카드 ${page.cards}`);
+
+  await open(`news.html?q=${encodeURIComponent("SK텔레콤")}`);
+  page = await evaluate(NEWS);
+  check(page.cards >= 1 && (await evaluate("document.querySelector('#search').value")) === "SK텔레콤", "검색어 진입 실패");
+  check(await evaluate("document.querySelector('#period-switch [aria-pressed=\"true\"]').dataset.period") === "0", "검색어 진입 시 기간이 전체로 바뀌지 않음");
+
+  await open(`index.html?q=${encodeURIComponent("팔로알토")}`);
+  table = await evaluate(TABLE);
+  check(table.count === 1 && table.first === "팔로알토 네트웍스", `종목 검색어 진입 결과 ${table.count} ${table.first}`);
+
+  await open("news.html", { width: 390, height: 844, scheme: "dark" });
+  page = await evaluate(NEWS);
+  check(!page.overflow, "모바일 뉴스 가로 넘침");
+  check(page.cards === 3 && await evaluate("document.querySelector('#more-cards') !== null"), `모바일 카드 미리보기 ${page.cards}장`);
+  const headlineTop = await evaluate("Math.round(document.querySelector('#headlines-title').getBoundingClientRect().top + window.scrollY)");
+  check(headlineTop < 2600, `모바일에서 헤드라인 시작 위치 ${headlineTop}px`);
+  check(await evaluate("getComputedStyle(document.querySelector('.jump')).display") === "flex", "모바일 바로가기 없음");
+  await click("#more-cards");
+  check((await evaluate(NEWS)).cards >= 10, "카드 더 보기 실패");
+  await click('#tabs [data-tab="policy"]');
+  await shot("news-mobile-dark-policy");
+
+  check(consoleErrors.length === 0, `콘솔 오류: ${consoleErrors.join(" | ")}`);
+} catch (error) {
+  failures.push(`실행 오류: ${error.message}`);
+} finally {
+  socket.close();
+  browser.kill();
+  server.close();
+  await sleep(300);
+  try { rmSync(profile, { recursive: true, force: true }); } catch { /* 프로필 정리는 실패해도 무방 */ }
+}
+
+if (failures.length) {
+  console.error(`interaction-check 실패 ${failures.length}건:\n  ${failures.join("\n  ")}`);
+  process.exit(1);
+}
+console.log("interaction-check ok");

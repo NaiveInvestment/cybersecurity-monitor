@@ -1,0 +1,37 @@
+name: Live quote poller
+
+# 장중 60초 간격으로 live 브랜치의 live.json을 갱신한다.
+# 아시아장(한국, 일본) 08:55~15:40 KST, 미국장 22:25~06:10 KST. 크론 지연과 6시간 한도에 대비해 여러 번 기동하고,
+# 폴러끼리는 원격 live.json의 신선도로 하나만 활성으로 남는다.
+on:
+  schedule:
+    - cron: "40 23 * * 0-4"   # 08:40 KST 월~금, 아시아장 시작
+    - cron: "58 23 * * 0-4"   # 08:58 KST, 기동 실패 대비
+    - cron: "0 3 * * 1-5"     # 12:00 KST, 6시간 한도 인계
+    - cron: "15 13 * * 1-5"   # 22:15 KST 월~금, 미국장 시작
+    - cron: "35 13 * * 1-5"   # 22:35 KST, 기동 실패 대비
+    - cron: "30 17 * * 1-5"   # 02:30 KST, 6시간 한도 인계
+  push:
+    branches: [main]
+    paths:
+      - scripts/live-poller.mjs
+      - src/sessions.mjs
+      - universe.json
+      - .github/workflows/live-poller.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/live-poller.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

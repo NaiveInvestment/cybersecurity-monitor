@@ -1,0 +1,96 @@
+{
+  "note": "헤드라인 자동 수집 피드. region은 KR(국내) 또는 GL(해외). hint는 분류 동점일 때 쓰는 기본 범주. aggregator는 제목 끝의 매체명을 떼어 출처로 쓴다.",
+  "feeds": [
+    {
+      "id": "gn-kr-incident",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=%ED%95%B4%ED%82%B9%20OR%20%22%EA%B0%9C%EC%9D%B8%EC%A0%95%EB%B3%B4%20%EC%9C%A0%EC%B6%9C%22%20OR%20%EB%9E%9C%EC%84%AC%EC%9B%A8%EC%96%B4%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
+      "id": "gn-kr-policy",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "policy",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=%22%EC%A0%95%EB%B3%B4%EB%B3%B4%ED%98%B8%22%20(%EB%8C%80%EC%B1%85%20OR%20%EA%B3%BC%EC%A7%95%EA%B8%88%20OR%20%EA%B0%9C%EC%A0%95%EC%95%88%20OR%20%EC%9D%98%EB%AC%B4%ED%99%94%20OR%20%EA%B3%B5%EC%8B%9C)%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
+      "id": "gn-kr-spending",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "spending",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=(%22%EC%A0%95%EB%B3%B4%EB%B3%B4%ED%98%B8%22%20OR%20%22%EC%82%AC%EC%9D%B4%EB%B2%84%EB%B3%B4%EC%95%88%22)%20(%ED%88%AC%EC%9E%90%20OR%20%EC%98%88%EC%82%B0%20OR%20%EC%9D%B8%EC%88%98%20OR%20%EC%88%98%EC%A3%BC)%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
+      "id": "dailysecu",
+      "name": "데일리시큐",
+      "region": "KR",
+      "url": "https://www.dailysecu.com/rss/allArticle.xml"
+    },
+    {
+      "id": "gn-gl-incident",
+      "name": "Google News",
+      "region": "GL",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=%22data%20breach%22%20OR%20ransomware%20OR%20cyberattack%20when%3A2d&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "id": "gn-gl-policy",
+      "name": "Google News",
+      "region": "GL",
+      "hint": "policy",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=cybersecurity%20(regulation%20OR%20bill%20OR%20%22executive%20order%22%20OR%20fine%20OR%20directive)%20when%3A3d&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "id": "gn-gl-spending",
+      "name": "Google News",
+      "region": "GL",
+      "hint": "spending",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=cybersecurity%20(acquisition%20OR%20%22to%20acquire%22%20OR%20budget%20OR%20funding%20OR%20investment)%20when%3A3d&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "id": "bleeping",
+      "name": "BleepingComputer",
+      "region": "GL",
+      "url": "https://www.bleepingcomputer.com/feed/"
+    },
+    {
+      "id": "therecord",
+      "name": "The Record",
+      "region": "GL",
+      "url": "https://therecord.media/feed"
+    },
+    {
+      "id": "thn",
+      "name": "The Hacker News",
+      "region": "GL",
+      "url": "https://feeds.feedburner.com/TheHackersNews"
+    },
+    {
+      "id": "securityweek",
+      "name": "SecurityWeek",
+      "region": "GL",
+      "url": "https://www.securityweek.com/feed/"
+    },
+    {
+      "id": "krebs",
+      "name": "Krebs on Security",
+      "region": "GL",
+      "url": "https://krebsonsecurity.com/feed/"
+    },
+    {
+      "id": "cisa-news",
+      "name": "CISA",
+      "region": "GL",
+      "hint": "policy",
+      "url": "https://www.cisa.gov/news.xml"
+    }
+  ]
+}

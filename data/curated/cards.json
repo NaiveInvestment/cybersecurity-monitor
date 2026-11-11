@@ -1,0 +1,1606 @@
+{
+  "updated": "2026-11-11",
+  "note": "1차 출처를 확인해 정리한 카드. 국내 사례와 정책은 cybersecurity-study 프로젝트의 검증 자료(2026-11-10 기준)를 승계했다. segs(관련 분야)는 초안이다. 계획, 확정, 집행을 status로 구분하고 분모가 다른 숫자는 합치지 않는다. 해외 카드는 2026-11-11에 SEC 공시, 회사 발표, 정부와 규제기관 자료를 직접 열어 확인했고 note에 검증 한계를 남겼다.",
+  "cards": [
+    {
+      "id": "kr-2025-skt-usim",
+      "category": "incident",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-04-18",
+      "dateLabel": "사고 인지",
+      "entity": "SK텔레콤",
+      "title": "SK텔레콤 유심 정보 유출",
+      "claim": "2021년부터 이어진 내부망 침투로 유심 정보 약 2,696만 건이 유출됐고, 1,348억원 과징금과 5년 7,000억원 투자 발표로 이어졌다.",
+      "facts": [
+        {
+          "label": "유출 규모",
+          "value": "유심 정보 25종, 9.82GB, IMSI 기준 약 2,696만 건"
+        },
+        {
+          "label": "감염 범위",
+          "value": "서버 42,605대 조사, 감염 28대, 악성코드 33종"
+        },
+        {
+          "label": "원인",
+          "value": "서버에 평문 저장된 관리 계정 악용, 관리망과 코어망 사이 이동"
+        },
+        {
+          "label": "제재",
+          "value": "과징금 1,347억 9,100만원, 과태료 960만원 (개인정보위 2025-08-28 발표, 고객 2,300만 명 이상 기준)"
+        }
+      ],
+      "status": "제재 의결",
+      "segs": [
+        "endpoint",
+        "identity",
+        "network"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 최종 조사",
+          "url": "https://www.korea.kr/briefing/policyBriefingView.do?newsId=156721622",
+          "date": "2025-07-04",
+          "kind": "primary"
+        },
+        {
+          "name": "개인정보위 제재",
+          "url": "https://www.korea.kr/briefing/policyBriefingView.do?newsId=156721774",
+          "date": "2025-08-28",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-kt-femtocell",
+      "category": "incident",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-12-29",
+      "dateLabel": "최종 조사 발표",
+      "entity": "KT",
+      "title": "KT 불법 펨토셀 소액결제 사고",
+      "claim": "복제 인증서를 쓴 불법 펨토셀로 무단 소액결제 피해가 났고, 정부 재발방지 대책에 EDR, 제로트러스트, 로그 1년 보관이 명시됐다.",
+      "facts": [
+        {
+          "label": "유출 인원",
+          "value": "22,227명 (과기정통부 2025-12-29), 중복 제거 후 16,647명 (개인정보위 2026-07-30)"
+        },
+        {
+          "label": "금전 피해",
+          "value": "무단 소액결제 368명, 약 2억 4,300만원"
+        },
+        {
+          "label": "별도 서버 조사",
+          "value": "94대에서 악성코드 103종 감염 확인"
+        },
+        {
+          "label": "제재",
+          "value": "과징금 539억 7,900만원, 접근통제 강화 명령 (개인정보위 2026-07-30 발표)"
+        }
+      ],
+      "status": "제재 의결",
+      "segs": [
+        "network",
+        "endpoint",
+        "identity"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 KT, LGU+ 최종 조사",
+          "url": "https://www.korea.kr/briefing/policyBriefingView.do?newsId=156737260",
+          "date": "2025-12-29",
+          "kind": "primary"
+        },
+        {
+          "name": "개인정보위 후속 처분",
+          "url": "https://m.korea.kr/briefing/policyBriefingView.do?newsId=156772789",
+          "date": "2026-07-30",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-lgu-password-system",
+      "category": "incident",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-12-29",
+      "dateLabel": "정부 조사 발표",
+      "entity": "LG유플러스",
+      "title": "LG유플러스 비밀번호 관리시스템 정보 공개",
+      "claim": "통합 비밀번호 관리시스템의 개인정보가 외부에 공개됐지만 서버 재설치와 폐기로 침해 경로는 끝내 확인되지 못했다.",
+      "facts": [
+        {
+          "label": "확인된 사실",
+          "value": "공개된 정보가 통합 비밀번호 관리시스템에서 관리하던 개인정보 (개인정보위 2026-07-30)"
+        },
+        {
+          "label": "조사 한계",
+          "value": "관련 서버 OS 재설치와 폐기로 정확한 침해 경로 조사 제한 (과기정통부 2025-12-29)"
+        },
+        {
+          "label": "후속",
+          "value": "유출 경위와 추가 유출 범위는 수사 의뢰"
+        }
+      ],
+      "status": "수사 의뢰",
+      "segs": [
+        "identity"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 KT, LGU+ 최종 조사",
+          "url": "https://www.korea.kr/briefing/policyBriefingView.do?newsId=156737260",
+          "date": "2025-12-29",
+          "kind": "primary"
+        },
+        {
+          "name": "개인정보위 후속 처분",
+          "url": "https://m.korea.kr/briefing/policyBriefingView.do?newsId=156772789",
+          "date": "2026-07-30",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-lottecard",
+      "category": "incident",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-08",
+      "dateLabel": "사고 발생",
+      "entity": "롯데카드",
+      "title": "롯데카드 고객 신용정보 유출",
+      "claim": "패치와 암호화 미이행으로 297만 명의 신용정보가 유출됐고 신규회원 업무정지와 과징금 제재를 받았다.",
+      "facts": [
+        {
+          "label": "유출 규모",
+          "value": "고객 297만 명 신용정보 (신고 2025-09-01)"
+        },
+        {
+          "label": "검사 지적",
+          "value": "패치 미실시, 주민등록번호와 비밀번호 암호화 미이행, 백신 미설치"
+        },
+        {
+          "label": "제재",
+          "value": "신규회원 카드업무 정지 1.5개월 (2026-08-01~09-15), 과징금 50억원 (금융위 2026-07-31 의결)"
+        }
+      ],
+      "status": "제재 의결",
+      "segs": [
+        "data",
+        "endpoint",
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "금융위 제14차 회의 조치",
+          "url": "https://www.fsc.go.kr/po010105/87455",
+          "date": "2026-07-31",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-coupang-token",
+      "category": "incident",
+      "region": "KR",
+      "country": "한국",
+      "date": "2026-06-11",
+      "dateLabel": "제재 발표",
+      "entity": "쿠팡",
+      "title": "쿠팡 서명키 악용 개인정보 유출",
+      "claim": "악성코드 없이 인증 서명키와 위조 토큰만으로 개인정보가 빠져나가 인증, 키 관리, 이상행위 분석의 공백을 드러냈다.",
+      "facts": [
+        {
+          "label": "유출 경로",
+          "value": "전직 직원이 대체 인증서명키로 위조 인증토큰 생성, 2025-04~11 유출"
+        },
+        {
+          "label": "제재",
+          "value": "유출 사고 과징금 4,235억 7,500만원"
+        },
+        {
+          "label": "구분",
+          "value": "총과징금 6,246억 8,100만원은 온라인 활동정보 무단수집 등 다른 위반 포함"
+        }
+      ],
+      "status": "제재 의결",
+      "segs": [
+        "identity",
+        "data"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "개인정보위 제11회 결과",
+          "url": "https://www.korea.kr/news/policyNewsView.do?newsId=156766176",
+          "date": "2026-06-11",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-yes24-ransomware",
+      "category": "incident",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-06-09",
+      "dateLabel": "사고 발생",
+      "entity": "예스24",
+      "title": "예스24 랜섬웨어",
+      "claim": "랜섬웨어로 시스템 제어를 잃었다가 이틀 뒤 관리자 계정을 되찾았고, 탐지와 별개로 백업과 복구 체계가 쟁점이 됐다.",
+      "facts": [
+        {
+          "label": "경과",
+          "value": "06-09 04시경 랜섬웨어로 시스템 제어 불능, 06-11 03시경 관리자 계정 복구"
+        },
+        {
+          "label": "유출 여부",
+          "value": "공지 시점 내부 조사에서 외부 유출 정황 미확인 (회사 설명, 정부 최종 확인 아님)"
+        }
+      ],
+      "status": "회사 공지",
+      "segs": [
+        "endpoint",
+        "data"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "예스24 고객 안내문",
+          "url": "https://m.ticket.yes24.com/notice/Detail.aspx?bid=16153&order=1",
+          "date": "2025-06-15",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-security-package-1",
+      "category": "policy",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-10-22",
+      "entity": "관계부처 합동",
+      "title": "제1차 범부처 정보보호 종합대책",
+      "claim": "1,600여 시스템 점검과 CISO 권한 강화는 기업용 보안 수요를 늘리지만, 설치 강요형 보안 SW 제한은 일부 기존 사업에 역풍이다.",
+      "facts": [
+        {
+          "label": "점검",
+          "value": "공공, 금융, 통신 등 1,600여 IT 시스템"
+        },
+        {
+          "label": "제도",
+          "value": "자산 식별과 관리, 현장 중심 인증 심사, CISO 권한 강화"
+        },
+        {
+          "label": "전환",
+          "value": "2026년부터 설치 강요형 보안 SW 단계적 제한, 물리 망분리에서 데이터 보안 중심으로, 다중인증과 AI 이상탐지 활용"
+        }
+      ],
+      "status": "발표, 과제별 이행",
+      "segs": [
+        "endpoint",
+        "identity",
+        "data"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "금융위 게시 관계부처 합동 발표",
+          "url": "https://www.fsc.go.kr/no010101/85452",
+          "date": "2025-10-22",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2026-security-package-2",
+      "category": "policy",
+      "region": "KR",
+      "country": "한국",
+      "date": "2026-01-28",
+      "entity": "과기정통부",
+      "title": "제2차 정보보호 종합대책",
+      "claim": "2차 대책은 AI 보안, 중요 데이터 암호화, 취약점 공개 제도로 범위를 넓혔고 의무 구매 규정이 아닌 과제 계획이다.",
+      "facts": [
+        {
+          "label": "내용",
+          "value": "소비자 피해 구제, AI 인프라와 에이전트 보안 모델과 레드팀, 중요 데이터 암호화, 화이트해커 활용 취약점 공개와 개선"
+        },
+        {
+          "label": "범위",
+          "value": "일반 디지털 제품 보안 포함"
+        }
+      ],
+      "status": "발표",
+      "segs": [
+        "data",
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 보도자료 재게시본",
+          "url": "https://www.hknu.ac.kr/bbs/sanhak/352/107738/download.do",
+          "date": "2026-01-28",
+          "kind": "primary"
+        },
+        {
+          "name": "KDI 정책자료 목록",
+          "url": "https://eiec.kdi.re.kr/policy/materialView.do?num=276355",
+          "date": "2026-01-28",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2026-disclosure-expansion",
+      "category": "policy",
+      "region": "KR",
+      "country": "한국",
+      "date": "2026-10-20",
+      "entity": "과기정통부",
+      "title": "정보보호 공시 의무 전체 상장사로 확대",
+      "claim": "2027년부터 전체 상장사가 보안 투자와 인력을 공시하게 돼 기업 간 비교 압력이 생긴다.",
+      "facts": [
+        {
+          "label": "결정",
+          "value": "정보보호산업법 시행령 개정안 국무회의 의결 (2026-10-20)"
+        },
+        {
+          "label": "대상",
+          "value": "전체 상장법인, ISMS 의무대상 등"
+        },
+        {
+          "label": "적용",
+          "value": "2027년부터"
+        }
+      ],
+      "status": "시행 예정",
+      "segs": [],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 발표",
+          "url": "https://www.korea.kr/briefing/pressReleaseView.do?newsId=156785847",
+          "date": "2026-10-20",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2026-pipa-10pct",
+      "category": "policy",
+      "region": "KR",
+      "country": "한국",
+      "date": "2026-09-11",
+      "dateLabel": "시행",
+      "entity": "개인정보보호위원회",
+      "title": "개인정보보호법 과징금 10% 특례 시행",
+      "claim": "반복되거나 중대한 유출의 과징금 상한이 매출 10%로 올라가고 사전 보호 투자가 감경 사유가 돼 예방 지출의 유인이 커졌다.",
+      "facts": [
+        {
+          "label": "일반 상한",
+          "value": "전체 매출액의 3% 이하"
+        },
+        {
+          "label": "특례",
+          "value": "반복적이거나 중대한 침해에 전체 매출액 최대 10%"
+        },
+        {
+          "label": "요건",
+          "value": "고의, 중과실로 3년 내 반복, 1,000만 명 이상 대규모 피해, 시정명령 미이행 뒤 유출 등"
+        },
+        {
+          "label": "감경",
+          "value": "사전 개인정보 보호 투자 시 과징금 기준금액의 최대 40% 범위"
+        }
+      ],
+      "status": "시행",
+      "segs": [
+        "data",
+        "identity"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "개인정보위 시행 발표",
+          "url": "https://www.korea.kr/news/policyNewsView.do?newsId=148971656",
+          "date": "2026-09-10",
+          "kind": "primary"
+        },
+        {
+          "name": "개인정보위 개정법 설명",
+          "url": "https://m.korea.kr/news/policyNewsView.do?newsId=148960564",
+          "date": "2026-03-09",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2026-industry-2030",
+      "category": "policy",
+      "region": "KR",
+      "country": "한국",
+      "date": "2026-04-16",
+      "entity": "과기정통부",
+      "title": "정보보호산업 육성방안 2030 목표",
+      "claim": "정부가 2030년 산업 매출 30조원 목표를 내걸었지만 물리보안을 포함한 목표치이며 예산이나 실현 매출이 아니다.",
+      "facts": [
+        {
+          "label": "2030 목표",
+          "value": "산업 매출 30조원, 매출 500억원 이상 기업 80개사, 수출 5조원, 최정예 보안인력 9천 명"
+        },
+        {
+          "label": "범위",
+          "value": "정보보안과 물리보안을 함께 포함"
+        },
+        {
+          "label": "방향",
+          "value": "AI 자율보안, 플랫폼 개발, 제로트러스트 확산, 해외 진출"
+        }
+      ],
+      "status": "발표",
+      "segs": [],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 발표 원문",
+          "url": "https://www.msit.go.kr/bbs/view.do?bbsSeqNo=94&mId=307&mPid=208&nttSeqNo=3187177&pageIndex=&sCode=user&searchOpt=ALL&searchTxt=",
+          "date": "2026-04-16",
+          "kind": "primary"
+        },
+        {
+          "name": "KDI 나라경제 담당 과장 기고",
+          "url": "https://eiec.kdi.re.kr/publish/naraView.do?cidx=15605&fcode=00002000040000100005&pg=1&pp=20&sel_month=10&sel_year=2026",
+          "date": "2026-06",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2024-zerotrust-guide-2",
+      "category": "policy",
+      "region": "KR",
+      "country": "한국",
+      "date": "2024-12-03",
+      "entity": "KISA",
+      "title": "제로트러스트 가이드라인 2.0",
+      "claim": "제로트러스트를 특정 제품이 아니라 인증, 최소권한, 네트워크, 데이터 통제의 결합으로 정의한 국내 기준이다.",
+      "facts": [
+        {
+          "label": "공개",
+          "value": "2024-12-03"
+        },
+        {
+          "label": "내용",
+          "value": "도입 절차, 성숙도 분석, 도입 사례"
+        }
+      ],
+      "status": "공개",
+      "segs": [
+        "identity",
+        "network"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "KISA 가이드라인 2.0 게시",
+          "url": "https://www.kisa.kr/2060204/form?page=1&postSeq=18",
+          "date": "2024-12-03",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2025-skt-7000",
+      "category": "spending",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-07-04",
+      "entity": "SK텔레콤",
+      "title": "SK텔레콤, 5년간 7,000억원 정보보호 투자",
+      "claim": "유심 유출 조사 결과가 나온 날 5년 7,000억원 투자를 발표했고, 이후 KT와 LG유플러스의 투자 발표가 뒤따랐다.",
+      "facts": [
+        {
+          "label": "금액과 기간",
+          "value": "5년간 7,000억원 (정보보호 혁신안)"
+        },
+        {
+          "label": "함께 발표",
+          "value": "8월 요금 50% 할인 등 고객 감사 패키지, 약정 해지 위약금 면제"
+        }
+      ],
+      "status": "계획",
+      "segs": [
+        "identity",
+        "endpoint"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "보안뉴스",
+          "url": "https://www.boannews.com/news/articleView.html?idxno=138006",
+          "date": "2025-07-04",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11"
+    },
+    {
+      "id": "kr-2025-kt-1trn",
+      "category": "spending",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-07-15",
+      "entity": "KT",
+      "title": "KT, 5년간 1조원 정보보호 예산",
+      "claim": "5년 1조원 가운데 6,600억원은 기존 수준 유지분이고, 증액분은 제로트러스트와 모니터링 체계에 집중된다.",
+      "facts": [
+        {
+          "label": "금액과 기간",
+          "value": "5년간 1조원 (정보보호 예산)"
+        },
+        {
+          "label": "항목",
+          "value": "제로트러스트와 모니터링 체계 약 3,400억원, 보안전담인력 약 500억원, 글로벌 협업 약 200억원, 현행 공시 수준 유지와 개선 누적 6,600억원 (기사 수치 기준, 항목 합계는 1조 700억원)"
+        },
+        {
+          "label": "연간 규모",
+          "value": "2024년 1,250억원에서 연평균 2,000억원 수준으로"
+        }
+      ],
+      "status": "계획",
+      "segs": [
+        "identity",
+        "network",
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "보안뉴스",
+          "url": "https://www.boannews.com/news/articleView.html?idxno=138166",
+          "date": "2025-07-15",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11"
+    },
+    {
+      "id": "kr-2025-lgu-7000",
+      "category": "spending",
+      "region": "KR",
+      "country": "한국",
+      "date": "2025-07-29",
+      "entity": "LG유플러스",
+      "title": "LG유플러스, 5년간 7,000억원 보안 투자",
+      "claim": "연간 투자를 2024년 828억원에서 1,200억원 이상으로 올리고 2027년까지 전사 제로트러스트 구축을 목표로 잡았다.",
+      "facts": [
+        {
+          "label": "금액과 기간",
+          "value": "5년간 7,000억원"
+        },
+        {
+          "label": "연간 규모",
+          "value": "매년 최소 1,200억~1,500억원 (2024년 약 828억원, KISA 정보보호공시 기준)"
+        },
+        {
+          "label": "우선순위",
+          "value": "제로트러스트, 공격 표면 최소화, 개인정보 컴플라이언스, 데이터 거버넌스"
+        },
+        {
+          "label": "일정",
+          "value": "2027년까지 전사 제로트러스트 구축 목표"
+        }
+      ],
+      "status": "계획",
+      "segs": [
+        "identity",
+        "data"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "보안뉴스",
+          "url": "https://www.boannews.com/news/articleView.html?idxno=138411",
+          "date": "2025-07-29",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11"
+    },
+    {
+      "id": "kr-2026-cyber-fund-plan",
+      "category": "spending",
+      "region": "KR",
+      "country": "한국",
+      "date": "2026-03-23",
+      "entity": "과기정통부",
+      "title": "2026 사이버보안 펀드 160억원 조성 계획",
+      "claim": "제품 구매 예산이 아니라 벤처투자 재원이며, 160억원은 운용사 공모 단계의 조성 계획이다.",
+      "facts": [
+        {
+          "label": "규모",
+          "value": "정부 모태펀드 출자 80억원, 민관 합동 160억원 자펀드 신규 조성 계획"
+        },
+        {
+          "label": "투자 대상",
+          "value": "AI와 제로트러스트 등 기술혁신, M&A, 해외법인 설립 보안기업에 50% 이상"
+        },
+        {
+          "label": "진행",
+          "value": "운용사 접수 2026-04-27~05-06, 최종 결성액과 집행액은 미확인 (2026-11-10 기준)"
+        }
+      ],
+      "status": "계획",
+      "segs": [],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "과기정통부 공모 보도자료 (KDI 게시)",
+          "url": "https://eiec.kdi.re.kr/policy/materialView.do?num=278303",
+          "date": "2026-03-24",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "kr-2024-cyber-fund-formed",
+      "category": "spending",
+      "region": "KR",
+      "country": "한국",
+      "date": "2024-09-26",
+      "dateLabel": "결성",
+      "entity": "액시스인베스트먼트, LF인베스트먼트",
+      "title": "사이버보안 펀드 200억원 결성",
+      "claim": "앞선 두 해의 보안 전용 펀드는 각 200억원 규모로 실제 결성까지 이어졌다.",
+      "facts": [
+        {
+          "label": "2024년",
+          "value": "사이버시큐리티 이노베이션 투자조합 200억원 결성 (2024-09-26)"
+        },
+        {
+          "label": "2025년",
+          "value": "정부가 새 자펀드 200억원 조성 계획 발표 (2025-03-24), 에이온 프라임 시큐리티 벤처펀드 200억원 결성 완료 보도 (더벨 2025-12-30)"
+        }
+      ],
+      "status": "결성 완료",
+      "segs": [],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "액시스 공식 IR",
+          "url": "https://www.axisinvestment.co.kr/board/ir/view?category=%EA%B4%80%EB%A0%A8%EA%B8%B0%EC%82%AC&id=128&idx=28",
+          "date": "2024-09-30",
+          "kind": "primary"
+        },
+        {
+          "name": "2025 정부 공모",
+          "url": "https://m.korea.kr/briefing/pressReleaseView.do?newsId=156680495",
+          "date": "2025-03-24",
+          "kind": "primary"
+        },
+        {
+          "name": "더벨 2025 결성 보도",
+          "url": "https://www.thebell.co.kr/front/newsview.asp?key=202512300931315520107793",
+          "date": "2025-12-30",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-10"
+    },
+    {
+      "id": "gl-2025-bybit-theft",
+      "category": "incident",
+      "region": "GL",
+      "country": "글로벌",
+      "date": "2025-02-21",
+      "entity": "Bybit",
+      "title": "Bybit 가상자산 15억 달러 탈취",
+      "claim": "거래소 Bybit에서 약 15억 달러 상당의 가상자산이 탈취됐고 FBI가 북한 소행으로 확인했다.",
+      "facts": [
+        {
+          "label": "피해 규모",
+          "value": "가상자산 약 15억 달러(FBI 발표, 2025-02-26)"
+        },
+        {
+          "label": "발생일",
+          "value": "2025-02-21경(FBI 표기 on or about)"
+        },
+        {
+          "label": "행위자",
+          "value": "북한, FBI 명칭 TraderTraitor"
+        }
+      ],
+      "status": "FBI 공지",
+      "segs": [],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "FBI IC3 공지 PSA250226",
+          "url": "https://www.ic3.gov/PSA/2025/PSA250226",
+          "date": "2025-02-26",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "금액은 FBI 발표 시점 평가액. 회수액, 세탁 경과, 거래소 소재지는 오늘 확인하지 않아 제외. status는 FBI 공지 이후의 진행을 확인하지 못한 상태에서 붙인 값"
+    },
+    {
+      "id": "gl-2025-mands-cyber-incident",
+      "category": "incident",
+      "region": "GL",
+      "country": "영국",
+      "date": "2025-04-22",
+      "entity": "Marks and Spencer",
+      "title": "M&S 사이버 사고로 온라인 주문 중단",
+      "claim": "온라인 주문이 4월에 멈춰 8월에야 전면 복구됐고, 회사는 2025/26 영업이익 영향을 약 3억 파운드로 추정했다.",
+      "facts": [
+        {
+          "label": "회사 추정 영향",
+          "value": "2025/26 영업이익 약 3억 파운드(비용 절감, 보험, 영업 조치 반영 전, 2025-05-21)"
+        },
+        {
+          "label": "반기 실적 반영",
+          "value": "사고 관련 조정 항목 1억 160만 파운드, 보험금 1억 파운드(2025-09-27 종료 26주)"
+        },
+        {
+          "label": "조정 세전이익",
+          "value": "1억 8,410만 파운드(전년 동기 4억 1,310만 파운드)"
+        },
+        {
+          "label": "경과",
+          "value": "2025-04-22 공시, 04-25 온라인 주문 중단, 6월 택배 재개, 8월 온라인 전면 복구"
+        }
+      ],
+      "status": "복구 완료",
+      "segs": [
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "M&S 연간 실적 발표(2025-03-29 종료 52주)",
+          "url": "https://corporate.marksandspencer.com/media/press-releases/full-year-results-52-weeks-ended-29-march-2025",
+          "date": "2025-05-21",
+          "kind": "primary"
+        },
+        {
+          "name": "M&S 반기 실적 발표(2025-09-27 종료 26주)",
+          "url": "https://corporate.marksandspencer.com/media/press-releases/half-year-results-26-weeks-ended-27-september-2025",
+          "date": "2025-11-05",
+          "kind": "primary"
+        },
+        {
+          "name": "The Record, M&S 사고 공시 보도",
+          "url": "https://therecord.media/british-retailer-MS-confirms-cyber-incident-store-delays",
+          "date": "2025-04-22",
+          "kind": "media"
+        },
+        {
+          "name": "The Register, 온라인 주문 중단 보도",
+          "url": "https://www.theregister.com/2025/04/25/ms_halts_online_orders/",
+          "date": "2025-04-25",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "3억 파운드는 사고 직후의 회사 추정치이고 보험 회수 전 수치. 반기 조정 항목 1억 160만 파운드와는 기준이 달라 합산하면 안 됨. 회사 발표문은 원인과 공격 유형을 밝히지 않아 랜섬웨어 여부, 침입 경로는 facts에서 제외"
+    },
+    {
+      "id": "gl-2025-jlr-production-halt",
+      "category": "incident",
+      "region": "GL",
+      "country": "영국",
+      "date": "2025-09-02",
+      "entity": "Jaguar Land Rover",
+      "title": "JLR 사이버 공격으로 5주 생산 중단",
+      "claim": "영국 공장 생산이 약 5주 멈췄고, 정부가 15억 파운드 대출 보증을 내놓을 만큼 비용이 공급망 전체로 번졌다.",
+      "facts": [
+        {
+          "label": "회사 반영 비용",
+          "value": "사이버 사고 관련 예외 항목 1억 9,600만 파운드(FY26 2분기, 2025-07~09)"
+        },
+        {
+          "label": "분기 실적",
+          "value": "매출 49억 파운드(전년 대비 24% 감소), 예외 항목 전 세전손실 4억 8,500만 파운드"
+        },
+        {
+          "label": "영국 경제 영향 추정",
+          "value": "19억 파운드, 범위 16억~21억 파운드(Cyber Monitoring Centre 모델 추정, 2025-10-17 기준)"
+        },
+        {
+          "label": "정부 지원",
+          "value": "최대 15억 파운드 대출 보증, 5년 상환(영국 수출금융청, 2025-09-28)"
+        },
+        {
+          "label": "경과",
+          "value": "2025-09-02 공개, 10-08부터 단계적 생산 재개, 11-14 정상 수준 복귀 발표"
+        }
+      ],
+      "status": "복구 완료",
+      "segs": [
+        "embedded",
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "JLR FY26 2분기 실적 발표",
+          "url": "https://media.jlr.com/corporate/news/2025/11/jlr-performance-impacted-challenging-quarter",
+          "date": "2025-11-14",
+          "kind": "primary"
+        },
+        {
+          "name": "Cyber Monitoring Centre 성명(JLR 사고)",
+          "url": "https://cybermonitoringcentre.com/2025/10/22/cyber-monitoring-centre-statement-on-the-jaguar-land-rovercyber-incident-october-2025/",
+          "date": "2025-10-22",
+          "kind": "primary"
+        },
+        {
+          "name": "영국 정부 보도자료(JLR 대출 보증)",
+          "url": "https://www.gov.uk/government/news/government-backs-jaguar-land-rover-with-15-billion-loan-guarantee",
+          "date": "2025-09-28",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "19억 파운드는 JLR 자체 손실이 아니라 협력사, 딜러를 포함한 영국 내 경제 영향 추정이며 데이터 유출 손실, 몸값, 해외 사업은 제외. 회사 비용 1억 9,600만 파운드와 분모가 다름. CMC 성명 안에 영향 조직 수가 5,000곳 초과와 2,700곳 초과로 함께 나와 조직 수는 뺐음. date는 회사의 사고 공개일이고 CMC는 사고 시작을 2025년 8월 말로 적음"
+    },
+    {
+      "id": "gl-2025-f5-source-code-breach",
+      "category": "incident",
+      "region": "GL",
+      "country": "미국",
+      "date": "2025-10-15",
+      "entity": "F5",
+      "title": "F5, BIG-IP 소스코드 유출 공시",
+      "claim": "보안 장비 업체가 BIG-IP 소스코드와 미공개 취약점 정보를 빼앗겨 미국 정부가 연방기관에 긴급 패치를 지시했다.",
+      "facts": [
+        {
+          "label": "공시",
+          "value": "2025-10-15 8-K Item 1.05, 회사 인지일 2025-08-09"
+        },
+        {
+          "label": "공시 지연",
+          "value": "미 법무부가 2025-09-12 공개 지연 필요 결정"
+        },
+        {
+          "label": "유출 범위",
+          "value": "BIG-IP 소스코드 일부, 미공개 취약점 정보, 소수 고객의 설정 정보"
+        },
+        {
+          "label": "회사 판단",
+          "value": "공시 시점 영업에 중대한 영향 없음, 소프트웨어 공급망 변조 증거 없음"
+        },
+        {
+          "label": "정부 조치",
+          "value": "CISA 긴급지침 ED 26-01, 연방기관에 2025-10-22까지 패치 적용 지시"
+        }
+      ],
+      "status": "공시 완료",
+      "segs": [
+        "network"
+      ],
+      "tickers": [
+        "FFIV"
+      ],
+      "sources": [
+        {
+          "name": "F5 8-K(Item 1.05)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1048695/000104869525000149/ffiv-20251015.htm",
+          "date": "2025-10-15",
+          "kind": "primary"
+        },
+        {
+          "name": "CISA 긴급지침 ED 26-01",
+          "url": "https://www.cisa.gov/news-events/directives/ed-26-01-mitigate-vulnerabilities-f5-devices",
+          "date": "2025-10-15",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "공격자의 국적은 회사 공시에 없음. 재무 영향 금액은 공시되지 않았고 이후 분기 실적에서의 영향은 오늘 확인하지 않음"
+    },
+    {
+      "id": "gl-2026-stryker-cyber-incident",
+      "category": "incident",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-03-11",
+      "entity": "Stryker",
+      "title": "Stryker 시스템 장애, 1분기 타격",
+      "claim": "사이버 사고로 전 세계 마이크로소프트 환경이 멈췄고, 정정 공시에서 1분기 실적에 중대한 영향이 있었다고 확정했다.",
+      "facts": [
+        {
+          "label": "최초 공시",
+          "value": "2026-03-11 8-K(Item 8.01), 전 세계 마이크로소프트 환경 장애"
+        },
+        {
+          "label": "중대성 확정",
+          "value": "2026-04-09 8-K/A(Item 1.05), 1분기 실적에 중대한 영향"
+        },
+        {
+          "label": "1분기 실적",
+          "value": "매출 60.2억 달러(보고 기준 2.6% 증가, 유기적 2.4%), 조정 EPS 2.60달러(8.5% 감소)"
+        },
+        {
+          "label": "연간 가이던스",
+          "value": "유지(유기적 매출 성장 8.0~9.5%, 조정 EPS 14.90~15.10달러)"
+        },
+        {
+          "label": "행위자",
+          "value": "이란 연계 Handala로 보도(TechCrunch), 회사 공시에는 언급 없음"
+        }
+      ],
+      "status": "복구 완료",
+      "segs": [
+        "endpoint"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "Stryker 8-K(Item 8.01)",
+          "url": "https://www.sec.gov/Archives/edgar/data/310764/000119312526102460/d76279d8k.htm",
+          "date": "2026-03-11",
+          "kind": "primary"
+        },
+        {
+          "name": "Stryker 8-K/A(Item 1.05)",
+          "url": "https://www.sec.gov/Archives/edgar/data/310764/000119312526149607/d112875d8ka.htm",
+          "date": "2026-04-09",
+          "kind": "primary"
+        },
+        {
+          "name": "Stryker 2026년 1분기 실적 발표",
+          "url": "https://www.sec.gov/Archives/edgar/data/310764/000031076426000025/sykex991earningsq12026.htm",
+          "date": "2026-04-30",
+          "kind": "primary"
+        },
+        {
+          "name": "TechCrunch, 2026년 주요 해킹 정리",
+          "url": "https://techcrunch.com/2026/09/15/the-worst-hacks-and-breaches-of-2026-so-far/",
+          "date": "2026-09-15",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "회사는 사고로 인한 손실액을 달러로 공시하지 않음. 1분기 수치는 전체 실적이고 사고 영향분만 떼어 낸 값이 아님. 최초 공시에서 회사는 랜섬웨어나 악성코드 징후가 없다고 밝혔고, 기기 수만 대가 원격 삭제됐다는 내용은 매체 보도"
+    },
+    {
+      "id": "gl-2026-boston-scientific-outage",
+      "category": "incident",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-08-25",
+      "entity": "Boston Scientific",
+      "title": "Boston Scientific 가이던스 하향",
+      "claim": "네트워크 중단으로 제조와 출하가 막혀 연간 매출 성장 전망을 5.5~6.5%에서 약 4.25%로 낮췄다.",
+      "facts": [
+        {
+          "label": "인지일",
+          "value": "2026-08-25, 네트워크 중단으로 제조, 주문 처리, 출하 차질"
+        },
+        {
+          "label": "공시",
+          "value": "2026-09-08 8-K Item 1.05, 3분기와 2026년 연간 실적에 중대한 영향 가능성"
+        },
+        {
+          "label": "3분기 실적",
+          "value": "순매출 51.38억 달러(1.5% 증가), 조정 EPS 0.73달러(7월 가이던스 0.80~0.82달러)"
+        },
+        {
+          "label": "연간 가이던스",
+          "value": "보고 기준 매출 성장 약 4.25%(7월 5.5~6.5%), 조정 EPS 3.16~3.18달러(7월 3.28~3.32달러)"
+        },
+        {
+          "label": "4분기 가이던스",
+          "value": "매출 1.0~3.0% 감소, 조정 EPS 0.77~0.79달러"
+        }
+      ],
+      "status": "공시 완료",
+      "segs": [
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "Boston Scientific 8-K(Item 1.05)",
+          "url": "https://www.sec.gov/Archives/edgar/data/0000885725/000088572526000059/bsx-20260907.htm",
+          "date": "2026-09-08",
+          "kind": "primary"
+        },
+        {
+          "name": "Boston Scientific 2026년 3분기 실적 발표",
+          "url": "https://www.sec.gov/Archives/edgar/data/0000885725/000088572526000066/earningsrelease_live.htm",
+          "date": "2026-10-28",
+          "kind": "primary"
+        },
+        {
+          "name": "Reuters(Insurance Journal 전재), 가이던스 미달 전망",
+          "url": "https://www.insurancejournal.com/news/east/2026/09/08/884346.htm",
+          "date": "2026-09-08",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "회사는 사고 영향액을 달러로 분리 공시하지 않았고, 3분기 발표문도 가이던스 하향분 가운데 사고 몫을 따로 밝히지 않음. 7월 가이던스 수치는 로이터 보도 기준. status는 2026-09-08 공시(대부분 시설 제조 재개)와 4분기 매출 감소 가이던스를 근거로 붙인 값이고 공격 유형과 행위자는 공시에 없음"
+    },
+    {
+      "id": "gl-2026-us-circia-final-rule",
+      "category": "policy",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-10-01",
+      "entity": "CISA",
+      "title": "미 CIRCIA 최종 규칙 백악관 심사",
+      "claim": "핵심 기반시설의 72시간 사고 보고를 의무화하는 최종 규칙이 백악관 심사에 들어가 공표 직전 단계다.",
+      "facts": [
+        {
+          "label": "현재 단계",
+          "value": "최종 규칙 2026-10-01 OMB 정보규제국 접수, 심사 계속 중(RIN 1670-AA04)"
+        },
+        {
+          "label": "보고 기한",
+          "value": "대상 사고 72시간, 몸값 지급 24시간 이내(법률 기준)"
+        },
+        {
+          "label": "대상 규모",
+          "value": "약 30만~31.6만 개 기관(2024년 제안 규칙 기준 추정, 매체 인용)"
+        },
+        {
+          "label": "효력",
+          "value": "최종 규칙 발효 전까지 보고 의무 없음(CISA 안내)"
+        },
+        {
+          "label": "경과",
+          "value": "제안 규칙 2024-04-04 공고, 타운홀 2026-06-15~18"
+        }
+      ],
+      "status": "규칙 심사 중",
+      "segs": [
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "reginfo.gov 행정명령 12866 심사 목록(RIN 1670-AA04)",
+          "url": "https://www.reginfo.gov/public/do/eoReviewSearch?rin=1670-AA04",
+          "date": "2026-10-01",
+          "kind": "primary"
+        },
+        {
+          "name": "CISA CIRCIA 안내 페이지(열람일 기준)",
+          "url": "https://www.cisa.gov/topics/cyber-threats-and-advisories/information-sharing/cyber-incident-reporting-critical-infrastructure-act-2022-circia",
+          "date": "2026-11-11",
+          "kind": "primary"
+        },
+        {
+          "name": "HIPAA Journal, CIRCIA 최종 규칙 백악관 심사",
+          "url": "https://www.hipaajournal.com/cisa-circia-final-rule-white-house-review/",
+          "date": "2026-10-05",
+          "kind": "media"
+        },
+        {
+          "name": "Paubox, CIRCIA 최종 규칙 해설",
+          "url": "https://www.paubox.com/blog/circia-final-rule-white-house-deadlines-set-scope-open",
+          "date": "2026-10-08",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "status의 입법 중은 법률은 이미 있고 시행 규칙을 제정하는 단계라는 뜻. 심사 중인 최종 규칙의 문안과 적용 범위는 비공개라 대상 규모는 2024년 제안 규칙 기준이고 매체마다 30만과 31.6만으로 다름. 공표 시점은 연내라는 보도와 내년 초라는 해설이 엇갈려 facts에서 제외"
+    },
+    {
+      "id": "gl-2026-eu-cra-reporting-start",
+      "category": "policy",
+      "region": "GL",
+      "country": "EU",
+      "date": "2026-09-11",
+      "entity": "EU 집행위원회",
+      "title": "EU 사이버복원력법 보고 의무 개시",
+      "claim": "디지털 제품 제조사의 취약점, 사고 보고 의무가 적용되기 시작했고 본 의무는 2027년 12월에 적용된다.",
+      "facts": [
+        {
+          "label": "보고 의무 적용",
+          "value": "2026-09-11부터"
+        },
+        {
+          "label": "본 의무 적용",
+          "value": "2027-12-11부터(법 발효 2024-12-10)"
+        },
+        {
+          "label": "보고 기한",
+          "value": "조기 경보 24시간, 통지 72시간(악용 중인 취약점과 중대 사고)"
+        },
+        {
+          "label": "과징금 상한",
+          "value": "1,500만 유로 또는 전 세계 연매출 2.5% 중 큰 금액"
+        },
+        {
+          "label": "적용 대상",
+          "value": "2027-12-11 이전에 출시된 제품도 보고 의무 대상"
+        }
+      ],
+      "status": "시행",
+      "segs": [
+        "embedded"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "EU 집행위원회 사이버복원력법 안내(2026-09-07 갱신)",
+          "url": "https://digital-strategy.ec.europa.eu/en/policies/cyber-resilience-act",
+          "date": "2026-09-07",
+          "kind": "primary"
+        },
+        {
+          "name": "Jones Day 법률 해설, CRA 24시간 보고 의무",
+          "url": "https://www.jonesday.com/de/insights/2026/07/eu-cyber-resilience-act-24hour-reporting-duties-start-september-11-2026",
+          "date": "2026-07",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "status의 시행은 보고 의무에 한함. 적용 일자 두 개는 집행위 페이지에서, 보고 기한과 과징금, 기출시 제품 적용은 로펌 해설에서 확인. ENISA 단일 보고 플랫폼이 9월 11일에 실제 가동됐는지와 디지털 옴니버스 개정안의 진행은 오늘 1차 출처로 확인하지 못함"
+    },
+    {
+      "id": "gl-2026-eu-nis2-court-referral",
+      "category": "policy",
+      "region": "GL",
+      "country": "EU",
+      "date": "2026-07-08",
+      "entity": "EU 집행위원회",
+      "title": "EU, NIS2 미전환 4개국 제소",
+      "claim": "집행위가 NIS2 지침을 국내법으로 옮기지 않은 4개국을 제소하고 금전 제재를 요청했다.",
+      "facts": [
+        {
+          "label": "제소일",
+          "value": "2026-07-08, 아일랜드, 스페인, 프랑스, 네덜란드 4개국"
+        },
+        {
+          "label": "전환 시한",
+          "value": "2024-10-17"
+        },
+        {
+          "label": "요청 제재",
+          "value": "일시금과 전환 완료 통지 시까지 부과되는 일일 벌금"
+        },
+        {
+          "label": "경과",
+          "value": "공식 통지서 2024-11-28, 의견서 2025-05-07"
+        }
+      ],
+      "status": "제소",
+      "segs": [
+        "secops",
+        "network"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "EU 집행위원회 보도(NIS2 미전환 4개국 제소)",
+          "url": "https://digital-strategy.ec.europa.eu/en/news/commission-refers-ireland-spain-france-and-netherlands-court-justice-failing-transpose-rules",
+          "date": "2026-07-08",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "지침 자체는 시행 중이고 제소는 4개국의 국내법 전환 미통지에 대한 것. 집행위는 나머지 회원국 대부분이 전환했다고만 적고 숫자는 밝히지 않음. 제소 이후 4개국의 전환 완료 여부는 오늘 1차 출처로 확인하지 못함"
+    },
+    {
+      "id": "gl-2026-uk-cyber-resilience-bill",
+      "category": "policy",
+      "region": "GL",
+      "country": "영국",
+      "date": "2026-11-02",
+      "entity": "영국 정부(과학혁신기술부)",
+      "title": "영 사이버보안복원력법안 상원 통과",
+      "claim": "관리형 서비스 사업자와 데이터센터까지 규제 대상에 넣는 법안이 상원을 통과해 하원의 수정안 심의만 남았다.",
+      "facts": [
+        {
+          "label": "현재 단계",
+          "value": "상원 3독회 2026-11-02, 하원의 상원 수정안 심의 대기(의회 기록 2026-11-05 갱신)"
+        },
+        {
+          "label": "왕실 재가",
+          "value": "아직 없음"
+        },
+        {
+          "label": "신규 대상",
+          "value": "중대형 관리형 서비스 사업자, 데이터센터, 대형 부하 제어 사업자, 지정 핵심 공급자"
+        },
+        {
+          "label": "보고 기한",
+          "value": "최초 통지 24시간, 상세 보고 72시간"
+        },
+        {
+          "label": "경과",
+          "value": "하원 제출 2025-11-12, 하원 3독회 2026-06-16, 상원 위원회 2026-09"
+        }
+      ],
+      "status": "입법 중",
+      "segs": [
+        "secops",
+        "cloud"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "영국 의회 법안 API(법안 4035 현황)",
+          "url": "https://bills-api.parliament.uk/api/v1/Bills/4035",
+          "date": "2026-11-05",
+          "kind": "primary"
+        },
+        {
+          "name": "영국 의회 법안 API(법안 4035 단계별 일정)",
+          "url": "https://bills-api.parliament.uk/api/v1/Bills/4035/Stages?take=50",
+          "date": "2026-11-05",
+          "kind": "primary"
+        },
+        {
+          "name": "영국 정부 법안 요약 설명서(2026-11-03 갱신)",
+          "url": "https://www.gov.uk/government/publications/cyber-security-and-resilience-network-and-information-systems-bill-factsheets/summary-of-the-bill",
+          "date": "2026-11-03",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "의회 웹페이지(bills.parliament.uk/bills/4035)는 자동 접속이 막혀 같은 자료의 공식 API로 확인. 과징금 상한 수치는 정부 요약 설명서에 금액이 없어 제외. 시행 시점과 하위 법령 일정은 확인하지 않음"
+    },
+    {
+      "id": "gl-2026-jp-active-cyber-defense",
+      "category": "policy",
+      "region": "GL",
+      "country": "일본",
+      "date": "2026-10-01",
+      "entity": "일본 내각관방 국가사이버통괄실",
+      "title": "일 능동적 사이버방어법 1단계 시행",
+      "claim": "기간 인프라 258개 사업자에 자산 신고와 사고 보고 의무가 생겼고, 통신정보 이용은 2027년 가을 시행 예정이다.",
+      "facts": [
+        {
+          "label": "시행",
+          "value": "2026-10-01 민관 협력 강화, 접근 및 무해화 조치"
+        },
+        {
+          "label": "다음 단계",
+          "value": "통신정보 이용 2027년 가을 시행 예정"
+        },
+        {
+          "label": "의무 대상",
+          "value": "기간 인프라 15개 분야 258개 사업자, 자산 신고와 사고 보고"
+        },
+        {
+          "label": "협의회",
+          "value": "기간 인프라 사업자 중심 약 100개 조직 가입 예정(2026-10-01 기준)"
+        },
+        {
+          "label": "법 성립",
+          "value": "2025-05-16 성립, 2025-05-23 공포"
+        }
+      ],
+      "status": "시행",
+      "segs": [
+        "network",
+        "secops"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "내각관방 국가사이버통괄실, 내각부 설명 자료(사이버대처능력강화법 등의 시행에 대하여)",
+          "url": "https://www.cao.go.jp/cybersecurity/pdf/sekousetsumei.pdf",
+          "date": "2026-09",
+          "kind": "primary"
+        },
+        {
+          "name": "내각관방 사이버 안전보장 대응 페이지(열람일 기준)",
+          "url": "https://www.cas.go.jp/jp/seisaku/cyber_anzen_hosyo_torikumi/index.html",
+          "date": "2026-11-11",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "status의 시행은 부분 시행. 2027년 가을은 정부 자료의 표기(내년 가을)이고 확정 일자는 아님. 258개 사업자는 2026년 9월 자료 기준"
+    },
+    {
+      "id": "gl-2026-google-wiz-close",
+      "category": "spending",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-03-11",
+      "entity": "Google",
+      "title": "구글, Wiz 인수 종결",
+      "claim": "발표가 320억 달러의 클라우드 보안 인수가 종결돼 회계상 약 295억 달러로 잡혔다.",
+      "facts": [
+        {
+          "label": "종결일",
+          "value": "2026-03-11"
+        },
+        {
+          "label": "발표 금액",
+          "value": "320억 달러 전액 현금(2025-03-18 발표, 종결 조정 전)"
+        },
+        {
+          "label": "회계상 인수가",
+          "value": "294.67억 달러(매수가격 조정 후, 인수 후 보상 약정 제외, 잠정)"
+        },
+        {
+          "label": "영업권, 무형자산",
+          "value": "영업권 226.89억 달러, 무형자산 83억 달러(잠정)"
+        },
+        {
+          "label": "운영 방침",
+          "value": "Wiz 브랜드 유지, 주요 클라우드 전반 지원 지속"
+        }
+      ],
+      "status": "종결",
+      "segs": [
+        "cloud"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "Google 발표(Wiz 인수 완료)",
+          "url": "https://blog.google/innovation-and-ai/infrastructure-and-cloud/google-cloud/wiz-acquisition/",
+          "date": "2026-03-11",
+          "kind": "primary"
+        },
+        {
+          "name": "Google 발표(Wiz 인수 합의)",
+          "url": "https://blog.google/inside-google/company-announcements/google-agreement-acquire-wiz/",
+          "date": "2025-03-18",
+          "kind": "primary"
+        },
+        {
+          "name": "Alphabet 10-Q(2026년 1분기) 인수 주석",
+          "url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000048/R17.htm",
+          "date": "2026-04-30",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "320억 달러(발표 금액)와 294.67억 달러(회계상 매수가격)는 기준이 다름. 차이의 내역은 주석 요약만으로는 확인하지 못했고, 회계상 수치는 인수 후 보상 약정을 뺀 잠정치"
+    },
+    {
+      "id": "gl-2026-panw-cyberark-close",
+      "category": "spending",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-02-11",
+      "entity": "Palo Alto Networks",
+      "title": "팔로알토, CyberArk 인수 종결",
+      "claim": "신원 보안 업체 CyberArk 인수가 종결됐고 회계상 대가는 약 211억 달러다.",
+      "facts": [
+        {
+          "label": "종결일",
+          "value": "2026-02-11"
+        },
+        {
+          "label": "발표 조건",
+          "value": "CyberArk 1주당 현금 45달러와 PANW 2.2005주, 지분가치 약 250억 달러(2025-07-30 발표)"
+        },
+        {
+          "label": "회계상 인수 대가",
+          "value": "210.61억 달러(현금 23.08억, 주식 1.12억 주 184.88억, 대체 보상 2.65억 달러)"
+        },
+        {
+          "label": "영업권, 무형자산",
+          "value": "영업권 148.02억 달러, 식별 무형자산 62.79억 달러"
+        }
+      ],
+      "status": "종결",
+      "segs": [
+        "identity"
+      ],
+      "tickers": [
+        "PANW"
+      ],
+      "sources": [
+        {
+          "name": "Palo Alto Networks 발표(CyberArk 인수 완료)",
+          "url": "https://www.paloaltonetworks.com/company/press/2026/palo-alto-networks-completes-acquisition-of-cyberark-to-secure-the-ai-era",
+          "date": "2026-02-11",
+          "kind": "primary"
+        },
+        {
+          "name": "Palo Alto Networks 발표(CyberArk 인수 합의)",
+          "url": "https://www.paloaltonetworks.com/company/press/2025/palo-alto-networks-announces-agreement-to-acquire-cyberark--the-identity-security-leader",
+          "date": "2025-07-30",
+          "kind": "primary"
+        },
+        {
+          "name": "Palo Alto Networks 10-Q(2026-04-30 종료 분기) 인수 주석",
+          "url": "https://www.sec.gov/Archives/edgar/data/1327567/000132756726000015/R14.htm",
+          "date": "2026-06-03",
+          "kind": "primary"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "약 250억 달러는 발표 시점 지분가치이고 210.61억 달러는 종결 시점 회계상 대가. 대가의 대부분이 주식이라 주가 변동이 차이의 원인으로 보이나 이는 추정. 같은 주석에 Chronosphere 인수(29.51억 달러, 2026-01-29 종결)도 있으나 보안 인수가 아니라 제외"
+    },
+    {
+      "id": "gl-2026-servicenow-armis-close",
+      "category": "spending",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-04-20",
+      "entity": "ServiceNow",
+      "title": "ServiceNow, Armis 인수 종결",
+      "claim": "워크플로 플랫폼 ServiceNow가 Armis를 약 76억 달러, Veza를 약 12억 달러에 인수해 보안 영역으로 들어왔다.",
+      "facts": [
+        {
+          "label": "Armis 종결",
+          "value": "2026-04-20, 잠정 인수 대가 약 76억 달러 현금"
+        },
+        {
+          "label": "발표 금액",
+          "value": "약 77.5억 달러 현금(2025-12 발표, 매체 보도)"
+        },
+        {
+          "label": "Veza 종결",
+          "value": "2026-03-02, 약 12억 달러(대부분 현금)"
+        },
+        {
+          "label": "자금 조달",
+          "value": "보유 현금과 차입, 현금 대가 일부를 텀론으로 조달"
+        },
+        {
+          "label": "Armis 규모",
+          "value": "연간 반복 매출 3.4억 달러 초과(발표 시점, 매체 보도)"
+        }
+      ],
+      "status": "종결",
+      "segs": [
+        "embedded",
+        "secops",
+        "identity"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "ServiceNow 10-Q(2026년 3분기)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000096/now-20260930.htm",
+          "date": "2026-10-28",
+          "kind": "primary"
+        },
+        {
+          "name": "Help Net Security, ServiceNow의 Armis 인수 발표",
+          "url": "https://www.helpnetsecurity.com/2025/12/24/servicenow-armis-acquisition/",
+          "date": "2025-12-24",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "76억 달러는 10-Q의 잠정 인수 대가이고 77.5억 달러는 발표 당시 조정 전 금액. ServiceNow 발표문 원문은 접속이 막혀 발표 금액과 Armis 매출은 매체 기준. ServiceNow는 보안 전문 상장사가 아니라 tickers를 비움"
+    },
+    {
+      "id": "gl-2026-proofpoint-varonis",
+      "category": "spending",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-10-15",
+      "entity": "Proofpoint(Thoma Bravo)",
+      "title": "Proofpoint, Varonis 인수 발표",
+      "claim": "Thoma Bravo 산하 Proofpoint가 Varonis를 약 63억 달러 현금에 인수하기로 했고 종결은 2027년 상반기 예정이다.",
+      "facts": [
+        {
+          "label": "발표 금액",
+          "value": "약 63억 달러 전액 현금, 주당 49.75달러"
+        },
+        {
+          "label": "프리미엄",
+          "value": "2026-06-22 종가 32.71달러 대비 52%, 2026-09-01 종가 42.35달러 대비 17%"
+        },
+        {
+          "label": "종결 예정",
+          "value": "2027년 상반기, Varonis 주주 승인과 규제 승인 필요"
+        },
+        {
+          "label": "자금",
+          "value": "Thoma Bravo 지분 출자 확약과 차입 확약"
+        },
+        {
+          "label": "순위",
+          "value": "2026년 발표된 사이버보안 인수 중 최대(SecurityWeek 집계, 2026-10-16)"
+        }
+      ],
+      "status": "발표",
+      "segs": [
+        "data"
+      ],
+      "tickers": [
+        "VRNS"
+      ],
+      "sources": [
+        {
+          "name": "Varonis 8-K 첨부 보도자료",
+          "url": "https://www.sec.gov/Archives/edgar/data/1361113/000121390026109901/ea030861001ex99-1.htm",
+          "date": "2026-10-15",
+          "kind": "primary"
+        },
+        {
+          "name": "SecurityWeek, Proofpoint의 Varonis 인수",
+          "url": "https://www.securityweek.com/proofpoint-inks-6-3-billion-all-cash-deal-to-acquire-varonis/",
+          "date": "2026-10-16",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "아직 종결되지 않은 발표 단계 거래. 보도자료는 63억 달러가 지분가치인지 기업가치인지 밝히지 않음. 최대 규모라는 순위는 매체 집계이고 2026년에 종결된 거래(Wiz, CyberArk, Armis)는 2025년 발표분이라 비교 대상이 아님"
+    },
+    {
+      "id": "gl-2026-us-cisa-fy27-budget-request",
+      "category": "spending",
+      "region": "GL",
+      "country": "미국",
+      "date": "2026-04",
+      "entity": "CISA(미 국토안보부)",
+      "title": "미 CISA 2027 예산 삭감 요청",
+      "claim": "행정부가 CISA 예산을 전년 대비 13.4% 줄인 24.87억 달러로 요청했고 의회 세출은 미확정이다.",
+      "facts": [
+        {
+          "label": "요청 총액",
+          "value": "24.87억 달러(FY2026 연환산 잠정예산 28.73억 달러 대비 3.86억 달러, 13.4% 감소)"
+        },
+        {
+          "label": "사이버보안 운영비",
+          "value": "9.66억 달러(FY2026 11.39억 달러 대비 1.73억 달러 감소)"
+        },
+        {
+          "label": "CDM 조달",
+          "value": "3.31억 달러(FY2026 2.65억 달러 대비 증가)"
+        },
+        {
+          "label": "인력",
+          "value": "867개 직위 감축, 2,865명으로 축소(Cybersecurity Dive 보도)"
+        },
+        {
+          "label": "단계",
+          "value": "대통령 예산 요청안, 의회 세출 미확정"
+        }
+      ],
+      "status": "계획",
+      "segs": [
+        "secops",
+        "network"
+      ],
+      "tickers": [],
+      "sources": [
+        {
+          "name": "미 국토안보부 CISA FY2027 의회 예산 설명서",
+          "url": "https://www.dhs.gov/sites/default/files/2026-04/26_0403_ocfo-budget-cisa.pdf",
+          "date": "2026-04",
+          "kind": "primary"
+        },
+        {
+          "name": "Cybersecurity Dive, CISA FY2027 예산 세부",
+          "url": "https://www.cybersecuritydive.com/news/cisa-trump-budget-fy2027-details/816855/",
+          "date": "2026-04-07",
+          "kind": "media"
+        }
+      ],
+      "verifiedOn": "2026-11-11",
+      "note": "요청안이지 의회 통과 예산이 아님. 감소액과 감소율은 설명서 표의 총액(2,873,008천 달러와 2,487,194천 달러)으로 직접 계산. 요청 총액에는 새로 편입된 대량살상무기 대응 2.81억 달러가 들어 있어 기존 사업 기준 삭감 폭은 더 크고, 일부 매체는 7.07억 달러 삭감으로 보도. 하원 세출 법안의 진행은 오늘 확인하지 못함"
+    }
+  ]
+}

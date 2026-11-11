@@ -1,0 +1,5 @@
+_site/
+state/
+live.json
+node_modules/
+*.log

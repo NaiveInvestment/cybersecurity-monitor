@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>사이버보안 모니터, 종목</title>
+<link rel="icon" href="data:,">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="app">
+<header class="top">
+  <h1>사이버보안 <span>모니터</span></h1>
+  <nav aria-label="페이지">
+    <a href="index.html" aria-current="page">종목</a>
+    <a href="news.html">뉴스</a>
+  </nav>
+  <div class="status" aria-live="polite">
+    <span id="status-text">불러오는 중</span>
+    <span class="badge" id="status-badge" hidden></span>
+    <button type="button" class="theme-btn" data-theme-toggle>라이트 모드</button>
+  </div>
+</header>
+<main>
+  <section class="kpis" id="kpis" aria-label="섹터 요약"></section>
+  <section class="table-section" aria-label="종목 표">
+    <div class="tools">
+      <div class="seg-switch" role="group" aria-label="지역" id="view-switch">
+        <button type="button" data-view="KR" aria-pressed="true">국내</button>
+        <button type="button" data-view="GL" aria-pressed="false">해외</button>
+        <button type="button" data-view="ALL" aria-pressed="false">전체</button>
+      </div>
+      <div class="seg-switch" role="group" aria-label="금액 표시" id="cur-switch">
+        <button type="button" data-cur="krw" aria-pressed="true">원화 환산</button>
+        <button type="button" data-cur="local" aria-pressed="false">현지 통화</button>
+      </div>
+      <input class="search" id="search" type="search" placeholder="종목명, 코드 검색" aria-label="종목 검색">
+      <div class="chips" id="seg-chips" role="group" aria-label="분야"></div>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="table-wrap" id="table-wrap"></div>
+    <p class="notes" id="notes"></p>
+  </section>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
