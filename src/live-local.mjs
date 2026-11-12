@@ -65,7 +65,7 @@ export class LocalLive {
     const results = await Promise.allSettled(jobs);
     const failed = results.filter((result) => result.status === "rejected");
     this.naver.error = failed.length ? failed[0].reason.message : null;
-    if (failed.length < results.length) {
+    if (failed.length === 0) {
       this.naver.at = new Date().toISOString();
       this.rev += 1;
     }
@@ -121,16 +121,17 @@ export class LocalLive {
     const q = {};
     let fromKiwoom = 0;
     for (const stock of this.stocks) {
-      const quote = stock.kind === "KR" ? composeQuote(this.base[stock.id], this.ticks[stock.code]) : this.base[stock.id];
+      const tick = this.feedActive() && Date.now() - Date.parse(this.ticks[stock.code]?.at) < 120000 ? this.ticks[stock.code] : null;
+      const quote = stock.kind === "KR" ? composeQuote(this.base[stock.id], tick) : this.base[stock.id];
       if (!quote) continue;
       if (quote.src === "kiwoom") fromKiwoom += 1;
-      q[stock.id] = [quote.p, quote.chg, quote.cap, quote.capKrw, quote.tv, quote.at, quote.st];
+      q[stock.id] = [quote.p, quote.chg, quote.cap, quote.capKrw, quote.tv, quote.at, quote.st, quote.src || "naver"];
     }
     const seconds = Math.round(this.pollMs / 1000);
     return {
       asOf: new Date().toISOString(),
       rev: this.rev,
-      source: this.feedActive() ? `국내 키움 실시간, 해외 네이버 ${seconds}초` : `네이버 금융 ${seconds}초 갱신`,
+      source: this.feedActive() && fromKiwoom > 0 ? `국내 키움 실시간, 해외 네이버 ${seconds}초` : `네이버 금융 ${seconds}초 갱신`,
       feed: { ...this.feed, active: this.feedActive(), stocks: fromKiwoom },
       naver: this.naver,
       q, idx: this.idx,

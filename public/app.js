@@ -1,6 +1,8 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { pct, valuation, mean } from "./lib/calc.js";
 import { groupStories, topIssues } from "./lib/issues.js";
+import { relayUrl, freshRelay } from "./lib/relay.js";
+import { financialRow, annualValuation } from "./lib/financials.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 
 const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, liveAsOf: null, liveRev: null, liveSource: null };
@@ -8,6 +10,10 @@ const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key:
 const flash = new Map();
 let snapshot = null;
 let meta = null;
+let financials = null;
+let horizon = "threeMonth", financialMetric = "operatingIncome", valuationMetric = "pe", financialDetail = false;
+let relay = null, lastDiscovery = 0, cloud = null, relayRunning = false, relayActive = false;
+let baseQuotes = {};
 
 const $ = (selector) => document.querySelector(selector);
 const narrow = window.matchMedia("(max-width: 640px)");
@@ -62,7 +68,7 @@ const GROUPS = [
   { id: "fin", label: "실적 (최근 확정 분기, 직전 4개 분기 합계)" }, { id: "val", label: "밸류" },
 ];
 
-const COLUMNS = [
+let COLUMNS = [
   { key: "name", group: "id", label: "종목", cls: "name", sort: (s) => s.name,
     cell: (s) => ({ html: `<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}" title="${esc(s.market)}, ${esc(s.desc)} (관련 뉴스 보기)">${esc(s.name)}</a>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
@@ -87,6 +93,33 @@ const COLUMNS = [
   { key: "per", group: "val", label: "PER", sort: (s, d) => (typeof d.per === "number" ? d.per : null),
     cell: (s, d) => ({ html: d.per == null ? "-" : d.per === "N/M" ? "N/M" : d.per >= 100 ? Math.round(d.per).toLocaleString("ko-KR") : d.per.toFixed(1), cls: d.per === "N/M" ? "na" : "" }) },
 ];
+const BASE_COLUMNS = COLUMNS;
+const number = value => value == null ? "N/A" : value === "N/M" ? value : Number(value).toLocaleString("ko-KR",{maximumFractionDigits:1});
+function financialColumns() {
+  if (!financials || state.view === "GL") { COLUMNS=BASE_COLUMNS; GROUPS.find(g=>g.id==="fin").label="실적 (최근 확정 분기, 직전 4개 분기 합계)";GROUPS.find(g=>g.id==="val").label="밸류"; if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:"cap",dir:"desc"}; return; }
+  const byId = new Map(financials.stocks.map(s=>[s.id,s]));
+  const rows = financials.stocks.flatMap(s=>Object.entries(s.annual));
+  const actual = [...new Set(rows.filter(([,r])=>r.kind==="actual").map(([p])=>p))].sort().at(-1);
+  const estimates = [...new Set(rows.filter(([,r])=>r.kind==="estimate").map(([p])=>p))].sort().slice(0,3);
+  const years = [actual,...estimates].filter(Boolean).slice(0,4);
+  const metricLabel = {revenue:"매출",operatingIncome:"영업이익",parentNetIncome:"지배순이익"};
+  const basis = {threeMonth:"3M 평균",oneMonth:"1M 평균",highest:"3M 최고"}[horizon];
+  const actualQuarters=[...new Set(financials.stocks.flatMap(s=>Object.entries(s.quarter).filter(([,r])=>r.kind==='actual').map(([p])=>p)))].sort().slice(-4);
+  const kindLabel=(period,type)=>{const kinds=new Set(financials.stocks.map(s=>s[type]?.[period]?.kind).filter(Boolean));return kinds.has('actual')&&kinds.has('estimate')?'A/E':kinds.has('actual')?'A':'E';};
+  GROUPS.find(g=>g.id==="fin").label=`${financialDetail?"실적":metricLabel[financialMetric]} (억원, ${basis})`;
+  GROUPS.find(g=>g.id==="val").label=`${valuationMetric==="roe"?"ROE (%)":valuationMetric==="pb"?"P/B (배)":"P/E (배)"}`;
+  const col = (period,metric,type="annual") => ({key:`f-${metric}-${period}`,group:"fin",label:`${period.replace(/^20/," ").trim()}${kindLabel(period,type)}${financialDetail?`<br>${metricLabel[metric]}`:""}`,sort:s=>financialRow(byId.get(s.id),period,horizon,type)?.[metric]??null,cell:s=>{const row=byId.get(s.id)?.[type]?.[period];const suffix=type==='quarter'&&kindLabel(period,type)==='A/E'?(row?.kind==='actual'?'A':row?.kind==='estimate'?'E':''):'';return {html:s.kind!=="KR"?"-":number(financialRow(byId.get(s.id),period,horizon,type)?.[metric])+(suffix?`<small class="kind-mark">${suffix}</small>`:''),cls:row?.kind==='actual'?"actual-cell":"estimate-cell"};}});
+  COLUMNS = BASE_COLUMNS.filter(c=>financialDetail?c.key==="name":!["fin","val"].includes(c.group));
+  if (financialDetail) {
+    const quarters=[...new Set(financials.stocks.flatMap(s=>Object.entries(s.quarter).filter(([,r])=>r.kind==="estimate").map(([p])=>p)))].sort();
+    for(const metric of ["revenue","operatingIncome","parentNetIncome"]) for(const p of years) COLUMNS.push(col(p,metric));
+    for(const p of [...new Set([...actualQuarters,...quarters])].sort()) COLUMNS.push(col(p,financialMetric,"quarter"));
+  } else {
+    COLUMNS.push(...years.map(p=>col(p,financialMetric)));
+    COLUMNS.push(...years.map(p=>({key:`v-${p}`,group:"val",label:`${p.slice(2)}${p===actual?"A":"E"}`,sort:(s,d)=>{const v=annualValuation(byId.get(s.id),p,d.cap,horizon)[valuationMetric];return typeof v==="number"?v:null;},cell:(s,d)=>({html:s.kind!=="KR"?"-":number(annualValuation(byId.get(s.id),p,d.cap,horizon)[valuationMetric]),cls:p===actual?"actual-cell":"estimate-cell"})})));
+  }
+  if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort)) state.sort={key:financialDetail?"name":"cap",dir:financialDetail?"asc":"desc"};
+}
 
 const segLabel = (id) => snapshot.segments.find((segment) => segment.id === id)?.label || id;
 
@@ -113,6 +146,7 @@ function compare(a, b) {
 }
 
 function renderTable() {
+  financialColumns();
   // 좁은 화면에서는 분야, 시장 열을 빼고 종목명 옆에 바로 시세가 오게 한다.
   const COLS = COLUMNS.filter((column) => !(narrow.matches && column.narrow === false));
   const rows = visibleStocks().map((stock) => ({ stock, d: derive(stock) })).sort(compare);
@@ -121,8 +155,9 @@ function renderTable() {
     $("#table-wrap").innerHTML = '<p class="empty">조건에 맞는 종목이 없음</p>';
     return;
   }
-  const firstOfGroup = new Set(GROUPS.map((group) => COLS.find((column) => column.group === group.id).key));
-  const groupRow = GROUPS.map((group) => {
+  const activeGroups=GROUPS.filter(g=>COLS.some(c=>c.group===g.id));
+  const firstOfGroup = new Set(activeGroups.map((group) => COLS.find((column) => column.group === group.id).key));
+  const groupRow = activeGroups.map((group) => {
     const span = COLS.filter((column) => column.group === group.id).length;
     return `<th colspan="${span}" scope="colgroup" class="${group.id === "id" ? "name" : "g-start"}">${esc(group.label)}</th>`;
   }).join("");
@@ -215,7 +250,7 @@ function renderAll() {
   renderStatus();
 }
 
-function applyLive(live) {
+function applyLive(live, force = false) {
   if (!live?.q) return;
   state.liveAsOf = live.asOf;
   state.liveSource = live.source || null;
@@ -226,7 +261,7 @@ function applyLive(live) {
     const row = live.q[stock.id];
     if (!row) continue;
     const [p, chg, cap, capKrw, tv, at, st] = row;
-    if (stock.q?.at && Date.parse(at) < Date.parse(stock.q.at)) continue;
+    if (!force && stock.q?.at && Date.parse(at) < Date.parse(stock.q.at)) continue;
     if (stock.q?.p != null && p !== stock.q.p) flash.set(stock.id, p > stock.q.p ? "up" : "down");
     stock.q = { p, chg, cap, capKrw, tv, at, st };
   }
@@ -251,13 +286,44 @@ async function pollLive() {
   for (const attempt of attempts) {
     try {
       const response = await attempt();
-      if (response.ok) { applyLive(await response.json()); return; }
+      if (response.ok) { cloud = await response.json(); if(!relayActive) applyLive(cloud); return; }
     } catch { /* 다음 경로로 */ }
   }
   renderStatus();
 }
 
+async function pollRelay() {
+  if (!meta?.live?.relayConfig || document.hidden || relayRunning) return;
+  relayRunning=true;
+  try {
+  const now=Date.now();
+  if(now-lastDiscovery>60000) {
+    lastDiscovery=now;
+    try { const response=await fetch(`${meta.live.relayConfig}?t=${Math.floor(now/60000)}`,{signal:AbortSignal.timeout(2500),cache:"no-store"}); if(response.ok) relay=relayUrl((await response.json()).url); } catch {}
+  }
+  if(!relay) return;
+  try {
+    const response=await fetch(relay,{signal:AbortSignal.timeout(2500),cache:"no-store"});
+    if(!response.ok) throw new Error("relay unavailable");
+    const data=await response.json();
+    if(!freshRelay(data)) throw new Error("stale relay");
+    const sourceChanged=state.liveSource!==data.source;
+    relayActive=true;
+    applyLive(data,sourceChanged);
+  } catch {
+    if(relayActive) {
+      relayActive=false;
+      for(const stock of snapshot.stocks) stock.q=structuredClone(baseQuotes[stock.id]);
+      state.liveRev=null; state.liveAsOf=null;state.liveSource=null;
+      if(cloud) applyLive(cloud,true); else renderAll();
+    }
+  }
+  } finally { relayRunning=false; }
+}
+
 function bind() {
+  for(const [id,set] of [["financial-metric",v=>financialMetric=v],["financial-horizon",v=>horizon=v],["valuation-metric",v=>valuationMetric=v]]) $("#"+id).addEventListener("change",e=>{set(e.target.value);renderTable();});
+  $("#financial-detail").addEventListener("click",()=>{financialDetail=!financialDetail;$("#financial-detail").setAttribute("aria-pressed",String(financialDetail));renderTable();});
   const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === value)));
   $("#view-switch").addEventListener("click", (event) => {
     const view = event.target.closest("button")?.dataset.view;
@@ -302,6 +368,9 @@ async function main() {
     $("#table-wrap").innerHTML = `<p class="empty">${esc(error.message)}</p>`;
     return;
   }
+  baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
+  try { financials=await loadJson("data/financials.json"); } catch {}
+  $("#financial-date").textContent=financials?`실적 OpenDART, 추정 ${financials.workbookBaseDate}`:"";
   bind();
   // 뉴스 카드의 관련 종목에서 넘어오면 전체 보기에서 그 종목만 보여 준다.
   const query = new URLSearchParams(location.search).get("q");
@@ -312,11 +381,11 @@ async function main() {
     document.querySelectorAll("#view-switch button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.view === "ALL")));
   }
   renderAll();
-  renderNotes();
   renderIssueBar();
   if (meta.live) {
     pollLive();
     setInterval(pollLive, meta.live.interval || 75000);
+    if(meta.live.relayConfig) { pollRelay(); setInterval(pollRelay,2000); }
     document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
   }
   narrow.addEventListener("change", renderTable);

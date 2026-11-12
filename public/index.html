@@ -28,6 +28,7 @@
 <a class="issue-bar" id="issue-bar" href="news.html" hidden></a>
 <main>
   <section class="kpis" id="kpis" aria-label="섹터 요약"></section>
+  <section class="sector-panel" id="sector-panel" aria-label="섹터 상대주가"></section>
   <section class="table-section" aria-label="종목 표">
     <div class="tools">
       <div class="seg-switch" role="group" aria-label="지역" id="view-switch">
@@ -43,10 +44,17 @@
       <div class="chips" id="seg-chips" role="group" aria-label="분야"></div>
       <span class="count" id="count"></span>
     </div>
+    <div class="finance-tools" id="finance-tools">
+      <label>실적 <select id="financial-metric"><option value="operatingIncome">영업이익</option><option value="revenue">매출</option><option value="parentNetIncome">지배순이익</option></select></label>
+      <label>컨센서스 <select id="financial-horizon"><option value="threeMonth">3M 평균</option><option value="oneMonth">1M 평균</option><option value="highest">3M 최고</option></select></label>
+      <label>밸류 <select id="valuation-metric"><option value="pe">P/E</option><option value="pb">P/B</option><option value="roe">ROE</option></select></label>
+      <button type="button" id="financial-detail" aria-pressed="false">실적 자세히</button>
+      <span id="financial-date"></span>
+    </div>
     <div class="table-wrap" id="table-wrap"></div>
-    <p class="notes" id="notes"></p>
   </section>
 </main>
 <script type="module" src="app.js"></script>
+<script type="module" src="sectors.js"></script>
 </body>
 </html>

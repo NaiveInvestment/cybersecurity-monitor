@@ -255,6 +255,47 @@ body.reading main { max-width: 1340px; margin: 0 auto; padding: 20px 22px 44px; 
   body.app .table-wrap { flex: 1; min-height: 0; max-height: none; }
   body.app .notes { margin-top: 6px; }
 }
+.finance-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:5px 0 8px; color:var(--muted); flex-shrink:0; }
+.finance-tools label { display:flex; align-items:center; gap:5px; }
+.finance-tools select, .finance-tools button { font:inherit; color:var(--ink); background:var(--surface-2); border:1px solid var(--line-strong); border-radius:3px; padding:4px 7px; }
+.finance-tools button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+.finance-tools > span { margin-left:auto; font-size:11px; }
+.grid .actual-cell { background:var(--surface-2); }
+.grid .estimate-cell { background:color-mix(in srgb,var(--accent) 6%,var(--surface)); }
+.kind-mark { margin-left:3px; color:var(--muted); font-size:10px; }
+.sector-panel { flex-shrink:0; position:relative; border:1px solid var(--line); border-radius:var(--radius); background:var(--surface); padding:10px 14px 8px; margin:0 0 12px; }
+.sector-head { display:flex; flex-wrap:wrap; align-items:center; gap:5px 13px; }
+.sector-head h2 { font-size:14px; }
+.sector-head > span { font-size:12px; color:var(--muted); }
+.sector-controls { margin-left:auto; display:flex; flex-wrap:wrap; gap:8px; }
+.sector-controls button { padding:3px 9px; }
+.sector-chart { display:block; width:100%; height:174px; margin:6px 0 0; overflow:visible; }
+.sector-chart text { fill:var(--muted); font-size:11px; }
+.chart-grid { stroke:var(--line); stroke-width:1; }
+.chart-base { stroke:var(--muted); stroke-width:1; stroke-dasharray:4 5; }
+.sector-chart path { fill:none; stroke-width:1.6; vector-effect:non-scaling-stroke; }
+.sector-chart .series-security { stroke:var(--accent); stroke-width:3.2; }
+.series-ship { stroke:#62b6e9; } .series-defense { stroke:#c59bfa; } .series-semi { stroke:#5bcbb2; } .series-bio { stroke:#ec96b7; }
+:root[data-theme="light"] .series-ship { stroke:#126d9e; } :root[data-theme="light"] .series-defense { stroke:#8850b9; } :root[data-theme="light"] .series-semi { stroke:#147e6a; } :root[data-theme="light"] .series-bio { stroke:#b74674; }
+.series-KOSPI { stroke:var(--muted); stroke-dasharray:5 4; } .series-KOSDAQ { stroke:var(--brand); stroke-dasharray:2 4; }
+.sector-legend { display:flex; flex-wrap:wrap; align-items:center; gap:3px 16px; font-size:12px; }
+.sector-legend button { display:flex; align-items:center; gap:5px; min-height:25px; }
+.sector-legend button[aria-pressed="false"] { color:var(--muted); text-decoration:line-through; }
+.sector-legend small { color:var(--muted); }
+.legend-line { width:14px; height:3px; background:var(--muted); }
+.legend-security .legend-line { background:var(--accent); } .legend-ship .legend-line { background:#62b6e9; } .legend-defense .legend-line { background:#c59bfa; } .legend-semi .legend-line { background:#5bcbb2; } .legend-bio .legend-line { background:#ec96b7; }
+:root[data-theme="light"] .legend-ship .legend-line { background:#126d9e; } :root[data-theme="light"] .legend-defense .legend-line { background:#8850b9; } :root[data-theme="light"] .legend-semi .legend-line { background:#147e6a; } :root[data-theme="light"] .legend-bio .legend-line { background:#b74674; }
+.sector-legend details { margin-left:auto; color:var(--muted); }
+.sector-legend summary { cursor:pointer; }
+.sector-picker { position:relative; }
+.sector-picker-list { display:flex; flex-wrap:wrap; gap:7px; position:absolute; right:0; top:28px; width:350px; max-width:85vw; z-index:20; padding:12px; background:var(--surface-2); border:1px solid var(--line-strong); box-shadow:0 8px 20px #0003; }
+.sector-picker-list button { color:var(--ink); border:1px solid var(--line-strong); padding:4px 8px; border-radius:3px; opacity:1!important; text-decoration:none!important; }
+.sector-picker-list button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
+.series-auto { stroke:#efb280; } .series-bank { stroke:#87ba9b; } .series-broker { stroke:#c4b077; } .series-insurance { stroke:#92b2db; } .series-staples { stroke:#bf9bb9; } .series-discretionary { stroke:#7fbac1; } .series-battery { stroke:#b6c183; } .series-nuclear { stroke:#d9a078; } .series-games { stroke:#a4a3e0; } .series-machinery { stroke:#d19399; } .series-steel { stroke:#91b3a8; } .series-construction { stroke:#c2ae98; }
+.sector-method { position:absolute; z-index:15; left:8px; right:8px; top:100%; background:var(--surface-2); padding:14px; border:1px solid var(--line-strong); box-shadow:0 8px 20px #0003; max-height:320px; overflow:auto; line-height:1.7; }
+.sector-method p+p { margin-top:8px; }
+.sector-method a { color:var(--brand); text-decoration:underline; }
+@media (max-width: 640px) { .status { width:100%; display:grid; grid-template-columns:minmax(0,1fr) auto auto; } .theme-btn,.badge { white-space:nowrap; } .sector-controls { margin-left:0; width:100%; } .sector-panel { padding:9px 8px; } .sector-chart { height:165px; } .sector-head > span { width:100%; } .sector-legend { column-gap:12px; } .sector-legend details { margin-left:0; } .finance-tools > span { margin-left:0; width:100%; } }
 @media (max-width: 1180px) {
   .kpi { grid-template-columns: minmax(0, 1fr); }
 }

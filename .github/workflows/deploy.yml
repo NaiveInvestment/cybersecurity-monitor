@@ -44,8 +44,16 @@ jobs:
           fi
       - name: Build snapshot
         run: node scripts/build-data.mjs --prev state/snapshot.json
+      - name: Restore domestic financials
+        run: |
+          if git ls-remote --exit-code --heads origin financials >/dev/null; then
+            git fetch --depth=1 origin financials
+            git show FETCH_HEAD:financials.json > data/financials.json
+          fi
       - name: Fetch headlines
         run: node scripts/fetch-news.mjs --state state/news.json
+      - name: Build sector baskets
+        run: node scripts/build-sectors.mjs
       - name: Assemble site
         run: node scripts/build-site.mjs
       - name: Verify assembled site

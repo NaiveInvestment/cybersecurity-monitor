@@ -9,6 +9,7 @@ import { spawn, spawnSync } from "node:child_process";
 import { join, normalize, extname } from "node:path";
 import { loadUniverse, ROOT } from "../src/universe.mjs";
 import { LocalLive } from "../src/live-local.mjs";
+import { createQuoteRelay } from "../src/public-relay.mjs";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -34,6 +35,7 @@ function buildSteps(full) {
     steps.push([script("build-data.mjs"), "--out", join(root, "data"), ...(existsSync(snapshotPath) ? ["--prev", snapshotPath] : [])]);
     steps.push([script("fetch-news.mjs"), "--out", join(root, "data")]);
   }
+  if(full || !existsSync(join(root,"data","sectors.json"))) steps.push([script("build-sectors.mjs"), "--out", join(root, "data")]);
   steps.push([script("build-site.mjs"), "--out", root]);
   return steps;
 }
@@ -72,6 +74,8 @@ if (liveMode) {
   buildAtStartup();
   live = new LocalLive({ universe: loadUniverse(), log });
   live.start();
+  createQuoteRelay({ getPayload: () => live.snapshot(), ids: loadUniverse().stocks.map(s => s.id) })
+    .listen(8859, "127.0.0.1", () => log("공개 시세 전용 중계 8859"));
   setInterval(rebuildInBackground, REBUILD_MS).unref();
 }
 

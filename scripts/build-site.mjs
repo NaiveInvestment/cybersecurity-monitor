@@ -18,6 +18,7 @@ const defaultTheme = option("--default-theme", "dark");
 const publicDir = join(ROOT, "public");
 mkdirSync(join(outDir, "data"), { recursive: true });
 cpSync(publicDir, outDir, { recursive: true });
+if (existsSync(join(ROOT, "data", "financials.json"))) cpSync(join(ROOT,"data","financials.json"),join(outDir,"data","financials.json"));
 
 // 큐레이션 카드: 스키마를 확인하고 날짜 내림차순으로 싣는다.
 const cards = JSON.parse(readFileSync(join(ROOT, "data", "curated", "cards.json"), "utf8"));
@@ -46,7 +47,7 @@ for (const required of ["snapshot.json", "news.json"]) {
 
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
   builtAt: new Date().toISOString(),
-  live: liveRepo ? { repo: liveRepo, branch: "live", file: "live.json" } : null,
+  live: liveRepo ? { repo: liveRepo, branch: "live", file: "live.json", relayConfig: `https://raw.githubusercontent.com/${liveRepo}/relay/relay.json` } : null,
 }));
 writeFileSync(join(outDir, "robots.txt"), "User-agent: *\nDisallow: /\n");
 writeFileSync(join(outDir, ".nojekyll"), "");

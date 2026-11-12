@@ -3,7 +3,7 @@
 import { execFileSync } from "node:child_process";
 
 function git(args, env = {}) {
-  return execFileSync("git", args, { env: { ...process.env, ...env }, stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
+  return execFileSync("git", args, { env: { ...process.env, ...env }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] }).toString().trim();
 }
 
 export function configureBot() {

@@ -144,6 +144,7 @@ try {
   table = await evaluate(TABLE);
   check(table.count === 71, `전체 보기 행 수 ${table.count}`);
   check(!table.overflow && !table.wrapOverflow, "1440 전체 보기에서 가로 넘침");
+  await click('#view-switch [data-view="GL"]');
   await click('[data-sort="yoy"]');
   table = await evaluate(TABLE);
   check(table.sorted.endsWith(":descending") && table.sorted.includes("YoY"), `YoY 정렬 ${table.sorted}`);
@@ -154,6 +155,28 @@ try {
   await click('[data-sort="yoy"]');
   check((await evaluate(TABLE)).sorted.endsWith(":ascending"), "오름차순 전환 실패");
   await click('[data-sort="cap"]');
+  await click('#view-switch [data-view="ALL"]');
+  await click('#view-switch [data-view="KR"]');
+  check(await evaluate("document.querySelector('#notes') === null"), "하단 설명이 남음");
+  await click('#financial-detail');
+  check(await evaluate("/26Q3(?:A\\/)?E/.test(document.querySelector('.grid').textContent)"), "분기 추정 E 표시 없음");
+  await shot('financial-detail');
+  await click('#financial-detail');
+  await evaluate("document.querySelector('#financial-horizon').value='oneMonth';document.querySelector('#financial-horizon').dispatchEvent(new Event('change',{bubbles:true}))");
+  check(await evaluate("document.querySelector('.groups').textContent.includes('1M 평균')"), "컨센서스 기준 전환 실패");
+  await evaluate("document.querySelector('#financial-horizon').value='threeMonth';document.querySelector('#financial-horizon').dispatchEvent(new Event('change',{bubbles:true}))");
+  await sleep(400);
+  check(await evaluate("document.querySelectorAll('.sector-chart path').length>=5"), "섹터 그래프 없음");
+  await click('[data-weight="cap"]');
+  check(await evaluate("document.querySelector('[data-weight=cap]').getAttribute('aria-pressed')==='true'"), "시총가중 전환 실패");
+  await click('[data-weight="equal"]');
+  await click('[data-range="3M"]');
+  await evaluate("document.querySelector('.sector-picker').open=true");
+  await click('.sector-picker [data-series="staples"]');
+  check(await evaluate("document.querySelector('.series-staples')!==null"), "소비재 추가 실패");
+  await click('.sector-picker [data-series="staples"]');
+  await click('[data-range="YTD"]');
+  await click('#view-switch [data-view="ALL"]');
 
   await type("#search", "crowd");
   table = await evaluate(TABLE);
@@ -275,6 +298,23 @@ try {
   await click("#more-digest");
   check((await evaluate(NEWS)).notes >= 10, "정리 더 보기 실패");
 
+  // Browser-level source transition simulation. No live market prices are fabricated on the site.
+  const fixture=JSON.parse(await readFile(join(root,'data','snapshot.json'),'utf8'));
+  const target=fixture.stocks.find(s=>s.kind==='KR');
+  const cloudRows=Object.fromEntries(fixture.stocks.map(s=>[s.id,[s.q.p,s.q.chg,s.q.cap,s.q.capKrw,s.q.tv,s.q.at,s.q.st]]));
+  const init=`(()=>{const original=window.fetch.bind(window),rows=${JSON.stringify(cloudRows)},id=${JSON.stringify(target.id)};window.__relayTest='key';window.fetch=async function(input,options){const u=String(input);const json=x=>Promise.resolve(new Response(JSON.stringify(x),{status:200,headers:{'Content-Type':'application/json'}}));if(u.endsWith('data/meta.json'))return json({live:{repo:'test/test',branch:'live',file:'live.json',relayConfig:'https://raw.githubusercontent.com/test/test/relay/relay.json'}});if(u.includes('/relay/relay.json'))return json({url:'https://test.trycloudflare.com/live.json'});if(u.includes('api.github.com/repos/test/test/contents/live.json'))return json({asOf:new Date().toISOString(),q:rows,idx:{},source:'네이버 금융'});if(u.includes('test.trycloudflare.com')){if(window.__relayTest==='off')throw new Error('simulated PC off');const q=structuredClone(rows);if(window.__relayTest==='key')q[id]=[rows[id][0]+100,1,rows[id][2],rows[id][3],rows[id][4],new Date().toISOString(),'OPEN'];return json({asOf:new Date().toISOString(),q,idx:{},source:window.__relayTest==='key'?'국내 키움 실시간, 해외 네이버 10초':'네이버 금융 10초 갱신'});}return original(input,options);};})();`;
+  await send('Page.addScriptToEvaluateOnNewDocument',{source:init});
+  await open('index.html');await sleep(2800);
+  const readPrice=`(()=>{const tr=[...document.querySelectorAll('.grid tbody tr')].find(tr=>tr.querySelector('.stock')?.textContent===${JSON.stringify(target.name)});return Number(tr.querySelector('.quote').textContent.replace(/,/g,''));})()`;
+  check(await evaluate(readPrice)===target.q.p+100,'키움 중계 우선 적용 실패');
+  await evaluate("window.__relayTest='off'");await sleep(2600);
+  check(await evaluate(readPrice)===target.q.p,'PC 중단 후 네이버 가격 복원 실패');
+  check(!(await evaluate("document.querySelector('#status-text').textContent")).includes('키움'),'PC 중단 후 키움 출처 잔존');
+  await evaluate("window.__relayTest='key'");await sleep(2600);
+  check(await evaluate(readPrice)===target.q.p+100,'중계 재연결 실패');
+  await evaluate("window.__relayTest='naver'");await sleep(2600);
+  check(await evaluate(readPrice)===target.q.p,'키움 연결 중단 후 로컬 네이버 복원 실패');
+  check((await evaluate("document.querySelector('#status-text').textContent")).includes('네이버 금융 10초'),'네이버 전환 출처 불일치');
   check(consoleErrors.length === 0, `콘솔 오류: ${consoleErrors.join(" | ")}`);
 } catch (error) {
   failures.push(`실행 오류: ${error.message}`);
