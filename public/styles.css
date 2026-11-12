@@ -292,6 +292,19 @@ body.reading main { max-width: 1340px; margin: 0 auto; padding: 20px 22px 44px; 
 .sector-picker-list button { color:var(--ink); border:1px solid var(--line-strong); padding:4px 8px; border-radius:3px; opacity:1!important; text-decoration:none!important; }
 .sector-picker-list button[aria-pressed="true"] { color:var(--accent); border-color:var(--accent); }
 .series-auto { stroke:#efb280; } .series-bank { stroke:#87ba9b; } .series-broker { stroke:#c4b077; } .series-insurance { stroke:#92b2db; } .series-staples { stroke:#bf9bb9; } .series-discretionary { stroke:#7fbac1; } .series-battery { stroke:#b6c183; } .series-nuclear { stroke:#d9a078; } .series-games { stroke:#a4a3e0; } .series-machinery { stroke:#d19399; } .series-steel { stroke:#91b3a8; } .series-construction { stroke:#c2ae98; }
+.legend-auto .legend-line { background:#efb280; } .legend-bank .legend-line { background:#87ba9b; } .legend-broker .legend-line { background:#c4b077; } .legend-insurance .legend-line { background:#92b2db; } .legend-staples .legend-line { background:#bf9bb9; } .legend-discretionary .legend-line { background:#7fbac1; } .legend-battery .legend-line { background:#b6c183; } .legend-nuclear .legend-line { background:#d9a078; } .legend-games .legend-line { background:#a4a3e0; } .legend-machinery .legend-line { background:#d19399; } .legend-steel .legend-line { background:#91b3a8; } .legend-construction .legend-line { background:#c2ae98; }
+:root[data-theme="light"] .series-auto { stroke:#966035; } :root[data-theme="light"] .legend-auto .legend-line { background:#966035; }
+:root[data-theme="light"] .series-bank { stroke:#4b795c; } :root[data-theme="light"] .legend-bank .legend-line { background:#4b795c; }
+:root[data-theme="light"] .series-broker { stroke:#80703b; } :root[data-theme="light"] .legend-broker .legend-line { background:#80703b; }
+:root[data-theme="light"] .series-insurance { stroke:#446d9c; } :root[data-theme="light"] .legend-insurance .legend-line { background:#446d9c; }
+:root[data-theme="light"] .series-staples { stroke:#86547e; } :root[data-theme="light"] .legend-staples .legend-line { background:#86547e; }
+:root[data-theme="light"] .series-discretionary { stroke:#3f7b82; } :root[data-theme="light"] .legend-discretionary .legend-line { background:#3f7b82; }
+:root[data-theme="light"] .series-battery { stroke:#68773c; } :root[data-theme="light"] .legend-battery .legend-line { background:#68773c; }
+:root[data-theme="light"] .series-nuclear { stroke:#96603f; } :root[data-theme="light"] .legend-nuclear .legend-line { background:#96603f; }
+:root[data-theme="light"] .series-games { stroke:#625eaa; } :root[data-theme="light"] .legend-games .legend-line { background:#625eaa; }
+:root[data-theme="light"] .series-machinery { stroke:#934c55; } :root[data-theme="light"] .legend-machinery .legend-line { background:#934c55; }
+:root[data-theme="light"] .series-steel { stroke:#50776b; } :root[data-theme="light"] .legend-steel .legend-line { background:#50776b; }
+:root[data-theme="light"] .series-construction { stroke:#7e6852; } :root[data-theme="light"] .legend-construction .legend-line { background:#7e6852; }
 .sector-method { position:absolute; z-index:15; left:8px; right:8px; top:100%; background:var(--surface-2); padding:14px; border:1px solid var(--line-strong); box-shadow:0 8px 20px #0003; max-height:320px; overflow:auto; line-height:1.7; }
 .sector-method p+p { margin-top:8px; }
 .sector-method a { color:var(--brand); text-decoration:underline; }

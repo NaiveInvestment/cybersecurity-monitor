@@ -174,6 +174,10 @@ try {
   await evaluate("document.querySelector('.sector-picker').open=true");
   await click('.sector-picker [data-series="staples"]');
   check(await evaluate("document.querySelector('.series-staples')!==null"), "소비재 추가 실패");
+  check(await evaluate("getComputedStyle(document.querySelector('.series-staples')).stroke===getComputedStyle(document.querySelector('.legend-staples .legend-line')).backgroundColor"), "소비재 선과 범례 색 불일치");
+  await evaluate("document.querySelector('.sector-picker').open=false");
+  await shot('consumer-sector');
+  await evaluate("document.querySelector('.sector-picker').open=true");
   await click('.sector-picker [data-series="staples"]');
   await click('[data-range="YTD"]');
   await click('#view-switch [data-view="ALL"]');
