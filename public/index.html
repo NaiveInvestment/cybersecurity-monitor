@@ -45,10 +45,13 @@
       <span class="count" id="count"></span>
     </div>
     <div class="finance-tools" id="finance-tools">
-      <label>실적 <select id="financial-metric"><option value="operatingIncome">영업이익</option><option value="revenue">매출</option><option value="parentNetIncome">지배순이익</option></select></label>
+      <div class="seg-switch" id="table-mode" role="group" aria-label="표 보기"><button data-table-mode="market" aria-pressed="true">시세, 수익률</button><button data-table-mode="financial" aria-pressed="false">실적, 밸류</button></div>
+      <label class="financial-control" title="연도 머리글을 누르면 이 지표로 종목을 정렬합니다">정렬 지표 <select id="financial-metric"><option value="operatingIncome">영업이익</option><option value="revenue">매출</option><option value="parentNetIncome">지배순이익</option></select></label>
       <label>컨센서스 <select id="financial-horizon"><option value="threeMonth">3M 평균</option><option value="oneMonth">1M 평균</option><option value="highest">3M 최고</option></select></label>
       <label>밸류 <select id="valuation-metric"><option value="pe">P/E</option><option value="pb">P/B</option><option value="roe">ROE</option></select></label>
-      <button type="button" id="financial-detail" aria-pressed="false">실적 자세히</button>
+      <button type="button" id="financial-detail" aria-pressed="false">분기 실적</button>
+      <label class="financial-control"><input type="checkbox" id="financial-all">전체 기간</label>
+      <label class="financial-control"><input type="checkbox" id="financial-covered">컨센서스 있는 종목</label>
       <span id="financial-date"></span>
     </div>
     <div class="table-wrap" id="table-wrap"></div>

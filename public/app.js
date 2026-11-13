@@ -3,6 +3,7 @@ import { pct, valuation, mean } from "./lib/calc.js";
 import { groupStories, topIssues } from "./lib/issues.js";
 import { relayUrl, freshRelay } from "./lib/relay.js";
 import { financialRow, annualValuation } from "./lib/financials.js";
+import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 
 const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, liveAsOf: null, liveRev: null, liveSource: null };
@@ -12,6 +13,7 @@ let snapshot = null;
 let meta = null;
 let financials = null;
 let horizon = "threeMonth", financialMetric = "operatingIncome", valuationMetric = "pe", financialDetail = false;
+let financialMode=false, allFinancialPeriods=false, consensusOnly=false;
 let relay = null, lastDiscovery = 0, cloud = null, relayRunning = false, relayActive = false;
 let baseQuotes = {};
 
@@ -96,29 +98,26 @@ let COLUMNS = [
 const BASE_COLUMNS = COLUMNS;
 const number = value => value == null ? "N/A" : value === "N/M" ? value : Number(value).toLocaleString("ko-KR",{maximumFractionDigits:1});
 function financialColumns() {
-  if (!financials || state.view === "GL") { COLUMNS=BASE_COLUMNS; GROUPS.find(g=>g.id==="fin").label="실적 (최근 확정 분기, 직전 4개 분기 합계)";GROUPS.find(g=>g.id==="val").label="밸류"; if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:"cap",dir:"desc"}; return; }
-  const byId = new Map(financials.stocks.map(s=>[s.id,s]));
-  const rows = financials.stocks.flatMap(s=>Object.entries(s.annual));
-  const actual = [...new Set(rows.filter(([,r])=>r.kind==="actual").map(([p])=>p))].sort().at(-1);
-  const estimates = [...new Set(rows.filter(([,r])=>r.kind==="estimate").map(([p])=>p))].sort().slice(0,3);
-  const years = [actual,...estimates].filter(Boolean).slice(0,4);
-  const metricLabel = {revenue:"매출",operatingIncome:"영업이익",parentNetIncome:"지배순이익"};
-  const basis = {threeMonth:"3M 평균",oneMonth:"1M 평균",highest:"3M 최고"}[horizon];
-  const actualQuarters=[...new Set(financials.stocks.flatMap(s=>Object.entries(s.quarter).filter(([,r])=>r.kind==='actual').map(([p])=>p)))].sort().slice(-4);
-  const kindLabel=(period,type)=>{const kinds=new Set(financials.stocks.map(s=>s[type]?.[period]?.kind).filter(Boolean));return kinds.has('actual')&&kinds.has('estimate')?'A/E':kinds.has('actual')?'A':'E';};
-  GROUPS.find(g=>g.id==="fin").label=`${financialDetail?"실적":metricLabel[financialMetric]} (억원, ${basis})`;
-  GROUPS.find(g=>g.id==="val").label=`${valuationMetric==="roe"?"ROE (%)":valuationMetric==="pb"?"P/B (배)":"P/E (배)"}`;
-  const col = (period,metric,type="annual") => ({key:`f-${metric}-${period}`,group:"fin",label:`${period.replace(/^20/," ").trim()}${kindLabel(period,type)}${financialDetail?`<br>${metricLabel[metric]}`:""}`,sort:s=>financialRow(byId.get(s.id),period,horizon,type)?.[metric]??null,cell:s=>{const row=byId.get(s.id)?.[type]?.[period];const suffix=type==='quarter'&&kindLabel(period,type)==='A/E'?(row?.kind==='actual'?'A':row?.kind==='estimate'?'E':''):'';return {html:s.kind!=="KR"?"-":number(financialRow(byId.get(s.id),period,horizon,type)?.[metric])+(suffix?`<small class="kind-mark">${suffix}</small>`:''),cls:row?.kind==='actual'?"actual-cell":"estimate-cell"};}});
-  COLUMNS = BASE_COLUMNS.filter(c=>financialDetail?c.key==="name":!["fin","val"].includes(c.group));
-  if (financialDetail) {
-    const quarters=[...new Set(financials.stocks.flatMap(s=>Object.entries(s.quarter).filter(([,r])=>r.kind==="estimate").map(([p])=>p)))].sort();
-    for(const metric of ["revenue","operatingIncome","parentNetIncome"]) for(const p of years) COLUMNS.push(col(p,metric));
-    for(const p of [...new Set([...actualQuarters,...quarters])].sort()) COLUMNS.push(col(p,financialMetric,"quarter"));
-  } else {
-    COLUMNS.push(...years.map(p=>col(p,financialMetric)));
-    COLUMNS.push(...years.map(p=>({key:`v-${p}`,group:"val",label:`${p.slice(2)}${p===actual?"A":"E"}`,sort:(s,d)=>{const v=annualValuation(byId.get(s.id),p,d.cap,horizon)[valuationMetric];return typeof v==="number"?v:null;},cell:(s,d)=>({html:s.kind!=="KR"?"-":number(annualValuation(byId.get(s.id),p,d.cap,horizon)[valuationMetric]),cls:p===actual?"actual-cell":"estimate-cell"})})));
-  }
-  if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort)) state.sort={key:financialDetail?"name":"cap",dir:financialDetail?"asc":"desc"};
+  const active=!!financials&&state.view==='KR'&&financialMode;
+  document.querySelectorAll('#table-mode button').forEach(b=>b.setAttribute('aria-pressed',String(active?b.dataset.tableMode==='financial':b.dataset.tableMode==='market')));
+  document.querySelector('[data-table-mode="financial"]').disabled=state.view!=='KR';
+  for(const id of ['financial-metric','financial-horizon','valuation-metric','financial-all','financial-covered']) $('#'+id).closest('label').hidden=!active||(id==='valuation-metric'&&financialDetail);
+  $('#financial-detail').hidden=!active;
+  $('#financial-detail').textContent=financialDetail?'연간 실적':'분기 실적';
+  $('#financial-date').textContent=active?`확정 실선, 예상 점선 / ConsenDB ${financials.workbookBaseDate}`:(state.view==='KR'?'': '해외 실적은 확정 분기와 TTM');
+  if (!active) { COLUMNS=BASE_COLUMNS; GROUPS.find(g=>g.id==='fin').label='실적 (최근 확정 분기, 직전 4개 분기 합계)';GROUPS.find(g=>g.id==='val').label='밸류';if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'}; return; }
+  const byId=new Map(financials.stocks.map(s=>[s.id,s]));
+  const periods=timelinePeriods(financials.stocks,{quarter:financialDetail,all:allFinancialPeriods});
+  const basis={threeMonth:'3M 평균',oneMonth:'1M 평균',highest:'3M 최고'}[horizon];
+  GROUPS.find(g=>g.id==='fin').label=`${financialDetail?'분기 실적':'연간 실적과 밸류'} (${basis})`;
+  const valLabel=financialDetail?'영업이익률 (%)':{pe:'P/E (배)',pb:'P/B (배)',roe:'ROE (%)'}[valuationMetric];
+  const labels=['매출 (억원)','영업이익 (억원)','지배순이익 (억원)',valLabel];
+  const stack=(values,period,row)=>`<div class="financial-stack">${values.map((v,i)=>`<span class="financial-value ${v==null?'financial-missing':typeof v==='number'&&v<0?'neg':''}" data-metric="${['revenue','operatingIncome','parentNetIncome','valuation'][i]}" title="${esc(labels[i])}, ${esc(period)}, ${row?.kind==='actual'?'확정':'예상'}${v==null?', 자료 없음':''}">${timelineNumber(v)}${v!=null&&period.includes('Q')&&row?.kind?`<small class="kind-mark">${row.kind==='actual'?'A':'E'}</small>`:''}</span>`).join('')}</div>`;
+  COLUMNS=[{key:'cap',group:'id',label:'종목 / 시가총액',cls:'name finance-company',rowHeader:true,sort:(s,d)=>d.cap,cell:(s,d)=>({html:`<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}">${esc(s.name)}</a><span class="company-sector">${esc(segLabel(s.seg))}</span><a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener">${fmtPrice(d.price,s.cur)}</a> <span class="${signClass(d.chg)}">${fmtPct(d.chg,2)}</span><span class="company-cap">시총 ${fmtEok(d.cap)}</span>`})},
+    {key:'metric-labels',group:'fin',label:'지표',cls:'finance-labels',cell:()=>({html:`<div class="financial-stack">${labels.map((l,i)=>`<span title="${i===3&&!financialDetail?(valuationMetric==='pe'?'현재 시가총액 / 해당 연도 지배순이익':valuationMetric==='pb'?'현재 시가총액 / 해당 연말 지배주주지분':'지배순이익 / 전기와 당기 평균 지배주주지분'):l}">${l}</span>`).join('')}</div>`})},
+    ...periods.map(p=>({key:'timeline-'+p.period,group:'fin',label:p.label,cls:'timeline-year',sort:s=>financialRow(byId.get(s.id),p.period,horizon,p.type)?.[financialMetric]??null,cell:(s,d)=>{const record=byId.get(s.id);const row=record?.[p.type]?.[p.period];return {html:stack(timelineValues(record,p.period,d.cap,horizon,valuationMetric,financialDetail),p.period,row),cls:row?.kind==='actual'?'actual-cell':'estimate-cell'};}})),
+    {key:'timeline-trend',group:'fin',label:'추이',cls:'timeline-trends',cell:(s,d)=>{const record=byId.get(s.id);return {html:`<div class="financial-stack">${labels.map((label,i)=>trendSvg(periods.map(p=>({period:p.period,value:timelineValues(record,p.period,d.cap,horizon,valuationMetric,financialDetail)[i],forecast:record?.[p.type]?.[p.period]?.kind!=='actual'})),label)).join('')}</div>`};}}];
+  if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
 }
 
 const segLabel = (id) => snapshot.segments.find((segment) => segment.id === id)?.label || id;
@@ -127,6 +126,7 @@ function visibleStocks() {
   const query = state.query.trim().toLowerCase();
   return snapshot.stocks.filter((stock) => {
     if (state.view !== "ALL" && stock.kind !== state.view) return false;
+    if(financialMode&&state.view==='KR'&&consensusOnly) {const record=financials?.stocks.find(s=>s.id===stock.id),type=financialDetail?'quarter':'annual';if(!Object.entries(record?.[type]||{}).some(([p,r])=>r.kind==='estimate'&&['revenue','operatingIncome','parentNetIncome'].some(k=>financialRow(record,p,horizon,type)?.[k]!=null)))return false;}
     if (state.segs.size && !state.segs.has(stock.seg)) return false;
     if (!query) return true;
     return [stock.name, stock.nameEn, stock.id].some((text) => text && text.toLowerCase().includes(query));
@@ -163,18 +163,18 @@ function renderTable() {
   }).join("");
   const headRow = COLS.map((column) => {
     const sorted = state.sort.key === column.key ? ` aria-sort="${state.sort.dir === "asc" ? "ascending" : "descending"}"` : "";
-    const classes = [column.cls?.includes("name") ? "name" : "", column.cls?.includes("left") ? "left" : "", firstOfGroup.has(column.key) && column.group !== "id" ? "g-start" : ""].filter(Boolean).join(" ");
+    const classes = [column.cls || "", firstOfGroup.has(column.key) && column.group !== "id" ? "g-start" : ""].filter(Boolean).join(" ");
     const inner = column.sort ? `<button type="button" class="sort" data-sort="${column.key}">${column.label}</button>` : column.label;
     return `<th scope="col" class="${classes}"${sorted}>${inner}</th>`;
   }).join("");
   const body = rows.map(({ stock, d }) => `<tr>${COLS.map((column) => {
     const cell = column.cell(stock, d);
     const classes = [column.cls || "", cell.cls || "", firstOfGroup.has(column.key) && column.group !== "id" ? "g-start" : ""].filter(Boolean).join(" ");
-    return column.key === "name" ? `<th scope="row" class="${classes}">${cell.html}</th>` : `<td class="${classes}">${cell.html}</td>`;
+    return column.key === "name" || column.rowHeader ? `<th scope="row" class="${classes}">${cell.html}</th>` : `<td class="${classes}">${cell.html}</td>`;
   }).join("")}</tr>`).join("");
   const wrap = $("#table-wrap");
   const scroll = { left: wrap.scrollLeft, top: wrap.scrollTop };
-  wrap.innerHTML = `<table class="grid"><thead><tr class="groups">${groupRow}</tr><tr class="cols">${headRow}</tr></thead><tbody>${body}</tbody></table>`;
+  wrap.innerHTML = `<table class="grid${financials && state.view === "KR" && financialMode ? " finance-grid" : ""}"><thead><tr class="groups">${groupRow}</tr><tr class="cols">${headRow}</tr></thead><tbody>${body}</tbody></table>`;
   wrap.scrollLeft = scroll.left;
   wrap.scrollTop = scroll.top;
 }
@@ -322,6 +322,9 @@ async function pollRelay() {
 }
 
 function bind() {
+  $('#table-mode').addEventListener('click',e=>{const mode=e.target.closest('button')?.dataset.tableMode;if(!mode)return;financialMode=mode==='financial';state.sort={key:'cap',dir:'desc'};renderTable();});
+  $('#financial-all').addEventListener('change',e=>{allFinancialPeriods=e.target.checked;renderTable();});
+  $('#financial-covered').addEventListener('change',e=>{consensusOnly=e.target.checked;renderTable();});
   for(const [id,set] of [["financial-metric",v=>financialMetric=v],["financial-horizon",v=>horizon=v],["valuation-metric",v=>valuationMetric=v]]) $("#"+id).addEventListener("change",e=>{set(e.target.value);renderTable();});
   $("#financial-detail").addEventListener("click",()=>{financialDetail=!financialDetail;$("#financial-detail").setAttribute("aria-pressed",String(financialDetail));renderTable();});
   const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === value)));

@@ -101,7 +101,7 @@ const TABLE = `(() => { const rows = [...document.querySelectorAll('.grid tbody 
   count: rows.length, first: rows[0]?.querySelector('.stock')?.textContent, last: rows.at(-1)?.querySelector('.stock')?.textContent,
   heads: [...document.querySelectorAll('.grid thead tr.cols th')].map((th) => th.textContent.trim()),
   sorted: document.querySelector('.grid th[aria-sort]')?.textContent.trim() + ':' + document.querySelector('.grid th[aria-sort]')?.getAttribute('aria-sort'),
-  capCell: rows[0]?.children[[...document.querySelectorAll('.grid thead tr.cols th')].findIndex((th) => th.textContent.trim() === '시가총액')]?.textContent,
+  capCell: rows[0]?.querySelector('.company-cap')?.textContent || rows[0]?.children[[...document.querySelectorAll('.grid thead tr.cols th')].findIndex((th) => th.textContent.trim() === '시가총액')]?.textContent,
   overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
   wrapOverflow: document.querySelector('#table-wrap').scrollWidth > document.querySelector('#table-wrap').clientWidth,
   count_label: document.querySelector('#count').textContent, theme: document.documentElement.dataset.theme,
@@ -117,7 +117,8 @@ try {
   await open("index.html");
   let table = await evaluate(TABLE);
   check(table.count === 35, `국내 보기 행 수 ${table.count}`);
-  check(table.sorted === "시가총액:descending", `기본 정렬 ${table.sorted}`);
+  check(table.sorted.includes("시가총액:descending"), `기본 정렬 ${table.sorted}`);
+  check(await evaluate("document.querySelector('[data-table-mode=market]').getAttribute('aria-pressed')==='true'&&document.querySelector('[data-sort=price]')!==null&&document.querySelector('[data-sort=ytd]')!==null"),'첫 화면이 시세, 수익률이 아님');
   check(!table.overflow && !table.wrapOverflow, "1440 국내 보기에서 가로 넘침");
   check(/억|조/.test(table.capCell), `시가총액 표기 ${table.capCell}`);
   const kpi = await evaluate("[...document.querySelectorAll('.kpi')].map((el) => el.textContent.replace(/\\s+/g, ' ').trim())");
@@ -157,11 +158,28 @@ try {
   await click('[data-sort="cap"]');
   await click('#view-switch [data-view="ALL"]');
   await click('#view-switch [data-view="KR"]');
+  await click('#table-mode [data-table-mode="financial"]');
   check(await evaluate("document.querySelector('#notes') === null"), "하단 설명이 남음");
+  const timeline=await evaluate("({headers:[...document.querySelectorAll('.grid .cols th')].map(e=>e.textContent),metrics:[...document.querySelectorAll('.grid tbody tr:first-child .finance-labels span')].map(e=>e.textContent),values:document.querySelectorAll('.grid tbody tr:first-child .financial-value').length})");
+  check(['2023A','2024A','2025A','2026E','2027E'].every(y=>timeline.headers.includes(y)), '연간 시계열 기간 누락');
+  check(timeline.metrics.some(v=>v.includes('매출'))&&timeline.metrics.some(v=>v.includes('영업이익'))&&timeline.metrics.some(v=>v.includes('지배순이익'))&&timeline.metrics.some(v=>v.includes('P/E'))&&timeline.values===20, '매출, 이익과 밸류 동시 표시 실패');
+  await click('#financial-covered');
+  check((await evaluate(TABLE)).count===5,'컨센서스 필터 종목 수 오류');
+  await shot('financial-annual-covered');
+  await click('#financial-covered');
+  await click('#financial-all');
+  check(await evaluate("document.querySelector('.grid').textContent.includes('2021A')&&document.querySelector('.grid').textContent.includes('2028E')"),'전체 재무 기간 표시 실패');
+  await click('#financial-all');
   await click('#financial-detail');
   check(await evaluate("/26Q3(?:A\\/)?E/.test(document.querySelector('.grid').textContent)"), "분기 추정 E 표시 없음");
+  await click('#financial-covered');
+  check((await evaluate(TABLE)).count===1,'분기 컨센서스 필터가 연간 기준을 사용함');
+  await click('#financial-covered');
   await shot('financial-detail');
   await click('#financial-detail');
+  await click('#table-mode [data-table-mode="market"]');
+  check(await evaluate("document.querySelector('[data-sort=price]')!==null&&document.querySelector('[data-sort=ytd]')!==null"),'시세, 수익률 보기 복원 실패');
+  await click('#table-mode [data-table-mode="financial"]');
   await evaluate("document.querySelector('#financial-horizon').value='oneMonth';document.querySelector('#financial-horizon').dispatchEvent(new Event('change',{bubbles:true}))");
   check(await evaluate("document.querySelector('.groups').textContent.includes('1M 평균')"), "컨센서스 기준 전환 실패");
   await evaluate("document.querySelector('#financial-horizon').value='threeMonth';document.querySelector('#financial-horizon').dispatchEvent(new Event('change',{bubbles:true}))");
@@ -213,7 +231,7 @@ try {
   table = await evaluate(TABLE);
   check(table.theme === "dark", "시스템 다크 설정을 따르지 않음");
   check(!table.overflow, "모바일 페이지 가로 넘침");
-  check(!table.heads.includes("분야") && table.heads[1] === "현재가", `모바일 열 구성 ${table.heads.slice(0, 4).join(",")}`);
+  check(!table.heads.includes("분야") && table.heads[1] === "현재가", `모바일 기본 열 구성 ${table.heads.slice(0, 4).join(",")}`);
   await click('#view-switch [data-view="GL"]');
   await shot("index-mobile-dark-overseas");
 
