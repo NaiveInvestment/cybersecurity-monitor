@@ -253,6 +253,7 @@ body.app main,body.app .table-section { display:block; height:auto; }
 body.app .table-wrap { max-height:none; height:auto; }
 .wide-financials { width:max-content; min-width:100%; }
 .wide-financials .financial-year { min-width:86px; }
+.wide-financials .ttm-summary { min-width:70px; }
 .wide-financials .financial-spark { min-width:112px; }
 
 .finance-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:5px 0 8px; color:var(--muted); flex-shrink:0; }

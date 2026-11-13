@@ -36,6 +36,7 @@ function derive(stock) {
     rev: toEok(f?.rev), revLocal: f?.rev ?? null,
     revTtm: toEok(f?.revTtm), revTtmLocal: f?.revTtm ?? null,
     opTtm: toEok(f?.opTtm), opTtmLocal: f?.opTtm ?? null,
+    niTtm: toEok(f?.niTtm), niTtmLocal: f?.niTtm ?? null,
     psr: value.psr, per: value.per,
   };
 }
@@ -100,14 +101,20 @@ const number = value => value == null ? "N/A" : value === "N/M" ? value : Number
 function financialColumns() {
   const active=!!financials&&state.view==='KR';
   $('#financial-horizon').closest('label').hidden=!active;
-  $('#financial-date').textContent=active?`확정 OpenDART, 추정 ConsenDB ${financials.workbookBaseDate}`:'해외 실적은 최근 확정 분기와 TTM';
+  $('#financial-date').textContent=active?`TTM 네이버, 연간 확정 OpenDART, 추정 ConsenDB ${financials.workbookBaseDate}`:'해외 실적은 최근 확정 분기와 TTM';
   if(!active){COLUMNS=BASE_COLUMNS;GROUPS=BASE_GROUPS.map(g=>({...g}));if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};return;}
   const byId=new Map(financials.stocks.map(s=>[s.id,s]));
   const periods=timelinePeriods(financials.stocks).filter(p=>Number(p.period.slice(0,4))<=2027);
   const basis={threeMonth:'3M 평균',oneMonth:'1M 평균',highest:'3M 최고'}[horizon];
   const metrics=[{id:'revenue',label:`매출 (억원, ${basis})`,field:'revenue'},{id:'operatingIncome',label:`영업이익 (억원, ${basis})`,field:'operatingIncome'},{id:'parentNetIncome',label:`지배순이익 (억원, ${basis})`,field:'parentNetIncome'},{id:'pe',label:'P/E (배, 현재 시총)',valuation:'pe'},{id:'pb',label:'P/B (배, 현재 시총)',valuation:'pb'},{id:'roe',label:'ROE (%)',valuation:'roe'}];
-  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),...metrics.map(m=>({id:m.id,label:m.label}))];
+  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),{id:'ttm',label:'TTM 요약 (억원, 배)'},...metrics.map(m=>({id:m.id,label:m.label}))];
   COLUMNS=BASE_COLUMNS.filter(c=>!['fin','val'].includes(c.group));
+  const summary=[{key:'revTtm',label:'매출'},{key:'opTtm',label:'영업이익'},{key:'niTtm',label:'순이익'},{key:'psr',label:'PSR'},{key:'per',label:'PER'}];
+  for(const metric of summary)COLUMNS.push({key:metric.key,group:'ttm',label:metric.label,cls:'ttm-summary',sort:(s,d)=>typeof d[metric.key]==='number'?d[metric.key]:null,cell:(s,d)=>{
+    const v=d[metric.key],period=d.ym?`${d.ym}까지 최근 4개 확정 분기`: '확정 분기 자료 없음';
+    const note=metric.key==='niTtm'?'국내 지배주주순이익 우선, 없으면 당기순이익':metric.key==='psr'?'현재 시총 / TTM 매출':metric.key==='per'?'현재 시총 / TTM 순이익':'최근 4개 확정 분기 합계';
+    return {html:`<span class="ttm-value" data-summary="${metric.key}" title="네이버 금융, ${esc(period)}, ${note}${v==null?', 자료 없음':''}">${timelineNumber(v)}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
+  }});
   const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
   for(const m of metrics){
     for(const p of periods)COLUMNS.push({key:`${m.id}-${p.period}`,group:m.id,label:p.label,cls:'financial-year',sort:(s,d)=>{const v=value(s,d,p,m);return typeof v==='number'?v:null;},cell:(s,d)=>{const v=value(s,d,p,m);return {html:`<span class="financial-value ${v==null?'financial-missing':''}" data-metric="${m.id}" data-period="${p.period}" title="${esc(m.label)}, ${p.label}${v==null?', 자료 없음':''}">${timelineNumber(v)}</span>`,cls:(byId.get(s.id)?.annual?.[p.period]?.kind==='actual'?'actual-cell':'estimate-cell')+(typeof v==='number'&&v<0?' neg':'')};}});

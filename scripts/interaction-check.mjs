@@ -166,6 +166,15 @@ try {
   const timeline=await evaluate("({headers:[...document.querySelectorAll('.grid .cols th')].map(e=>e.textContent),groups:document.querySelector('.groups').textContent,values:document.querySelectorAll('.grid tbody tr:first-child .financial-value').length})");
   check(['2023A','2024A','2025A','2026E','2027E'].every(y=>timeline.headers.includes(y))&&!timeline.headers.some(y=>y.includes('2028')), '2027년까지의 연간 시계열 기간 오류');
   check(['매출','영업이익','지배순이익','P/E','P/B','ROE'].every(m=>timeline.groups.includes(m))&&timeline.values===30,'실적과 밸류 전체 동시 표시 실패');
+  const summary=await evaluate("({keys:[...document.querySelectorAll('.grid tbody tr:first-child .ttm-value')].map(e=>e.dataset.summary),headers:[...document.querySelectorAll('.grid .cols th')].map(e=>e.textContent),right:document.querySelector('.grid .cols th.ttm-summary:last-of-type')?.getBoundingClientRect().right})");
+  check(JSON.stringify(summary.keys)===JSON.stringify(['revTtm','opTtm','niTtm','psr','per']),'TTM 요약 다섯 지표 순서 오류');
+  check(summary.headers.indexOf('PER')<summary.headers.indexOf('2023A'),'연도별 상세가 TTM 요약보다 먼저 표시됨');
+  check(await evaluate("document.querySelector('.grid thead [data-sort=per]').getBoundingClientRect().right<=innerWidth"),'1440 화면에서 TTM 요약이 처음부터 모두 보이지 않음');
+  await click('[data-sort="per"]');
+  check(await evaluate("document.querySelector('[data-sort=per]').closest('th').getAttribute('aria-sort')==='descending'"),'TTM PER 정렬 실패');
+  await evaluate("document.querySelector('.grid').scrollIntoView({block:'start',inline:'nearest'})");
+  await shot('ttm-summary');
+  await evaluate('scrollTo(0,0)');
   check(await evaluate("document.querySelector('#financial-metric')===null&&document.querySelector('#valuation-metric')===null"),'지표 선택기가 남음');
   check(await evaluate("document.documentElement.scrollHeight>innerHeight&&document.querySelector('#table-wrap').scrollHeight<=document.querySelector('#table-wrap').clientHeight+1"),'표 안의 세로 스크롤이 남음');
   await evaluate("document.querySelector('#table-pan').scrollLeft=1500");await sleep(100);
