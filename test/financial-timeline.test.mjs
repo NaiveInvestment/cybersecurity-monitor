@@ -19,7 +19,7 @@ test('financial timeline: simultaneous metrics, cap-sensitive PE, quarterly marg
  const sample={quarter:{'2026Q1':{kind:'actual',revenue:100,operatingIncome:-10,parentNetIncome:-12}}};
  assert.deepEqual(timelineValues(sample,'2026Q1',1000,'threeMonth','pe',true),[100,-10,-12,-10]);
  assert.deepEqual(timelineValues(data.stocks.find(s=>s.code==='053800'),'2026',1000),[null,null,null,null]);
- assert.equal(timelineNumber(null),'—');assert.equal(timelineNumber('N/M'),'N/M');
+ assert.equal(timelineNumber(null),'-');assert.equal(timelineNumber('N/M'),'-');assert.equal(timelineNumber('N/A'),'-');assert.equal(timelineNumber(0),'0');
 });
 test('financial timeline: missing periods remain gaps and future segment is dashed',()=>{
  const gap=trendSvg([{period:'2023',value:10},{period:'2024',value:null},{period:'2025',value:20}], '매출');

@@ -168,6 +168,9 @@ try {
   check(['매출','영업이익','지배순이익','P/E','P/B','ROE'].every(m=>timeline.groups.includes(m))&&timeline.values===30,'실적과 밸류 전체 동시 표시 실패');
   const summary=await evaluate("({keys:[...document.querySelectorAll('.grid tbody tr:first-child .ttm-value')].map(e=>e.dataset.summary),headers:[...document.querySelectorAll('.grid .cols th')].map(e=>e.textContent),right:document.querySelector('.grid .cols th.ttm-summary:last-of-type')?.getBoundingClientRect().right})");
   check(JSON.stringify(summary.keys)===JSON.stringify(['revTtm','opTtm','niTtm','psr','per']),'TTM 요약 다섯 지표 순서 오류');
+  check(await evaluate("[...document.querySelectorAll('.grid .ttm-summary')].every(e=>getComputedStyle(e).textAlign==='center')"),'TTM 제목과 수치 가운데 정렬 실패');
+  check(await evaluate("![...document.querySelectorAll('.grid td,.grid th')].some(e=>/N\\/[MA]/.test(e.textContent))"),'N/M 또는 N/A 표기가 남음');
+  check(await evaluate("[...document.querySelectorAll('.ttm-value')].some(e=>e.textContent==='-'&&e.title.includes('순이익이 0 이하'))"),'적자 PER의 대시 또는 설명 누락');
   check(summary.headers.indexOf('PER')<summary.headers.indexOf('2023A'),'연도별 상세가 TTM 요약보다 먼저 표시됨');
   check(await evaluate("document.querySelector('.grid thead [data-sort=per]').getBoundingClientRect().right<=innerWidth"),'1440 화면에서 TTM 요약이 처음부터 모두 보이지 않음');
   const fitted="(()=>{const w=document.querySelector('#table-wrap'),p=document.querySelector('.grid thead [data-sort=per]').closest('th'),d=document.querySelector('.grid thead .financial-year');return Math.abs(p.getBoundingClientRect().right-(w.getBoundingClientRect().left+w.clientLeft+w.clientWidth))<=2&&d.getBoundingClientRect().left>=w.getBoundingClientRect().right-2})()";

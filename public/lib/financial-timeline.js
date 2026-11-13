@@ -16,7 +16,7 @@ export function timelineValues(stock,period,cap,horizon='threeMonth',valuation='
   return values;
 }
 export function timelineNumber(value) {
-  return value==null?'—':value==='N/M'?'N/M':Number(value).toLocaleString('ko-KR',{maximumFractionDigits:1});
+  return value==null||!Number.isFinite(Number(value))?'-':Number(value).toLocaleString('ko-KR',{maximumFractionDigits:1});
 }
 export function trendSvg(points,label) {
   const finite=points.map(p=>p.value).filter(v=>typeof v==='number'&&Number.isFinite(v));

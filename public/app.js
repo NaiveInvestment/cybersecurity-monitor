@@ -93,11 +93,10 @@ let COLUMNS = [
   { key: "spark", group: "fin", label: "분기 매출<br>추이", cell: (s) => ({ html: spark(s) }) },
   { key: "psr", group: "val", label: "PSR", sort: (s, d) => d.psr, cell: (s, d) => ({ html: d.psr == null ? "-" : d.psr.toFixed(1) }) },
   { key: "per", group: "val", label: "PER", sort: (s, d) => (typeof d.per === "number" ? d.per : null),
-    cell: (s, d) => ({ html: d.per == null ? "-" : d.per === "N/M" ? "N/M" : d.per >= 100 ? Math.round(d.per).toLocaleString("ko-KR") : d.per.toFixed(1), cls: d.per === "N/M" ? "na" : "" }) },
+    cell: (s, d) => ({ html: d.per == null ? '<span title="자료 없음">-</span>' : d.per === "N/M" ? '<span title="최근 4개 분기 순이익이 0 이하라 PER 계산 제외">-</span>' : d.per >= 100 ? Math.round(d.per).toLocaleString("ko-KR") : d.per.toFixed(1), cls: d.per === "N/M" ? "na" : "" }) },
 ];
 const BASE_COLUMNS = COLUMNS;
 const BASE_GROUPS = GROUPS.map(g=>({...g}));
-const number = value => value == null ? "N/A" : value === "N/M" ? value : Number(value).toLocaleString("ko-KR",{maximumFractionDigits:1});
 function financialColumns() {
   const active=!!financials&&state.view==='KR';
   $('#financial-horizon').closest('label').hidden=!active;
@@ -113,11 +112,11 @@ function financialColumns() {
   for(const metric of summary)COLUMNS.push({key:metric.key,group:'ttm',label:metric.label,cls:'ttm-summary',sort:(s,d)=>typeof d[metric.key]==='number'?d[metric.key]:null,cell:(s,d)=>{
     const v=d[metric.key],period=d.ym?`${d.ym}까지 최근 4개 확정 분기`: '확정 분기 자료 없음';
     const note=metric.key==='niTtm'?'국내 지배주주순이익 우선, 없으면 당기순이익':metric.key==='psr'?'현재 시총 / TTM 매출':metric.key==='per'?'현재 시총 / TTM 순이익':'최근 4개 확정 분기 합계';
-    return {html:`<span class="ttm-value" data-summary="${metric.key}" title="네이버 금융, ${esc(period)}, ${note}${v==null?', 자료 없음':''}">${timelineNumber(v)}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
+    return {html:`<span class="ttm-value" data-summary="${metric.key}" title="네이버 금융, ${esc(period)}, ${note}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${timelineNumber(v)}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
   }});
   const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
   for(const m of metrics){
-    for(const p of periods)COLUMNS.push({key:`${m.id}-${p.period}`,group:m.id,label:p.label,cls:'financial-year',sort:(s,d)=>{const v=value(s,d,p,m);return typeof v==='number'?v:null;},cell:(s,d)=>{const v=value(s,d,p,m);return {html:`<span class="financial-value ${v==null?'financial-missing':''}" data-metric="${m.id}" data-period="${p.period}" title="${esc(m.label)}, ${p.label}${v==null?', 자료 없음':''}">${timelineNumber(v)}</span>`,cls:(byId.get(s.id)?.annual?.[p.period]?.kind==='actual'?'actual-cell':'estimate-cell')+(typeof v==='number'&&v<0?' neg':'')};}});
+    for(const p of periods)COLUMNS.push({key:`${m.id}-${p.period}`,group:m.id,label:p.label,cls:'financial-year',sort:(s,d)=>{const v=value(s,d,p,m);return typeof v==='number'?v:null;},cell:(s,d)=>{const v=value(s,d,p,m);return {html:`<span class="financial-value ${v==null?'financial-missing':''}" data-metric="${m.id}" data-period="${p.period}" title="${esc(m.label)}, ${p.label}${v==null?', 자료 없음':v==='N/M'?', 이익 또는 자기자본이 0 이하라 계산 제외':''}">${timelineNumber(v)}</span>`,cls:(byId.get(s.id)?.annual?.[p.period]?.kind==='actual'?'actual-cell':'estimate-cell')+(typeof v==='number'&&v<0?' neg':'')};}});
     COLUMNS.push({key:m.id+'-trend',group:m.id,label:'추이',cls:'financial-spark',cell:(s,d)=>({html:trendSvg(periods.map(p=>({period:p.label,value:value(s,d,p,m),forecast:byId.get(s.id)?.annual?.[p.period]?.kind!=='actual'})),m.label)})});
   }
   if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
@@ -263,7 +262,7 @@ function renderNotes() {
   const usd = snapshot.fx.USD ? `1달러 ${snapshot.fx.USD.toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
   const jpy = snapshot.fx.JPY ? `100엔 ${(snapshot.fx.JPY * 100).toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
   $("#notes").innerHTML = `출처: 네이버 금융 (재무 갱신 ${fmtKst(snapshot.generatedAt)} KST). 종목 구성 기준일 ${esc(snapshot.universeAsOf)}.<br>`
-    + `수익률은 수정주가 종가 대비, 국내 시세와 거래대금은 KRX 기준, 해외 영업이익은 EBIT, PER은 직전 4개 분기 순이익 기준이며 적자는 N/M. 원화 환산은 현재 환율(${[usd, jpy].filter(Boolean).join(", ")}).`;
+    + `수익률은 수정주가 종가 대비, 국내 시세와 거래대금은 KRX 기준, 해외 영업이익은 EBIT, PER은 직전 4개 분기 순이익 기준이며 0 이하이면 -. 원화 환산은 현재 환율(${[usd, jpy].filter(Boolean).join(", ")}).`;
 }
 
 // 가장 많이 보도된 사건 하나를 종목 표 위에 한 줄로 보여 준다. 세 매체 이상이 다룬 사건이 없으면 숨긴다.

@@ -255,7 +255,7 @@ body.app .table-wrap { max-height:none; height:auto; }
 .wide-financials th, .wide-financials td { padding-left:3px; padding-right:3px; }
 .wide-financials .name { min-width:104px; }
 .wide-financials .financial-year { min-width:0; width:60px; }
-.wide-financials .ttm-summary { min-width:0; }
+.wide-financials .ttm-summary { min-width:0; text-align:center; }
 .wide-financials .financial-spark { min-width:76px; width:76px; }
 
 .finance-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:5px 0 8px; color:var(--muted); flex-shrink:0; }
