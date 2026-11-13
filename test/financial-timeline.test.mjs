@@ -6,7 +6,7 @@ const data=JSON.parse(readFileSync(new URL('../data/financials.json',import.meta
 test('financial timeline: actual and estimate periods chronologically, no 2028 gap-heavy default',()=>{
  const periods=timelinePeriods(data.stocks);
  assert.deepEqual(periods.map(p=>p.label),['2023A','2024A','2025A','2026E','2027E']);
- assert.equal(timelinePeriods(data.stocks,{all:true}).at(-1).label,'2028E');
+ assert.equal(timelinePeriods(data.stocks,{all:true}).at(-1).label,'2027E');
  const quarters=timelinePeriods(data.stocks,{quarter:true});
  assert.ok(quarters.some(p=>p.label==='2026Q3A/E'));
  assert.equal(quarters.at(-1).period,'2027Q2');

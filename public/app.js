@@ -12,8 +12,7 @@ const flash = new Map();
 let snapshot = null;
 let meta = null;
 let financials = null;
-let horizon = "threeMonth", financialMetric = "operatingIncome", valuationMetric = "pe", financialDetail = false;
-let financialMode=false, allFinancialPeriods=false, consensusOnly=false;
+let horizon = "threeMonth";
 let relay = null, lastDiscovery = 0, cloud = null, relayRunning = false, relayActive = false;
 let baseQuotes = {};
 
@@ -65,7 +64,7 @@ function spark(stock) {
 
 const pctCell = (value, withHeat = true) => ({ html: fmtPct(value), cls: withHeat ? heat(value) : signClass(value) });
 
-const GROUPS = [
+let GROUPS = [
   { id: "id", label: "종목" }, { id: "quote", label: "시세" }, { id: "ret", label: "수익률" },
   { id: "fin", label: "실적 (최근 확정 분기, 직전 4개 분기 합계)" }, { id: "val", label: "밸류" },
 ];
@@ -96,27 +95,24 @@ let COLUMNS = [
     cell: (s, d) => ({ html: d.per == null ? "-" : d.per === "N/M" ? "N/M" : d.per >= 100 ? Math.round(d.per).toLocaleString("ko-KR") : d.per.toFixed(1), cls: d.per === "N/M" ? "na" : "" }) },
 ];
 const BASE_COLUMNS = COLUMNS;
+const BASE_GROUPS = GROUPS.map(g=>({...g}));
 const number = value => value == null ? "N/A" : value === "N/M" ? value : Number(value).toLocaleString("ko-KR",{maximumFractionDigits:1});
 function financialColumns() {
-  const active=!!financials&&state.view==='KR'&&financialMode;
-  document.querySelectorAll('#table-mode button').forEach(b=>b.setAttribute('aria-pressed',String(active?b.dataset.tableMode==='financial':b.dataset.tableMode==='market')));
-  document.querySelector('[data-table-mode="financial"]').disabled=state.view!=='KR';
-  for(const id of ['financial-metric','financial-horizon','valuation-metric','financial-all','financial-covered']) $('#'+id).closest('label').hidden=!active||(id==='valuation-metric'&&financialDetail);
-  $('#financial-detail').hidden=!active;
-  $('#financial-detail').textContent=financialDetail?'연간 실적':'분기 실적';
-  $('#financial-date').textContent=active?`확정 실선, 예상 점선 / ConsenDB ${financials.workbookBaseDate}`:(state.view==='KR'?'': '해외 실적은 확정 분기와 TTM');
-  if (!active) { COLUMNS=BASE_COLUMNS; GROUPS.find(g=>g.id==='fin').label='실적 (최근 확정 분기, 직전 4개 분기 합계)';GROUPS.find(g=>g.id==='val').label='밸류';if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'}; return; }
+  const active=!!financials&&state.view==='KR';
+  $('#financial-horizon').closest('label').hidden=!active;
+  $('#financial-date').textContent=active?`확정 OpenDART, 추정 ConsenDB ${financials.workbookBaseDate}`:'해외 실적은 최근 확정 분기와 TTM';
+  if(!active){COLUMNS=BASE_COLUMNS;GROUPS=BASE_GROUPS.map(g=>({...g}));if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};return;}
   const byId=new Map(financials.stocks.map(s=>[s.id,s]));
-  const periods=timelinePeriods(financials.stocks,{quarter:financialDetail,all:allFinancialPeriods});
+  const periods=timelinePeriods(financials.stocks).filter(p=>Number(p.period.slice(0,4))<=2027);
   const basis={threeMonth:'3M 평균',oneMonth:'1M 평균',highest:'3M 최고'}[horizon];
-  GROUPS.find(g=>g.id==='fin').label=`${financialDetail?'분기 실적':'연간 실적과 밸류'} (${basis})`;
-  const valLabel=financialDetail?'영업이익률 (%)':{pe:'P/E (배)',pb:'P/B (배)',roe:'ROE (%)'}[valuationMetric];
-  const labels=['매출 (억원)','영업이익 (억원)','지배순이익 (억원)',valLabel];
-  const stack=(values,period,row)=>`<div class="financial-stack">${values.map((v,i)=>`<span class="financial-value ${v==null?'financial-missing':typeof v==='number'&&v<0?'neg':''}" data-metric="${['revenue','operatingIncome','parentNetIncome','valuation'][i]}" title="${esc(labels[i])}, ${esc(period)}, ${row?.kind==='actual'?'확정':'예상'}${v==null?', 자료 없음':''}">${timelineNumber(v)}${v!=null&&period.includes('Q')&&row?.kind?`<small class="kind-mark">${row.kind==='actual'?'A':'E'}</small>`:''}</span>`).join('')}</div>`;
-  COLUMNS=[{key:'cap',group:'id',label:'종목 / 시가총액',cls:'name finance-company',rowHeader:true,sort:(s,d)=>d.cap,cell:(s,d)=>({html:`<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}">${esc(s.name)}</a><span class="company-sector">${esc(segLabel(s.seg))}</span><a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener">${fmtPrice(d.price,s.cur)}</a> <span class="${signClass(d.chg)}">${fmtPct(d.chg,2)}</span><span class="company-cap">시총 ${fmtEok(d.cap)}</span>`})},
-    {key:'metric-labels',group:'fin',label:'지표',cls:'finance-labels',cell:()=>({html:`<div class="financial-stack">${labels.map((l,i)=>`<span title="${i===3&&!financialDetail?(valuationMetric==='pe'?'현재 시가총액 / 해당 연도 지배순이익':valuationMetric==='pb'?'현재 시가총액 / 해당 연말 지배주주지분':'지배순이익 / 전기와 당기 평균 지배주주지분'):l}">${l}</span>`).join('')}</div>`})},
-    ...periods.map(p=>({key:'timeline-'+p.period,group:'fin',label:p.label,cls:'timeline-year',sort:s=>financialRow(byId.get(s.id),p.period,horizon,p.type)?.[financialMetric]??null,cell:(s,d)=>{const record=byId.get(s.id);const row=record?.[p.type]?.[p.period];return {html:stack(timelineValues(record,p.period,d.cap,horizon,valuationMetric,financialDetail),p.period,row),cls:row?.kind==='actual'?'actual-cell':'estimate-cell'};}})),
-    {key:'timeline-trend',group:'fin',label:'추이',cls:'timeline-trends',cell:(s,d)=>{const record=byId.get(s.id);return {html:`<div class="financial-stack">${labels.map((label,i)=>trendSvg(periods.map(p=>({period:p.period,value:timelineValues(record,p.period,d.cap,horizon,valuationMetric,financialDetail)[i],forecast:record?.[p.type]?.[p.period]?.kind!=='actual'})),label)).join('')}</div>`};}}];
+  const metrics=[{id:'revenue',label:`매출 (억원, ${basis})`,field:'revenue'},{id:'operatingIncome',label:`영업이익 (억원, ${basis})`,field:'operatingIncome'},{id:'parentNetIncome',label:`지배순이익 (억원, ${basis})`,field:'parentNetIncome'},{id:'pe',label:'P/E (배, 현재 시총)',valuation:'pe'},{id:'pb',label:'P/B (배, 현재 시총)',valuation:'pb'},{id:'roe',label:'ROE (%)',valuation:'roe'}];
+  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),...metrics.map(m=>({id:m.id,label:m.label}))];
+  COLUMNS=BASE_COLUMNS.filter(c=>!['fin','val'].includes(c.group));
+  const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
+  for(const m of metrics){
+    for(const p of periods)COLUMNS.push({key:`${m.id}-${p.period}`,group:m.id,label:p.label,cls:'financial-year',sort:(s,d)=>{const v=value(s,d,p,m);return typeof v==='number'?v:null;},cell:(s,d)=>{const v=value(s,d,p,m);return {html:`<span class="financial-value ${v==null?'financial-missing':''}" data-metric="${m.id}" data-period="${p.period}" title="${esc(m.label)}, ${p.label}${v==null?', 자료 없음':''}">${timelineNumber(v)}</span>`,cls:(byId.get(s.id)?.annual?.[p.period]?.kind==='actual'?'actual-cell':'estimate-cell')+(typeof v==='number'&&v<0?' neg':'')};}});
+    COLUMNS.push({key:m.id+'-trend',group:m.id,label:'추이',cls:'financial-spark',cell:(s,d)=>({html:trendSvg(periods.map(p=>({period:p.label,value:value(s,d,p,m),forecast:byId.get(s.id)?.annual?.[p.period]?.kind!=='actual'})),m.label)})});
+  }
   if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
 }
 
@@ -126,7 +122,7 @@ function visibleStocks() {
   const query = state.query.trim().toLowerCase();
   return snapshot.stocks.filter((stock) => {
     if (state.view !== "ALL" && stock.kind !== state.view) return false;
-    if(financialMode&&state.view==='KR'&&consensusOnly) {const record=financials?.stocks.find(s=>s.id===stock.id),type=financialDetail?'quarter':'annual';if(!Object.entries(record?.[type]||{}).some(([p,r])=>r.kind==='estimate'&&['revenue','operatingIncome','parentNetIncome'].some(k=>financialRow(record,p,horizon,type)?.[k]!=null)))return false;}
+
     if (state.segs.size && !state.segs.has(stock.seg)) return false;
     if (!query) return true;
     return [stock.name, stock.nameEn, stock.id].some((text) => text && text.toLowerCase().includes(query));
@@ -174,9 +170,16 @@ function renderTable() {
   }).join("")}</tr>`).join("");
   const wrap = $("#table-wrap");
   const scroll = { left: wrap.scrollLeft, top: wrap.scrollTop };
-  wrap.innerHTML = `<table class="grid${financials && state.view === "KR" && financialMode ? " finance-grid" : ""}"><thead><tr class="groups">${groupRow}</tr><tr class="cols">${headRow}</tr></thead><tbody>${body}</tbody></table>`;
+  wrap.innerHTML = `<table class="grid${financials&&state.view==='KR'?' wide-financials':''}"><thead><tr class="groups">${groupRow}</tr><tr class="cols">${headRow}</tr></thead><tbody>${body}</tbody></table>`;
   wrap.scrollLeft = scroll.left;
   wrap.scrollTop = scroll.top;
+  updateTablePan();
+}
+
+function updateTablePan() {
+  const wrap=$('#table-wrap'),pan=$('#table-pan');
+  pan.hidden=wrap.scrollWidth<=wrap.clientWidth+1;
+  if(!pan.hidden){pan.innerHTML=`<svg width="${wrap.scrollWidth}" height="1" aria-hidden="true"></svg>`;pan.scrollLeft=wrap.scrollLeft;}
 }
 
 function renderKpis() {
@@ -322,11 +325,10 @@ async function pollRelay() {
 }
 
 function bind() {
-  $('#table-mode').addEventListener('click',e=>{const mode=e.target.closest('button')?.dataset.tableMode;if(!mode)return;financialMode=mode==='financial';state.sort={key:'cap',dir:'desc'};renderTable();});
-  $('#financial-all').addEventListener('change',e=>{allFinancialPeriods=e.target.checked;renderTable();});
-  $('#financial-covered').addEventListener('change',e=>{consensusOnly=e.target.checked;renderTable();});
-  for(const [id,set] of [["financial-metric",v=>financialMetric=v],["financial-horizon",v=>horizon=v],["valuation-metric",v=>valuationMetric=v]]) $("#"+id).addEventListener("change",e=>{set(e.target.value);renderTable();});
-  $("#financial-detail").addEventListener("click",()=>{financialDetail=!financialDetail;$("#financial-detail").setAttribute("aria-pressed",String(financialDetail));renderTable();});
+  $('#table-pan').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(w.scrollLeft!==p.scrollLeft)w.scrollLeft=p.scrollLeft;});
+  $('#table-wrap').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(p.scrollLeft!==w.scrollLeft)p.scrollLeft=w.scrollLeft;});
+  window.addEventListener('resize',updateTablePan);
+  $('#financial-horizon').addEventListener('change',e=>{horizon=e.target.value;renderTable();});
   const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === value)));
   $("#view-switch").addEventListener("click", (event) => {
     const view = event.target.closest("button")?.dataset.view;

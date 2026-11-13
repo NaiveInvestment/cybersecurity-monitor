@@ -7,7 +7,7 @@ export function timelinePeriods(stocks,{quarter=false,all=false}={}) {
   const actual=[...new Set(rows.filter(([,r])=>r.kind==='actual').map(([p])=>p))].sort();
   const estimate=[...new Set(rows.filter(([,r])=>r.kind==='estimate').map(([p])=>p))].sort();
   const periods=[...new Set([...(all?actual:actual.slice(quarter?-4:-3)),...(all?estimate:estimate.slice(0,quarter?4:2))])].sort();
-  return periods.map(period=>{const kinds=new Set(rows.filter(([p])=>p===period).map(([,r])=>r.kind));return {period,type,label:period+(kinds.size>1?'A/E':kinds.has('actual')?'A':'E'),estimate:kinds.has('estimate'),coverage:stocks.filter(s=>FINANCIAL_METRICS.some(k=>financialRow(s,period,'threeMonth',type)?.[k]!=null)).length};});
+  return periods.filter(period=>Number(period.slice(0,4))<=2027).map(period=>{const kinds=new Set(rows.filter(([p])=>p===period).map(([,r])=>r.kind));return {period,type,label:period+(kinds.size>1?'A/E':kinds.has('actual')?'A':'E'),estimate:kinds.has('estimate'),coverage:stocks.filter(s=>FINANCIAL_METRICS.some(k=>financialRow(s,period,'threeMonth',type)?.[k]!=null)).length};});
 }
 export function timelineValues(stock,period,cap,horizon='threeMonth',valuation='pe',quarter=false) {
   const row=financialRow(stock,period,horizon,quarter?'quarter':'annual');
