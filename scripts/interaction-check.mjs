@@ -170,6 +170,13 @@ try {
   check(JSON.stringify(summary.keys)===JSON.stringify(['revTtm','opTtm','niTtm','psr','per']),'TTM 요약 다섯 지표 순서 오류');
   check(summary.headers.indexOf('PER')<summary.headers.indexOf('2023A'),'연도별 상세가 TTM 요약보다 먼저 표시됨');
   check(await evaluate("document.querySelector('.grid thead [data-sort=per]').getBoundingClientRect().right<=innerWidth"),'1440 화면에서 TTM 요약이 처음부터 모두 보이지 않음');
+  await send('Emulation.setDeviceMetricsOverride',{width:1024,height:900,deviceScaleFactor:1,mobile:false});
+  await sleep(150);
+  check(await evaluate("document.querySelector('.grid thead [data-sort=per]').closest('th').getBoundingClientRect().right<=document.querySelector('#table-wrap').getBoundingClientRect().right"),'1024 화면에서 PER 열이 잘림');
+  await evaluate("document.querySelector('.grid').scrollIntoView({block:'start',inline:'nearest'})");
+  await shot('ttm-compact-1024');
+  await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await sleep(150);
   await click('[data-sort="per"]');
   check(await evaluate("document.querySelector('[data-sort=per]').closest('th').getAttribute('aria-sort')==='descending'"),'TTM PER 정렬 실패');
   await evaluate("document.querySelector('.grid').scrollIntoView({block:'start',inline:'nearest'})");
