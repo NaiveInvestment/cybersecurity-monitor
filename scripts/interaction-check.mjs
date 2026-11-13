@@ -170,9 +170,13 @@ try {
   check(JSON.stringify(summary.keys)===JSON.stringify(['revTtm','opTtm','niTtm','psr','per']),'TTM 요약 다섯 지표 순서 오류');
   check(summary.headers.indexOf('PER')<summary.headers.indexOf('2023A'),'연도별 상세가 TTM 요약보다 먼저 표시됨');
   check(await evaluate("document.querySelector('.grid thead [data-sort=per]').getBoundingClientRect().right<=innerWidth"),'1440 화면에서 TTM 요약이 처음부터 모두 보이지 않음');
+  const fitted="(()=>{const w=document.querySelector('#table-wrap'),p=document.querySelector('.grid thead [data-sort=per]').closest('th'),d=document.querySelector('.grid thead .financial-year');return Math.abs(p.getBoundingClientRect().right-(w.getBoundingClientRect().left+w.clientLeft+w.clientWidth))<=2&&d.getBoundingClientRect().left>=w.getBoundingClientRect().right-2})()";
+  check(await evaluate(fitted),'1440 첫 화면이 PER에서 끝나지 않음');
+  check(await evaluate("[...document.querySelectorAll('.grid .cols .financial-year')].every(th=>th.getBoundingClientRect().width<=66)"),'연도별 상세 열이 넓음');
   await send('Emulation.setDeviceMetricsOverride',{width:1024,height:900,deviceScaleFactor:1,mobile:false});
   await sleep(150);
   check(await evaluate("document.querySelector('.grid thead [data-sort=per]').closest('th').getBoundingClientRect().right<=document.querySelector('#table-wrap').getBoundingClientRect().right"),'1024 화면에서 PER 열이 잘림');
+  check(await evaluate(fitted),'1024 첫 화면이 PER에서 끝나지 않음');
   await evaluate("document.querySelector('.grid').scrollIntoView({block:'start',inline:'nearest'})");
   await shot('ttm-compact-1024');
   await send('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
@@ -186,7 +190,9 @@ try {
   check(await evaluate("document.documentElement.scrollHeight>innerHeight&&document.querySelector('#table-wrap').scrollHeight<=document.querySelector('#table-wrap').clientHeight+1"),'표 안의 세로 스크롤이 남음');
   await evaluate("document.querySelector('#table-pan').scrollLeft=1500");await sleep(100);
   check(await evaluate("Math.abs(document.querySelector('#table-wrap').scrollLeft-document.querySelector('#table-pan').scrollLeft)<2"),'상단 좌우 스크롤 연결 실패');
+  await evaluate("document.querySelector('.grid').scrollIntoView({block:'start',inline:'nearest'})");
   await shot('financial-right');
+  await evaluate('scrollTo(0,0)');
   await evaluate("document.querySelector('#table-pan').scrollLeft=0");await sleep(100);
   await evaluate("document.querySelector('#financial-horizon').value='oneMonth';document.querySelector('#financial-horizon').dispatchEvent(new Event('change',{bubbles:true}))");
   check(await evaluate("document.querySelector('.groups').textContent.includes('1M 평균')"), "컨센서스 기준 전환 실패");

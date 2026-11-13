@@ -178,9 +178,33 @@ function renderTable() {
   const wrap = $("#table-wrap");
   const scroll = { left: wrap.scrollLeft, top: wrap.scrollTop };
   wrap.innerHTML = `<table class="grid${financials&&state.view==='KR'?' wide-financials':''}"><thead><tr class="groups">${groupRow}</tr><tr class="cols">${headRow}</tr></thead><tbody>${body}</tbody></table>`;
+  fitOverviewColumns();
   wrap.scrollLeft = scroll.left;
   wrap.scrollTop = scroll.top;
   updateTablePan();
+}
+
+function fitOverviewColumns() {
+  const wrap=$('#table-wrap'),table=wrap.querySelector('.wide-financials');
+  if(!table)return;
+  const scroll=wrap.scrollLeft;
+  table.querySelector('colgroup')?.remove();
+  const heads=[...table.querySelectorAll('.cols th')];
+  const last=heads.findIndex(th=>th.querySelector('[data-sort="per"]'));
+  if(last<0)return;
+  const widths=heads.map(th=>th.getBoundingClientRect().width);
+  const natural=widths.slice(0,last+1).reduce((sum,width)=>sum+width,0);
+  const target=wrap.clientWidth;
+  if(target>=natural){
+    let used=0,total=0;
+    for(let i=0;i<=last;i++){
+      total+=widths[i];
+      const edge=Math.round(total/natural*target);
+      widths[i]=edge-used;used=edge;
+    }
+  }
+  table.insertAdjacentHTML('afterbegin',`<colgroup>${widths.map(width=>`<col width="${Math.round(width)}">`).join('')}</colgroup>`);
+  wrap.scrollLeft=scroll;
 }
 
 function updateTablePan() {
@@ -334,7 +358,7 @@ async function pollRelay() {
 function bind() {
   $('#table-pan').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(w.scrollLeft!==p.scrollLeft)w.scrollLeft=p.scrollLeft;});
   $('#table-wrap').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(p.scrollLeft!==w.scrollLeft)p.scrollLeft=w.scrollLeft;});
-  window.addEventListener('resize',updateTablePan);
+  window.addEventListener('resize',()=>{fitOverviewColumns();updateTablePan();});
   $('#financial-horizon').addEventListener('change',e=>{horizon=e.target.value;renderTable();});
   const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === value)));
   $("#view-switch").addEventListener("click", (event) => {
