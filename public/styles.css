@@ -256,6 +256,12 @@ body.app .table-wrap { max-height:none; height:auto; }
 .wide-financials .name { min-width:104px; }
 .wide-financials .financial-year { min-width:0; width:60px; }
 .wide-financials .ttm-summary { min-width:0; text-align:center; }
+.wide-financials .ttm-value { display:inline-block; width:6ch; text-align:right; font-variant-numeric:tabular-nums lining-nums; }
+.wide-financials .ttm-ratio { width:5ch; }
+.wide-financials .ttm-missing { text-align:center; }
+.wide-financials .drawdown { text-align:center; }
+.wide-financials .ttm-summary .sort, .wide-financials .drawdown .sort { position:relative; display:inline-block; }
+.wide-financials .ttm-summary .sort::after, .wide-financials .drawdown .sort::after { position:absolute; left:100%; bottom:0; margin-left:3px; }
 .wide-financials .financial-spark { min-width:76px; width:76px; }
 
 .finance-tools { display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:5px 0 8px; color:var(--muted); flex-shrink:0; }

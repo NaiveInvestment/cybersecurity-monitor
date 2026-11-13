@@ -83,7 +83,7 @@ let COLUMNS = [
   { key: "m3", group: "ret", label: "3M", sort: (s, d) => d.m3, cell: (s, d) => pctCell(d.m3) },
   { key: "ytd", group: "ret", label: "YTD", sort: (s, d) => d.ytd, cell: (s, d) => pctCell(d.ytd) },
   { key: "y1", group: "ret", label: "1Y", sort: (s, d) => d.y1, cell: (s, d) => pctCell(d.y1) },
-  { key: "dd", group: "ret", label: "52주<br>고점 대비", sort: (s, d) => d.dd, cell: (s, d) => ({ html: fmtPct(d.dd), cls: signClass(d.dd) }) },
+  { key: "dd", group: "ret", label: "52주<br>고점 대비", cls:"drawdown", sort: (s, d) => d.dd, cell: (s, d) => ({ html: fmtPct(d.dd), cls: signClass(d.dd) }) },
   { key: "ym", group: "fin", label: "분기", sort: (s, d) => d.ym, cell: (s, d) => ({ html: d.ym ? d.ym.slice(2).replace("-", ".") : "-", cls: "per" }) },
   { key: "rev", group: "fin", label: "분기<br>매출", sort: (s, d) => d.rev, cell: (s, d) => ({ html: money(s, d, "rev") }) },
   { key: "yoy", group: "fin", label: "매출<br>YoY", sort: (s, d) => d.yoy, cell: (s, d) => pctCell(d.yoy, false) },
@@ -112,7 +112,9 @@ function financialColumns() {
   for(const metric of summary)COLUMNS.push({key:metric.key,group:'ttm',label:metric.label,cls:'ttm-summary',sort:(s,d)=>typeof d[metric.key]==='number'?d[metric.key]:null,cell:(s,d)=>{
     const v=d[metric.key],period=d.ym?`${d.ym}까지 최근 4개 확정 분기`: '확정 분기 자료 없음';
     const note=metric.key==='niTtm'?'국내 지배주주순이익 우선, 없으면 당기순이익':metric.key==='psr'?'현재 시총 / TTM 매출':metric.key==='per'?'현재 시총 / TTM 순이익':'최근 4개 확정 분기 합계';
-    return {html:`<span class="ttm-value" data-summary="${metric.key}" title="네이버 금융, ${esc(period)}, ${note}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${timelineNumber(v)}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
+    const ratio=['psr','per'].includes(metric.key);
+    const display=ratio&&typeof v==='number'?v.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}):timelineNumber(v);
+    return {html:`<span class="ttm-value${ratio?' ttm-ratio':''}${typeof v!=='number'?' ttm-missing':''}" data-summary="${metric.key}" title="네이버 금융, ${esc(period)}, ${note}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${display}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
   }});
   const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
   for(const m of metrics){
@@ -192,13 +194,17 @@ function fitOverviewColumns() {
   const last=heads.findIndex(th=>th.querySelector('[data-sort="per"]'));
   if(last<0)return;
   const widths=heads.map(th=>th.getBoundingClientRect().width);
+  const compact=heads.findIndex(th=>th.classList.contains('drawdown'));
+  if(compact>=0)widths[compact]=64;
   const natural=widths.slice(0,last+1).reduce((sum,width)=>sum+width,0);
   const target=wrap.clientWidth;
   if(target>=natural){
+    const fixed=compact>=0?widths[compact]:0;
     let used=0,total=0;
     for(let i=0;i<=last;i++){
+      if(i===compact)continue;
       total+=widths[i];
-      const edge=Math.round(total/natural*target);
+      const edge=Math.round(total/(natural-fixed)*(target-fixed));
       widths[i]=edge-used;used=edge;
     }
   }

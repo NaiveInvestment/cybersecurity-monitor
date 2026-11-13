@@ -169,6 +169,9 @@ try {
   const summary=await evaluate("({keys:[...document.querySelectorAll('.grid tbody tr:first-child .ttm-value')].map(e=>e.dataset.summary),headers:[...document.querySelectorAll('.grid .cols th')].map(e=>e.textContent),right:document.querySelector('.grid .cols th.ttm-summary:last-of-type')?.getBoundingClientRect().right})");
   check(JSON.stringify(summary.keys)===JSON.stringify(['revTtm','opTtm','niTtm','psr','per']),'TTM 요약 다섯 지표 순서 오류');
   check(await evaluate("[...document.querySelectorAll('.grid .ttm-summary')].every(e=>getComputedStyle(e).textAlign==='center')"),'TTM 제목과 수치 가운데 정렬 실패');
+  check(await evaluate("[...document.querySelectorAll('.grid tbody .ttm-value:not(.ttm-missing)')].every(e=>getComputedStyle(e).textAlign==='right')"),'TTM 숫자 자릿수 정렬 실패');
+  check(await evaluate("[...document.querySelectorAll('.grid tbody .ttm-ratio:not(.ttm-missing)')].every(e=>/\\.\\d$/.test(e.textContent))"),'PSR/PER 소수점 정렬 실패');
+  check(await evaluate("document.querySelector('.grid .cols .drawdown').getBoundingClientRect().width<=65"),'52주 고점 대비 열 공백이 넓음');
   check(await evaluate("![...document.querySelectorAll('.grid td,.grid th')].some(e=>/N\\/[MA]/.test(e.textContent))"),'N/M 또는 N/A 표기가 남음');
   check(await evaluate("[...document.querySelectorAll('.ttm-value')].some(e=>e.textContent==='-'&&e.title.includes('순이익이 0 이하'))"),'적자 PER의 대시 또는 설명 누락');
   check(summary.headers.indexOf('PER')<summary.headers.indexOf('2023A'),'연도별 상세가 TTM 요약보다 먼저 표시됨');
