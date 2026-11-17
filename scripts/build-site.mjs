@@ -41,7 +41,7 @@ cards.cards.sort((a, b) => b.date.localeCompare(a.date));
 const published = cards.cards.map(({ note, verifiedOn, ...card }) => card);
 writeFileSync(join(outDir, "data", "cards.json"), JSON.stringify({ updated: cards.updated, cards: published }));
 
-for (const required of ["snapshot.json", "news.json"]) {
+for (const required of ["snapshot.json", "news.json", "incidents.json", "incident-events.json"]) {
   if (!existsSync(join(outDir, "data", required))) throw new Error(`data/${required}가 없다. build-data와 fetch-news를 먼저 실행할 것.`);
 }
 

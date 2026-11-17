@@ -40,6 +40,9 @@ jobs:
             git fetch --depth=1 origin data
             git show FETCH_HEAD:news.json > state/news.json
             git show FETCH_HEAD:snapshot.json > state/snapshot.json || rm -f state/snapshot.json
+            git show FETCH_HEAD:incident-log.json > state/incident-log.json || rm -f state/incident-log.json
+            git show FETCH_HEAD:ransomware-days.json > state/ransomware-days.json || rm -f state/ransomware-days.json
+            git show FETCH_HEAD:defillama-hacks.json > state/defillama-hacks.json || rm -f state/defillama-hacks.json
           else
             echo "data 브랜치 없음, 빈 상태로 시작"
           fi
@@ -53,6 +56,8 @@ jobs:
           fi
       - name: Fetch headlines
         run: node scripts/fetch-news.mjs --state state/news.json
+      - name: Build incident page data
+        run: node scripts/build-incidents.mjs --state state
       - name: Build sector baskets
         run: node scripts/build-sectors.mjs
       - name: Assemble site

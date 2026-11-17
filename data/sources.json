@@ -1,5 +1,7 @@
 {
   "note": "헤드라인 자동 수집 피드. region은 KR(국내) 또는 GL(해외). hint는 분류 동점일 때 쓰는 기본 범주. aggregator는 제목 끝의 매체명을 떼어 출처로 쓴다.",
+  "trendStart": "2026-11-09",
+  "trendNote": "trendStart는 헤드라인 전수 수집을 시작한 날(KST)이다. 그 전 기사는 피드에 남은 일부라 사건 추이에서 뺀다.",
   "feeds": [
     {
       "id": "gn-kr-incident",
@@ -38,6 +40,14 @@
       "hint": "incident",
       "aggregator": true,
       "url": "https://news.google.com/rss/search?q=%22data%20breach%22%20OR%20ransomware%20OR%20cyberattack%20when%3A2d&hl=en-US&gl=US&ceid=US:en"
+    },
+    {
+      "id": "gn-gl-crypto",
+      "name": "Google News",
+      "region": "GL",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=(hack%20OR%20hacked%20OR%20exploit%20OR%20drained%20OR%20heist)%20(crypto%20OR%20exchange%20OR%20Binance%20OR%20DeFi)%20when%3A2d&hl=en-US&gl=US&ceid=US:en"
     },
     {
       "id": "gn-gl-policy",

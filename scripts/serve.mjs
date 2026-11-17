@@ -34,6 +34,9 @@ function buildSteps(full) {
   if (full) {
     steps.push([script("build-data.mjs"), "--out", join(root, "data"), ...(existsSync(snapshotPath) ? ["--prev", snapshotPath] : [])]);
     steps.push([script("fetch-news.mjs"), "--out", join(root, "data")]);
+    steps.push([script("build-incidents.mjs"), "--out", join(root, "data")]);
+  } else if (!existsSync(join(root, "data", "incident-events.json"))) {
+    steps.push([script("build-incidents.mjs"), "--out", join(root, "data"), "--offline"]);
   }
   if(full || !existsSync(join(root,"data","sectors.json"))) steps.push([script("build-sectors.mjs"), "--out", join(root, "data")]);
   steps.push([script("build-site.mjs"), "--out", root]);

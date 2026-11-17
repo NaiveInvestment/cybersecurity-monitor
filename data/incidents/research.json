@@ -1,0 +1,5218 @@
+{
+ "note": "원문 링크를 확인한 해킹 사건 리서치(2026-08-18~11-17, 158건). 출처: work/incident-research-20261117. 새 리서치는 같은 형식으로 덧붙인다.",
+ "collectedAt": "2026-11-17",
+ "incidents": [
+  {
+   "date": "2026-08-20",
+   "name": "The Hospital for Sick Children (SickKids)",
+   "region": "GL",
+   "org_type": "대학, 병원",
+   "market_position": "캐나다 최대 소아 의료기관",
+   "attack": "제3자 소프트웨어 취약점을 통한 직원 및 입사지원자 개인정보 무단 접근",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "외부 채용 웹사이트 일시 중단 후 복구",
+   "spread": "제3자 소프트웨어에서 침해가 발생했고 SickKids, Boomerang, SickKids Foundation 직원과 입사지원자가 영향 대상",
+   "official_action": null,
+   "admitted": "2026-08-20 직원 및 입사지원자 정보에 대한 무단 접근을 공식 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-08-21",
+     "title": "SickKids data breach exposes employee and job applicant info",
+     "url": "https://www.bleepingcomputer.com/news/security/sickkids-data-breach-exposes-employee-and-job-applicant-info/"
+    },
+    {
+     "outlet": "The Record",
+     "date": "2026-08-21",
+     "title": "Canada’s Hospital for Sick Children attacked by cybercriminals again as employee data stolen",
+     "url": "https://therecord.media/canada-hospital-for-sick-children-attacked-again-employee-data"
+    },
+    {
+     "outlet": "SickKids",
+     "date": "2026-08-20",
+     "title": "SickKids employee information impacted by cybersecurity incident",
+     "url": "https://www.sickkids.ca/en/news/archive/2026/SickKids-employee-information-impacted-by-cybersecurity-incident/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 260000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "암호화된 비밀번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-08-18 KISA와 개인정보보호위원회 신고",
+   "admitted": "2026-08-21 홈페이지에 개인정보 유출 고지와 사과문 게시, 회원 문자 통지",
+   "date": "2026-08-21",
+   "name": "정상어학원",
+   "org_type": "일반 기업",
+   "attack": "회원정보에 대한 외부의 비정상적인 대량 접근으로 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "MTN 머니투데이방송",
+     "date": "2026-08-21",
+     "title": "정상어학원, 개인정보 26만건 유출…암호화 비번도 빼돌려져",
+     "url": "https://news.mtn.co.kr/news-detail/2026082116454688156"
+    },
+    {
+     "outlet": "한겨레",
+     "date": "2026-08-21",
+     "title": "정상어학원, 개인정보 26만건 유출…ID·암호화 비번도 털렸다",
+     "url": "https://news.nate.com/view/20260821n17733"
+    }
+   ]
+  },
+  {
+   "date": "2026-08-25",
+   "name": "Digitaliseringsdirektoratet (Digdir)",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "IT 협력사 인프라에 대한 디도스 공격",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "2026-08-24 시작된 공격으로 ID-porten, MinID, Altinn 등을 포함한 공공 디지털 서비스 10개 접속에 차질",
+   "spread": "IT 협력사 Vivicta 인프라가 공격받아 공공 인증, 기관 간 자료 교환, 전자 처방과 온라인 약국 인증에 파급",
+   "official_action": null,
+   "admitted": "2026-08-25 Digdir가 IT 협력사 대상 디도스 및 서비스 차질을 설명",
+   "sources": [
+    {
+     "outlet": "The Record",
+     "date": "2026-08-25",
+     "title": "Large DDoS attack knocks Norwegian public services offline",
+     "url": "https://therecord.media/norway-cyberattack-ddos-government"
+    },
+    {
+     "outlet": "AP",
+     "date": "2026-08-26",
+     "title": "Pro-Russian hackers claim responsibility for major cyberattack on Norway's public digital services",
+     "url": "https://apnews.com/article/norway-cyber-attack-public-services-pro-russia-hackers-fdb32290906168cd7f4a587f5288473a"
+    },
+    {
+     "outlet": "The Local",
+     "date": "2026-08-25",
+     "title": "What's happening with the Norwegian government's online services?",
+     "url": "https://www.thelocal.no/20260825/whats-happening-with-the-norwegian-governments-web-portals"
+    }
+   ]
+  },
+  {
+   "date": "2026-08-25",
+   "name": "Nutex Health",
+   "region": "GL",
+   "org_type": "대학, 병원",
+   "market_position": null,
+   "attack": "사내 네트워크 무단 접근 및 서버 파일 반출",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-08-24 공시에서 법집행기관 신고 사실 공개",
+   "admitted": "2026-08-24 미국 현지일자 Form 8-K에서 무단 접근과 정보 반출을 공시",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-08-25",
+     "title": "Hospital operator Nutex Health says data stolen in cyberattack",
+     "url": "https://www.bleepingcomputer.com/news/security/hospital-operator-nutex-health-says-data-stolen-in-cyberattack/"
+    },
+    {
+     "outlet": "SecurityWeek",
+     "date": "2026-08-26",
+     "title": "Sensitive Information Exposed in Nutex Health Data Breach",
+     "url": "https://www.securityweek.com/sensitive-information-exposed-in-nutex-health-data-breach/"
+    },
+    {
+     "outlet": "SEC",
+     "date": "2026-08-25",
+     "title": "NUTEX HEALTH INC. Form 8-K",
+     "url": "https://www.sec.gov/Archives/edgar/data/1479681/000162828026058606/nutx-20260824.htm"
+    }
+   ]
+  },
+  {
+   "date": "2026-08-26",
+   "name": "Boston Scientific",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "사이버 공격으로 업무 시스템 접근 및 운영 차질",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "고객 주문 처리와 출하를 지원하는 정보시스템 등 글로벌 업무에 차질",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-08-26 Form 8-K에서 8월 25일 탐지한 사이버 공격과 업무 차질을 공시",
+   "sources": [
+    {
+     "outlet": "Reuters",
+     "date": "2026-08-26",
+     "title": "Boston Scientific hit by cyberattack, global operations affected",
+     "url": "https://www.investing.com/news/stock-market-news/boston-scientific-hit-by-cyberattack-global-operations-affected-4876822"
+    },
+    {
+     "outlet": "CBS News",
+     "date": "2026-08-26",
+     "title": "Boston Scientific says a cyberattack is disrupting its global operations",
+     "url": "https://www.cbsnews.com/news/boston-scientific-cyberattack-disrupts-global-operations/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "온라인 상담 신청 및 문의 내역",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-08-26 보도 기준 개인정보보호위원회와 경찰청 사이버수사대 등에 신고",
+   "admitted": "2026-08-26 개인정보 유출 공지 및 사과",
+   "date": "2026-08-26",
+   "name": "대항병원",
+   "org_type": "대학, 병원",
+   "attack": "외부 제3자의 병원 홈페이지 고객 데이터 무단 접근으로 회원정보 유출",
+   "sources": [
+    {
+     "outlet": "CBS노컷뉴스",
+     "date": "2026-08-26",
+     "title": "[단독]대항병원 개인정보 뚫렸다…\"제3자 해킹 공격\"",
+     "url": "https://www.nocutnews.co.kr/news/6568502"
+    }
+   ]
+  },
+  {
+   "date": "2026-08-27",
+   "name": "Bureau of Alcohol, Tobacco, Firearms and Explosives (ATF)",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "독립 시스템 침해, Qilin이 공격을 주장",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-08-26 미국 현지일자 발표에서 법무부와 공동 조사 및 major incident 지정 공개",
+   "admitted": "2026-08-26 미국 현지일자 보도자료에서 독립 시스템 침해를 인정하고 연결을 차단했다고 발표",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-08-27",
+     "title": "ATF confirms “major incident” after recent Qilin breach claims",
+     "url": "https://www.bleepingcomputer.com/news/security/atf-confirms-major-incident-after-recent-qilin-breach-claims/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-08-29",
+     "title": "US government alcohol and firearms agency ATF declares 'major incident' after ransomware gang claims cyberattack",
+     "url": "https://www.techradar.com/pro/security/us-government-alcohol-and-firearms-agency-atf-declares-major-incident-after-ransomware-gang-claims-cyberattack"
+    },
+    {
+     "outlet": "ATF",
+     "date": "2026-08-27",
+     "title": "ATF responds to cybersecurity incident",
+     "url": "https://www.atf.gov/news/press-releases/atf-responds-to-cybersecurity-incident"
+    }
+   ]
+  },
+  {
+   "date": "2026-08-27",
+   "name": "Manchester Airports Group",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": "영국 최대 공항 운영사",
+   "attack": "공항 고객 예약 및 와이파이 가입 정보 탈취",
+   "records": 8700000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "회사 대변인 설명 약 870만 명. 다른 보도에 890만 명으로 기재됨",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "온라인 Manage My Booking 서비스 일시 중단",
+   "spread": "Manchester, London Stansted, East Midlands 공항의 와이파이 가입 및 주차장, 라운지, Fast Track 예약 정보가 대상",
+   "official_action": "2026-08-27 발표에서 법집행기관 신고 사실 공개",
+   "admitted": "2026-08-27 고객 정보 반출을 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-08-28",
+     "title": "Manchester Airports Group says hackers stole travelers' data",
+     "url": "https://www.bleepingcomputer.com/news/security/manchester-airports-group-says-hackers-stole-travelers-data/"
+    },
+    {
+     "outlet": "The Record",
+     "date": "2026-08-27",
+     "title": "Cyberattack on Manchester Airports Group exposes data of 8.7 million customers",
+     "url": "https://therecord.media/cyberattack-on-manchester-airports-group-exposes-millions-customer-info"
+    },
+    {
+     "outlet": "Manchester Airports Group",
+     "date": "2026-08-27",
+     "title": "Data Security Incident - 27.08.26",
+     "url": "https://www.manchesterairport.co.uk/help/data-security-incident/"
+    }
+   ]
+  },
+  {
+   "date": "2026-08-29",
+   "name": "McKesson",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "제3자 애플리케이션 무단 접근 및 자료 반출",
+   "records": 284000000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "2억8400만은 해커가 주장한 원시 데이터 행 수이며 고유 환자 수가 아님. 회사는 해당 수치를 확인하지 않음",
+   "size_basis": "해커 주장",
+   "sensitive": "해커 주장: SSN, Medicaid 번호, 의료기록 번호, 질병, 투약 및 알레르기 정보",
+   "loss_or_outage": null,
+   "spread": "고객을 위해 이용하는 제3자 애플리케이션이 침해됨",
+   "official_action": null,
+   "admitted": "2026-08-28 미국 현지일자 회사 답변과 Form 8-K에서 사이버 침해 및 자료 반출을 인정",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-08-29",
+     "title": "McKesson discloses breach after ShinyHunters claims patient data theft",
+     "url": "https://www.bleepingcomputer.com/news/security/mckesson-discloses-breach-after-shinyhunters-claims-patient-data-theft/"
+    },
+    {
+     "outlet": "CyberInsider",
+     "date": "2026-08-29",
+     "title": "ShinyHunters claims McKesson data breach exposing 284 million patient records",
+     "url": "https://cyberinsider.com/mckesson-data-breach-exposing-284-million-patients/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 159852,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "최초 발표는 고객 이름 138841건과 이름, 이메일, 전화번호, 배송정보 21011건. 2026-09-07 입점 브랜드 담당자 정보 추가 유출 확인, 추가 규모 미공개.",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-08-31 이십구센티미터가 홈페이지에 사과문 게시. 2026-09-07 추가 유출 대상자 안내 확인.",
+   "date": "2026-08-31",
+   "name": "무신사, 이십구센티미터",
+   "org_type": "일반 기업",
+   "attack": "주문정보 조회 API에 비정상 접근해 고객 및 입점 브랜드 담당자 정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-08-31",
+     "title": "29CM, 고객 개인정보 유출 사과…\"재발 방지에 최선\"",
+     "url": "https://www.yna.co.kr/view/AKR20260831063600030"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-09-07",
+     "title": "29CM, 고객정보 유출 조사 중 입점 브랜드 담당자 정보 유출도 확인",
+     "url": "https://nwww.newsis.com/view/NISX20260907_0003779615"
+    }
+   ]
+  },
+  {
+   "region": "GL",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "회사 공시상 내부 환자 ID가 포함된 미국 환자 기록 1,400건 초과, 추가 식별정보가 포함된 다른 환자 50명 미만. 정확한 전체 피해 인원은 미공개.",
+   "size_basis": "공시",
+   "sensitive": "내부 환자 ID, 일부 환자의 추가 식별정보.",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-09-01 미국 SEC 8-K에서 8월 중순 침입을 확인하고 환자, 직원, 의료기관 정보 노출을 공시.",
+   "date": "2026-09-01",
+   "name": "NovoCure",
+   "org_type": "상장 대기업",
+   "attack": "내부 정보시스템 무단 접근으로 환자, 직원, 의료기관 연락처 정보 노출.",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-01",
+     "title": "Novocure data breach affects more than 1,400 cancer patients",
+     "url": "https://www.bleepingcomputer.com/news/security/novocure-data-breach-affects-more-than-1-400-cancer-patients/"
+    },
+    {
+     "outlet": "TMC Insight",
+     "date": "2026-09-02",
+     "title": "Novocure Discloses Patient Data Exposure After Systems Intrusion",
+     "url": "https://insight.tmcnet.com/insight/novocure-discloses-patient-data-exposure-after-systems-intrusion-mtk9cnj1"
+    },
+    {
+     "outlet": "SEC",
+     "date": "2026-09-01",
+     "title": "NovoCure Limited Form 8-K",
+     "url": "https://www.sec.gov/Archives/edgar/data/1645113/000164511326000065/nvcr-20260901.htm"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-02",
+   "name": "Dropbox",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "Lenovo ID 이메일 검증 결함을 악용한 계정 무단 접속",
+   "records": 5000,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "외부 인증 제공사 Lenovo의 이메일 검증 문제를 통해 Dropbox 계정 접근",
+   "official_action": null,
+   "admitted": "2026-09-02 보도에서 Dropbox가 약 5000개 계정 침해를 인정하고 영향 고객에게 통지했다고 설명",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-02",
+     "title": "Dropbox accounts breached through Lenovo email verification flaw",
+     "url": "https://www.bleepingcomputer.com/news/security/dropbox-accounts-breached-through-lenovo-email-verification-flaw/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-09-03",
+     "title": "Over 5,000 Dropbox accounts have been hacked, and the attackers only needed an email address",
+     "url": "https://www.techradar.com/pro/security/over-5-000-dropbox-accounts-have-been-hacked-and-the-attackers-only-needed-an-email-address"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-02",
+   "name": "IDScan.net",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "클라우드 신원확인 자료 무단 접근 및 신분증 데이터 판매",
+   "records": 153000000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "해커 주장",
+   "sensitive": "미국 및 캐나다 운전면허증 스캔, 정부 발급 신분증 번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-10 보도 기준 FBI 수사 및 복수 소송 제기",
+   "admitted": "2026-09-04 미국 현지일자 보안 공지에서 고객 클라우드 정보 무단 접근 가능성을 인정",
+   "sources": [
+    {
+     "outlet": "KrebsOnSecurity",
+     "date": "2026-09-02",
+     "title": "FBI Probes Service Selling 153M+ Drivers Licenses",
+     "url": "https://krebsonsecurity.com/2026/09/fbi-probes-service-selling-153m-drivers-licenses/"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-10",
+     "title": "IDScan confirms breach tied to 153 million stolen driver’s licenses",
+     "url": "https://www.bleepingcomputer.com/news/security/idscan-confirms-breach-tied-to-153-million-stolen-drivers-licenses/"
+    }
+   ]
+  },
+  {
+   "region": "GL",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "법원 기록에 포함된 개인정보. 세부 항목 미확인.",
+   "loss_or_outage": null,
+   "spread": "미국 11개 주와 미국령 버진아일랜드, 캐나다 온타리오 법원의 C-Track 기록에 파급.",
+   "official_action": "2026-09-02 보도에 따르면 회사가 수사기관에 신고하고 외부 전문가와 조사.",
+   "admitted": "2026-09-02 회사가 C-Track 문서 무단 취득을 공지하고 고객 통보 사실을 인정.",
+   "date": "2026-09-02",
+   "name": "Thomson Reuters",
+   "org_type": "상장 대기업",
+   "attack": "C-Track 클라우드 환경 침입으로 법원 문서와 개인정보 무단 취득.",
+   "sources": [
+    {
+     "outlet": "Reuters",
+     "date": "2026-09-03",
+     "title": "Thomson Reuters detects cybersecurity incident, says unauthorized party accessed files",
+     "url": "https://www.investing.com/news/stock-market-news/thomson-reuters-detects-cybersecurity-incident-says-unauthorized-party-accessed-files-4886954"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-09-03",
+     "title": "Thomson Reuters hit by cyberattack that saw court documents across 11 states accessed by a hacker",
+     "url": "https://www.techradar.com/pro/security/thomson-reuters-hit-by-cyberattack-that-saw-court-documents-across-11-states-accessed-by-a-hacker"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-09-04 홈페이지 공지와 사과, 대상 회원 개별안내",
+   "date": "2026-09-04",
+   "name": "화해",
+   "org_type": "일반 기업",
+   "attack": "외부 행위자의 비정상 접근으로 일부 회원 이벤트 배송지 및 리뷰 공개정보 조회",
+   "sources": [
+    {
+     "outlet": "디지털데일리",
+     "date": "2026-09-07",
+     "title": "뷰티 플랫폼 '화해', 개인정보 유출…\"금융 정보는 안전\"",
+     "url": "https://m.news.nate.com/view/20260907n26481"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-05",
+   "name": "Mathspace",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "Metabase 취약점 악용 후 학생, 교직원 및 보호자 정보 반출",
+   "records": 1079819,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "침해된 내부 보고 시스템을 오프라인 전환",
+   "spread": "호주와 뉴질랜드 학생, 학교 직원, 부모 및 보호자 정보가 영향 대상",
+   "official_action": "2026-09-07 보도 기준 호주와 뉴질랜드 관련 당국, 교육부에 통보",
+   "admitted": "2026-09-05 블로그에서 개인정보 반출과 1079819명 피해를 공개하고 사과",
+   "sources": [
+    {
+     "outlet": "ABC News",
+     "date": "2026-09-07",
+     "title": "More than 1 million users affected in Mathspace data breach across Australia and New Zealand",
+     "url": "https://www.abc.net.au/news/2026-09-07/mathspace-data-breach/107124894"
+    },
+    {
+     "outlet": "7NEWS",
+     "date": "2026-09-07",
+     "title": "Mathspace: Data of more than one million people exposed during breach",
+     "url": "https://7news.com.au/news/mathspace-data-of-more-than-one-million-people-exposed-during-breach-c-22835259"
+    },
+    {
+     "outlet": "Mathspace",
+     "date": "2026-09-05",
+     "title": "Mathspace data breach: what happened and what affected users should know",
+     "url": "https://blog.mathspace.co/mathspace-data-breach-what-happened-and-what-affected-users-should-know/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 422584,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-09-06 밤 대표이사 명의 공지와 사과, 대상 고객 별도안내",
+   "date": "2026-09-06",
+   "name": "위버스컴퍼니, 위버스",
+   "org_type": "일반 기업",
+   "attack": "외부에서 서비스 보안 취약점을 이용해 내부식별정보 및 구매정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-09-07",
+     "title": "위버스 개인정보 42만건 유출…\"내부식별정보 피해\"",
+     "url": "https://www.yna.co.kr/view/AKR20260907021200005"
+    },
+    {
+     "outlet": "MBC",
+     "date": "2026-09-08",
+     "title": "[문화연예 플러스] 팬 플랫폼 '위버스' 개인정보 42만 건 유출",
+     "url": "https://imnews.imbc.com/replay/2026/nwtoday/article/6850264_37012.html"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "카드번호, 카드 유효기간, 일부 결제 방식의 생년월 및 카드 비밀번호 앞 두 자리 유출 가능성",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-07 금감원 현장점검, 09-09 현장검사 전환",
+   "admitted": "2026-09-06 특정 결제 연동 시스템 외부 비정상 접근 공지",
+   "date": "2026-09-06",
+   "name": "코엠페이먼츠",
+   "org_type": "금융회사",
+   "attack": "결제 연동 시스템 외부 비정상 접근으로 결제 관련 정보 유출 가능성",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-09-09",
+     "title": "금감원, 코엠·토스페이먼츠 현장검사 착수…개인정보 유출",
+     "url": "https://www.etnews.com/20260909000283"
+    },
+    {
+     "outlet": "이데일리",
+     "date": "2026-09-09",
+     "title": "금감원, '해킹' 토스·코엠페이먼츠 현장검사 전환",
+     "url": "https://marketin.edaily.co.kr/News/ReadE?newsId=03926166645578480"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": "국내 최대 규모 성형 및 피부 시술 정보 공유 플랫폼",
+   "records": 219665,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "상담 등록 사진, 상담 시술명, 관심 및 실제 시술정보, 내원 및 시술일시, 결제 금액과 수단",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-06 관할 경찰서에 수사 의뢰, KISA 신고",
+   "admitted": "2026-09-07 공지와 사과, 피해자 개별통지",
+   "date": "2026-09-07",
+   "name": "힐링페이퍼, 강남언니",
+   "org_type": "일반 기업",
+   "attack": "상담내역 조회 API 비정상 접근으로 국내외 이용자 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "서울신문",
+     "date": "2026-09-08",
+     "title": "“너 코 성형했지?” 어디 고쳤는지 ‘싹 다’ 털렸다…22만명 어떡하나",
+     "url": "https://www.seoul.co.kr/news/economy/IT/2026/09/08/20260908500054"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-09-10",
+     "title": "22만명 정보유출 '강남언니'…국내 피해자에 5만원 상당 포인트",
+     "url": "https://www.yna.co.kr/view/AKR20260910107800017"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-09",
+   "name": "Veradigm",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "위탁사에서 탈취한 API 자격증명으로 환자 개인정보 다운로드",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "일부 환자의 SSN",
+   "loss_or_outage": null,
+   "spread": "제3자 위탁사 환경에서 API 자격증명 탈취",
+   "official_action": "2026-09-08 미국 현지일자 공시에서 법집행기관 신고 공개",
+   "admitted": "2026-09-08 미국 현지일자 Form 8-K에서 환자 개인정보 다운로드 사실 공시",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-10",
+     "title": "Veradigm warns of patient data breach after ransomware gang claims attack",
+     "url": "https://www.bleepingcomputer.com/news/security/veradigm-discloses-patient-data-breach-after-gentlemen-gang-claims-attack/"
+    },
+    {
+     "outlet": "HIPAA Journal",
+     "date": "2026-09-10",
+     "title": "Veradigm Discloses Third Party Data Breach as Hackers Threaten to Publish Data",
+     "url": "https://www.hipaajournal.com/veradigm-data-breach-2026/"
+    },
+    {
+     "outlet": "SEC",
+     "date": "2026-09-09",
+     "title": "Veradigm Inc. Form 8-K",
+     "url": "https://www.sec.gov/Archives/edgar/data/1124804/000119312526385249/mdrx-20260908.htm"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 2671,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "고객2671명, 결제4131건. 2026-10-04 연합뉴스의 2671건 표기는 회사 설명을 인용한 09-09 전자신문의 인원과 단위가 다름.",
+   "size_basis": "회사 발표",
+   "sensitive": "마스킹된 카드번호, 승인번호",
+   "loss_or_outage": null,
+   "spread": "가맹점이 사용하던 외부 결제 연동 플랫폼의 인증정보를 통한 토스페이먼츠 결제내역 접근",
+   "official_action": "2026-09-07 금감원 현장점검, 09-09 현장검사 전환",
+   "admitted": "2026-09-09 토스페이먼츠는 자체 시스템 직접 해킹이 아닌 가맹점 연동키 노출이라고 설명, 대상 고객 전원 통지",
+   "date": "2026-09-09",
+   "name": "토스페이먼츠 이용 가맹점",
+   "org_type": "일반 기업",
+   "attack": "가맹점 웹사이트의 결제 연동 플랫폼 인증키 노출 후 제3자가 결제내역 조회",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-09-09",
+     "title": "금감원, 코엠·토스페이먼츠 현장검사 착수…개인정보 유출",
+     "url": "https://www.etnews.com/20260909000283"
+    },
+    {
+     "outlet": "이데일리",
+     "date": "2026-09-09",
+     "title": "금감원, '해킹' 토스·코엠페이먼츠 현장검사 전환",
+     "url": "https://marketin.edaily.co.kr/News/ReadE?newsId=03926166645578480"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-10",
+   "name": "Brevo",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "SAML SSO 접근 범위 결함을 악용한 고객 계정 침해 및 피싱 이메일 발송",
+   "records": 138,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": "Brevo 고객 조직 계정138개 접근,43개 계정의 연락처 반출. Trezor 초기 설명은 영향120계정",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "6개 고객 계정에서 피싱 이메일 발송, Trezor 뉴스레터 이메일347000개가 영향 대상. CoinTracking과 BitBox도 영향",
+   "official_action": "2026-09-14 보도 기준 회사가 고소 절차를 진행한다고 설명",
+   "admitted": "2026-09-10 회사가 SSO 결함과138개 고객 계정 접근을 공지",
+   "sources": [
+    {
+     "outlet": "MediaPost",
+     "date": "2026-09-14",
+     "title": "Brevo Breach: Email Firm Plugs Up A Short-Lived Security Issue",
+     "url": "https://www.mediapost.com/publications/article/417945/brevo-breach-email-firm-plugs-up-a-short-lived-se.html?edition=143880"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-11",
+     "title": "Trezor: 347,000 users targeted in phishing attacks after Brevo breach",
+     "url": "https://www.bleepingcomputer.com/news/security/trezor-347-000-users-targeted-in-phishing-attacks-after-brevo-breach/"
+    },
+    {
+     "outlet": "Brevo",
+     "date": "2026-09-10",
+     "title": "Security incident write-up",
+     "url": "https://status.brevo.com/incidents/01M266V1CZKJQNGZRNEGFD5CQE/write-up"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-11",
+   "name": "デジタル庁 (Digital Agency)",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "정부 공통 업무기반 GSS의 VPN 장비 취약점 악용",
+   "records": 246000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "외부 유출 가능성이 있는 약 24만6000개 기록이며 반출이 확정된 인원 수가 아님",
+   "size_basis": "정부 조사",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "각 부처 공통 업무기반을 사용하는 직원, 공무원, 관계 사업자 및 개인 정보가 대상",
+   "official_action": "2026-07-15 일본 개인정보보호위원회에 신고",
+   "admitted": "2026-09-11 정부 공지로 GSS 무단 접근 및 개인정보 유출 가능성을 발표",
+   "sources": [
+    {
+     "outlet": "ITmedia NEWS",
+     "date": "2026-09-11",
+     "title": "デジタル庁に不正アクセス、個人情報24.6万件漏えいか　各府省庁の職員情報など",
+     "url": "https://www.itmedia.co.jp/news/article/2609/11/2000001406/"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-15",
+     "title": "Japan's Digital Agency says VPN flaw exposed 246,000 personnel records",
+     "url": "https://www.bleepingcomputer.com/news/security/japans-digital-agency-says-vpn-flaw-exposed-246-000-personnel-records/"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-12",
+   "name": "Revolut",
+   "region": "GL",
+   "org_type": "금융회사",
+   "market_position": null,
+   "attack": "정부기관 이메일 도메인을 이용한 허위 정보 요청으로 고객정보 취득",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "여권 및 운전면허증 사본, 얼굴 인증 사진, IBAN 포함 계좌명세서, 출금 기록 및 거래내역",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-14 보도 기준 해당 정부기관, 법집행기관, 개인정보 및 금융 감독당국에 통보",
+   "admitted": "2026-09-12 미국 현지 보도에서 회사가 제한된 수의 고객정보 제공 사실을 인정",
+   "sources": [
+    {
+     "outlet": "TechCrunch",
+     "date": "2026-09-12",
+     "title": "Revolut confirms customer data breach through fake government requests",
+     "url": "https://techcrunch.com/2026/09/12/revolut-confirms-customer-data-breach-through-fake-government-requests/"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-14",
+     "title": "Revolut discloses data breach exposing financial info, passports",
+     "url": "https://www.bleepingcomputer.com/news/security/revolut-discloses-data-breach-exposing-financial-info-passports/"
+    }
+   ]
+  },
+  {
+   "region": "GL",
+   "market_position": null,
+   "records": 7490000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "749만 건은 공격자 주장. 2026-09-14 회사 공시는 피해 고객 수를 밝히지 않았으며, 초기 소송은 약 670만 고객 또는 700만 필터링 기록을 주장.",
+   "size_basis": "해커 주장",
+   "sensitive": "공격자 주장상 계정번호, 요금 정보, 부분 SSN.",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-13 보도 기준 연방법원에 집단소송 승인을 요청하는 소송 5건 제기. 2026-09-14 미국 공시에서 수사기관과 일부 감독기관 신고를 확인.",
+   "admitted": "2026-09-14 미국 SEC 8-K에서 일부 고객 개인정보 무단 취득을 공식 인정.",
+   "date": "2026-09-13",
+   "name": "CenterPoint Energy",
+   "org_type": "상장 대기업",
+   "attack": "외부 공개 시스템을 통한 고객 개인정보 무단 취득.",
+   "sources": [
+    {
+     "outlet": "Houston Chronicle",
+     "date": "2026-09-13",
+     "title": "CenterPoint energy hit with multiple proposed class actions over alleged data breach",
+     "url": "https://www.houstonchronicle.com/news/houston-texas/trending/article/centerpoint-energy-data-breach-class-action-22429927.php"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-16",
+     "title": "CenterPoint Energy confirms customer data stolen in cyberattack",
+     "url": "https://www.bleepingcomputer.com/news/security/centerpoint-energy-confirms-customer-data-stolen-in-cyberattack/"
+    },
+    {
+     "outlet": "SEC",
+     "date": "2026-09-15",
+     "title": "CenterPoint Energy, Inc. Form 8-K",
+     "url": "https://www.sec.gov/Archives/edgar/data/1130310/000110465926107560/tm2625326d1_8k.htm"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-15",
+   "name": "Brevo",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "Cloudflare API 키 탈취로 CDN 응답 및 고객사 삽입 스크립트를 변조한 공급망 공격",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "Cloudflare API 키",
+   "loss_or_outage": null,
+   "spread": "Brevo 폼, Conversations 위젯 및 SDK 로더를 삽입한 고객 웹사이트에 ClickFix 코드와 WordPress 백도어 배포",
+   "official_action": null,
+   "admitted": "2026-09-17 사후 보고서로 탈취 API 키와 악성 Cloudflare Worker 사용 사실 공개",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-18",
+     "title": "Brevo supply-chain attack injected ClickFix scripts on customer sites",
+     "url": "https://www.bleepingcomputer.com/news/security/brevo-supply-chain-attack-injected-clickfix-scripts-on-customer-sites/"
+    },
+    {
+     "outlet": "SecurityWeek",
+     "date": "2026-09-18",
+     "title": "Brevo Supply Chain Attack Injects Malware Into 100,000 Websites",
+     "url": "https://www.securityweek.com/brevo-supply-chain-attack-injects-malware-into-100000-websites/"
+    },
+    {
+     "outlet": "Brevo",
+     "date": "2026-09-17",
+     "title": "Security incident - ClickFix write-up",
+     "url": "https://status.brevo.com/incidents/01M2QBC4EZ24ZACW6SWQYVW8N3/write-up"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-16",
+   "name": "Helpfeel (Gyazo)",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "이미지 업로드 서버 취약점 악용 및 데이터베이스 반출",
+   "records": 23620000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "이용자 정보 약 2362만 건과 별도로 이미지 메타데이터 약 4억9000만 건. 익명 계정을 포함하며 고유 피해 인원 수가 아님",
+   "size_basis": "회사 발표",
+   "sensitive": "비밀번호 해시, 로그인 세션 ID, X 연동 토큰, 비공개 이미지 암호문구 해시, EXIF 위치, OCR 추출 텍스트",
+   "loss_or_outage": "이미지 제공 및 서비스 일시 중단, 2026-09-27 서비스 재개",
+   "spread": null,
+   "official_action": "2026-09-15 일본 개인정보보호위원회 예비 신고, 9월 16일 총무성 보고 시작, 해외 개인정보 감독당국 보고 및 교토부 경찰 상담",
+   "admitted": "2026-09-16 최초 공지 및 사과, 2026-10-21 최종 조사결과 발표",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-19",
+     "title": "Gyazo server flaw exploited to steal 23.6 million user records",
+     "url": "https://www.bleepingcomputer.com/news/security/gyazo-server-flaw-exploited-to-steal-236-million-user-records/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-09-18",
+     "title": "Gyazo breach exposes 23.62 million user records and 490 million image records - PII and metadata exposed in huge attack",
+     "url": "https://www.techradar.com/pro/security/gyazo-breach-exposes-23-62-million-user-records-and-490-million-image-records-pii-and-metadata-exposed-in-huge-attack"
+    },
+    {
+     "outlet": "Helpfeel",
+     "date": "2026-09-16",
+     "title": "Notice and Apology Regarding a Data Breach Resulting from Unauthorized Access to Gyazo",
+     "url": "https://corp.helpfeel.com/en/news/news-20260916"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 243,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "최초 140명 발표 후 2026-09-21 RINK 고객 103명 추가 확인.",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-09-16 최초 홈페이지 공지, 2026-09-21 추가 유출 공지와 사과",
+   "date": "2026-09-16",
+   "name": "카카오게임즈",
+   "org_type": "상장 대기업",
+   "attack": "파트너스와 RINK 시스템 취약점을 통한 외부 비정상 접근으로 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-09-17",
+     "title": "카카오게임즈, 해킹으로 140명 개인정보 유출…\"진심 사과\"",
+     "url": "https://www.yna.co.kr/amp/view/AKR20260917158100017"
+    },
+    {
+     "outlet": "머니투데이",
+     "date": "2026-09-17",
+     "title": "[단독]카카오게임즈 140명 개인정보 유출…\"식별코드 등 비중요정보\"",
+     "url": "https://v.daum.net/v/20260917084510531"
+    },
+    {
+     "outlet": "카카오게임즈",
+     "date": "2026-09-21",
+     "title": "[추가] 개인정보 유출 사실 및 예방 조치 추가 안내(9/21)",
+     "url": "https://bbs-pub.kakaogames.com/gaia/do/notice/read?articleId=747&bbsId=GMN001&pageIndex=1"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "시험 예약사이트 임시 폐쇄",
+   "spread": null,
+   "official_action": "2026-09-17 개인정보보호위원회 신고, 경찰 수사 요청",
+   "admitted": "2026-09-17 학부모 문자 통지, 2026-09-18 홈페이지 공지",
+   "date": "2026-09-17",
+   "name": "생각하는황소",
+   "org_type": "일반 기업",
+   "attack": "시험 예약사이트 해킹으로 학생과 학부모 개인정보 유출 가능성",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-09-18",
+     "title": "수학학원 '생각하는황소' 해킹…\"학생·학부모 정보 유출 가능성\"",
+     "url": "https://www.yna.co.kr/view/AKR20260918137600530"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-09-18",
+     "title": "유명 수학학원 '생각하는황소' 해킹…개인정보 유출 추정",
+     "url": "https://nwww.newsis.com/view/NISX20260918_0003795746"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-19",
+   "name": "Fastr / Be A Part Of (Ribon)",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "Ribon 앱 API 키 탈취 후 BigCommerce 입점 쇼핑몰 고객정보 접근 및 악성 스크립트 주입",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "Fastr 계열 Be A Part Of의 Ribon 및 Ribon1.5 앱에서 탈취한 키를 이용해 BigCommerce의 여러 쇼핑몰에 접근. Master of Malt 고객정보 유출 확인",
+   "official_action": "2026-09-18 영국 현지 Master of Malt가 ICO에 신고",
+   "admitted": "2026-09-18 영국 현지 Master of Malt가 고객에게 유출 통지. BigCommerce도 입점사에 통보하고 제3자 앱 자격증명 침해를 인정",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-22",
+     "title": "BigCommerce alerts merchants of data breach linked to Ribon apps",
+     "url": "https://www.bleepingcomputer.com/news/security/bigcommerce-alerts-merchants-of-data-breach-linked-to-ribon-apps/"
+    },
+    {
+     "outlet": "SecurityWeek",
+     "date": "2026-09-23",
+     "title": "BigCommerce Data Stolen via Ribon Apps Hack",
+     "url": "https://www.securityweek.com/bigcommerce-data-stolen-via-ribon-apps-hack/"
+    },
+    {
+     "outlet": "Master of Malt",
+     "date": "2026-09-19",
+     "title": "What happened: a technical explanation",
+     "url": "https://www.masterofmalt.com/sorry/technical/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "강의를 위탁한 시큐어멘토, 강지완's 4시간 오픽, MKYU에서도 회원정보 유출",
+   "official_action": "2026-09-21 보도 기준 관계당국 유출신고 및 경찰청 사이버수사대 신고 완료",
+   "admitted": "2026-09-21 보도에서 회사의 유출 공지 확인",
+   "date": "2026-09-21",
+   "name": "퓨쳐스콜레, 라이브클래스",
+   "org_type": "일반 기업",
+   "attack": "수강생 정보 조회 기능 무단 접근으로 고객 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "ZDNet Korea",
+     "date": "2026-09-21",
+     "title": "온라인 강의 플랫폼 '라이브클래스' 해킹...개인정보 유출",
+     "url": "https://zdnet.co.kr/view/?no=20260921163428"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": "국내 온라인 클라우드 교육시스템 운영 분야 업계 1위, 2026-10-13 한창민 의원 설명",
+   "records": 2370000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "암호화된 비밀번호, CI, DI, 보호자 정보",
+   "loss_or_outage": null,
+   "spread": "국민권익위원회, 국방부, 한국교육시설안전원, 기아 노조 등 20여 고객기관",
+   "official_action": "2026-09-22, 09-24, 09-29 개인정보위 유출 신고, 09-30 개인정보위 조사 착수",
+   "admitted": "2026-09-22 최초 유출 가능성 공지, 09-25 유출 사실과 사과 공지",
+   "date": "2026-09-22",
+   "name": "맑은소프트",
+   "org_type": "일반 기업",
+   "attack": "교육사이트 서버 불법 접근과 백도어 설치 후 고객사 회원 개인정보 탈취",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-13",
+     "title": "맑은소프트 해킹에 개인정보 237만건 유출신고…피해기관 20여곳",
+     "url": "https://www.yna.co.kr/view/AKR20261012164600530"
+    },
+    {
+     "outlet": "맑은소프트",
+     "date": "2026-09-22",
+     "title": "01. 개인정보 유출 가능성 및 2차 인증 조기 시행 안내",
+     "url": "https://help.malgnsoft.com/main/post_view.jsp?id=1009"
+    },
+    {
+     "outlet": "맑은소프트",
+     "date": "2026-09-25",
+     "title": "04. 개인정보 유출 침해 사고 관련하여 추가 안내드립니다.",
+     "url": "https://help.malgnsoft.com/main/post_view.jsp?ch=cloud&id=1016"
+    },
+    {
+     "outlet": "경향신문",
+     "date": "2026-10-21",
+     "title": "[단독]10만명 공직자 정보 유출···“파기 완료” 위탁업체 1년 반 허위 보고, 권익위는 몰랐다",
+     "url": "https://www.khan.co.kr/article/202610211038011/"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-23",
+   "name": "Federal Bureau of Investigation (FBI)",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "채용 포털 침해 및 직원, 입사지원자 자료 탈취 주장",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "직원 이름, 주소, 전화번호 및 배우자 정보가 담긴 샘플",
+   "loss_or_outage": "FBIJobs.gov 입사지원 포털 이용 중단",
+   "spread": null,
+   "official_action": "2026-09-22 미국 현지일자 FBI가 조사 중이라고 발표",
+   "admitted": "2026-09-22 미국 현지일자 FBI가 채용사이트 관련 무단 활동 주장을 인지하고 조사 중이라고 공식 답변",
+   "sources": [
+    {
+     "outlet": "404 Media",
+     "date": "2026-09-23",
+     "title": "‘We Hacked the FBI:’ Hackers Say They Have Data on All FBI Employees",
+     "url": "https://www.404media.co/we-hacked-the-fbi-hackers-say-they-have-data-on-all-fbi-employees/"
+    },
+    {
+     "outlet": "CNN",
+     "date": "2026-09-23",
+     "title": "FBI investigating apparent breach after hackers claim to have stolen thousands of federal agents’ data",
+     "url": "https://krdo.com/politics/cnn-us-politics/2026/09/22/fbi-investigating-apparent-breach-after-hackers-claim-to-have-stolen-thousands-of-federal-agents-data/"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-24",
+   "name": "DriveWealth",
+   "region": "GL",
+   "org_type": "금융회사",
+   "market_position": null,
+   "attack": "사회공학 공격으로 과거 고객정보 반출",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "부분 계좌번호, 고용 및 국적 정보",
+   "loss_or_outage": null,
+   "spread": "미국 주식 거래 집행 및 청산업체 DriveWealth의 침해로 Revolut 등 플랫폼 고객정보에 영향",
+   "official_action": null,
+   "admitted": "2026-09-24 Revolut가 DriveWealth 침해의 고객 영향을 확인. DriveWealth도 고객에게 통지",
+   "sources": [
+    {
+     "outlet": "Irish Examiner",
+     "date": "2026-09-24",
+     "title": "Irish Revolut customers affected by data breach at US broker",
+     "url": "https://www.irishexaminer.com/business/companies/arid-41915320.html"
+    },
+    {
+     "outlet": "The Register",
+     "date": "2026-09-25",
+     "title": "Another week, another data breach for Revolut customers",
+     "url": "https://www.theregister.com/cyber-crime/2026/09/25/another-week-another-data-breach-for-revolut-customers/5299092"
+    }
+   ]
+  },
+  {
+   "region": "GL",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-15 Australian Signals Directorate에 보고. 2026-09-24 보도에서 정부가 포렌식 조사와 총리내각부 주도 태스크포스 구성을 발표.",
+   "admitted": "2026-09-24 총리가 6월 18일 무단 접근 사실을 공개 확인. OpenAI는 9월 10일 Services Australia에 통보했다고 발표.",
+   "date": "2026-09-24",
+   "name": "Services Australia",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "attack": "OpenAI AI 에이전트가 Medicare 통계 포털의 접근 차단을 우회해 공개 및 비공개 파일에 무단 접근.",
+   "sources": [
+    {
+     "outlet": "ABC News",
+     "date": "2026-09-24",
+     "title": "What we know about the data accessed in the OpenAI Medicare hack",
+     "url": "https://www.abc.net.au/news/2026-09-24/what-we-know-about-the-openai-medicare-hack/107189452"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-24",
+     "title": "OpenAI hacked Australian Medicare govt site, probed data providers",
+     "url": "https://www.bleepingcomputer.com/news/security/openai-hacked-australian-medicare-govt-site-probed-data-providers/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-21 유출 가능성 인지 후 관계기관 신고, 전문 보안업체와 조사",
+   "admitted": "2026-09-24 공지와 사과, 실제 개인정보 유출 여부는 미확인",
+   "date": "2026-09-24",
+   "name": "하늘교육",
+   "org_type": "일반 기업",
+   "attack": "홈페이지 일부에 외부 해킹 및 개인정보 유출 정황 확인",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-09-24",
+     "title": "'하늘교육' 해킹·개인정보 유출 정황…\"현재까지 피해 없어\"",
+     "url": "https://www.newsis.com/view/NISX20260924_0003802958"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-25",
+   "name": "Bitget",
+   "region": "GL",
+   "org_type": "가상자산 거래소",
+   "market_position": null,
+   "attack": "제3자 보안 제품 취약점으로 내부 자격증명을 탈취한 뒤 허위 출금 명령 전송",
+   "records": null,
+   "records_unit": null,
+   "usd": 388000000,
+   "amount_note": "회사 최종 확인 피해액 약 3억8800만 달러. 초기 공식 공지 3억5160만 달러, 보도 및 중간 집계 3억8750만 또는 3억9006만 달러",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "핫월렛 및 웜월렛 가상자산 탈취. 출금 중단 후 2026-10-02 복구 완료",
+   "spread": "제3자 보안 제품의 취약점을 통해 내부 특권 자격증명을 획득",
+   "official_action": "2026-09-25 13:42 UTC 관할 법집행기관 신고",
+   "admitted": "2026-09-25 한국 시간 최초 보안 공지로 가상자산 무단 이체를 인정",
+   "sources": [
+    {
+     "outlet": "The Hacker News",
+     "date": "2026-09-25",
+     "title": "Bitget Says Suspected North Korean Hackers Stole $351.6M After Backend Compromise",
+     "url": "https://thehackernews.com/2026/09/bitget-says-suspected-north-korean.html"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-30",
+     "title": "Bitget hacked via zero-day in third-party security products",
+     "url": "https://www.bleepingcomputer.com/news/security/bitget-hacked-via-zero-day-in-third-party-security-products/"
+    },
+    {
+     "outlet": "Bitget",
+     "date": "2026-09-27",
+     "title": "Bitget Hack Explained: Timeline, Impact and Security Response",
+     "url": "https://www.bitget.com/academy/bitget-security-incident-what-happened-timeline-impact-response"
+    }
+   ]
+  },
+  {
+   "region": "GL",
+   "market_position": null,
+   "records": 23549,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "신분증 번호, 생년월일.",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-09-27 Personal Data Protection Commission이 조사 사실 확인.",
+   "admitted": "2026-09-25 회사 성명에서 9월 24일 유출을 발견해 조치했고 피해 고객에게 이메일 통지 중이라고 발표.",
+   "date": "2026-09-25",
+   "name": "SIMBA",
+   "org_type": "통신사",
+   "attack": "고객 등록 개인정보 유출.",
+   "sources": [
+    {
+     "outlet": "CNA",
+     "date": "2026-09-27",
+     "title": "More than 23,500 Simba customers affected in data breach involving IC numbers, birth dates",
+     "url": "https://www.channelnewsasia.com/singapore/more-23500-simba-customers-affected-in-data-breach-involving-ic-numbers-birth-dates-6413636"
+    },
+    {
+     "outlet": "The Straits Times",
+     "date": "2026-09-27",
+     "title": "Personal information of over 23,500 Simba customers leaked in data breach",
+     "url": "https://www.straitstimes.com/singapore/personal-information-of-over-23500-simba-customers-leaked-in-data-breach"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-25",
+   "name": "Times Mobility (Times Car)",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "웹 시스템 취약점을 통한 회원 개인정보 반출",
+   "records": 6628007,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": "초기 약660만 계정에서 최종6,628,007계정. 별도로 암호화된 본인확인서류 이미지1,464,800건의 외부 전송 흔적 확인,891,602건은 접근 흔적만 확인",
+   "size_basis": "회사 발표",
+   "sensitive": "운전면허 정보, 암호화된 신분증 이미지, 비밀번호 해시 4건, Times Club 카드번호 및 일부 카드번호 끝4자리",
+   "loss_or_outage": null,
+   "spread": "Times Car와 Times Business Service 회원뿐 아니라 관련 Times Club 웹 시스템도 침해",
+   "official_action": "2026-09-25 개인정보보호위원회 신고, 9월28일 경찰 상담 및 국토교통성 보고",
+   "admitted": "2026-09-25 제1보 공지, 9월28일 유출 인정 및 사과,10월23일 최종 조사결과 공개",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-09-29",
+     "title": "Times Car confirms data breach affecting 6.6 million user accounts",
+     "url": "https://www.bleepingcomputer.com/news/security/times-car-confirms-data-breach-affecting-66-million-user-accounts/"
+    },
+    {
+     "outlet": "Impress Watch",
+     "date": "2026-09-29",
+     "title": "タイムズカーの情報漏洩、免許証など本人確認書類流出は160万件",
+     "url": "https://www.watch.impress.co.jp/docs/news/2144279.html"
+    },
+    {
+     "outlet": "Times Car",
+     "date": "2026-10-23",
+     "title": "「タイムズカーWebシステム」への不正アクセスによる個人情報漏えいに関するご報告と今後の対応について（第5報）",
+     "url": "https://share.timescar.jp/news/2026/1023/1825.html"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-27",
+   "name": "東京地下鉄 (Tokyo Metro)",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "Metpo 이메일 발송 위탁사 서버 무단 접근",
+   "records": 59000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "최초 발표 기준 이메일 주소 약5만9000건의 열람 또는 취득 가능성",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "이메일 발송 서비스를 위탁한 회사의 서버가 침해됨",
+   "official_action": null,
+   "admitted": "2026-09-27 이메일 주소 유출 가능성을 발표",
+   "sources": [
+    {
+     "outlet": "TV Asahi",
+     "date": "2026-09-27",
+     "title": "東京メトロ　メアド約5万9000件漏洩の可能性　“国外”からの不正アクセスを確認",
+     "url": "https://news.tv-asahi.co.jp/news_economy/articles/000536195.html"
+    },
+    {
+     "outlet": "Kyodo",
+     "date": "2026-09-27",
+     "title": "東京メトロ、会員情報流出か　不正アクセス、5万9千件",
+     "url": "https://news.livedoor.com/article/detail/32424380/"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-29",
+   "name": "セイコーマート (Seicomart)",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "스마트폰 앱 서버를 경유한 회원정보 서버 무단 접근",
+   "records": 574647,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "9월30일 발표572,022명에서10월5일574,647명으로 수정",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "신규 가입, 회원정보 조회와 변경, 카드 변경 및 일부 로그인 중단",
+   "spread": null,
+   "official_action": "2026-09-30 당국 신고 사실 공개 및 경찰과 협력",
+   "admitted": "2026-09-29 최초 공지,10월5일 최종 대상574647명 공개 및 사과",
+   "sources": [
+    {
+     "outlet": "ITmedia NEWS",
+     "date": "2026-09-29",
+     "title": "セイコーマート、57万アカウントの会員情報漏えいか　スマホアプリ用のサーバ介し不正アクセス",
+     "url": "https://www.itmedia.co.jp/news/article/2609/29/2000001830/"
+    },
+    {
+     "outlet": "Japan Cyber Watch",
+     "date": "2026-09-29",
+     "title": "Seicomart Data Breach in Japan: 575,000 Members' Data Viewed Through Its App Server",
+     "url": "https://japancyberwatch.com/articles/seicomart-app-unauthorized-access-2026"
+    },
+    {
+     "outlet": "Seicomart",
+     "date": "2026-10-05",
+     "title": "「セイコーマートアプリ」への不正アクセスによる個人情報の閲覧に関するお詫びとお知らせ（第四報）",
+     "url": "https://www.seicomart.co.jp/images/top/pdf/202610051430.pdf"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-29",
+   "name": "ヤマト運輸 (Yamato Transport)",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "후불 결제 서비스 무단 접근 및 고객정보 반출",
+   "records": 5260000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "공식 구분별 고객정보 약526만건, 배송지정보 약5만건, 가맹점정보 약4100건. 보도는 이를 약530만 또는531만건으로 합산하며 고유 인원 수는 미공개",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "2026-09-28 22:28 후불 결제 서비스 중단,10월9일 재개",
+   "spread": null,
+   "official_action": "2026-10-16 공지에서 일본 개인정보보호위원회 신고 사실 공개",
+   "admitted": "2026-09-29 최초 침해 공지,10월16일 정보 반출 확인 및 사과",
+   "sources": [
+    {
+     "outlet": "ITmedia NEWS",
+     "date": "2026-09-29",
+     "title": "ヤマト運輸「クロネコ代金後払い」、不正アクセスでサービス停止、宅急便などは通常通り",
+     "url": "https://www.itmedia.co.jp/news/article/2609/29/2000001859/"
+    },
+    {
+     "outlet": "파이낸셜뉴스",
+     "date": "2026-10-18",
+     "title": "“I’d left, but they still had my driver’s license” Japan on high alert as personal data keeps leaking",
+     "url": "https://en.fnnews.com/news/202610181135514429"
+    },
+    {
+     "outlet": "Yamato Holdings",
+     "date": "2026-10-16",
+     "title": "【第4報】「クロネコ代金後払いサービス」への不正アクセスに関する調査結果と今後の対応について",
+     "url": "https://www.yamato-hd.co.jp/important/info_260929_1.html"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 18900,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-09-29 홈페이지에 유출 가능성 공지",
+   "date": "2026-09-29",
+   "name": "모우다",
+   "org_type": "금융회사",
+   "attack": "외부 제3자가 웹사이트에 불법 접근해 개인정보 및 개인신용정보 유출 가능성",
+   "sources": [
+    {
+     "outlet": "아이뉴스24",
+     "date": "2026-10-04",
+     "title": "웰컴저축銀 법인고객 정보 2000여건 유출…온투업 2곳도 뚫렸다",
+     "url": "https://inews24.com/view/2011741"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-29",
+     "title": "금감원, '해킹으로 1억원 피해' 프라뱅 현장 검사 착수",
+     "url": "https://www.yna.co.kr/amp/view/AKR20261029172500002"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 300,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-09-29 홈페이지 공지",
+   "date": "2026-09-29",
+   "name": "피에프씨테크놀로지스",
+   "org_type": "금융회사",
+   "attack": "외부 전자적 침해행위로 일부 이용자 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "아이뉴스24",
+     "date": "2026-10-04",
+     "title": "웰컴저축銀 법인고객 정보 2000여건 유출…온투업 2곳도 뚫렸다",
+     "url": "https://inews24.com/view/2011741"
+    }
+   ]
+  },
+  {
+   "date": "2026-09-30",
+   "name": "佐川急便 (Sagawa Express)",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "배송 조회 웹 서비스 무단 접근 및 개인정보 유출 가능성",
+   "records": 53230000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "유출 가능성이 있는 최대 약5323만건으로 중복을 포함하며 실제 고유 피해 인원 수는 미공개",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "2026-09-30 배송 조회 및 집하 접수 등 웹 서비스 중단. 배송 조회는10월23일 재개됐으나 일부 서비스는 계속 중단",
+   "spread": "배송 의뢰인, 수취인, 운임 계약 고객 및 Smart Club 회원 정보가 대상",
+   "official_action": null,
+   "admitted": "2026-09-30 침해 최초 공개,10월1일 개인정보 유출 가능성 발표,10월23일 최대 건수 공개",
+   "sources": [
+    {
+     "outlet": "ITmedia NEWS",
+     "date": "2026-10-23",
+     "title": "佐川への不正アクセス、最大5323万件の個人情報流出か　9月末のサイバー攻撃で続報",
+     "url": "https://www.itmedia.co.jp/news/article/2610/23/2000002553/"
+    },
+    {
+     "outlet": "Kansai TV",
+     "date": "2026-10-23",
+     "title": "佐川急便　最大で約5323万件の「氏名、住所、電話番号」など流出か　ことし6月21日から9月末までのサービス利用者が対象",
+     "url": "https://www.ktv.jp/news/articles/?id=30512"
+    },
+    {
+     "outlet": "Mainichi Shimbun",
+     "date": "2026-10-23",
+     "title": "佐川急便サイトに不正アクセス　個人情報最大5323万件流出か",
+     "url": "https://home.kingsoft.jp/news/news/mainichi/20261023k0000m020359000c.html?from=content"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 25000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "보도",
+   "sensitive": "주민등록번호 66건, CI 97건, 연소득, 대출 산출한도",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": null,
+   "date": "2026-10-01",
+   "name": "신한은행",
+   "org_type": "금융회사",
+   "attack": "대출모집인 간편조회 서비스 무단 접근 후 다른 조회 서비스에 정보를 대입해 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "MTN 머니투데이방송",
+     "date": "2026-10-01",
+     "title": "신한은행, 2만5000명 정보 유출…대출 간편조회 뚫렸다",
+     "url": "https://news.mtn.co.kr/news-detail/2026100115465611895"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-05",
+     "title": "개인정보 유출 공포 전방위로…금융 이어 한전·대학도 비상",
+     "url": "https://www.yna.co.kr/view/AKR20261005052800017"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 11,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-02 금융당국 및 개인정보보호위원회 신고",
+   "admitted": "2026-10-02 외주 직원 11명의 성명, 전화번호, 생년월일, 이메일 유출 확인 발표",
+   "date": "2026-10-02",
+   "name": "비엔케이부산은행",
+   "org_type": "금융회사",
+   "attack": "직원용 모바일 영업지원시스템 해킹으로 외주 개발직원 정보 유출",
+   "sources": [
+    {
+     "outlet": "SBS Biz",
+     "date": "2026-10-02",
+     "title": "BNK부산은행도 해킹…\"외주 직원 개인정보 11건 유출\"",
+     "url": "https://biz.sbs.co.kr/amp/article/20000338185"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-05",
+     "title": "개인정보 유출 공포 전방위로…금융 이어 한전·대학도 비상",
+     "url": "https://www.yna.co.kr/view/AKR20261005052800017"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 40000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "관련 서비스 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-02 대표이사 명의 개인정보 유출 통지 및 사과문 게시",
+   "date": "2026-10-02",
+   "name": "예가람저축은행",
+   "org_type": "금융회사",
+   "attack": "신원 미상 해커의 서버 접근으로 고객 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-03",
+     "title": "예가람저축은행도 해킹 피해로 고객정보 유출…4만명 추정",
+     "url": "https://www.yna.co.kr/amp/view/AKR20261003035000002"
+    },
+    {
+     "outlet": "SBS Biz",
+     "date": "2026-10-03",
+     "title": "저축은행도 털렸다…예가람저축銀도 해킹으로 개인정보 유출",
+     "url": "https://biz.sbs.co.kr/amp/article/20000338222"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 2210,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "최초 119명에서 2026-10-26 2091명 추가 확인, 총 2210명.",
+   "size_basis": "회사 발표",
+   "sensitive": "암호화된 주민등록번호, 계좌번호, 예금잔액, 대출내역, 신용등급",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-26 보도 기준 금융감독원 현장검사 중 추가 유출 확인",
+   "admitted": "2026-10-02 최초 공지, 10-26 추가 유출 공지",
+   "date": "2026-10-02",
+   "name": "케이비국민은행",
+   "org_type": "금융회사",
+   "attack": "직원용 모바일 업무지원시스템 외부 침해로 고객 및 임직원 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리안",
+     "date": "2026-10-02",
+     "title": "국민은행, 외부 침해로 119명 정보 유출…\"피해 발생 시 전액 보상\"",
+     "url": "https://www.dailian.co.kr/news/view/1697396"
+    },
+    {
+     "outlet": "뉴스토마토",
+     "date": "2026-10-26",
+     "title": "국민은행 해킹 정보유출 2210명으로 확대",
+     "url": "https://www.newstomato.com/ReadNews.aspx?no=1318091"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 89,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "주민등록번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-02 고객정보 유출 발표 및 피해자 개별통보",
+   "date": "2026-10-02",
+   "name": "하나은행",
+   "org_type": "금융회사",
+   "attack": "영업지원시스템에 외부 해킹 에이전트가 비정상 접근해 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "아이뉴스24",
+     "date": "2026-10-02",
+     "title": "하나은행, 해킹 사고 89명 고객 개인정보 유출",
+     "url": "https://inews24.com/view/2011596"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-05",
+     "title": "개인정보 유출 공포 전방위로…금융 이어 한전·대학도 비상",
+     "url": "https://www.yna.co.kr/view/AKR20261005052800017"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 146,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "주민등록번호, 내부 모집인번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-03 15:30 금융감독원 및 KISA 신고",
+   "admitted": "2026-10-03 모집인 146명 개인정보 유출 발표",
+   "date": "2026-10-03",
+   "name": "현대캐피탈",
+   "org_type": "금융회사",
+   "attack": "주택대출 모집인 공개 조회페이지 대상 정보조회 공격으로 모집인 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "이데일리",
+     "date": "2026-10-03",
+     "title": "“은행 털리더니 현대캐피탈까지” AI 해킹에 개인정보 줄줄 샜다",
+     "url": "https://www.edaily.co.kr/news/read?mediaCodeNo=257&newsId=02332086645609312"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-05",
+     "title": "개인정보 유출 공포 전방위로…금융 이어 한전·대학도 비상",
+     "url": "https://www.yna.co.kr/view/AKR20261005052800017"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": null,
+   "date": "2026-10-04",
+   "name": "다우기술",
+   "org_type": "일반 기업",
+   "attack": "2026-08-18 보안취약점을 이용한 해킹 피해",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-04",
+     "title": "iM뱅크·바로저축銀 올해 악성코드 감염…고객정보는 유출 안돼",
+     "url": "https://www.yna.co.kr/view/AKR20261003043300002"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-10-05",
+     "title": "핀테크도 해킹 위협 노출…'결제·플랫폼' 보안 시험대",
+     "url": "https://nwww.newsis.com/view/NISX20261005_0003814334"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": null,
+   "date": "2026-10-04",
+   "name": "아이엠뱅크",
+   "org_type": "금융회사",
+   "attack": "2026-08-28 악성코드 감염을 통한 이상거래탐지시스템 공격",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-04",
+     "title": "iM뱅크·바로저축銀 올해 악성코드 감염…고객정보는 유출 안돼",
+     "url": "https://www.yna.co.kr/view/AKR20261003043300002"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-10-04",
+     "title": "iM뱅크·바로저축은행도 악성코드 감염…금융 침해사고 속출",
+     "url": "https://www.newsis.com/view/NISX20261004_0003813921"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 2200,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-04 보도 기준 전날 자체 점검으로 해킹 확인 후 당국 보고",
+   "date": "2026-10-04",
+   "name": "웰컴저축은행",
+   "org_type": "금융회사",
+   "attack": "법인고객 관련 시스템 해킹으로 담당자 이름, 이메일, 전화번호 등 유출",
+   "sources": [
+    {
+     "outlet": "아이뉴스24",
+     "date": "2026-10-04",
+     "title": "웰컴저축銀 법인고객 정보 2000여건 유출…온투업 2곳도 뚫렸다",
+     "url": "https://inews24.com/view/2011741"
+    },
+    {
+     "outlet": "데일리안",
+     "date": "2026-10-05",
+     "title": "웰컴저축은행도 해킹 피해…법인 고객정보 2200건 유출",
+     "url": "https://www.dailian.co.kr/news/view/1697861"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 24000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "2026-10-04 회사 초기발표 기준 약2만4천 명, 정확한 원인과 범위 조사 중.",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-04 직원정보 외부 웹페이지 노출 발표",
+   "date": "2026-10-04",
+   "name": "한국전력공사",
+   "org_type": "공공기관",
+   "attack": "직원 이름, 소속, 전화번호 등이 외부 웹페이지에 노출",
+   "sources": [
+    {
+     "outlet": "MTN 머니투데이방송",
+     "date": "2026-10-04",
+     "title": "한전, 외부 웹페이지에 직원 개인정보 노출 사고",
+     "url": "https://news.mtn.co.kr/news-detail/2026100416070196194"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-05",
+     "title": "개인정보 유출 공포 전방위로…금융 이어 한전·대학도 비상",
+     "url": "https://www.yna.co.kr/view/AKR20261005052800017"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-05",
+   "name": "Central Population Register (CPR)",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "민간 기업의 정당한 조회 권한을 악용한 주민등록부 무단 접근",
+   "records": 8800000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "정부 조사",
+   "sensitive": "덴마크 개인식별번호(CPR)",
+   "loss_or_outage": null,
+   "spread": "접근 권한을 가진 덴마크 민간 기업을 통해 주민등록부 조회",
+   "official_action": "2026-10-04 Datatilsynet 신고, 경찰 수사 및 CPR 보안 검토",
+   "admitted": "2026-10-05 담당 부처가 침해 사실 발표",
+   "sources": [
+    {
+     "outlet": "Euronews",
+     "date": "2026-10-05",
+     "title": "Hackers access data of 8.8 million people in Denmark in 'extremely serious' breach",
+     "url": "https://www.euronews.com/2026/10/05/hackers-access-data-of-88-million-people-in-denmark-in-extremely-serious-breach"
+    },
+    {
+     "outlet": "Help Net Security",
+     "date": "2026-10-06",
+     "title": "Data breach at Denmark’s population register exposes 8.8 million people",
+     "url": "https://www.helpnetsecurity.com/2026/10/06/denmark-central-population-register-cpr-data-breach/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "암호화된 주민등록번호, 비밀번호, 계좌번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-05 보도 기준 교육부 사이버안전센터 및 개인정보보호위원회 신고, 관계기관 조사",
+   "admitted": "2026-10-05 보도에서 대학 측 유출 항목 및 대응 설명",
+   "date": "2026-10-05",
+   "name": "서울사이버대학교",
+   "org_type": "대학, 병원",
+   "attack": "학생, 졸업생, 교직원, 채용지원자 개인정보가 외부 사이트에 게시됨",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-05",
+     "title": "개인정보 유출 공포 전방위로…금융 이어 한전·대학도 비상",
+     "url": "https://www.yna.co.kr/view/AKR20261005052800017"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-06",
+   "name": "ASOS",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "직원 계정 탈취 후 제3자 고객 소통 플랫폼 접근 및 앱 푸시 알림 악용",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "직원 계정으로 ASOS가 사용하는 제3자 플랫폼 접근",
+   "official_action": null,
+   "admitted": "2026-10-06 비인가 활동과 기본 개인정보 접근 가능성 인정",
+   "sources": [
+    {
+     "outlet": "Sky News",
+     "date": "2026-10-06",
+     "title": "ASOS says 'personal information' may have been accessed during 'unauthorised activity'",
+     "url": "https://news.sky.com/story/bluesky-13591381"
+    },
+    {
+     "outlet": "Computing",
+     "date": "2026-10-07",
+     "title": "ASOS investigates hack after customers receive app alert",
+     "url": "https://www.computing.co.uk/news/2026/security/asos-investigates-hack-but-much-unclear"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-07",
+   "name": "Fireworks AI",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "내부 인증정보와 외부 클라우드 침해를 통한 고객 비밀정보 및 데이터 접근",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "API 키, 토큰, 환경변수",
+   "loss_or_outage": "일부 데이터셋 업로드 및 다운로드 기능 중단",
+   "spread": "외부 클라우드 제공사의 침해를 통해 Fireworks 개발 머신 접근",
+   "official_action": null,
+   "admitted": "2026-10-07 07:00 PDT 고객 통지 개시, 2026-10-09 공개 공지, 2026-11-09 추가 침해와 데이터 범위 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-10",
+     "title": "Fireworks AI discloses new breach after cloud provider hack",
+     "url": "https://www.bleepingcomputer.com/news/security/fireworks-ai-discloses-new-breach-after-cloud-provider-hack/"
+    },
+    {
+     "outlet": "SC Media",
+     "date": "2026-11-10",
+     "title": "Fireworks discloses second security breach following third-party cloud attack",
+     "url": "https://www.scworld.com/brief/fireworks-discloses-second-security-breach-following-third-party-cloud-attack"
+    },
+    {
+     "outlet": "Fireworks AI",
+     "date": "2026-10-09",
+     "title": "Fireworks October 2026 security incident",
+     "url": "https://fireworks.ai/security/bulletins/october-2026-security-incident"
+    },
+    {
+     "outlet": "Fireworks AI",
+     "date": "2026-11-09",
+     "title": "Update on October 2026 security incident",
+     "url": "https://fireworks.ai/security/bulletins/october-2026-security-incident-update"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-07",
+   "name": "IDC Frontier",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "IDCF Cloud 동일본 리전 랜섬웨어 공격",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "동일본 Region 1 일부 가상서버 정지, 관리 콘솔 접근 중단",
+   "spread": "기업과 지방정부 고객 495곳 영향",
+   "official_action": null,
+   "admitted": "2026-10-07 제3자 무단 접근과 서비스 중단 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-08",
+     "title": "Ransomware attack disrupts Japan's IDCF Cloud used by govt clients",
+     "url": "https://www.bleepingcomputer.com/news/security/ransomware-attack-disrupts-japans-idcf-cloud-used-by-govt-clients/"
+    },
+    {
+     "outlet": "IT Pro",
+     "date": "2026-10-23",
+     "title": "A spate of cyber attacks has rocked Japan – and it's spooked lawmakers",
+     "url": "https://www.itpro.com/security/cyber-attacks/a-spate-of-cyber-attacks-has-rocked-japan-and-its-spooked-lawmakers"
+    },
+    {
+     "outlet": "IDC Frontier",
+     "date": "2026-10-07",
+     "title": "【第2報】当社サービスの一部システムに対する不正アクセスについて",
+     "url": "https://www.idcf.jp/news/topics/20261007002"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-08",
+   "name": "Daiichi Kosho / Nippon Columbia Group",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": "일본 최대 가라오케 기기 제조사",
+   "attack": "개인정보 처리 위탁사 직원 PC 악성코드 감염",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "8,724,000명은 서버에 저장된 잠재 영향 대상이며 실제 유출 규모가 아니다. 2026-11-06 회사 조사에서 외부 전송 정보와 실제 유출 여부를 특정하지 못함",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "Nippon Columbia Group 위탁 처리 자료, BIG ECHO 등 고객과 Daiichi Kosho 직원정보 영향 가능",
+   "official_action": null,
+   "admitted": "2026-10-08 Daiichi Kosho가 위탁사 감염과 정보 유출 가능성을 공지하고 사과",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-11",
+     "title": "Nippon Columbia malware incident exposes 8.6 million karaoke fan records",
+     "url": "https://www.bleepingcomputer.com/news/security/nippon-columbia-malware-incident-exposes-86-million-karaoke-fan-records/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-13",
+     "title": "Over 8.7 million karaoke fans at risk after major data breach — Japanese giant Nippon Columbia says malware infection was to blame for exposing records",
+     "url": "https://www.techradar.com/pro/security/over-8-7-million-karaoke-fans-at-risk-after-major-data-breach-japanese-giant-nippon-columbia-says-malware-infection-was-to-blame-for-exposing-records"
+    },
+    {
+     "outlet": "Daiichi Kosho",
+     "date": "2026-10-08",
+     "title": "委託先における個人情報漏えいのおそれについて ※追記あり",
+     "url": "https://www.dkkaraoke.co.jp/news/newsletter/261008_2.html"
+    },
+    {
+     "outlet": "Daiichi Kosho",
+     "date": "2026-11-06",
+     "title": "委託先における個人情報漏えいのおそれに関する外部専門機関による調査結果および今後の対応について",
+     "url": "https://www.dkkaraoke.co.jp/news/newsletter/261106_1.html"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "은행 계좌번호, 단방향 암호화된 비밀번호",
+   "loss_or_outage": null,
+   "spread": "대한건축학회, 전력전자학회, 한국도시설계학회, 한국소음진동공학회, 한국실내디자인학회, 한국자기학회가 2026-10-08 유출 공지",
+   "official_action": null,
+   "admitted": "2026-10-08 피해 학회들이 공식 홈페이지 사과문 게시. 한국실내디자인학회는 크릭 데이터시스템 침해를 명시.",
+   "date": "2026-10-08",
+   "name": "크릭, 대한건축학회 등 6개 학회",
+   "org_type": "일반 기업",
+   "attack": "홈페이지 유지보수 위탁업체 데이터 시스템 해킹으로 학회 회원정보 유출",
+   "sources": [
+    {
+     "outlet": "인사이트",
+     "date": "2026-10-11",
+     "title": "\"이름·생년월일·계좌까지 털렸다\"... 학회 6곳 개인정보 유출",
+     "url": "https://www.insight.co.kr/news/577273"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 248,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "운전면허번호 일부인 지역번호 및 발급연도",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-08 개인정보보호위원회 및 KISA 신고",
+   "admitted": "2026-10-10 보도에서 회사 유출 공지 및 고객 개별안내 확인",
+   "date": "2026-10-10",
+   "name": "쏘카",
+   "org_type": "일반 기업",
+   "attack": "내부 회원조회 API의 권한 검증 취약점을 악용한 외부 접근으로 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-10-10",
+     "title": "[단독] 쏘카, 무신사 29CM와 유사한 공격으로 고객 248명 개인정보 유출…10분 만에 인지·차단해 추가 피해 방지",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=208813"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-12",
+   "name": "Ahold Delhaize",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "IT 인프라 사이버 공격",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "미국과 유럽 다수 브랜드의 웹사이트, 앱, 전자상거래 서비스 중단",
+   "spread": "Albert Heijn, Etos, Gall & Gall, Delhaize와 미국 브랜드에 파급",
+   "official_action": "2026-10-19 네덜란드 경찰에 정식 신고, 악성 활동 확인 후 24시간 내 NCSC 통보",
+   "admitted": "2026-10-12 시스템 보안 문제 공지, 2026-10-19 악의적 활동 확인과 사과",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-12",
+     "title": "Retail giant Ahold Delhaize takes systems offline after cyberattack",
+     "url": "https://www.bleepingcomputer.com/news/security/retail-giant-ahold-delhaize-takes-systems-offline-after-cyberattack/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-13",
+     "title": "Ahold Delhaize takes systems offline after cyberattack — global retail giant says 'cybersecurity incident' hit systems, but stores remain open",
+     "url": "https://www.techradar.com/pro/security/ahold-delhaize-takes-systems-offline-after-cyberattack-global-retail-giant-says-cybersecurity-incident-hit-systems-but-stores-remain-open"
+    },
+    {
+     "outlet": "Ahold Delhaize",
+     "date": "2026-10-19",
+     "title": "Ahold Delhaize update on status of cybersecurity incident",
+     "url": "https://newsroom.aholddelhaize.com/ahold-delhaize-update-on-status-of-cybersecurity-incident/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-12",
+   "name": "Intermarché, Netto, Coopérative U, Carrefour, E.Leclerc, Monoprix",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "슈퍼마켓 냉장, 냉동 설비 원격 제어 공격",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "냉장, 냉동 설비 과열, 식품 폐기와 일부 매장 영업 중단",
+   "spread": "여러 프랑스 유통 체인의 매장 수백 곳과 외부 냉장설비 서비스 관련",
+   "official_action": "2026-10-12 파리 검찰이 광범위한 냉장설비 공격과 식품 손실, 화재 관련 수사 개시",
+   "admitted": "2026-10-12 Intermarché 및 Coopérative U가 공격 영향 확인",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-12",
+     "title": "Cyberattack shuts down refrigerators at French supermarkets",
+     "url": "https://www.bleepingcomputer.com/news/security/cyberattack-shuts-down-refrigerators-at-french-supermarkets/"
+    },
+    {
+     "outlet": "Le Monde",
+     "date": "2026-10-13",
+     "title": "A disastrous day for French supermarkets after massive cyberattack targets refrigeration systems",
+     "url": "https://www.lemonde.fr/en/economy/article/2026/10/13/a-disastrous-day-for-french-supermarkets-after-massive-cyberattack-targets-refrigeration-systems_6758535_19.html"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "2026-10-13 SBS Biz는 고객 400명대 유출로 보도.",
+   "size_basis": null,
+   "sensitive": "주민등록번호, 계좌번호, 잔액",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-13 보도 기준 금융당국에 유출 신고",
+   "admitted": null,
+   "date": "2026-10-13",
+   "name": "새마을금고중앙회",
+   "org_type": "금융회사",
+   "attack": "새로운 외부 IP 수십 개의 공격으로 고객 및 공제회원 정보 유출",
+   "sources": [
+    {
+     "outlet": "SBS Biz",
+     "date": "2026-10-13",
+     "title": "새마을금고, 400명대 정보 유출 확인 당국에 신고",
+     "url": "https://biz.sbs.co.kr/amp/article/20000339707"
+    },
+    {
+     "outlet": "경향신문",
+     "date": "2026-10-13",
+     "title": "[속보]새마을금고도 털렸다···공제회원 이름·계좌번호·잔액까지 유출",
+     "url": "https://www.khan.co.kr/article/202610131647001"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 518,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "최초 183명 유출 가능성, 250명 확인 후 2026-10-16 최종 518명 발표.",
+   "size_basis": "회사 발표",
+   "sensitive": "계좌번호, 잔액, 이율, 최종거래일",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-13 금융당국에 유출 가능성 신고 발표",
+   "admitted": "2026-10-16 유출 인원 518명 최종 발표",
+   "date": "2026-10-13",
+   "name": "오케이저축은행",
+   "org_type": "금융회사",
+   "attack": "대출신청 웹페이지와 모바일 수신서비스 페이지에 비정상 접속해 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "MTN 머니투데이방송",
+     "date": "2026-10-13",
+     "title": "OK저축은행도 해킹 시도 탐지…당국에 신고",
+     "url": "https://news.mtn.co.kr/news-detail/2026101319122141312"
+    },
+    {
+     "outlet": "SBS Biz",
+     "date": "2026-10-16",
+     "title": "OK저축은행 \"해킹 정보 유출 최종 518명\"…2배 이상 증가",
+     "url": "https://biz.sbs.co.kr/amp/article/20000340489"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 100,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "직원 100여 명으로 보도, 정확한 규모 미확인.",
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-11 당국에 침해사고 신고",
+   "admitted": null,
+   "date": "2026-10-14",
+   "name": "디비저축은행",
+   "org_type": "금융회사",
+   "attack": "침해사고로 직원 정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-14",
+     "title": "당국 \"금융사 침해사고 발생 총 16곳…약 10만건 유출\"(종합2보)",
+     "url": "https://www.yna.co.kr/view/AKR20261014134852002"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": null,
+   "date": "2026-10-14",
+   "name": "브라이트픽스",
+   "org_type": "금융회사",
+   "attack": "침해사고로 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-14",
+     "title": "당국 \"금융사 침해사고 발생 총 16곳…약 10만건 유출\"(종합2보)",
+     "url": "https://www.yna.co.kr/view/AKR20261014134852002"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-29",
+     "title": "금감원, '해킹으로 1억원 피해' 프라뱅 현장 검사 착수",
+     "url": "https://www.yna.co.kr/amp/view/AKR20261029172500002"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 848,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "주민등록번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-14 대표이사 명의 사과문 발표",
+   "date": "2026-10-14",
+   "name": "산은캐피탈",
+   "org_type": "금융회사",
+   "attack": "해킹 공격으로 고객 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-14",
+     "title": "당국 \"금융사 침해사고 발생 총 16곳…약 10만건 유출\"(종합2보)",
+     "url": "https://www.yna.co.kr/view/AKR20261014134852002"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 9,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "이용자7명 및 전현직 임직원2명. 10월 추가유출의 전체 규모 미확인.",
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-19 보도에서 개인정보 유출 사과문 확인",
+   "date": "2026-10-14",
+   "name": "스트리미, 고팍스",
+   "org_type": "가상자산 거래소",
+   "attack": "일부 고객 계정에 대한 비정상 접근으로 개인정보 조회 및 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-14",
+     "title": "당국 \"금융사 침해사고 발생 총 16곳…약 10만건 유출\"(종합2보)",
+     "url": "https://www.yna.co.kr/view/AKR20261014134852002"
+    },
+    {
+     "outlet": "코인니스",
+     "date": "2026-10-19",
+     "title": "가상자산 거래소 고팍스·프라뱅, 개인정보 유출 사과",
+     "url": "https://coinness.com/news/1172146/quote"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-06",
+     "title": "가상자산 거래소 고팍스, 해킹 위협에 입출금·매매 중단(종합)",
+     "url": "https://www.yna.co.kr/view/AKR20261106174751002"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-19 보도에서 개인정보 유출 사과문 확인",
+   "date": "2026-10-14",
+   "name": "프라뱅",
+   "org_type": "가상자산 거래소",
+   "attack": "외부 비인가자의 비정상 접근으로 일부 서비스의 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-14",
+     "title": "당국 \"금융사 침해사고 발생 총 16곳…약 10만건 유출\"(종합2보)",
+     "url": "https://www.yna.co.kr/view/AKR20261014134852002"
+    },
+    {
+     "outlet": "코인니스",
+     "date": "2026-10-19",
+     "title": "가상자산 거래소 고팍스·프라뱅, 개인정보 유출 사과",
+     "url": "https://coinness.com/news/1172146/quote"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-15",
+   "name": "Burger King Japan",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "공식 앱 회원관리 시스템 무단 접근과 회원정보 유출",
+   "records": 11180000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-15 공식 앱 회원정보 유출 공지와 사과",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-16",
+     "title": "Burger King Japan data breach exposes 11 million customer records",
+     "url": "https://www.bleepingcomputer.com/news/security/burger-king-japan-data-breach-exposes-11-million-customer-records/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-19",
+     "title": "Whopper of a data breach sees Burger King Japan expose over 11 million customer records",
+     "url": "https://www.techradar.com/pro/security/whopper-of-a-data-breach-sees-burger-king-japan-expose-over-11-million-customer-records"
+    },
+    {
+     "outlet": "Burger King Japan",
+     "date": "2026-10-15",
+     "title": "不正アクセスによる公式アプリ会員情報漏えいに関するお詫びとお知らせ",
+     "url": "https://www.burgerking.co.jp/images/notice/2026/10/15/d4d114ca-ebd7-4f3d-94ef-c4ea7a84a139.pdf"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-16",
+   "name": "Nikkei",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "탈취 인증정보를 이용한 개발용 클라우드 시스템 무단 접근",
+   "records": 1830000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "약 150,000건에 식별정보 포함, 나머지 약 1,680,000건은 단독 식별 불가 자료",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-11 일본 개인정보보호위원회 신고",
+   "admitted": "2026-10-16 개발 시스템 침해와 정보 노출 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-20",
+     "title": "Nikkei discloses third data breach in a month, 1.8M records exposed",
+     "url": "https://www.bleepingcomputer.com/news/security/nikkei-discloses-third-data-breach-in-a-month-18m-records-exposed/"
+    },
+    {
+     "outlet": "IT Pro",
+     "date": "2026-10-21",
+     "title": "Nikkei admits millions of records stolen after reporting third breach in a month",
+     "url": "https://www.itpro.com/security/data-breaches/nikkei-admits-millions-of-records-stolen-after-reporting-third-breach-in-a-month"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 2760000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "약 276만 건, 2009년부터 2020-02-11까지 누적 고객 데이터로 중복 회원 포함.",
+   "size_basis": "회사 발표",
+   "sensitive": "비밀번호, DI",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-16 21:36 홈페이지 공지 및 사과, 10-19 회사 입장문으로 유출규모 발표",
+   "date": "2026-10-16",
+   "name": "할리스",
+   "org_type": "일반 기업",
+   "attack": "가상화폐 채굴 목적의 클라우드 비정상 접근 과정에서 과거 멤버십 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-19",
+     "title": "할리스, 개인정보 276만건 유출…\"가상화폐 채굴 목적 접근\"(종합3보)",
+     "url": "https://www.yna.co.kr/view/AKR20261019012453030"
+    },
+    {
+     "outlet": "SBS",
+     "date": "2026-10-19",
+     "title": "커피 체인점 할리스 해킹…\"개인정보 276만 건 유출\"",
+     "url": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008805004"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-17",
+   "name": "ConnectWise",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "Cloud Backup 애플리케이션 인증정보를 악용한 Microsoft 365 공급망 공격",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "애플리케이션 인증정보",
+   "loss_or_outage": "Cloud Backup, SaaS Security, Cloud Management 중단으로 백업, 복원 및 관리 기능 일시 중단",
+   "spread": "고객 Microsoft 365 테넌트에 무단 로그인, Huntress는 초기 162개 테넌트 확인",
+   "official_action": null,
+   "admitted": "2026-10-17 05:01 UTC Cloud Backup 무단 접근과 중단 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-17",
+     "title": "Hackers breach Microsoft 365 tenants via ConnectWise supply-chain attack",
+     "url": "https://www.bleepingcomputer.com/news/security/hackers-breach-microsoft-365-tenants-via-connectwise-supply-chain-attack/"
+    },
+    {
+     "outlet": "SecurityWeek",
+     "date": "2026-10-19",
+     "title": "ConnectWise Suspends Cloud Services in Response to Cyberattack",
+     "url": "https://www.securityweek.com/connectWise-suspends-cloud-services-in-response-to-cyberattack/"
+    },
+    {
+     "outlet": "ConnectWise",
+     "date": "2026-10-17",
+     "title": "Trust Center | Advisories",
+     "url": "https://www.connectwise.com/company/trust/advisories"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": "국내 ERP 업계 1위",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호, 계좌번호가 포함된 고객사 보유 개인정보 유출 가능성",
+   "loss_or_outage": null,
+   "spread": "Smart A 10 일부 고객사가 맡긴 개인정보에 영향 가능성",
+   "official_action": "2026-10-16 및 10-21 침해사고 신고, 10-25 과기정통부 민관합동조사단 구성",
+   "admitted": "2026-10-18 개인정보 유출 가능성 및 침해사고 공지, 10-26 사과 발표",
+   "date": "2026-10-18",
+   "name": "더존비즈온",
+   "org_type": "일반 기업",
+   "attack": "직원 VPN 계정을 이용한 개발 서버 무단접속 및 데이터 조회로 Smart A 10 위탁 개인정보 유출 가능성",
+   "sources": [
+    {
+     "outlet": "더존비즈온",
+     "date": "2026-10-18",
+     "title": "개인정보 유출 가능성 및 침해사고 공지",
+     "url": "https://www.douzone.com/board/read.jsp?code=notice&id=3494"
+    },
+    {
+     "outlet": "더존비즈온",
+     "date": "2026-10-26",
+     "title": "더존비즈온, 서버 불법 접근 확인… 관계기관 신고 및 고객 안내, 민관합동조사단 조사에 성실하게 협조",
+     "url": "https://www.douzone.com/media/media_room_read.jsp?id=3514&s_category_id=3"
+    },
+    {
+     "outlet": "뉴스1",
+     "date": "2026-10-26",
+     "title": "토종 1위 ERP 더존비즈온 해킹…\"고객사 민감정보 유출 가능성\"",
+     "url": "https://www.news1.kr/it-science/security-hacking/6331870"
+    }
+   ]
+  },
+  {
+   "market_position": "국내 1위 가요 기획사(연합뉴스 보도)",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호, 외국인등록번호, 여권번호, 계좌번호, 카드번호, 의료정보",
+   "loss_or_outage": null,
+   "spread": "외부 업체 문서 미리보기 솔루션과 연동된 시스템에서 협력사 관계자와 전현직 직원 정보 유출",
+   "official_action": "2026-10-18 공지 기준 KISA와 개인정보보호위원회 신고, 2026-11-03 경찰 내사 착수",
+   "admitted": "2026-10-18 홈페이지 유출 안내와 사과",
+   "date": "2026-10-18",
+   "name": "하이브",
+   "region": "KR",
+   "org_type": "상장 대기업",
+   "attack": "전자결재 문서 미리보기 솔루션과 비용처리시스템 비인가 접근으로 내부 문서와 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-02",
+     "title": "하이브, 사원 여권·카드번호 등 개인정보 유출…\"깊이 사과\"",
+     "url": "https://www.yna.co.kr/view/AKR20261102138300005"
+    },
+    {
+     "outlet": "MBC",
+     "date": "2026-11-02",
+     "title": "하이브, 사원 여권·카드번호 등 개인정보 유출‥\"깊이 사과\"",
+     "url": "https://imnews.imbc.com/news/2026/econo/article/6862537_36933.html"
+    },
+    {
+     "outlet": "하이브",
+     "date": "2026-10-18",
+     "title": "개인정보 유출 관련 사과의 말씀 및 안내",
+     "url": "https://hybecorp.com/ko/newsroom/notice/?id=34424"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-19",
+   "name": "State Bank of India",
+   "region": "GL",
+   "org_type": "금융회사",
+   "market_position": "인도 최대 공공부문 은행",
+   "attack": "고객 개인정보의 다크웹 유출, 유출 경로 조사",
+   "records": 3897,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "다크웹 전체 375,000건 가운데 SBI 고객 관련 3,897건으로 보도",
+   "size_basis": "회사 발표",
+   "sensitive": "CIF 식별번호, 대출 관련 기록",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-03 회장이 고객정보 유출의 원인 조사와 대응 조치를 설명",
+   "sources": [
+    {
+     "outlet": "India Today",
+     "date": "2026-10-21",
+     "title": "SBI confirms cyberattack, 3,897 customer records stolen and put on dark web",
+     "url": "https://www.indiatoday.in/technology/news/story/sbi-confirms-cyberattack-3897-customer-records-stolen-and-put-on-dark-web-3021725-2026-10-21"
+    },
+    {
+     "outlet": "The Financial Express",
+     "date": "2026-11-03",
+     "title": "SBI still evaluating cause of recent data breach: Setty",
+     "url": "https://www.financialexpress.com/business/banking-finance-sbi-still-evaluating-cause-of-recent-data-breach-setty-4376324/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-21",
+     "title": "State Bank of India reports cyberattack — thousands of customer records affected, here's what we know",
+     "url": "https://www.techradar.com/pro/security/state-bank-of-india-reports-cyberattack-thousands-of-customer-records-affected-heres-what-we-know"
+    },
+    {
+     "outlet": "India Today",
+     "date": "2026-10-19",
+     "title": "SBI data breach reported, hacker claims sensitive info including KYC records of 3.75 lakh users at risk",
+     "url": "https://www.indiatoday.in/technology/news/story/sbi-data-breach-reported-hacker-claims-sensitive-info-including-kyc-records-of-375-lakh-users-at-risk-3020636-2026-10-19"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-19",
+   "name": "Ymirlink",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "Cuenote FC 취약점 악용 및 세션 탈취를 통한 고객 데이터 유출",
+   "records": 47864147,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "11월11일 회사 제3보 확정 누적 건수. 초기 약 9,000,000건, 제2보 최대 51,628,280건에서 정정",
+   "size_basis": "회사 발표",
+   "sensitive": "해시된 비밀번호 226,158건, 고객 서비스 인증정보 420,419건",
+   "loss_or_outage": null,
+   "spread": "Cuenote FC 고객 환경 49개, NTTPC, JR Central, JR West, JR Kyushu 등 이용자 정보 영향",
+   "official_action": "2026-10-19 경시청 사이버 신고 및 개인정보보호위원회 보고",
+   "admitted": "2026-10-19 제1보, 2026-11-11 제3보에서 유출 건수 정정과 사과",
+   "sources": [
+    {
+     "outlet": "TV Asahi",
+     "date": "2026-10-19",
+     "title": "不正アクセスで個人情報延べ900万件漏えいか　メール配信サービス「ユミルリンク」",
+     "url": "https://news.tv-asahi.co.jp/news_economy/articles/000541352.html"
+    },
+    {
+     "outlet": "INTERNET Watch",
+     "date": "2026-10-20",
+     "title": "ユミルリンク、管理する5つのシステムに不正アクセス。メールアドレスを含む約900万件が漏えいと試算",
+     "url": "https://internet.watch.impress.co.jp/docs/news/2149476.html"
+    },
+    {
+     "outlet": "Ymirlink",
+     "date": "2026-11-11",
+     "title": "当社システムへの不正なアクセスに関するご報告（第三報）",
+     "url": "https://ymir.co.jp/info/ymir-information20261111.html"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-19",
+   "name": "Zeabur",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "평문 저장 내부 관리 인증정보를 이용한 클러스터 및 플랫폼 데이터베이스 침해",
+   "records": 321810,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": "계정 321,810개와 별도로 환경변수 3,218,965건, 평문 zSend API 키 566개, 해시 저장 토큰 11,536개",
+   "size_basis": "회사 발표",
+   "sensitive": "API 키, 비밀번호 등 환경변수, 플랫폼 토큰",
+   "loss_or_outage": null,
+   "spread": "9개 지역 공유 클러스터, GCP 전용서버 101대와 사용자 데이터베이스에 영향",
+   "official_action": null,
+   "admitted": "2026-10-19 10월 침해 예비 보고서 공개",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-20",
+     "title": "Zeabur shutting down after second security breach in two months",
+     "url": "https://www.bleepingcomputer.com/news/security/zeabur-shutting-down-after-second-security-breach-in-two-months/"
+    },
+    {
+     "outlet": "Cybernews",
+     "date": "2026-10-22",
+     "title": "Vibe coding platform Zeabur collapses after back-to-back breaches expose 3.2M records",
+     "url": "https://cybernews.com/news/zeabur-cloud-provider-shutdown-two-breaches-3-million-records/"
+    },
+    {
+     "outlet": "Zeabur",
+     "date": "2026-10-19",
+     "title": "Zeabur October 2026 security incident (preliminary report)",
+     "url": "https://zeabur.com/blogs/october-2026-security-incident"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-21",
+   "name": "DigiCert",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "외부에 노출된 내부 업무 시스템의 가입 및 권한 취약점 악용",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "운전면허증, 여권 등 신원확인 서류",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-21 03:10 UTC Mozilla Bugzilla에 최초 공개 보고, 보관 고객정보 접근 인정",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-05",
+     "title": "DigiCert data breach exposes customer information, identity documents",
+     "url": "https://www.bleepingcomputer.com/news/security/digicert-data-breach-exposes-customer-information-identity-documents/"
+    },
+    {
+     "outlet": "The Register",
+     "date": "2026-11-06",
+     "title": "DigiCert admits 16-month security lapse exposed customer information",
+     "url": "https://assets.theregister.com/2026/11/06/20269/"
+    },
+    {
+     "outlet": "DigiCert / Mozilla Bugzilla",
+     "date": "2026-10-21",
+     "title": "DigiCert: Unauthorized access to business system",
+     "url": "https://bugzilla.mozilla.org/show_bug.cgi?id=2084460"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 67000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "회원 6만7000여 명으로 발표.",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-21 보도 기준 KISA 및 개인정보보호위원회 신고, 서초경찰서 수사 의뢰",
+   "admitted": "2026-10-21 앱 내 대표 명의 사과문 게시",
+   "date": "2026-10-21",
+   "name": "웅진컴퍼스, 놀이의발견",
+   "org_type": "일반 기업",
+   "attack": "관리시스템에 외부 비인가자가 불법 접근해 회원 닉네임, 전화번호, 이메일 조회",
+   "sources": [
+    {
+     "outlet": "뉴스핌",
+     "date": "2026-10-21",
+     "title": "웅진씽크빅 계열 '놀이의발견' 회원정보 6.7만 건 유출",
+     "url": "https://www.newspim.com/news/view/20261021001047"
+    },
+    {
+     "outlet": "아시아경제",
+     "date": "2026-10-21",
+     "title": "[단독]웅진씽크빅 계열사 웅진컴퍼스에서 6만7000명 개인정보 유출",
+     "url": "https://v.daum.net/v/20261021132722249"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-22",
+   "name": "Capcom",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "CAPCOM ID 무단 접근, 이메일 및 계정정보 유출",
+   "records": 11774247,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": "11,774,247개 이메일 및 관련 기록, 43계정 추가 개인정보, 196계정 비밀번호 무단 변경",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-21 경찰과 일본 개인정보보호위원회 신고",
+   "admitted": "2026-10-22 정보 유출과 계정 비밀번호 무단 변경 공지 및 사과",
+   "sources": [
+    {
+     "outlet": "PC Gamer",
+     "date": "2026-10-22",
+     "title": "Capcom confirms a data breach has affected over 11 million people, with emails, IP addresses, and birthdays caught up in the mix",
+     "url": "https://www.pcgamer.com/hardware/capcom-confirms-a-data-breach-has-affected-over-11-million-people-with-emails-ip-addresses-and-birthdays-caught-up-in-the-mix/"
+    },
+    {
+     "outlet": "Engadget",
+     "date": "2026-10-24",
+     "title": "Capcom confirms data breach that affected 11.7 million users",
+     "url": "https://www.engadget.com/2296218/capcom-confirms-data-breach-that-affected-117-million-users/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 15000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "2026-10-22 연합뉴스는 1만여 명, 10-23 KBS는 1만5천여 명으로 보도.",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-22 수사기관 수사 의뢰, 개인정보위와 KISA 및 교육부 신고",
+   "admitted": "2026-10-22 정보통신처가 개인정보 유출 안내와 사과 게시",
+   "date": "2026-10-22",
+   "name": "연세대학교",
+   "org_type": "대학, 병원",
+   "attack": "연세 포털서비스 외부 비인가 접근으로 학생 및 교직원 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-22",
+     "title": "연세대 포털 해킹, 학생 등 1만여명 개인정보 유출…수사의뢰",
+     "url": "https://v.daum.net/v/20261022094338716"
+    },
+    {
+     "outlet": "KBS",
+     "date": "2026-10-23",
+     "title": "연세대 해킹에 1만5천명 개인정보 유출…대학가도 비상",
+     "url": "https://v.daum.net/v/20261023074143770"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 5108,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "가상계좌, 등록금 수납액",
+   "loss_or_outage": null,
+   "spread": "등록금 수납 위탁사 수협은행 캠퍼스e모아시스템을 통한 침해",
+   "official_action": "2026-10-29 보도 기준 교육부 및 개인정보보호위원회 신고, 경찰 수사 의뢰",
+   "admitted": "2026-10-23 총무과가 유출 사실 안내 및 사과문 게시",
+   "date": "2026-10-23",
+   "name": "국립부경대학교",
+   "org_type": "대학, 병원",
+   "attack": "수협은행 등록금 수납관리시스템에 비인가 관리자 계정을 생성해 학생 및 직원 개인정보 탈취",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-29",
+     "title": "국립부경대 등록금 시스템 해킹…5천108명 개인정보 유출",
+     "url": "https://v.daum.net/v/20261029093726067"
+    },
+    {
+     "outlet": "국립부경대학교",
+     "date": "2026-10-23",
+     "title": "개인정보 유출 사실 안내 및 사과문",
+     "url": "https://www.pknu.ac.kr/main/163?action=view&no=726725"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 106661,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "106661은 대한항공 고객 PNR 개수. 아시아나항공 피해 규모는 미확인.",
+   "size_basis": "보도",
+   "sensitive": "일부 여행사의 여권번호 및 마일리지번호",
+   "loss_or_outage": null,
+   "spread": "해외 위탁사 Amadeus IT Group 침해를 통한 양 항공사 예약정보 유출. 2026-11-16 현대드림투어, NH여행, 참좋은여행, 노랑풍선, 모두투어 등 토파스 연계 여행사로 유출통지 확산",
+   "official_action": null,
+   "admitted": "2026-10-23 양사 고객에게 사과 안내 메일 발송",
+   "date": "2026-10-23",
+   "name": "대한항공, 아시아나항공",
+   "org_type": "상장 대기업",
+   "attack": "아마데우스 예약 및 발권 시스템 계정의 로그인 인증정보를 이용한 비인가 접근으로 고객 예약정보 유출",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-10-23",
+     "title": "대한항공·아시아나 고객정보 유출…글로벌 IT 협력사 해킹 피해",
+     "url": "https://www.etnews.com/20261023000363"
+    },
+    {
+     "outlet": "뉴스1",
+     "date": "2026-11-11",
+     "title": "[단독]대한항공 협력사, 해킹 차단하고 27일 뒤 알렸다…10.7만건 유출",
+     "url": "https://www.news1.kr/industry/general-industry/6350193"
+    },
+    {
+     "outlet": "메디컬투데이",
+     "date": "2026-11-16",
+     "title": "'아마데우스發' 개인정보 유출 확산... 현대드림투어도 고객 정보 유출 통지",
+     "url": "https://www.mdtoday.co.kr/news/articleView.html?idxno=625456"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "10-18 개발서버 침해와의 관련성은 회사가 확인 중이라고 공지.",
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "APO 백업서비스 고객사가 백업한 개인정보에 유출 가능성",
+   "official_action": "2026-10-21 침해사고 신고, 10-25 과기정통부 민관합동조사단 구성",
+   "admitted": "2026-10-23 백업서비스 개인정보 유출 가능성과 침해사고 공지",
+   "date": "2026-10-23",
+   "name": "더존비즈온",
+   "org_type": "일반 기업",
+   "attack": "백업 솔루션 취약점을 통해 APO 백업서버의 암호화된 일부 데이터 외부 반출 정황",
+   "sources": [
+    {
+     "outlet": "더존비즈온",
+     "date": "2026-10-23",
+     "title": "개인정보 유출 가능성 및 침해사고 공지",
+     "url": "https://www.douzone.com/board/read.jsp?code=notice&id=3508"
+    },
+    {
+     "outlet": "뉴스1",
+     "date": "2026-10-26",
+     "title": "토종 1위 ERP 더존비즈온 해킹…\"고객사 민감정보 유출 가능성\"",
+     "url": "https://www.news1.kr/it-science/security-hacking/6331870"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-24",
+   "name": "DreamHost",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "File Manager 취약점을 이용한 FTP 및 웹메일 인증정보 탈취",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "FTP/SFTP 사용자명과 비밀번호, 웹메일 로그인 및 세션 정보",
+   "loss_or_outage": "File Manager 연결 중단과 계정 비밀번호 초기화",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-26 미국 시각 비밀번호 초기화 관련 사건 보도, 2026-10-29 공식 설명 공지",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-27",
+     "title": "DreamHost forces password resets in ongoing \"incident\"",
+     "url": "https://www.bleepingcomputer.com/news/security/dreamhost-forces-email-ftp-sftp-password-resets-in-ongoing-incident/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-05",
+     "title": "DreamHost admits major cyberattack saw hackers steal customer data and access inboxes",
+     "url": "https://www.techradar.com/pro/security/dreamhost-admits-major-cyberattack-saw-hackers-steal-customer-data-and-access-inboxes"
+    },
+    {
+     "outlet": "DreamHost",
+     "date": "2026-10-29",
+     "title": "October Security Incident",
+     "url": "https://news.dream.press/news/announcements/october-security-incident/"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-24",
+   "name": "University of Copenhagen",
+   "region": "GL",
+   "org_type": "대학, 병원",
+   "market_position": null,
+   "attack": "시험 환경 설정 오류를 악용한 개인정보 데이터베이스 침해",
+   "records": 525000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "CPR 개인식별번호, 약 20,000명 출입카드 PIN",
+   "loss_or_outage": "일부 중요 구역 출입 제한 후 PIN 재발급",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-23 20:05 덴마크 현지 시각 최초 발표, 한국시간 2026-10-24",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-27",
+     "title": "University of Copenhagen data breach exposes data of 525,000 people",
+     "url": "https://www.bleepingcomputer.com/news/security/university-of-copenhagen-data-breach-exposes-data-of-525-000-people/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-27",
+     "title": "Over 525,000 hit in massive University of Copenhagen data breach",
+     "url": "https://www.techradar.com/pro/security/over-525-000-hit-in-massive-university-of-copenhagen-data-breach"
+    },
+    {
+     "outlet": "University of Copenhagen",
+     "date": "2026-10-24",
+     "title": "UPDATED: University of Copenhagen hit by cyber attack",
+     "url": "https://news.ku.dk/all_news/2026/10/university-of-copenhagen-hit-by-cyber-attack/"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 18359,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "환불 계좌번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-25 보도 기준 관계부처 신고 및 수사 요청, 관계기관 공조 수사",
+   "admitted": "2026-10-25 유출 사과문과 고객 개별통지",
+   "date": "2026-10-25",
+   "name": "스푼, 기프티엘",
+   "org_type": "일반 기업",
+   "attack": "외부 비인가 접근으로 모바일 상품권 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-25",
+     "title": "롯데 계열 '기프티엘', 해킹으로 고객 개인정보 유출",
+     "url": "https://www.yna.co.kr/view/AKR20261025039500030"
+    },
+    {
+     "outlet": "전자신문",
+     "date": "2026-10-25",
+     "title": "기프티엘 개인정보 유출 1만8359명…해킹 인지 직후 서비스 중단",
+     "url": "https://www.etnews.com/20261025000104"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 6800,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "약6800명으로 보도.",
+   "size_basis": "보도",
+   "sensitive": "주민등록번호, CI, 계좌번호",
+   "loss_or_outage": "2026-10-26부터 홈페이지 운영 중단, 10-29까지 나흘째 중단",
+   "spread": null,
+   "official_action": "2026-11-15 보도 기준 금감원 현장점검 완료, 전자금융거래법과 신용정보법 관련 일부 위반사항 확인",
+   "admitted": "2026-10-26 홈페이지 유출 공지, 10-28 피해 고객에게 유출항목 통지",
+   "date": "2026-10-26",
+   "name": "미래에셋생명",
+   "org_type": "금융회사",
+   "attack": "일부 시스템의 사이버 침해로 고객 개인신용정보 유출",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-10-26",
+     "title": "미래에셋생명, 개인정보 유출사고…보험사도 뚫렸다",
+     "url": "https://www.etnews.com/20261026000406"
+    },
+    {
+     "outlet": "뉴스1",
+     "date": "2026-10-29",
+     "title": "미래에셋생명 해킹에 주민번호·계좌번호까지 유출…홈페이지 나흘째 먹통",
+     "url": "https://www.fnnews.com/news/202610291433527296"
+    },
+    {
+     "outlet": "데일리안",
+     "date": "2026-11-16",
+     "title": "금융권 해킹 현장점검서 법 위반 소지 확인돼…보안 간담회 줄줄이 개최",
+     "url": "https://www.dailian.co.kr/news/view/1715355"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-27",
+   "name": "Sony Network Communications",
+   "region": "GL",
+   "org_type": "통신사",
+   "market_position": null,
+   "attack": "So-net 회원 데이터베이스 무단 접근과 고객정보 유출",
+   "records": 2585481,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "So-net 2,141,986건과 plala 443,495건. 별도 이메일 서비스 54,401개 주소와 비밀번호도 노출",
+   "size_basis": "회사 발표",
+   "sensitive": "일부 이메일 서비스 비밀번호",
+   "loss_or_outage": null,
+   "spread": "plala S Course와 NTT Docomo Hikari 이용 고객 영향",
+   "official_action": null,
+   "admitted": "2026-10-27 고객정보 유출 공지와 사과",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-10-28",
+     "title": "Sony ISP subsidiary data breach exposes 2.5 million customer records",
+     "url": "https://www.bleepingcomputer.com/news/security/sony-isp-subsidiary-data-breach-exposes-25-million-customer-records/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-29",
+     "title": "Data breach at Sony ISP subsidiary exposes 2.5 million customer records as Japan hit with another major cyberattack",
+     "url": "https://www.techradar.com/pro/security/data-breach-at-sony-isp-subsidiary-exposes-2-5-million-customer-records-as-japan-hit-with-another-major-cyberattack"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-28",
+   "name": "Federal Election Commission",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "시스템 침입 시도로 전자 정치자금 신고 서비스 중단",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "전자 신고 서비스 약 41시간 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-27 미국 시각 FEC가 전자 신고 시스템 중단과 복구 작업 확인",
+   "sources": [
+    {
+     "outlet": "Reuters / Devdiscourse",
+     "date": "2026-10-28",
+     "title": "Hacker trying to breach US Federal Election Commission system, email shows",
+     "url": "https://www.devdiscourse.com/article/international/3998279-hacker-trying-to-breach-us-federal-election-commission-system-email-shows"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-10-29",
+     "title": "‘Bad actor’ cyberattack on FEC obscures political spending by donors and SuperPACs days before US midterm elections",
+     "url": "https://www.techradar.com/pro/security/bad-actor-cyberattack-on-fec-obscures-political-spending-by-donors-and-superpacs-days-before-us-midterm-elections"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 38490,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "암호화된 입출금 계좌번호 및 종합계좌번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-17 공격 IP 차단 및 금융당국 신고, 금융보안원과 조사",
+   "admitted": "2026-10-28 내부 조사 결과 발표와 대표 사과",
+   "date": "2026-10-28",
+   "name": "대신증권",
+   "org_type": "금융회사",
+   "attack": "투자일임 비대면 증권계좌 개설 연계 서버 비정상 접근으로 고객 신용정보 유출",
+   "sources": [
+    {
+     "outlet": "ZDNet Korea",
+     "date": "2026-10-28",
+     "title": "대신증권 서버 뚫렸다…고객 3만 8490명 개인정보 유출",
+     "url": "https://zdnet.co.kr/view/?no=20261028100120"
+    },
+    {
+     "outlet": "비즈워치",
+     "date": "2026-10-28",
+     "title": "금투·가상자산으로 번진 해킹…대신증권·미래운용·빗썸도 정보 유출",
+     "url": "https://news.bizwatch.co.kr/article/market/2026/10/28/0003"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "암호화된 비밀번호, 일부 여권번호 및 여권 만료일",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-26 관계당국에 신고",
+   "admitted": "2026-10-28 개인정보 유출 사실 안내 및 사과 게시",
+   "date": "2026-10-28",
+   "name": "마이리얼트립",
+   "org_type": "일반 기업",
+   "attack": "권한 없는 외부인의 비정상 접근으로 이용자 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "공정경제",
+     "date": "2026-10-30",
+     "title": "마이리얼트립, 외부 해킹으로 이용자 개인정보 유출",
+     "url": "https://www.faireconomy.news/ko/article/20261030074036001001.nrs"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": null,
+   "date": "2026-10-28",
+   "name": "미래에셋자산운용",
+   "org_type": "금융회사",
+   "attack": "외부 해킹으로 일부 업무용 시스템 관련 정보 유출",
+   "sources": [
+    {
+     "outlet": "비즈워치",
+     "date": "2026-10-28",
+     "title": "금투·가상자산으로 번진 해킹…대신증권·미래운용·빗썸도 정보 유출",
+     "url": "https://news.bizwatch.co.kr/article/market/2026/10/28/0003"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 7159,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "고객 6,444명 중 암호화된 파일 5,600명과 실제 정보 노출 844명, 임직원 715명. 7,159명은 암호화 파일까지 포함한 전체 영향 대상 합계",
+   "size_basis": "회사 발표",
+   "sensitive": "주민등록번호, 운전면허번호, 계좌번호, 신분증 사본",
+   "loss_or_outage": "모바일 그룹웨어 사용 전면 중단",
+   "spread": null,
+   "official_action": "2026-10-27 KISA, 10-28 개인정보보호위원회 신고",
+   "admitted": "2026-10-29 대표 사과문과 유출 고객 개별안내",
+   "date": "2026-10-28",
+   "name": "빗썸",
+   "org_type": "가상자산 거래소",
+   "attack": "사내 모바일 그룹웨어 다우오피스 비인가 접근으로 고객, 임직원 및 협력사 인력 정보 유출",
+   "sources": [
+    {
+     "outlet": "비즈워치",
+     "date": "2026-10-28",
+     "title": "금투·가상자산으로 번진 해킹…대신증권·미래운용·빗썸도 정보 유출",
+     "url": "https://news.bizwatch.co.kr/article/market/2026/10/28/0003"
+    },
+    {
+     "outlet": "ZDNet Korea",
+     "date": "2026-10-29",
+     "title": "빗썸 사내 그룹웨어 해킹…이용자·임직원 7159명 정보 유출",
+     "url": "https://zdnet.co.kr/view/?no=20261029183404"
+    },
+    {
+     "outlet": "아이뉴스24",
+     "date": "2026-10-29",
+     "title": "빗썸, 6444명 개인정보 유출⋯계좌번호·주민번호 빼갔다",
+     "url": "https://www.inews24.com/view/2020587"
+    },
+    {
+     "outlet": "빗썸",
+     "date": "2026-10-29",
+     "title": "개인정보 유출 관련 안내",
+     "url": "https://feed.bithumb.com/notice/1655458"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "온다 호텔플러스를 이용하는 숙박업소의 예약자 정보에 영향",
+   "official_action": null,
+   "admitted": "2026-10-28 예약정보 무단조회 및 성명, 휴대전화번호, 예약상태, 숙박정보 유출 가능성 발표",
+   "date": "2026-10-28",
+   "name": "온다",
+   "org_type": "일반 기업",
+   "attack": "호텔플러스 예약관리 API 비정상 접근으로 일부 예약정보 무단 조회",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-10-28",
+     "title": "숙박 플랫폼 온다 “예약정보 무단 조회 확인…추가 결제 사칭 주의”",
+     "url": "https://www.etnews.com/20261028000365"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-29",
+   "name": "Arara",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "이메일 배포 서비스 취약점 악용과 인증정보 무단 사용으로 고객 데이터 유출",
+   "records": 81329467,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "중복 제거 이메일 주소 건수, 인원 아님. 제2보 약 77,000,000건과 별도 3,386,187건에서 11월6일 제3보로 정정",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "2026-10-31 Arara Message 전체 서비스 중단, 최대 약 7,130,000통 사칭 이메일 발송",
+   "spread": "최대 약 380개 고객사, Asoview 15,820,000건, Bic Camera 15,200,000건, MOS Burger 7,500,000개 이메일, SEGA 2,196,044개 이메일 등",
+   "official_action": "2026-10-29 일본 개인정보보호위원회 보고 및 경찰 신고, 2026-11-04 총무성 관동종합통신국 보고",
+   "admitted": "2026-10-29 제1보, 2026-11-06 제3보에서 유출 규모 정정과 사과",
+   "sources": [
+    {
+     "outlet": "IT Pro",
+     "date": "2026-11-11",
+     "title": "Sega data breach: Everything we know so far as 2.2 million customers exposed",
+     "url": "https://www.itpro.com/security/data-breaches/sega-data-breach-everything-we-know-so-far-as-2-2-million-customers-exposed"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-10",
+     "title": "Sega newsletter data breach sees 2.2 million email addresses exposed — gaming giant says it is investigating, but user financial data not affected",
+     "url": "https://www.techradar.com/pro/security/sega-newsletter-data-breach-sees-2-2-million-email-addresses-exposed-gaming-giant-says-it-is-investigating-but-user-financial-data-not-affected"
+    },
+    {
+     "outlet": "Arara",
+     "date": "2026-11-06",
+     "title": "当社が提供する「アララメッセージ」への不正アクセスによる情報流出およびサービス停止について（第３報）",
+     "url": "https://www.arara.com/dcms_media/other/arara_20261106_.pdf"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-29",
+   "name": "Iris Ohyama / Iris Plaza",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "EC 사이트 외부 클라우드 무단 접근과 고객정보 노출 가능성",
+   "records": 7700000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "등록 및 탈퇴 회원 약 5,800,000명, 비회원 약 1,900,000명. 외부 접근 또는 취득 가능성",
+   "size_basis": "회사 발표",
+   "sensitive": "일부 회원의 암호화된 비밀번호",
+   "loss_or_outage": "2026-10-28 Iris Plaza와 관련 EC 및 서비스 시스템 일시 중단",
+   "spread": "외부 클라우드와 Iris Tech Service 관련 시스템 영향",
+   "official_action": "2026-10-29 일본 개인정보보호위원회와 경찰 통보",
+   "admitted": "2026-10-29 최초 공지, 2026-11-05 제2보",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-08",
+     "title": "Iris Ohyama data cloud breach exposes info of 7.7 million customers",
+     "url": "https://www.bleepingcomputer.com/news/security/iris-ohyama-data-cloud-breach-exposes-info-of-77-million-customers/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-09",
+     "title": "Another huge data breach hits a major Japanese company — Iris Ohyama attack exposes info of 7.7 million customers",
+     "url": "https://www.techradar.com/pro/security/another-huge-data-breach-hits-a-major-japanese-company-iris-ohyama-attack-exposes-info-of-7-7-million-customers"
+    },
+    {
+     "outlet": "Iris Ohyama",
+     "date": "2026-11-05",
+     "title": "（第2報）株式会社アイリスプラザECサイト一時停止のお知らせ",
+     "url": "https://www.irisohyama.co.jp/news/2026/?date=1105"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 1454,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-29 보도 기준 사고인지 직후 개인정보보호위원회 신고",
+   "admitted": "2026-10-29 개인정보 유출 발표, 고객 이메일 통지 예정",
+   "date": "2026-10-29",
+   "name": "진에어",
+   "org_type": "상장 대기업",
+   "attack": "회원정보 조회 시스템 외부 비정상 접근으로 고객 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-10-29",
+     "title": "진에어, 외부 해킹으로 1454명 개인정보 유출…\"이름·전화번호 등 8개 항목 포함\"",
+     "url": "https://nwww.newsis.com/view/NISX20261029_0003847208"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "피해 자산 약100000000 KRW. 10-14 금융당국이 발표한 개인정보 침해와 별개 사건.",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "약1억원 자산 피해, 거래소 서비스 잠정 중단",
+   "spread": null,
+   "official_action": "2026-10-26 금융감독원 신고, 10-29 금감원 현장검사 착수",
+   "admitted": "2026-10-29 보도에서 최근 공지를 통해 사고 인정 및 피해 전액 보전 방침 확인",
+   "date": "2026-10-29",
+   "name": "프라뱅",
+   "org_type": "가상자산 거래소",
+   "attack": "핫월렛 비정상 출금으로 가상자산 탈취",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-29",
+     "title": "코인거래소 프라뱅, 해킹으로 1억원 피해…\"서비스 잠정 중단\"",
+     "url": "https://www.yna.co.kr/view/AKR20261029068700002"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-10-29",
+     "title": "가상자산 거래소 프라뱅 해킹…1억원 피해에 서비스 잠정 중단",
+     "url": "https://nwww.newsis.com/view/NISX20261029_0003846104"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-30",
+   "name": "Binance",
+   "region": "GL",
+   "org_type": "가상자산 거래소",
+   "market_position": "세계 최대 가상자산 거래소",
+   "attack": "내부 지갑 서명 서비스 침해를 통한 가상자산 무단 인출",
+   "records": null,
+   "records_unit": null,
+   "usd": 6340000000,
+   "amount_note": "회사 11월3일 집계 약 US$6,340,000,000. 초기 보도 US$6,300,000,000, 일부 보도 US$6,700,000,000",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "여러 체인의 핫월렛 자산 탈취, 입출금 일시 중단",
+   "spread": null,
+   "official_action": "2026-11-01 FBI가 북한 TraderTraitor를 공격 주체로 지목",
+   "admitted": "2026-10-29 미국 시각 보안 사건 확인, 2026-11-03 사과와 피해액 및 보전 발표",
+   "sources": [
+    {
+     "outlet": "TechCrunch",
+     "date": "2026-10-29",
+     "title": "Binance pauses withdrawals as hackers suspected of stealing billions in crypto",
+     "url": "https://techcrunch.com/2026/10/29/binance-pauses-withdrawals-as-hackers-suspected-of-stealing-billions-in-crypto/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-02",
+     "title": "FBI confirms it thinks North Korean hackers hit Binance in record cryptocurrency heist",
+     "url": "https://www.techradar.com/pro/security/fbi-confirms-it-thinks-north-korean-hackers-hit-binance-in-record-cryptocurrency-heist"
+    },
+    {
+     "outlet": "Binance",
+     "date": "2026-11-03",
+     "title": "Binance October 29 Security Incident: Preliminary Findings and Response Update",
+     "url": "https://www.binance.com/en/square/post/384328127385979"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-30",
+   "name": "Ryohin Keikaku (MUJI)",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "MUJI 앱 및 온라인 스토어 시스템 무단 접근",
+   "records": 27260000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "최대 약 27,260,000건 고객정보 노출 가능성, 별도로 카드번호 약 1,090,000건. 최초 발표는 카드정보 제외였으나 11월4일 정정",
+   "size_basis": "회사 발표",
+   "sensitive": "MUJI Card 전체 카드번호 약 1,090,000건",
+   "loss_or_outage": "MUJI 앱과 온라인 스토어 일부 기능 일시 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-30 유출 가능성 공지, 2026-11-04 카드정보 추가, 2026-11-12 사장 기자회견 사과",
+   "sources": [
+    {
+     "outlet": "ITmedia",
+     "date": "2026-11-12",
+     "title": "無印良品「21年までクレカ番号で顧客を識別していた」　“全ケタ保有＆漏えい“巡り謝罪　削除漏れなぜ発生",
+     "url": "https://www.itmedia.co.jp/news/article/2611/12/2000003144/"
+    },
+    {
+     "outlet": "TBS NEWS DIG",
+     "date": "2026-10-30",
+     "title": "無印良品で約2700万件の会員情報流出か 松屋では238万件…グッドスマイルカンパニーはセキュリティコードなど含むカード情報流出の可能性",
+     "url": "https://newsdig.tbs.co.jp/articles/-/3051519?display=1"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": 900000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "90여만 명으로 개인정보보호위원회에 신고, 금전 피해 총액은 미공개.",
+   "size_basis": "회사 발표",
+   "sensitive": "e쿠폰 핀번호",
+   "loss_or_outage": "e쿠폰을 제3자가 무단 등록 및 사용. 회사는 피해금액을 액면가 기준 전액 보상.",
+   "spread": null,
+   "official_action": "2026-10-30 KISA 신고, 11-02 보도 기준 개인정보보호위원회 유출 신고",
+   "admitted": "2026-10-30 사고 신고 발표, 11-01 유출 고객에 사과문 및 안내문 발송",
+   "date": "2026-10-30",
+   "name": "지마켓",
+   "org_type": "일반 기업",
+   "attack": "외부 서비스 API 취약점 악용 비인가 접근으로 고객정보와 e쿠폰 핀번호 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-10-30",
+     "title": "G마켓 \"일부 e쿠폰 핀번호 무단 사용 정황…KISA에 신고\"",
+     "url": "https://www.yna.co.kr/view/AKR20261030136500030"
+    },
+    {
+     "outlet": "MBC",
+     "date": "2026-11-02",
+     "title": "G마켓, 개인정보 유출 고객에 1만 원 캐시 보상‥90만 명 피해 신고",
+     "url": "https://imnews.imbc.com/news/2026/econo/article/6862571_36933.html"
+    }
+   ]
+  },
+  {
+   "region": "KR",
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "서버에 저장된 개인정보는 약1700명분이나 실제 유출 인원과 범위는 미확인.",
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-27 인지 직후 KISA 신고, 10-30 개인정보보호위원회 신고",
+   "admitted": "2026-10-30 내부망 비인가 접근 및 임직원 기본 인사정보 유출 정황 발표",
+   "date": "2026-10-30",
+   "name": "한화시스템",
+   "org_type": "상장 대기업",
+   "attack": "일부 계열사 외부 접속 계정으로 ICT 부문 내부망에 비인가 접근해 임직원 정보 유출",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-10-30",
+     "title": "한화시스템, 외부 IP 비정상 접근 정황…\"방산·금융 계열사는 무관\"",
+     "url": "https://nwww.newsis.com/view/NISX20261030_0003848972"
+    },
+    {
+     "outlet": "MTN 머니투데이방송",
+     "date": "2026-10-30",
+     "title": "한화시스템, 외부서 내부망 접근 정황…1700명 개인정보 유출 조사",
+     "url": "https://news.mtn.co.kr/article/2026103019371968219"
+    }
+   ]
+  },
+  {
+   "date": "2026-10-31",
+   "name": "Chainalysis",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "내부 시스템 침입 및 중간자 공격에 따른 인증정보 유출",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "모든 사용자의 비밀번호 해시와 유효 토큰",
+   "loss_or_outage": "Reactor, Data Solutions, KYT, Address Screening 및 로그인 서비스 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-10-30 21:14 UTC 최초 공지, 2026-11-04 모든 사용자 인증정보 노출로 범위 수정",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-06",
+     "title": "Chainalysis says breach exposed credentials for all customers",
+     "url": "https://www.bleepingcomputer.com/news/security/chainalysis-says-breach-exposed-credentials-for-all-customers/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-06",
+     "title": "Chainalysis admits all users affected in major data breach — names, usernames, password hashes, and live tokens all exposed",
+     "url": "https://www.techradar.com/pro/security/chainalysis-admits-all-users-affected-in-major-data-breach-names-usernames-password-hashes-and-live-tokens-all-exposed"
+    },
+    {
+     "outlet": "Chainalysis",
+     "date": "2026-10-30",
+     "title": "Updated Nov 10: Chainalysis Security Incident Information",
+     "url": "https://www.chainalysis.com/blog/security-incident-october-30/"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "name": "Beget",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "호스팅 관리 시스템 침입 후 데이터 삭제 악성코드 실행",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "VPS, S3, Kubernetes 데이터와 일부 백업 삭제, 웹사이트와 이메일 서비스 중단",
+   "spread": "호스팅 고객 웹사이트와 서비스에 파급",
+   "official_action": null,
+   "admitted": "2026-11-02 04:50 MSK 최초 고객 공지, 관리 서버 침해와 삭제 악성코드 발표",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-09",
+     "title": "Russian cloud firm Beget rebuilds from scratch after data wiper attack",
+     "url": "https://www.bleepingcomputer.com/news/security/russian-cloud-firm-beget-rebuilds-from-scratch-after-data-wiper-attack/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-09",
+     "title": "'We are not giving up': Russian hosting giant Beget has cloud platform wiped in major cyberattack",
+     "url": "https://www.techradar.com/pro/we-are-not-giving-up-russian-hosting-giant-beget-has-cloud-platform-wiped-in-major-cyberattack"
+    },
+    {
+     "outlet": "Beget",
+     "date": "2026-11-02",
+     "title": "Product and Service Security in Beget | Vulnerability and Threat Detection",
+     "url": "https://beget.com/en/security"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "name": "Nojima",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "Nojima Online 회원관리 시스템 무단 접근과 개인정보 유출",
+   "records": 7000000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "로그인 ID, 암호화된 비밀번호",
+   "loss_or_outage": "Nojima Online 및 중고 스마트폰 매입 사이트 일시 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-02 개인정보 유출 공지와 사과",
+   "sources": [
+    {
+     "outlet": "GAME Watch",
+     "date": "2026-11-02",
+     "title": "ノジマオンラインにて約700万人分の情報流出。氏名、住所、電話番号、ログインID・パスワードなど",
+     "url": "https://game.watch.impress.co.jp/docs/news/2153243.html"
+    },
+    {
+     "outlet": "日刊スポーツ / 共同通信",
+     "date": "2026-11-02",
+     "title": "ノジマで漏えい700万件　ECサイト、不正アクセス",
+     "url": "https://www.nikkansports.com/general/news/202611020001849.html"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "name": "WorkOS",
+   "region": "GL",
+   "org_type": "일반 기업",
+   "market_position": null,
+   "attack": "연구용 AI 에이전트의 내부 영업 도구 무단 접근과 고객기록 취득",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-02 무단 접근 공지, 2026-11-06 연구자의 에이전트가 시험환경을 벗어나 접근했으며 취득 데이터 삭제를 확인했다고 발표",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-06",
+     "title": "Runaway AI hacking agent behind WorkOS breach after escaping sandbox",
+     "url": "https://www.bleepingcomputer.com/news/security/runaway-ai-hacking-agent-behind-workos-breach-after-escaping-sandbox/"
+    },
+    {
+     "outlet": "Cyber Security News",
+     "date": "2026-11-03",
+     "title": "Hackers Use ARTEX AI to Breach WorkOS and Access Customer Slack Conversations",
+     "url": "https://cybersecuritynews.com/workos-data-breach/"
+    },
+    {
+     "outlet": "WorkOS",
+     "date": "2026-11-06",
+     "title": "Update for October 30th, 2026 Data Security Incident",
+     "url": "https://workos.com/security/bulletins/update-for-october-30th-2026-data-security-incident"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 168,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "보도",
+   "sensitive": "여권번호, 생년월일, 여권 발급일과 만료일",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-02 외교부가 경위 조사 착수",
+   "admitted": "2026-11-02 청와대가 사전 인지와 대응 조치를 밝혔고 외교부가 조사 사실 발표",
+   "date": "2026-11-02",
+   "name": "외교부",
+   "region": "KR",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "attack": "공군 1호기 탑승자 명단 파일이 외부 보안 검사 사이트에 게시돼 개인정보 노출",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-02",
+     "title": "외교부 \"대통령 순방 전용기 탑승자 개인정보 노출 엄중 인식…다각적 조사\"",
+     "url": "https://m.newsis.com/view/NISX20261102_0003851804"
+    },
+    {
+     "outlet": "뉴스1",
+     "date": "2026-11-03",
+     "title": "李 대통령 개인정보 담긴 명단, 해킹 아니라 업무 관련자가 '유출'(종합)",
+     "url": "https://www.news1.kr/diplomacy/defense-diplomacy/6341176"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 25000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "계좌번호 약 25,000개와 별도로 전현직 직원 약 250명의 아이디, 비밀번호 유출",
+   "size_basis": "회사 발표",
+   "sensitive": "계좌번호, 직원 아이디와 비밀번호",
+   "loss_or_outage": "2026-11-02 출금 서비스 일시 중단 공지",
+   "spread": null,
+   "official_action": "2026-11-01 대구경찰청 신고, 2026-11-02 KISA 신고, 2026-11-05 경찰 수사",
+   "admitted": "2026-11-02 가맹점 포스기에 침입 정황과 출금 중단 안내, 2026-11-04 유출 정보 문자 통지",
+   "date": "2026-11-02",
+   "name": "인성데이타(대구로)",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "공공배달앱 운영 서버 해킹으로 가맹점주 계좌번호와 직원 접속정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-05",
+     "title": "'대구로' 해킹에 점주 계좌번호 2만5천여개 노출…늑장 통보 논란(종합2보)",
+     "url": "https://www.yna.co.kr/amp/view/AKR20261105051252053"
+    },
+    {
+     "outlet": "대구MBC",
+     "date": "2026-11-05",
+     "title": "대구 공공 배달앱 '대구로' 해킹···점주 계좌번호 2만 5,000개 유출",
+     "url": "https://dgmbc.com/NewsArticle/871576"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 15,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "인증 토큰, 세션값",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-11 서울 동대문경찰서에 수사 의뢰",
+   "admitted": "2026-11-03 악성 화면 차단, 2026-11-16 개인정보 유출 안내와 사과",
+   "date": "2026-11-03",
+   "name": "서울시립대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "홈페이지에 가짜 로봇 인증을 삽입해 악성 명령 실행 유도, 조사 과정에서 개인정보 비인가 조회 확인",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-03",
+     "title": "서울시립대 홈페이지에 가짜 로봇인증 화면…\"실행하면 안돼\"",
+     "url": "https://www.yna.co.kr/view/AKR20261103176700004"
+    },
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "서울시립대 홈페이지 해킹으로 개인정보 유출...경찰에 수사 의뢰",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209554"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 31,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "주민등록번호, 계좌번호",
+   "loss_or_outage": null,
+   "spread": "외부 업체가 공급한 업무용 프로그램에서 사고 발생",
+   "official_action": "2026-11-03 보도 기준 관계기관 신고와 사고 조사",
+   "admitted": "2026-11-03 정보 유출 인정과 사과",
+   "date": "2026-11-03",
+   "name": "한양증권",
+   "region": "KR",
+   "org_type": "금융회사",
+   "attack": "외부 업체 업무 프로그램에 비정상 접근으로 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "MBC",
+     "date": "2026-11-03",
+     "title": "한양증권도 해킹‥고객 주민번호 등 31건 유출",
+     "url": "https://imnews.imbc.com/news/2026/econo/article/6862727_36932.html"
+    },
+    {
+     "outlet": "뉴스핌",
+     "date": "2026-11-03",
+     "title": "한양증권도 해킹 사고…이름·전화번호 등 고객 정보 유출",
+     "url": "https://ir.newspim.com/news/view/20261103000107"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-04",
+   "name": "Crédit Mutuel Arkéa",
+   "region": "GL",
+   "org_type": "금융회사",
+   "market_position": null,
+   "attack": "위탁사 플랫폼을 경유한 은행 자금 부정 이체",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "회사 설명을 인용한 Reuters 보도 약 EUR 100,000,000. 초기 보도 US$133,000,000보다 손실이 작다고 회사 설명, 달러 환산하지 않음",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "은행 자기자금 탈취, 일부 거래 일시 중단과 이체 지연",
+   "spread": "이름이 공개되지 않은 서비스 공급사 플랫폼 경유",
+   "official_action": "2026-11-04 파리 검찰이 은행 신고 접수 후 사이버범죄 수사 개시",
+   "admitted": "2026-11-04 공격, 부정 거래, 거래 중단과 고객자산 비영향 공지",
+   "sources": [
+    {
+     "outlet": "Reuters / Euronext",
+     "date": "2026-11-05",
+     "title": "French bank Credit Mutuel Arkea says €100 million missing after cyberattack",
+     "url": "https://live.euronext.com/en/financial-news/french-bank-credit-mutuel-arkea-says-eu100-million-missing-after-cyberattack"
+    },
+    {
+     "outlet": "Le Monde",
+     "date": "2026-11-05",
+     "title": "European banks wake up to scale of vulnerability after cyberattack on French bank",
+     "url": "https://www.lemonde.fr/en/economy/article/2026/11/05/european-banks-wake-up-to-scale-of-vulnerability-after-cyberattack-on-french-bank_6772537_19.html"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-04",
+   "name": "NSW Health",
+   "region": "GL",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "market_position": null,
+   "attack": "Oral Health Fee For Service Scheme 서버 무단 접근과 자료 탈취",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "경찰은 탈취 자료를 약 4GB로 설명, 인원 및 건수 미확정",
+   "size_basis": null,
+   "sensitive": "치과 의료서비스 제공자의 개인 신원정보",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-10-30 NSW 경찰 사이버범죄수사대 통보, Strike Force Civic 수사",
+   "admitted": "2026-11-04 Cyber Security NSW가 침해와 중대 사건 분류 확인",
+   "sources": [
+    {
+     "outlet": "ABC News",
+     "date": "2026-11-04",
+     "title": "Police investigate cybersecurity breach of NSW Health's Oral Health Fee For Service Scheme website",
+     "url": "https://www.abc.net.au/news/2026-11-04/cyber-security-nsw-police-investigate-cyber-breach-at-nsw-health/107344174"
+    },
+    {
+     "outlet": "SBS News / AAP",
+     "date": "2026-11-04",
+     "title": "Cybercrime squad investigating 'major' NSW Health data breach",
+     "url": "https://www.sbs.com.au/news/article/cybercrime-squad-investigating-major-nsw-health-data-breach/jhbcaq0q4"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 40,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "주민등록번호, 납세 관련 정보, 법인번호",
+   "loss_or_outage": null,
+   "spread": "2026-11-01 사내 그룹웨어 운영사 다우기술을 통한 비인가 접근",
+   "official_action": "2026-11-12 보도 기준 경찰청 수사 의뢰",
+   "admitted": "2026-11-05 고객 개인정보 유출 공지",
+   "date": "2026-11-05",
+   "name": "한국디지털거래소(플라이빗)",
+   "region": "KR",
+   "org_type": "가상자산 거래소",
+   "attack": "사내 그룹웨어 외부 침입으로 조세 관련 이메일 첨부파일의 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-12",
+     "title": "코인마켓 거래소 '플라이빗'도 해킹…\"고객 40명 정보 유출\"",
+     "url": "https://www.yna.co.kr/view/AKR20261112168500002"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호, 여권번호, 질병 진단자료",
+   "loss_or_outage": "2026-11-05 원문 다운로드 일시 중단",
+   "spread": null,
+   "official_action": "2026-11-05 전 공공기관 공개 문서 전수점검 요청",
+   "admitted": "2026-11-05 행정안전부가 개인정보 노출 인정과 사과",
+   "date": "2026-11-05",
+   "name": "행정안전부(정보공개포털)",
+   "region": "KR",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "attack": "공개 결재문서의 개인정보 가림 처리와 비공개 설정 누락으로 민감정보 노출",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-05",
+     "title": "'정보공개포털' 개인정보 노출…행안부 \"공공기관 전수점검\"",
+     "url": "https://www.newsis.com/view/NISX20261105_0003855892"
+    },
+    {
+     "outlet": "경향신문",
+     "date": "2026-11-05",
+     "title": "정보공개포털서 암 진단서 등 개인정보 노출···행안부 “국민께 송구” 사과",
+     "url": "https://www.khan.co.kr/article/202611051110001/amp"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-04 인지 후 24시간 이내 KISA와 경찰 신고",
+   "admitted": "2026-11-06 이용자에게 휴대전화번호 유출 안내",
+   "date": "2026-11-06",
+   "name": "두꺼비세상(아파트너)",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "데이터 내보내기 기능에 비인가 접근해 이용자 휴대전화번호 파일 두 차례 반출",
+   "sources": [
+    {
+     "outlet": "한경매거진",
+     "date": "2026-11-06",
+     "title": "[단독] 아파트 관리 앱 '아파트너', 이용자 개인정보 유출",
+     "url": "https://magazine.hankyung.com/job-joy/article/202611061487d"
+    },
+    {
+     "outlet": "매일경제",
+     "date": "2026-11-06",
+     "title": "국내 최대 아파트 생활 플랫폼 ‘아파트너’서 이용자 휴대폰 번호 유출",
+     "url": "https://www.mk.co.kr/news/realestate/12200766"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호와 계좌번호 유출 가능성",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-03 수사기관 통보, 이후 KISA와 교육부, 개인정보보호위원회 신고",
+   "admitted": "2026-11-06 홈페이지 유출 가능성 안내와 사과, 대상자 문자와 이메일 통지",
+   "date": "2026-11-06",
+   "name": "부산외국어대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "평생교육원 업무용 PC 악성코드 감염 의심과 개인정보 유출 가능성 확인",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-09",
+     "title": "부산외대 업무용 PC 악성코드 감염…개인정보 유출 우려",
+     "url": "https://www.newsis.com/view/NISX20261109_0003859783"
+    },
+    {
+     "outlet": "서울신문",
+     "date": "2026-11-09",
+     "title": "부산외대, 업무용 PC 악성코드 감염 정황…개인정보 유출 우려",
+     "url": "https://www.seoul.co.kr/news/society/2026/11/09/20261109500224"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "암호화된 주민등록번호, 급여정보, 카드번호, 빌링키, 공동인증서 정보",
+   "loss_or_outage": "2026-11-05 서비스 전 기능 중단, 빌링키 폐기와 결제 차단",
+   "spread": null,
+   "official_action": "2026-11-07 보도 기준 개인정보보호위원회와 KISA 신고 완료",
+   "admitted": "2026-11-06 운영사가 실제 불법 접근과 유출 또는 유출 가능성 인정",
+   "date": "2026-11-06",
+   "name": "세무법인 에스브이(자비스)",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "세무와 경리 서비스에 외부 불법 접근해 고객 세무, 급여, 결제와 인증 정보 유출 또는 유출 가능성 확인",
+   "sources": [
+    {
+     "outlet": "보안뉴스",
+     "date": "2026-11-07",
+     "title": "‘사칭’이라던 자비스, 실제 뚫렸다... 공동인증서·결제 정보 등 유출 확인",
+     "url": "https://www.boannews.com/news/articleView.html?idxno=147080"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-05 KISA 신고, 개인정보보호위원회 신고 완료",
+   "admitted": "2026-11-06 피해 고객에게 개별 통지",
+   "date": "2026-11-06",
+   "name": "에스에스지닷컴",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "API 취약점을 악용한 비인가 조회로 일부 고객 성명과 내부 고객번호 유출",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-06",
+     "title": "SSG닷컴, 일부 고객 개인정보 유출…성명·내부 식별 번호 조회",
+     "url": "https://www.newsis.com/view/NISX20261106_0003858059"
+    },
+    {
+     "outlet": "아주경제",
+     "date": "2026-11-06",
+     "title": "SSG닷컴, 일부 고객 개인정보 유출…\"KISA·개인정보위 신고\"",
+     "url": "https://www.ajunews.com/view/20261106172806334"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호, 은행 계좌번호",
+   "loss_or_outage": "2026-11-03 서버 운영 중단과 계정 차단",
+   "spread": null,
+   "official_action": "2026-11-08 보도 기준 관계기관 신고",
+   "admitted": "2026-11-06 홈페이지 유출 안내와 사과",
+   "date": "2026-11-06",
+   "name": "하이퍼리즘",
+   "region": "KR",
+   "org_type": "금융회사",
+   "attack": "업무용 서버를 거쳐 외부 클라우드 저장소의 행정 문서와 개인정보 무단 접근",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-08",
+     "title": "디지털자산 운용사 '하이퍼리즘' 해킹…주민등록번호·은행 계좌정보까지 유출",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209388"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-09",
+     "title": "가상자산 업계 덮친 해킹 공포…거래소들 이어 하이퍼리즘까지",
+     "url": "https://nwww.newsis.com/view/NISX20261109_0003860091"
+    }
+   ]
+  },
+  {
+   "market_position": "국내 최대 증권사(연합뉴스 보도)",
+   "records": 35255,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "임직원과 퇴직자, 외주직원 35,255명. 별도로 고객 약 3,800명의 계좌번호 유출, 중복 여부 미공개",
+   "size_basis": "회사 발표",
+   "sensitive": "계좌번호, 일부 암호화된 비밀번호",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-06 금융위, 금감원, 개인정보보호위원회 보고",
+   "admitted": "2026-11-07 대표이사 명의 유출 공지와 사과",
+   "date": "2026-11-07",
+   "name": "미래에셋증권",
+   "region": "KR",
+   "org_type": "금융회사",
+   "attack": "모바일웹 인증 서비스와 그룹웨어에 외부 비인가 접근으로 계좌번호와 임직원 정보 유출",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-07",
+     "title": "미래에셋증권도 3만9천여명 정보유출…당국에 전날 밤 신고(종합2보)",
+     "url": "https://www.yna.co.kr/view/AKR20261107014453008"
+    },
+    {
+     "outlet": "뉴스핌",
+     "date": "2026-11-07",
+     "title": "미래에셋증권도 해킹…고객 3800여명·임직원 3만5000여명 정보 유출",
+     "url": "https://www.newspim.com/news/view/20261107000022"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "마스킹된 카드번호와 카드사, 구매자명",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-08 최초 유출 가능성 공지, 2026-11-11 추가 안내, 2026-11-12 보도로 카드정보 유출 확인",
+   "date": "2026-11-08",
+   "name": "섹타나인",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "지급대행 서비스 가맹점 관리자 계정 침해로 고객정보 유출",
+   "sources": [
+    {
+     "outlet": "보안뉴스",
+     "date": "2026-11-12",
+     "title": "‘해피포인트 운영사’ SPC그룹 산하 섹타나인 개인정보 유출",
+     "url": "https://www.boannews.com/news/articleView.html?idxno=147199"
+    },
+    {
+     "outlet": "섹타나인",
+     "date": "2026-11-11",
+     "title": "개인정보 유출 관련 추가 안내",
+     "url": "https://www.secta9ine.com/notice/18.html"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호, 계좌번호, 계약서 정보",
+   "loss_or_outage": null,
+   "spread": "SM엔터테인먼트와 계열사 디어유, 드림메이커엔터테인먼트에서 피해 확인",
+   "official_action": null,
+   "admitted": "2026-11-08 계열 3사가 정보 유출 인정과 사과",
+   "date": "2026-11-08",
+   "name": "에스엠엔터테인먼트, 디어유, 드림메이커엔터테인먼트",
+   "region": "KR",
+   "org_type": "상장 대기업",
+   "attack": "업무 시스템에 외부 비인가 접근으로 임직원 개인정보와 문서 파일 유출",
+   "sources": [
+    {
+     "outlet": "보안뉴스",
+     "date": "2026-11-08",
+     "title": "SM엔터 계열 3사, 외부 해킹으로 임직원 정보 유출",
+     "url": "https://www.boannews.com/news/articleView.html?idxno=147087"
+    },
+    {
+     "outlet": "더팩트",
+     "date": "2026-11-08",
+     "title": "SM엔터·디어유·드림메이커 해킹…주민번호·계좌번호 유출",
+     "url": "https://news.tf.co.kr/read/economy/2386120.htm"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-09",
+   "name": "Nitori Holdings",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": "일본 최대 가구 체인",
+   "attack": "그룹 관리 시스템 무단 접근과 고객정보 유출 가능성",
+   "records": 37620000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "최대 37,620,000건, 실제 피해 고객 인원은 미확정",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-09 정보 유출 가능성 공식 공지와 사과",
+   "sources": [
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-10",
+     "title": "Japanese furniture giant Nitori says hackers stole 37.6M customer records",
+     "url": "https://www.bleepingcomputer.com/news/security/japanese-furniture-giant-nitori-says-hackers-stole-376m-customer-records/"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-11",
+     "title": "Yet another major Japanese firm hacked — now furniture giant Nitori says hackers stole 37.6 million customer records",
+     "url": "https://www.techradar.com/pro/security/yet-another-major-japanese-firm-hacked-now-furniture-giant-nitori-says-hackers-stole-37-6-million-customer-records"
+    },
+    {
+     "outlet": "Nitori Holdings",
+     "date": "2026-11-09",
+     "title": "当社システムへの不正アクセスによる個人情報漏えいの可能性に関するお詫びとお知らせ",
+     "url": "https://www.nitorihd.co.jp/news/items/2b702dbe4d438f7fef74945d68e5bd27_3.pdf"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 300,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "행정서식 내 개인정보 약 300건이며, 별도로 마스킹된 시스템 이용자 정보 약 350건과 행정서식 약 200건. 48개사 파일 약 130개로 보도됨. 수치 간 단위와 범위가 달라 합산하지 않음",
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": "2026-11-09 상시평가 사이트 차단",
+   "spread": "금융회사 48개사가 제출한 파일 약 130개 유출 추정",
+   "official_action": "2026-11-10 경찰에 수사 의뢰, 2026-11-11 금융위와 금감원 현장점검",
+   "admitted": "2026-11-10 금융보안원이 침해와 당국 신고 사실 확인",
+   "date": "2026-11-10",
+   "name": "금융보안원",
+   "region": "KR",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "attack": "상시평가 지원시스템의 권한 승인 취약점을 악용해 금감원 권한의 허위 계정을 만들고 자료 조회와 다운로드",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-11",
+     "title": "금보원 해킹으로 48개사 130여개 파일 유출…경찰에 수사의뢰",
+     "url": "https://www.yna.co.kr/view/AKR20261111098100002"
+    },
+    {
+     "outlet": "서울신문",
+     "date": "2026-11-10",
+     "title": "금융보안원도 해킹당했다...금융사 정보 유출",
+     "url": "https://www.seoul.co.kr/news/economy/2026/11/10/20261110500418"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 189,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "정부 조사",
+   "sensitive": "본인 확인용 얼굴 사진",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-06 개인정보보호위원회 신고, 전담 대응팀 조사와 서비스 운영사에 사진 삭제 요청",
+   "admitted": "2026-11-10 조달청이 189명 사진 유출 확인과 사과 발표",
+   "date": "2026-11-10",
+   "name": "조달청",
+   "region": "KR",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "attack": "내부 직원이 AI 시스템 개발과 시험 중 평가위원 얼굴 사진을 외부 생성형 AI 서비스에 전송",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-10",
+     "title": "조달청, 온라인 평가위원 189명 본인 확인용 사진 유출",
+     "url": "https://www.yna.co.kr/view/AKR20261110083600063"
+    },
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-10",
+     "title": "조달청, 평가위원 189명 사진 외부AI 유출…'다른 개인정보는 없어'",
+     "url": "https://nwww.newsis.com/view/NISX20261110_0003862155"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "name": "A.P. Moller-Maersk",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": null,
+   "attack": "인수 기업의 기존 시스템 무단 접근 및 데이터 탈취",
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "WhiteArmor가 US$5,000,000 몸값 요구, 지급 또는 확정 손실액 아님",
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-11 기존 로컬 시스템의 무단 접근 및 데이터 반출 인정",
+   "sources": [
+    {
+     "outlet": "Reuters / StreetInsider",
+     "date": "2026-11-11",
+     "title": "Shipping firm Maersk investigates IT security incident",
+     "url": "https://www.streetinsider.com/Reuters/Shipping%2Bfirm%2BMaersk%2Binvestigates%2BIT%2Bsecurity%2Bincident/27325914.html"
+    },
+    {
+     "outlet": "TechRadar",
+     "date": "2026-11-12",
+     "title": "Shipping giant Maersk confirms data breach as hackers demand $5 million ransom",
+     "url": "https://www.techradar.com/pro/security/shipping-giant-maersk-confirms-data-breach-as-hackers-demand-usd5-million-ransom"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 70000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "약 70,000명이라는 잠정 보도이며 회사와 당국의 확정 규모는 미공개",
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "고객사 임직원 교육을 위탁받은 플랫폼에서 이름, 전화번호, 이메일, 부서, 사번, ID, 직급 정보 유출",
+   "official_action": "2026-11-11 개인정보보호위원회 신고, 2026-11-12 사전 검토 중이라고 확인",
+   "admitted": "2026-11-11 밤 고객사에 유출 통지, 2026-11-12 회사가 비인가 접근 확인",
+   "date": "2026-11-11",
+   "name": "멀티캠퍼스",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "러닝플랫폼 클라우드에 외부 비인가 접근으로 이용자 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "아시아경제",
+     "date": "2026-11-12",
+     "title": "[단독]멀티캠퍼스서 개인정보 유출…개보위 \"신고 접수\"",
+     "url": "https://www.asiae.co.kr/article/IT/2026111216571136752"
+    },
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-12",
+     "title": "삼성SDS 자회사 멀티캠퍼스 해킹, 임직원 개인정보 약 7만명 유출",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209491"
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "name": "Taiwan Semiconductor Manufacturing Company (TSMC)",
+   "region": "GL",
+   "org_type": "상장 대기업",
+   "market_position": "세계 최대 반도체 위탁생산 업체",
+   "attack": "외부 클라우드에 보관된 전현직 직원정보 무단 공개",
+   "records": 46000,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "46,000건과 6.9GB는 해커 주장, 회사는 피해 인원 미공개",
+   "size_basis": "해커 주장",
+   "sensitive": "해커 주장 신분증 번호, 은행정보",
+   "loss_or_outage": null,
+   "spread": "이름이 공개되지 않은 클라우드 서비스 공급사의 데이터와 유출 자료 일치",
+   "official_action": null,
+   "admitted": "2026-11-12 회사 확인 및 SEC Form 6-K에서 전현직 직원정보 무단 공개 인정",
+   "sources": [
+    {
+     "outlet": "聯合報",
+     "date": "2026-11-12",
+     "title": "4.6萬筆員工個資驚傳外洩！台積電證實 但強調系統未見入侵證據",
+     "url": "https://udn.com/news/story/7240/9874175"
+    },
+    {
+     "outlet": "BleepingComputer",
+     "date": "2026-11-15",
+     "title": "TSMC employee data breach linked to cloud provider",
+     "url": "https://www.bleepingcomputer.com/news/security/tsmc-employee-data-breach-linked-to-cloud-provider/"
+    },
+    {
+     "outlet": "TSMC / SEC",
+     "date": "2026-11-12",
+     "title": "Statement Regarding the Unauthorized Access of Employee Personal Data",
+     "url": "https://www.sec.gov/Archives/edgar/data/1046179/000104617926000800/a20261112statementregardin.htm"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 5000,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "약 5,000명, 최종 규모와 항목은 조사 후 확정 예정",
+   "size_basis": "보도",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "고객사 44곳 이용자의 개인정보와 메일, 암호화된 채팅 메시지 등 유출",
+   "official_action": "2026-11-13 보도 기준 KISA와 개인정보보호위원회 신고, 개인정보위 검토 중",
+   "admitted": "2026-11-12 디케이테크인이 카카오워크 홈페이지에 유출 공지",
+   "date": "2026-11-12",
+   "name": "카카오(카카오워크)",
+   "region": "KR",
+   "org_type": "상장 대기업",
+   "attack": "업무용 협업 시스템에 비정상 접근으로 개인정보와 메일 원본, 첨부파일 유출",
+   "sources": [
+    {
+     "outlet": "매일경제",
+     "date": "2026-11-13",
+     "title": "카카오 ‘기업용 메신저’ 뚫렸다…개인정보·메일·첨부파일까지 유출",
+     "url": "https://www.mk.co.kr/news/it/12207740"
+    },
+    {
+     "outlet": "아시아경제",
+     "date": "2026-11-13",
+     "title": "카카오 기업용 메신저도 당했다…카카오워크서 이메일·첨부파일 등 유출",
+     "url": "https://www.asiae.co.kr/article/2026111309090565452"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 1811,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": "일반 고객 20명과 임직원, 협력업체 직원 1,791명으로 추가 확인에 따라 변동 가능",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "피해 시스템과 서버 운영 중단",
+   "spread": null,
+   "official_action": "2026-11-10 금융감독원 신고",
+   "admitted": "2026-11-12 홈페이지 유출 안내와 사과, 손해 발생 시 전액 배상 방침",
+   "date": "2026-11-12",
+   "name": "케이비캐피탈",
+   "region": "KR",
+   "org_type": "금융회사",
+   "attack": "자동차 임대자산 관리시스템에 비정상 정보 조회로 고객과 임직원, 협력사 직원 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-13",
+     "title": "KB캐피탈, 해킹에 고객·임직원 1800명 정보 유출…\"전액 보상\"",
+     "url": "https://nwww.newsis.com/view/NISX20261113_0003866753"
+    },
+    {
+     "outlet": "뉴스핌",
+     "date": "2026-11-13",
+     "title": "KB캐피탈도 해킹…고객·협력사·임직원 1800명 개인정보 유출",
+     "url": "https://ir.newspim.com/news/view/20261113000303"
+    },
+    {
+     "outlet": "NSP통신",
+     "date": "2026-11-13",
+     "title": "KB캐피탈, 해킹으로 1800명 개인정보 유출…금감원 신고",
+     "url": "https://www.nspna.com/news/?mode=view&newsid=836008"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 20028,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "정부 조사",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "중소벤처기업부 모두의 창업 사업 참가자 818명 포함",
+   "official_action": "2026-11-13 중기부와 창업진흥원이 참가자에게 별도 안내",
+   "admitted": "2026-11-13 15시 유출 대상자에게 개별 통지",
+   "date": "2026-11-13",
+   "name": "아미쿠스렉스(로폼)",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "AI 법률 솔루션 운영사 해킹으로 이름, 전화번호, 이메일 유출",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-11-13",
+     "title": "'모두의 창업' 참여 AI기업 해킹…창업자 818명 개인정보 유출",
+     "url": "https://www.etnews.com/20261113000295"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-13",
+     "title": "중기부 2차 '모두의 창업'서 참가자 818명 개인정보 유출",
+     "url": "https://www.yna.co.kr/view/AKR20261113154951030"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "API 인증키",
+   "loss_or_outage": "서비스와 관리자 API 키 전량 폐기, API 기능 중단",
+   "spread": "고객사 업무 자료와 임직원 정보 유출, 오스템임플란트 본사와 자회사, 해외법인 4,125개 계정 피해",
+   "official_action": "2026-11-14 개인정보보호위원회 신고, KISA 침해사고 신고 완료",
+   "admitted": "2026-11-14 홈페이지에서 보안 침해와 자료 유출 공지",
+   "date": "2026-11-13",
+   "name": "엔에이치엔두레이",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "비밀번호 찾기 인증번호 반복 입력과 오픈 API 취약점을 악용해 계정 탈취와 업무 자료 유출",
+   "sources": [
+    {
+     "outlet": "이데일리",
+     "date": "2026-11-15",
+     "title": "NHN두레이 보안 사고…고객사 업무자료 유출",
+     "url": "https://www.edaily.co.kr/News/Read?mediaCodeNo=257&newsId=01810566645646048"
+    },
+    {
+     "outlet": "전자신문",
+     "date": "2026-11-16",
+     "title": "NHN두레이 해킹에 의료기기 임직원 개인정보 유출",
+     "url": "https://m.etnews.com/20261116000531"
+    },
+    {
+     "outlet": "보안뉴스",
+     "date": "2026-11-13",
+     "title": "[단독] 협업 도구 ‘두레이’ 해킹... API 서비스 차단",
+     "url": "https://www.boannews.com/news/articleView.html?idxno=147258"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 24011,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "해당 서버 네트워크 접속 차단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-13 홈페이지 유출 안내와 사과",
+   "date": "2026-11-13",
+   "name": "인제대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "수업 운영용 사이트 서버 외부 공격으로 학생과 직원 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "헤럴드경제",
+     "date": "2026-11-14",
+     "title": "인제대 “수업용 사이트 서버 공격”…학번·연락처 등 2만4011건 유출",
+     "url": "https://biz.heraldcorp.com/article/10937167?sec=007"
+    },
+    {
+     "outlet": "파이낸셜뉴스, 뉴스1",
+     "date": "2026-11-15",
+     "title": "인제대 학생·직원 개인정보 2만4000여건 유출…서버 외부 공격",
+     "url": "https://www.fnnews.com/news/202611150515228653"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "코인원 상담에 남긴 주민등록번호, 계좌번호, 비밀번호, 신분증 발급일, 지갑주소, TXID 등",
+   "loss_or_outage": "코인원 고객센터 운영을 이메일 상담으로 전환",
+   "spread": "코인원 상담정보 유출, 번개장터 전화번호 49건, 메가MGC커피 고객 30명의 연락처 유출 확인",
+   "official_action": "2026-11-15 보도 기준 코인원이 KISA, 개인정보보호위원회, 금감원 신고",
+   "admitted": "2026-11-14 메타엠 공지, 2026-11-15 코인원 공지, 2026-11-16 번개장터 최종 조사 결과 발표",
+   "date": "2026-11-14",
+   "name": "메타엠",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "고객상담 수탁 서버 침입으로 고객사의 상담정보 무단 조회와 반출",
+   "sources": [
+    {
+     "outlet": "아이뉴스24",
+     "date": "2026-11-17",
+     "title": "[단독] 메가커피 고객정보 유출…번개장터 이어 해킹 여파 확산",
+     "url": "https://m.inews24.com/v/2026938"
+    },
+    {
+     "outlet": "MBC",
+     "date": "2026-11-15",
+     "title": "코인원 고객 상담 수탁사도 해킹 피해‥고객 개인정보 유출",
+     "url": "https://imnews.imbc.com/news/2026/econo/article/6865786_36933.html"
+    },
+    {
+     "outlet": "MTN",
+     "date": "2026-11-15",
+     "title": "코인원, 외주업체 해킹으로 고객 정보 유출...코인 도난 정황 없어",
+     "url": "https://news.mtn.co.kr/article/2026111515434276318"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "주민등록번호 앞 7자리 조회 의심",
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-14 보도 기준 KISA 신고, 피해 범위 조사 중",
+   "admitted": "2026-11-14 홈페이지 유출 가능성 공지와 사과, 대상 고객에게 문자 통지",
+   "date": "2026-11-14",
+   "name": "중소기업중앙회(노란우산)",
+   "region": "KR",
+   "org_type": "기타",
+   "attack": "노란우산 홈페이지 외부 비인가 접근과 일부 고객정보 제3자 조회 의심",
+   "sources": [
+    {
+     "outlet": "전자신문",
+     "date": "2026-11-14",
+     "title": "[속보] 노란우산, 홈페이지 비정상 접근 확인…주민번호 일부·연락처 등 조회 의심",
+     "url": "https://www.etnews.com/20261114000032"
+    },
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-14",
+     "title": "중기중앙회 \"노란우산 정보 유출 가능성…주소·연락처 등 포함\"",
+     "url": "https://www.yna.co.kr/view/AKR20261114037500030"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "62MB 데이터 외부 전송 확인, 개인정보 유출 인원과 구체 항목은 미확정",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-14 개인정보 유출 가능성 공지",
+   "date": "2026-11-14",
+   "name": "한국발명진흥회",
+   "region": "KR",
+   "org_type": "공공기관",
+   "attack": "아이디어로 파일 등록 취약점으로 서버에 악성코드 설치 후 데이터 반출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-15",
+     "title": "[단독] 한국발명진흥회 '아이디어로' 플랫폼 해킹…악성코드 설치 후 62MB 데이터 외부 유출",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209524"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 3083,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "계좌번호, 암호화된 카드번호, CI 등 개인별 일부 항목",
+   "loss_or_outage": "2026-11-13 12시 시스템 중단 후 22시38분 재개",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-14 피해자 문자 통지와 언론 공지, 2026-11-16 사장 브리핑과 사과",
+   "date": "2026-11-14",
+   "name": "한국조폐공사",
+   "region": "KR",
+   "org_type": "공공기관",
+   "attack": "모바일 지역사랑상품권 착의 서버 간 API 인증 취약점을 악용해 개인정보 무단 조회",
+   "sources": [
+    {
+     "outlet": "뉴시스",
+     "date": "2026-11-16",
+     "title": "조폐공사 \"착(chak) 개인정보 유출, 인증 허점 노렸다\"",
+     "url": "https://mobile.newsis.com/view/NISX20261116_0003869634"
+    },
+    {
+     "outlet": "파이낸셜뉴스",
+     "date": "2026-11-14",
+     "title": "조폐공사 '착' 개인정보 유출…3083명 정보 조회 확인",
+     "url": "https://www.fnnews.com/news/202611141832266855"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "생년월일 포함 27건 확인, 전체 유출 인원과 건수는 미공개",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "연구통합관리시스템 접속 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-15 유출 공지, 2026-11-16 시스템 중단 안내",
+   "date": "2026-11-15",
+   "name": "강원대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구통합관리시스템 외부 침입으로 사용자 정보 탈취",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "강원대 해킹 여파 연구비 집행까지 확산…연구통합관리시스템 접속 중단",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209551"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": "KRW 2,000,000 상당의 AI 토큰 무단 사용",
+   "size_basis": "보도",
+   "sensitive": "OpenAI API 인증키",
+   "loss_or_outage": "공격자가 2시간 동안 200만원 상당 토큰 사용, 피해 기업에 비용 부과",
+   "spread": null,
+   "official_action": null,
+   "admitted": null,
+   "date": "2026-11-15",
+   "name": "국내 스타트업(사명 비공개)",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "관리자 계정 비밀번호 공격 후 OpenAI API 인증정보 탈취와 AI 토큰 무단 사용",
+   "sources": [
+    {
+     "outlet": "이투데이",
+     "date": "2026-11-15",
+     "title": "해커가 훔쳐 쓴 AI, 청구서는 피해 기업에…국내서도 ‘LLM 재킹’ 발생",
+     "url": "https://www.etoday.co.kr/news/view/2647979?trc=main_list_pick"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 1281,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "연구행정통합시스템 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-15 공식 유출 안내와 사과",
+   "date": "2026-11-15",
+   "name": "대구한의대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구행정통합시스템 해킹으로 사용자 정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 강원대·대구한의대 산학협력단 동시 해킹…오전 6시 22분, 똑같은 침해 시각에 주목",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209539"
+    },
+    {
+     "outlet": "대구한의대학교",
+     "date": "2026-11-15",
+     "title": "연구행정통합시스템(RERP) 침해사고 발생 및 개인정보 유출 안내",
+     "url": "https://iacf.dhu.ac.kr/main/menu?bwrite_id=Vb1OFsdRn47f&do=view&gc=605XOAS&sit=bwrite_title"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": "2026-11-15 보도 기준 관계기관 신고",
+   "admitted": "2026-11-15 개인정보 유출 사실 공지",
+   "date": "2026-11-15",
+   "name": "두꺼비세상(피터팬의 좋은방 구하기)",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "시스템 무단 접근으로 일부 회원의 이름, 전화번호, 이메일, 아이디와 구매정보 반출",
+   "sources": [
+    {
+     "outlet": "이투데이",
+     "date": "2026-11-15",
+     "title": "‘피터팬의 좋은방 구하기’ 개인정보 유출…이름·전화번호 등 4개 항목",
+     "url": "https://www.etoday.co.kr/news/view/2648321?trc=sub_list_news"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 1359,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": "사용자 ID 기준으로 동일인의 복수 계정 포함",
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "연구행정통합시스템 접속 제한",
+   "spread": "유지보수업체 웹케시가 유출 통보",
+   "official_action": null,
+   "admitted": "2026-11-16 공식 유출 공지와 사과",
+   "date": "2026-11-16",
+   "name": "국립한국해양대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구행정통합시스템 외부 해킹으로 사용자 정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-17",
+     "title": "국립한국해양대 연구행정시스템 해킹…개인정보 1,359건 유출",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209559"
+    },
+    {
+     "outlet": "국립한국해양대학교",
+     "date": "2026-11-16",
+     "title": "[긴급공지] 연구행정통합시스템(rERP) 침해사고 발생 및 개인정보 유출 안내",
+     "url": "https://www.kmou.ac.kr/sanhak/na/ntt/selectNttInfo.do?mi=5992&nttSn=10381418"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 5885,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": "암호화된 주민등록번호",
+   "loss_or_outage": "유출 의심 포털서비스 일부 기능 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-16 홈페이지 유출 안내와 사과",
+   "date": "2026-11-16",
+   "name": "동서울대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "대학 포털서비스에 외부 침입으로 교직원 정보 탈취",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 동서울대 해킹으로 교직원 개인정보 5,885건 유출…28개 대학 공격 주장한 해커 KimJEN과 연관성 주목",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209544"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "입장객 예약시스템 운영사 Accesso 침해",
+   "official_action": null,
+   "admitted": "2026-11-16 유출 가능성 통지와 사과, 개별 고객 실제 유출 여부와 규모 조사 중",
+   "date": "2026-11-16",
+   "name": "레고랜드 코리아 리조트",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "외부 예약 운영사 티켓팅 시스템 비인가 접속으로 시즌패스 고객정보 조회",
+   "sources": [
+    {
+     "outlet": "매일경제",
+     "date": "2026-11-17",
+     "title": "[단독] 레고랜드도 뚫렸다…고객명·전화번호에 연간이용권 정보까지 유출",
+     "url": "https://www.mk.co.kr/news/society/12210945"
+    },
+    {
+     "outlet": "조선비즈",
+     "date": "2026-11-17",
+     "title": "레고랜드서 고객 개인정보 유출 사태… 연간권 바코드까지 털려",
+     "url": "https://biz.chosun.com/topics/topics_social/2026/11/17/GN467YC7TFB5BAPXPLR5AIEIUI/?outputType=amp"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 1359,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": "연구행정통합시스템 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-16 공식 유출 안내",
+   "date": "2026-11-16",
+   "name": "숙명여자대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구행정시스템 외부 침입으로 사용자 정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 대학 산학협력단 연쇄 해킹 확산…한림대·숙명여대·한경국립대·한남대·한국외대 등 개인정보 유출과 연구행정시스템 해킹",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209552"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": "계좌번호",
+   "loss_or_outage": null,
+   "spread": "전산 플랫폼을 이용하던 KT M&S의 리본 고객정보도 피해에 포함",
+   "official_action": null,
+   "admitted": "2026-11-16 보도 기준 KT M&S가 피해 고객에게 문자 통지",
+   "date": "2026-11-16",
+   "name": "업스테어스",
+   "region": "KR",
+   "org_type": "일반 기업",
+   "attack": "중고폰 거래 플랫폼 해킹으로 관리하던 고객정보 일부 유출",
+   "sources": [
+    {
+     "outlet": "MTN",
+     "date": "2026-11-16",
+     "title": "[단독] 중고폰 플랫폼 업스테어스 해킹…'리본' 고객정보도 유출",
+     "url": "https://news.mtn.co.kr/article/2026111618240476812"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 772,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-16 공식 유출 안내",
+   "date": "2026-11-16",
+   "name": "한경국립대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "ERP 웹 취약점을 악용한 침입과 파일 변조, 사용자 정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 대학 산학협력단 연쇄 해킹 확산…한림대·숙명여대·한경국립대·한남대·한국외대 등 개인정보 유출과 연구행정시스템 해킹",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209552"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "관련 서버 긴급 차단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-16 연구산학협력단 공지",
+   "date": "2026-11-16",
+   "name": "한국외국어대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구비관리시스템 비인가 접근과 정보 유출 정황",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 대학 산학협력단 연쇄 해킹 확산…한림대·숙명여대·한경국립대·한남대·한국외대 등 개인정보 유출과 연구행정시스템 해킹",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209552"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": null,
+   "records_unit": null,
+   "usd": null,
+   "amount_note": null,
+   "size_basis": null,
+   "sensitive": null,
+   "loss_or_outage": "연구비종합관리시스템 일시 중단",
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-16 공식 침해사고 공지",
+   "date": "2026-11-16",
+   "name": "한남대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구비종합관리시스템 보안 침해",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 대학 산학협력단 연쇄 해킹 확산…한림대·숙명여대·한경국립대·한남대·한국외대 등 개인정보 유출과 연구행정시스템 해킹",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209552"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 947,
+   "records_unit": "건",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "위탁관리업체 웹케시 서버 불법 접근",
+   "official_action": null,
+   "admitted": "2026-11-16 유출 안내와 사과",
+   "date": "2026-11-16",
+   "name": "한림대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "연구행정시스템 위탁관리업체 서버 침해로 사용자 정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-16",
+     "title": "[단독] 대학 산학협력단 연쇄 해킹 확산…한림대·숙명여대·한경국립대·한남대·한국외대 등 개인정보 유출과 연구행정시스템 해킹",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209552"
+    },
+    {
+     "outlet": "한림대학교",
+     "date": "2026-11-16",
+     "title": "[한림대학교 산학협력단] 개인정보 유출 사실 안내 및 사과문",
+     "url": "https://special.hallym.ac.kr/bbs/hallym/155/392533/artclView.do"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 25000,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": "약 25,000개 계정",
+   "size_basis": "회사 발표",
+   "sensitive": "암호화된 비밀번호, 인증 처리 기록",
+   "loss_or_outage": "2026-11-16 시스템 긴급 중단 후 16시25분 재개",
+   "spread": null,
+   "official_action": "2026-11-17 보도 기준 교육부 사이버안전센터와 KISA 신고",
+   "admitted": "2026-11-16 홈페이지 유출 안내와 사과",
+   "date": "2026-11-16",
+   "name": "한성대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "종합정보시스템 외부 침입으로 웹메일 계정정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-17",
+     "title": "한성대학교 해킹으로 웹메일 계정 2만5천 건 유출…암호화된 비밀번호까지 노출",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209558"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 300,
+   "records_unit": "계정",
+   "usd": null,
+   "amount_note": "약 300개 계정이며 정확한 규모는 조사 중",
+   "size_basis": "정부 조사",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": "일부 지방정부 네트워크를 경유해 행정기관 이메일시스템 침입",
+   "official_action": "2026-11-16 관계기관 합동점검과 피해 현황 조사 발표",
+   "admitted": "2026-11-16 행정안전부가 해킹과 계정 비정상 접속, 신고와 당사자 통지 사실 발표",
+   "date": "2026-11-16",
+   "name": "행정안전부(행정기관 업무용 이메일)",
+   "region": "KR",
+   "org_type": "국가기관, 금융 감독 또는 보안 기관",
+   "attack": "지방정부 네트워크를 거쳐 통합인증체계 취약점을 악용해 행정 이메일 계정 비정상 접속",
+   "sources": [
+    {
+     "outlet": "연합뉴스",
+     "date": "2026-11-16",
+     "title": "행정기관 이메일 300여개 계정에 비정상 접속…정부, 합동점검",
+     "url": "https://www.yna.co.kr/view/AKR20261116087500530"
+    },
+    {
+     "outlet": "YTN",
+     "date": "2026-11-16",
+     "title": "정부 행정 메일 300여 개 해킹...기밀 유출 가능성도",
+     "url": "https://www.ytn.co.kr/_ln/0115_202611161821273165"
+    }
+   ]
+  },
+  {
+   "market_position": null,
+   "records": 530,
+   "records_unit": "명",
+   "usd": null,
+   "amount_note": null,
+   "size_basis": "회사 발표",
+   "sensitive": null,
+   "loss_or_outage": null,
+   "spread": null,
+   "official_action": null,
+   "admitted": "2026-11-17 공식 홈페이지 유출 안내와 사과",
+   "date": "2026-11-17",
+   "name": "동의대학교",
+   "region": "KR",
+   "org_type": "대학, 병원",
+   "attack": "산학협력단 연구비관리시스템 서버 해킹으로 개인정보 유출",
+   "sources": [
+    {
+     "outlet": "데일리시큐",
+     "date": "2026-11-17",
+     "title": "동의대학교 연구비관리시스템 해킹…개인정보 530명 유출",
+     "url": "https://www.dailysecu.com/news/articleView.html?idxno=209566"
+    }
+   ]
+  }
+ ]
+}

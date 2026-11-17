@@ -1,0 +1,135 @@
+{
+  "note": "해킹 사건 추이의 피해 주체 사전. 제목이 match(정규식, 대소문자 무시) 중 하나에 걸리면 그 주체의 사건으로 모은다. 같은 주체라도 기사가 14일 넘게 끊기면 새 사건이다. region은 피해 주체 소재(기사 언어가 아님), sector는 화면 표시용. 사전에 없는 사건은 기사 묶음 단위로 센다. 지난 대형 사고(SK텔레콤, KT, 쿠팡 등)는 후속 해설 기사가 새 사건처럼 잡히므로 넣지 않는다.",
+  "entities": [
+    { "id": "fsi", "name": "금융보안원", "region": "KR", "sector": "금융", "match": [
+        "금융보안원",
+        "금보원"
+      ]
+    },
+    { "id": "mirae", "name": "미래에셋", "region": "KR", "sector": "금융", "match": [
+        "미래에셋"
+      ]
+    },
+    { "id": "kbcapital", "name": "KB캐피탈", "region": "KR", "sector": "금융", "match": [
+        "KB캐피탈"
+      ]
+    },
+    { "id": "hana", "name": "하나은행", "region": "KR", "sector": "금융", "match": [
+        "하나은행"
+      ]
+    },
+    { "id": "kbiz", "name": "중기중앙회 노란우산", "region": "KR", "sector": "금융", "match": [
+        "노란우산",
+        "중기중앙회",
+        "중소기업중앙회"
+      ]
+    },
+    { "id": "coinone", "name": "코인원", "region": "KR", "sector": "가상자산", "match": [
+        "코인원"
+      ]
+    },
+    { "id": "flybit", "name": "플라이빗", "region": "KR", "sector": "가상자산", "match": [
+        "플라이빗"
+      ]
+    },
+    { "id": "bithumb", "name": "빗썸", "region": "KR", "sector": "가상자산", "match": [
+        "빗썸"
+      ]
+    },
+    { "id": "upbit", "name": "업비트", "region": "KR", "sector": "가상자산", "match": [
+        "업비트",
+        "두나무"
+      ]
+    },
+    { "id": "binance", "name": "바이낸스", "region": "GL", "sector": "가상자산", "match": [
+        "바이낸스",
+        "\\bbinance\\b"
+      ]
+    },
+    { "id": "mss-startup", "name": "모두의 창업(로폼)", "region": "KR", "sector": "공공", "match": [
+        "모두의\\s?창업",
+        "로폼"
+      ]
+    },
+    { "id": "komsco", "name": "조폐공사 '착'", "region": "KR", "sector": "공공", "match": [
+        "조폐공사",
+        "['‘]착['’]"
+      ]
+    },
+    { "id": "gov-mail", "name": "공무원 업무 메일", "region": "KR", "sector": "공공", "match": [
+        "공무원\\s?업무용",
+        "행정기관\\s?(이|e)메일"
+      ]
+    },
+    { "id": "kakaowork", "name": "카카오워크", "region": "KR", "sector": "기업", "match": [
+        "카카오워크"
+      ]
+    },
+    { "id": "gsenc", "name": "GS건설", "region": "KR", "sector": "기업", "match": [
+        "GS건설"
+      ]
+    },
+    { "id": "hansung", "name": "한성대", "region": "KR", "sector": "교육", "match": [
+        "한성대"
+      ]
+    },
+    { "id": "inje", "name": "인제대", "region": "KR", "sector": "교육", "match": [
+        "인제대"
+      ]
+    },
+    { "id": "vanderbilt", "name": "Vanderbilt", "region": "GL", "sector": "교육", "match": [
+        "vanderbilt"
+      ]
+    },
+    { "id": "fr-supermarket", "name": "프랑스 슈퍼마켓 냉장 설비", "region": "GL", "sector": "기업", "match": [
+        "supermarket",
+        "freezer",
+        "슈퍼마켓",
+        "냉장"
+      ]
+    },
+    { "id": "quantum-systems", "name": "Quantum Systems", "region": "GL", "sector": "기업", "match": [
+        "quantum systems"
+      ]
+    },
+    { "id": "uber", "name": "Uber", "region": "GL", "sector": "기업", "match": [
+        "\\buber\\b",
+        "우버"
+      ]
+    },
+    { "id": "maersk", "name": "Maersk", "region": "GL", "sector": "기업", "match": [
+        "maersk",
+        "머스크 해운"
+      ]
+    },
+    { "id": "amplifon", "name": "Amplifon", "region": "GL", "sector": "기업", "match": [
+        "amplifon"
+      ]
+    },
+    { "id": "fandango", "name": "Fandango", "region": "GL", "sector": "기업", "match": [
+        "fandango"
+      ]
+    },
+    { "id": "caribbean-airlines", "name": "Caribbean Airlines", "region": "GL", "sector": "기업", "match": [
+        "caribbean airlines"
+      ]
+    },
+    { "id": "fireworks-ai", "name": "Fireworks AI 공급망", "region": "GL", "sector": "기업", "match": [
+        "fireworks ai",
+        "\\bcursor supply chain"
+      ]
+    },
+    { "id": "stryker", "name": "Stryker", "region": "GL", "sector": "기업", "match": [
+        "stryker"
+      ]
+    },
+    { "id": "boston-scientific", "name": "Boston Scientific", "region": "GL", "sector": "기업", "match": [
+        "boston scientific"
+      ]
+    },
+    { "id": "f5", "name": "F5", "region": "GL", "sector": "기업", "match": [
+        "\\bF5\\b"
+      ]
+    }
+  ]
+}

@@ -1,9 +1,10 @@
 // 헤드라인 수집: 피드를 읽어 분류하고 이전 보관분(--state)에 합쳐 data/news.json으로 쓴다.
 // 사용: node scripts/fetch-news.mjs [--out _site/data] [--state state/news.json]
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
 import { loadUniverse, ROOT } from "../src/universe.mjs";
 import { parseFeed, decodeBody, canonicalUrl, splitPublisher, classify, buildStockMatcher, itemId, mergeItems, assignGroups } from "../src/news.mjs";
+import { updateIncidentLog, publicIncidentLog, compileEntities } from "../src/incident-log.mjs";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -12,6 +13,8 @@ const option = (name, fallback) => {
 };
 const outDir = option("--out", join(ROOT, "_site", "data"));
 const statePath = option("--state", join(ROOT, "state", "news.json"));
+// 사건 기록은 헤드라인 보관분 옆에 둔다(Actions에서는 data 브랜치에 함께 저장).
+const logPath = option("--incident-log", join(dirname(statePath), "incident-log.json"));
 
 async function fetchFeed(feed) {
   const response = await fetch(feed.url, {
@@ -24,7 +27,7 @@ async function fetchFeed(feed) {
 }
 
 async function main() {
-  const { feeds } = JSON.parse(readFileSync(join(ROOT, "data", "sources.json"), "utf8"));
+  const { feeds, trendStart } = JSON.parse(readFileSync(join(ROOT, "data", "sources.json"), "utf8"));
   const matchStocks = buildStockMatcher(loadUniverse().stocks);
   const previous = existsSync(statePath) ? JSON.parse(readFileSync(statePath, "utf8")) : { items: [] };
 
@@ -62,8 +65,15 @@ async function main() {
   mkdirSync(join(statePath, ".."), { recursive: true });
   writeFileSync(statePath, JSON.stringify(output));
 
+  const previousLog = existsSync(logPath) ? JSON.parse(readFileSync(logPath, "utf8")) : { stories: [] };
+  const entities = compileEntities(JSON.parse(readFileSync(join(ROOT, "data", "incident-entities.json"), "utf8")));
+  const log = updateIncidentLog(previousLog, items, { entities });
+  writeFileSync(logPath, JSON.stringify({ updatedAt: output.updatedAt, stories: log.stories }));
+  writeFileSync(join(outDir, "incidents.json"), JSON.stringify(publicIncidentLog(log, { updatedAt: output.updatedAt, since: trendStart })));
+
   const count = (key, value) => items.filter((item) => item[key] === value).length;
   console.log(`news: 보관 ${items.length}건(신규 ${added}, 사건 묶음 ${groupCount}개), 사례 ${count("c", "incident")}, 정책 ${count("c", "policy")}, 지출 ${count("c", "spending")}, 국내 ${count("r", "KR")}, 해외 ${count("r", "GL")}`);
+  console.log(`  사건 기록 ${log.stories.length}개(신규 ${log.added})`);
   for (const row of report) console.log(`  ${row.ok ? "ok " : "ERR"} ${row.id} ${row.ok ? `${row.used}/${row.fetched}` : row.error}`);
 }
 

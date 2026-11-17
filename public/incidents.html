@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko" data-default-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>사이버보안 모니터, 해킹 사건</title>
+<link rel="icon" href="data:,">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="reading">
+<header class="top">
+  <a class="brand" href="index.html" aria-label="사이버보안 모니터 첫 화면">
+    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path d="M10 1 2 4v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m6.5 11 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <h1>사이버보안 <span>모니터</span></h1>
+  </a>
+  <nav aria-label="페이지">
+    <a href="index.html">종목</a>
+    <a href="news.html">뉴스</a>
+    <a href="incidents.html" aria-current="page">해킹 사건</a>
+  </nav>
+  <div class="status" aria-live="polite">
+    <span id="status-text">불러오는 중</span>
+    <button type="button" class="theme-btn" data-theme-toggle>라이트 모드</button>
+  </div>
+</header>
+<main class="inc">
+  <section class="inc-top" aria-labelledby="inc-title">
+    <header class="sec-head">
+      <h2 id="inc-title">해킹 사건</h2>
+      <p id="inc-range"></p>
+      <div class="seg-switch" role="group" aria-label="지역" id="inc-region">
+        <button type="button" data-region="ALL" aria-pressed="true">통합</button>
+        <button type="button" data-region="KR" aria-pressed="false">국내</button>
+        <button type="button" data-region="GL" aria-pressed="false">해외</button>
+      </div>
+    </header>
+    <div class="inc-claim" id="inc-claim"></div>
+    <div class="inc-kpis" id="inc-kpis"></div>
+  </section>
+
+  <section class="panel inc-panel" aria-labelledby="idx-title">
+    <header><h2 id="idx-title">종합 지수</h2><p>건수, 유출 건수, 탈취 금액을 주마다 0~100으로 바꿔 평균. 기간 중 가장 센 주의 각 요소가 100. 별표(*)와 흐린 점은 집계 중인 이번 주</p></header>
+    <p class="inc-legend" id="idx-legend"></p>
+    <div class="inc-chart" id="idx-chart"></div>
+    <details class="inc-method">
+      <summary>계산 방법</summary>
+      <ul>
+        <li>건수 = 그 주에 처음 보도된 사건 수 / 기간 최대 주의 사건 수 x 100</li>
+        <li>유출 = log10(1 + 그 주 발표된 유출 건수 합 / 1천) / 기간 최댓값 x 100</li>
+        <li>금액 = log10(1 + 그 주 발표된 탈취 금액 합 / 100만 달러) / 기간 최댓값 x 100</li>
+        <li>종합 = 세 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
+        <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 건수에만 들어감</li>
+      </ul>
+    </details>
+  </section>
+
+  <div class="inc-grid">
+    <section class="panel inc-panel" aria-labelledby="cnt-title">
+      <header><h2 id="cnt-title">건수</h2><p>주별 사건 수. 사건 하나는 피해 기관 하나</p></header>
+      <p class="inc-legend" id="cnt-legend"></p>
+      <div class="inc-chart" id="cnt-chart"></div>
+      <h3 class="inc-sub" id="rw-title">랜섬웨어 피해 공개 건수</h3>
+      <div class="inc-chart" id="rw-chart"></div>
+    </section>
+    <section class="panel inc-panel" aria-labelledby="org-title">
+      <header><h2 id="org-title">피해 업권</h2><p>주당 사건 수, 최근 4주와 그 전</p></header>
+      <div id="org-table"></div>
+    </section>
+  </div>
+
+  <section class="panel inc-panel" aria-labelledby="rec-title">
+    <header><h2 id="rec-title">개인정보 유출 규모</h2><p id="rec-sub"></p></header>
+    <div class="inc-chart" id="rec-chart"></div>
+  </section>
+
+  <section class="panel inc-panel" aria-labelledby="usd-title">
+    <header><h2 id="usd-title">탈취 금액</h2><p id="usd-sub"></p></header>
+    <div class="inc-chart" id="usd-chart"></div>
+  </section>
+
+  <div class="inc-grid wide-left">
+    <section class="panel inc-panel" aria-labelledby="list-title">
+      <header><h2 id="list-title">사건 목록</h2><p id="list-sub"></p></header>
+      <div class="inc-tools">
+        <input class="search" id="inc-search" type="search" placeholder="기관, 업권, 공격 검색" aria-label="사건 검색">
+        <div class="seg-switch" role="group" aria-label="정렬" id="inc-sort">
+          <button type="button" data-sort="d" aria-pressed="true">최신순</button>
+          <button type="button" data-sort="rec" aria-pressed="false">유출순</button>
+          <button type="button" data-sort="usd" aria-pressed="false">금액순</button>
+        </div>
+      </div>
+      <div class="inc-table-wrap"><table class="inc-table" id="inc-table"></table></div>
+      <button type="button" class="more" id="inc-more" hidden></button>
+    </section>
+    <section class="panel inc-panel" aria-labelledby="press-title">
+      <header><h2 id="press-title">최근 7일 보도</h2><p>해킹 사례 기사, 같은 사건을 다룬 매체 수 순</p></header>
+      <ol class="inc-press" id="inc-press"></ol>
+      <p class="inc-more-link"><a href="news.html">뉴스 페이지에서 전체 기사 보기</a></p>
+    </section>
+  </div>
+  <p class="notes" id="inc-notes"></p>
+</main>
+<script type="module" src="incidents.js"></script>
+</body>
+</html>

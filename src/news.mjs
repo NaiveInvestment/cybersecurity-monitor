@@ -1,6 +1,7 @@
 // 헤드라인 수집용 순수 함수: RSS/Atom 파싱, 분류, 중복 제거, 종목 연결. 요약문은 만들지 않는다.
 import { createHash } from "node:crypto";
 import { titleKey, similarity } from "../public/lib/text.js";
+import { NOT_INCIDENT } from "../public/lib/incident-trend.js";
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", "#39": "'" };
 
@@ -100,6 +101,8 @@ const ORDER = ["incident", "policy", "spending"];
 export function classify(title, summary = "", hint = null) {
   const scores = {};
   for (const category of ORDER) {
+    // "no signs of cyberattack"처럼 사건이 아님을 밝힌 제목은 사례 점수를 주지 않는다.
+    if (category === "incident" && NOT_INCIDENT.test(title)) { scores[category] = 0; continue; }
     scores[category] = RULES[category].reduce((total, rule) => total + (rule.test(title) ? 2 : 0) + (rule.test(summary) ? 1 : 0), 0);
   }
   const best = Math.max(...ORDER.map((category) => scores[category]));
