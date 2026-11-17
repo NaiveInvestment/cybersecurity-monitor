@@ -477,6 +477,9 @@ main.inc { max-width: 1340px; margin: 0 auto; padding: 18px 22px 44px; }
 .inc-method summary { cursor: pointer; font-weight: 700; }
 .inc-method ul { margin-top: 6px; padding-left: 18px; list-style: disc; line-height: 1.7; }
 .inc-foot { padding: 6px 16px 12px; color: var(--muted); font-size: 12px; }
+.ic-bound { stroke: var(--muted); stroke-dasharray: 3 3; }
+.ic-boundlab { fill: var(--muted); font-size: 11px; }
+.inc-table .auto { display: inline-block; margin-right: 6px; padding: 0 5px; border: 1px dashed var(--muted); border-radius: 3px; color: var(--muted); font-size: 10.5px; font-weight: 700; vertical-align: 1px; }
 .ic-grid { stroke: var(--line); } .ic-vgrid { stroke: var(--line); stroke-dasharray: 2 4; } .ic-axis { stroke: var(--line-group); }
 .ic-tick { fill: var(--muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
 .ic-val { font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; fill: var(--ink); }

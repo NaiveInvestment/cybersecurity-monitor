@@ -12,7 +12,7 @@ export const tierOf = (sources) => (sources >= 20 ? 2 : sources >= 5 ? 1 : 0);
 export const REGIONS = [["KR", "국내"], ["GL", "해외"]];
 
 // 사건이 아님을 밝히는 제목("no signs of cyberattack", "Not Cyberattack", "해킹 아냐"). 분류와 추이 모두에서 뺀다.
-export const NOT_INCIDENT = /\bno (signs?|evidence|indications?) of (a |any )?(cyber|hack)|\bnot (a |an )?(cyber\s?attack|hack)|\b(caused by|due to) [\w\s-]{0,30}, not (a )?cyber|\brules? out [\w\s-]{0,20}cyber|해킹\s?(아냐|아니다|아닌 것|흔적\s?없|과\s?무관|무관)/i;
+export const NOT_INCIDENT = /reports? no (data )?breach|\bno (signs?|evidence|indications?) of (a |any )?(cyber|hack)|\bnot (a |an )?(cyber\s?attack|hack)|\b(caused by|due to) [\w\s-]{0,30}, not (a )?cyber|\brules? out [\w\s-]{0,20}cyber|해킹\s?(아냐|아니다|아닌 것|흔적\s?없|과\s?무관|무관)/i;
 
 const DAY = 86400000;
 export const kstDay = (value) => new Date((typeof value === "number" ? value : Date.parse(value)) + 9 * 3600000).toISOString().slice(0, 10);

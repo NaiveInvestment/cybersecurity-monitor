@@ -6,6 +6,7 @@ import { join } from "node:path";
 import { ROOT } from "../src/universe.mjs";
 import { compileEntities } from "../src/incident-log.mjs";
 import { mergeEvents, ransomwareDays, kstDay } from "../src/incident-events.mjs";
+import { NOT_INCIDENT } from "../public/lib/incident-trend.js";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
@@ -70,10 +71,10 @@ const entityConfig = read(join(ROOT, "data", "incident-entities.json"));
 const newsItems = read(join(stateDir, "news.json"))?.items || [];
 // 원화 금전 피해 환산용 환율: 같은 조립의 시세 스냅샷, 없으면 직전 스냅샷, 그것도 없으면 환산하지 않는다.
 const fx = read(join(outDir, "snapshot.json"))?.fx?.USD || read(join(stateDir, "snapshot.json"))?.fx?.USD || null;
-const events = mergeEvents({ research, newsLog, entities: compileEntities(entityConfig), hacks, newsItems, since, fx });
-const ransomware = Object.fromEntries(Object.entries(rw.days).filter(([day]) => day >= since).sort().map(([day, v]) => [day, { total: v.total, KR: v.KR, kr: (v.kr || []).slice(0, 12) }]));
 const researchUntil = read(join(ROOT, "data", "incidents", "research.json")).collectedAt;
+const events = mergeEvents({ research, newsLog, entities: compileEntities(entityConfig), hacks, newsItems, since, fx, researchUntil, notIncident: NOT_INCIDENT });
+const ransomware = Object.fromEntries(Object.entries(rw.days).filter(([day]) => day >= since).sort().map(([day, v]) => [day, { total: v.total, KR: v.KR, kr: (v.kr || []).slice(0, 12) }]));
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "incident-events.json"), JSON.stringify({ updatedAt: new Date().toISOString(), since, until: kstDay(now), researchUntil, fx, events, ransomware }));
 const count = (r, via) => events.filter((e) => e.r === r && (!via || e.via === via)).length;
-console.log(`incidents: 사건 ${events.length}(국내 ${count("KR")}, 해외 ${count("GL")}; 리서치 ${events.filter((e) => e.via === "리서치").length}, 보도 수집 ${events.filter((e) => e.via === "보도 수집").length}, DeFiLlama ${events.filter((e) => e.via === "DeFiLlama").length}), 랜섬웨어 ${Object.keys(ransomware).length}일. DeFiLlama ${hackNote}, ransomware.live ${rwNote}`);
+console.log(`incidents: 사건 ${events.length}(국내 ${count("KR")}, 해외 ${count("GL")}; 리서치 ${events.filter((e) => e.via === "리서치").length}, 보도 수집 ${events.filter((e) => e.via === "보도 수집").length}, DeFiLlama ${events.filter((e) => e.via === "DeFiLlama").length}, 자동 감지 ${events.filter((e) => e.via === "자동 감지").length}), 랜섬웨어 ${Object.keys(ransomware).length}일. DeFiLlama ${hackNote}, ransomware.live ${rwNote}`);

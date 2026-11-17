@@ -12,6 +12,38 @@
       "url": "https://news.google.com/rss/search?q=%ED%95%B4%ED%82%B9%20OR%20%22%EA%B0%9C%EC%9D%B8%EC%A0%95%EB%B3%B4%20%EC%9C%A0%EC%B6%9C%22%20OR%20%EB%9E%9C%EC%84%AC%EC%9B%A8%EC%96%B4%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
     },
     {
+      "id": "gn-kr-leak",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=%22%EA%B0%9C%EC%9D%B8%EC%A0%95%EB%B3%B4%20%EC%9C%A0%EC%B6%9C%22%20(%ED%95%B4%ED%82%B9%20OR%20%EC%B9%A8%ED%95%B4%20OR%20%EC%82%AC%EA%B3%BC)%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
+      "id": "gn-kr-hack",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=%ED%95%B4%ED%82%B9%20(%EC%9C%A0%EC%B6%9C%20OR%20%ED%94%BC%ED%95%B4%20OR%20%EC%82%AC%EA%B3%A0)%20-%EB%B6%81%ED%95%9C%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
+      "id": "gn-kr-ransom",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=%EB%9E%9C%EC%84%AC%EC%9B%A8%EC%96%B4%20(%EA%B0%90%EC%97%BC%20OR%20%EA%B3%B5%EA%B2%A9%20OR%20%ED%94%BC%ED%95%B4)%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
+      "id": "gn-kr-breach",
+      "name": "구글 뉴스",
+      "region": "KR",
+      "hint": "incident",
+      "aggregator": true,
+      "url": "https://news.google.com/rss/search?q=(%EC%B9%A8%ED%95%B4%EC%82%AC%EA%B3%A0%20OR%20%22%EB%B9%84%EC%A0%95%EC%83%81%20%EC%A0%91%EC%86%8D%22%20OR%20%22%EB%AC%B4%EB%8B%A8%20%EC%A0%91%EA%B7%BC%22)%20%EA%B0%9C%EC%9D%B8%EC%A0%95%EB%B3%B4%20when%3A3d&hl=ko&gl=KR&ceid=KR:ko"
+    },
+    {
       "id": "gn-kr-policy",
       "name": "구글 뉴스",
       "region": "KR",

@@ -33,7 +33,16 @@ async function main() {
 
   const incoming = [];
   const report = [];
-  const results = await Promise.allSettled(feeds.map(fetchFeed));
+  // 구글 뉴스 검색은 한꺼번에 부르면 429가 나기 쉬워 1.5초 간격으로 하나씩 부른다. 다른 피드는 동시에 받는다.
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const google = feeds.map((feed, index) => ({ feed, index })).filter(({ feed }) => feed.url.includes("news.google.com"));
+  const results = new Array(feeds.length);
+  const others = Promise.allSettled(feeds.map((feed, index) => (feed.url.includes("news.google.com") ? null : fetchFeed(feed).then((value) => { results[index] = { status: "fulfilled", value }; }, (reason) => { results[index] = { status: "rejected", reason }; }))));
+  for (const { feed, index } of google) {
+    try { results[index] = { status: "fulfilled", value: await fetchFeed(feed) }; } catch (reason) { results[index] = { status: "rejected", reason }; }
+    await sleep(1500);
+  }
+  await others;
   results.forEach((result, index) => {
     const feed = feeds[index];
     if (result.status === "rejected") {

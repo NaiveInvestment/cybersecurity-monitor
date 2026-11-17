@@ -15,6 +15,8 @@ const fmt1 = (v) => v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximu
 // 화면 기간은 13주 칸의 첫날부터. 그 앞 자료는 쓰지 않는다.
 const first = () => weeks[0].start;
 const inView = (e) => e.d >= first() && e.d <= data.until;
+// 자동 감지가 시작되는 날(리서치 마감 다음 날). 기간 안일 때만 경계선을 긋는다.
+const autoFrom = () => { const d = new Date(Date.parse(`${data.researchUntil}T00:00:00Z`) + 86400000).toISOString().slice(0, 10); return d <= data.until ? d : null; };
 const regionList = () => (state.region === "ALL" ? ["KR", "GL"] : [state.region]);
 // 안쪽 여백을 뺀 실제 그림 폭
 const width = (el) => { const cs = getComputedStyle(el); return Math.max(260, Math.floor(el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight))); };
@@ -23,7 +25,8 @@ const legend = (keys) => keys.map((k) => `<span class="${k}"><i></i>${REGION_LAB
 function renderTop() {
   const opts = { since: first() > data.since ? first() : data.since, until: data.until };
   const sums = Object.fromEntries(["KR", "GL", "ALL"].map((r) => [r, summary(data.events, weeks, r, opts)]));
-  $("#inc-range").textContent = `${first().slice(5).replace("-", ".")}~${data.until.slice(5).replace("-", ".")}(최근 13주, KST). 리서치 ${data.researchUntil.slice(5).replace("-", ".")}까지, 그 뒤는 보도 수집으로 자동 추가`;
+  $("#inc-title").textContent = `${state.region === "ALL" ? "국내외" : REGION_LABEL[state.region]} 해킹 사건 동향`;
+  $("#inc-range").textContent = `최근 13주, ${first().slice(5).replace("-", ".")}~${data.until.slice(5).replace("-", ".")}`;
   $("#inc-claim").innerHTML = regionList().map((r) => `<p>${esc(claimText(sums[r], REGION_LABEL[r]))}</p>`).join("");
   const s = sums[state.region];
   const index = compositeIndex(data.events, weeks);
@@ -42,11 +45,11 @@ function renderIndex() {
   const el = $("#idx-chart");
   if (state.region === "ALL") {
     $("#idx-legend").innerHTML = legend(["KR", "GL"]);
-    el.innerHTML = indexChart([{ key: "KR", label: "국내", points: index.KR }, { key: "GL", label: "해외", points: index.GL }], weeks, { width: width(el) });
+    el.innerHTML = indexChart([{ key: "KR", label: "국내", points: index.KR }, { key: "GL", label: "해외", points: index.GL }], weeks, { width: width(el), boundary: autoFrom() });
   } else {
     const r = state.region;
     $("#idx-legend").innerHTML = `${legend([r])}<span class="comp-c"><i></i>건수 요소</span><span class="comp-r"><i></i>유출 요소</span><span class="comp-m"><i></i>금액 요소</span>`;
-    el.innerHTML = indexChart([{ key: r, label: REGION_LABEL[r], points: index[r] }], weeks, { width: width(el), components: index[r] });
+    el.innerHTML = indexChart([{ key: r, label: REGION_LABEL[r], points: index[r] }], weeks, { width: width(el), components: index[r], boundary: autoFrom() });
   }
 }
 
@@ -54,7 +57,7 @@ function renderCounts() {
   const el = $("#cnt-chart");
   const groups = regionList().map((r) => ({ key: r, label: REGION_LABEL[r], stats: weeklyStats(data.events, weeks, r) }));
   $("#cnt-legend").innerHTML = legend(regionList());
-  el.innerHTML = countChart(groups, weeks, { width: width(el) });
+  el.innerHTML = countChart(groups, weeks, { width: width(el), boundary: autoFrom() });
   // 랜섬웨어 피해 공개: 국내는 국내, 해외는 전 세계에서 국내를 뺀 것, 통합은 전 세계
   const pick = (v) => (state.region === "KR" ? v.KR : state.region === "GL" ? v.total - v.KR : v.total);
   const rwStats = weeks.map((w) => {
@@ -90,7 +93,7 @@ function renderTable() {
   $("#list-sub").textContent = `${rows.length}건. 이름을 누르면 첫 출처, 숫자 옆은 근거 성격`;
   $("#inc-table").innerHTML = `<thead><tr><th>날짜</th><th>피해 기관</th><th>업권</th><th class="n">유출</th><th class="n">금액</th><th>내용</th><th>출처</th></tr></thead><tbody>${shown.map((e) => `<tr>
       <td class="num nowrap">${e.d.slice(2).replace(/-/g, ".")}</td>
-      <th scope="row"><span class="rg ${e.r}">${e.r === "KR" ? "국내" : "해외"}</span>${e.src[0] ? `<a href="${esc(e.src[0].u)}" target="_blank" rel="noopener">${esc(e.n)}</a>` : esc(e.n)}</th>
+      <th scope="row"><span class="rg ${e.r}">${e.r === "KR" ? "국내" : "해외"}</span>${e.via === "자동 감지" ? '<span class="auto" title="리서치 이후 기사 제목에서 자동으로 찾은 사건">자동 감지</span>' : ""}${e.src[0] ? `<a href="${esc(e.src[0].u)}" target="_blank" rel="noopener">${esc(e.n)}</a>` : esc(e.n)}</th>
       <td class="nowrap">${esc(e.org || "-")}</td>
       <td class="n num nowrap">${knownRec(e) ? `${fmtCount(e.rec)}${esc(e.recUnit || "건")}` : e.claim && e.rec ? `<span class="claim" title="해커 주장, 집계 제외">${fmtCount(e.rec)}?</span>` : "-"}${e.basis && (knownRec(e) || knownUsd(e)) ? `<small>${esc(e.basis)}</small>` : ""}</td>
       <td class="n num nowrap">${e.krw ? `${fmtKrw(e.krw)}<small>원화 발표, ${fmtUsd(e.usd)} 환산</small>` : knownUsd(e) ? fmtUsd(e.usd) : "-"}</td>
@@ -173,7 +176,7 @@ async function main() {
     document.querySelectorAll("#inc-region button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.region === r)));
   }
   $("#status-text").textContent = `사건 자료 ${fmtKst(data.updatedAt)} KST`;
-  $("#inc-notes").textContent = "출처: 원문 링크를 확인한 사건 리서치, 보도 수집(피해 주체 사전에 걸리고 3개 매체 이상이 다룬 사건, 규모는 매체 2곳 이상 제목에 같은 숫자가 나올 때만), DeFiLlama 가상자산 해킹($1천만 이상), ransomware.live(유출 사이트 공개일 기준). 공개 보도 기준이라 보도되지 않은 사건은 빠짐. 마지막 주는 집계 중.";
+  $("#inc-notes").textContent = `자료 범위: 사건 리서치는 ${data.researchUntil}까지. 그 뒤는 기사 제목에서 피해 기관을 자동으로 찾은 사건(표의 "자동 감지", 차트의 점선 이후)이라 리서치 구간과 집계 방식이 다름. ` + "출처: 원문 링크를 확인한 사건 리서치, 보도 수집(피해 주체 사전에 걸리고 3개 매체 이상이 다룬 사건, 규모는 매체 2곳 이상 제목에 같은 숫자가 나올 때만), DeFiLlama 가상자산 해킹($1천만 이상), ransomware.live(유출 사이트 공개일 기준). 공개 보도 기준이라 보도되지 않은 사건은 빠짐. 마지막 주는 집계 중.";
   bind();
   render();
 }

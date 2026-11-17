@@ -107,7 +107,15 @@ const weekLabel = (w) => w.start.slice(5).replace("-", ".");
 // ---- 차트: 모두 실제 표시 폭(px)을 받아 글자 크기가 줄지 않는다 ----
 
 // 종합 지수 선. series: [{ key, label, points }], 단일 지역이면 요소 선(c, r, m)을 옅게 함께.
-export function indexChart(series, weeks, { width = 800, components = null } = {}) {
+// 리서치에서 자동 감지로 바뀌는 주에 세로 점선. boundary: 자동 감지가 시작되는 날(YYYY-MM-DD).
+function boundaryLine(weeks, boundary, xOf, top, bottom) {
+  const i = boundary ? weeks.findIndex((w) => boundary >= w.start && boundary <= w.end) : -1;
+  if (i < 0) return "";
+  const x = r1(xOf(i));
+  return `<line class="ic-bound" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/><text class="ic-boundlab" x="${x + 4}" y="${top + 10}">자동 감지</text>`;
+}
+
+export function indexChart(series, weeks, { width = 800, components = null, boundary = null } = {}) {
   const left = 40, right = 64, top = 14, plotH = 210, H = top + plotH + 28;
   const plotW = Math.max(200, width - left - right);
   const x = (i) => left + (plotW * (i + 0.5)) / weeks.length;
@@ -117,6 +125,7 @@ export function indexChart(series, weeks, { width = 800, components = null } = {
   const step = Math.max(1, Math.ceil(46 / (plotW / weeks.length)));
   weeks.forEach((w, i) => { if ((weeks.length - 1 - i) % step === 0) p.push(`<text class="ic-tick" x="${r1(x(i))}" y="${H - 8}" text-anchor="middle">${weekLabel(w)}</text>`); });
   const path = (pts, key) => pts.map((pt, i) => `${i ? "L" : "M"}${r1(x(i))} ${r1(y(pt[key]))}`).join("");
+  p.push(boundaryLine(weeks, boundary, (i) => x(i) - plotW / weeks.length / 2, top, top + plotH));
   if (components) {
     for (const [key, cls] of [["c", "comp-c"], ["r", "comp-r"], ["m", "comp-m"]]) p.push(`<path class="ic-comp ${cls}" d="${path(components, key)}"/>`);
   }
@@ -130,7 +139,7 @@ export function indexChart(series, weeks, { width = 800, components = null } = {
 }
 
 // 주별 건수 막대. groups: [{ key, label, stats }] 하나면 단일 막대, 둘이면 나란히. rw: 같은 주 랜섬웨어 피해 공개 건수(선택).
-export function countChart(groups, weeks, { width = 800 } = {}) {
+export function countChart(groups, weeks, { width = 800, boundary = null } = {}) {
   const left = 34, right = 10, top = 22, plotH = 190, H = top + plotH + 28;
   const plotW = Math.max(200, width - left - right);
   const band = plotW / weeks.length;
@@ -139,6 +148,7 @@ export function countChart(groups, weeks, { width = 800 } = {}) {
   const y = (v) => top + plotH - (v / yMax) * plotH;
   const p = [];
   for (const v of [0, yMax / 2, yMax]) p.push(`<line class="ic-grid" x1="${left}" x2="${left + plotW}" y1="${y(v)}" y2="${y(v)}"/><text class="ic-tick" x="${left - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
+  p.push(boundaryLine(weeks, boundary, (i) => left + band * i, top, top + plotH));
   const gw = Math.min(30, (band * 0.72) / groups.length);
   weeks.forEach((w, i) => {
     groups.forEach((g, k) => {

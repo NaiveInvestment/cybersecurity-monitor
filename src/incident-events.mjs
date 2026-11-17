@@ -3,6 +3,8 @@
 // 2. 보도 수집 사건 기록(state/incident-log.json의 피해 주체 사전 사건): 리서치 이후 새 사건을 자동으로 잡는다. 규모는 비어 있다.
 // 3. DeFiLlama 가상자산 해킹: 탈취 금액. 리서치에 같은 이름이 7일 안에 있으면 뺀다.
 
+import { autoDetect } from "./incident-auto.mjs";
+
 const DAY = 86400000;
 export const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
 const norm = (s) => String(s).toLowerCase().replace(/\(.*?\)|[^a-z0-9가-힣ぁ-んァ-ン一-龥]/g, "");
@@ -98,12 +100,23 @@ export function fromDefiLlama(hacks, research, { since, minUsd = 1e7 }) {
   });
 }
 
-export function mergeEvents({ research, newsLog = [], entities = [], hacks = [], newsItems = [], since, fx = null }) {
+// 리서치 마감(researchUntil) 다음 날부터는 사전 밖 사건도 기사 제목에서 자동 감지한다("자동 감지"로 표시).
+export function fromAuto(stories, { newsItems = [], known = [], after, notIncident = null }) {
+  const itemsById = new Map(newsItems.map((item) => [item.id, item]));
+  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay, notIncident }).map(({ story, name, day, items }) => {
+    const rec = headlineCount(items);
+    const lead = items.find((item) => item.u) || { t: story.t, u: story.u, s: "" };
+    return { id: `a-${story.id}`, d: day, n: name, r: story.r, org: "기타", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: lead.t, src: [{ o: story.s > 1 ? `보도 ${story.s}개 매체` : lead.s || "보도", u: lead.u || story.u, t: lead.t, d: day }], media: story.s, via: "자동 감지" };
+  });
+}
+
+export function mergeEvents({ research, newsLog = [], entities = [], hacks = [], newsItems = [], since, fx = null, researchUntil = null, notIncident = null }) {
   const r = fromResearch(research, { fx }).filter((e) => e.d >= since);
   const n = fromNewsLog(newsLog, entities, r, { since, newsItems });
   const d = fromDefiLlama(hacks, r, { since });
+  const a = researchUntil ? fromAuto(newsLog, { newsItems, known: [...r, ...n, ...d], after: researchUntil > since ? researchUntil : since, notIncident }) : [];
   const ids = new Set();
-  return [...r, ...n, ...d].filter((e) => (ids.has(e.id) ? false : ids.add(e.id))).sort((a, b) => b.d.localeCompare(a.d) || a.n.localeCompare(b.n));
+  return [...r, ...n, ...d, ...a].filter((e) => (ids.has(e.id) ? false : ids.add(e.id))).sort((a, b) => b.d.localeCompare(a.d) || a.n.localeCompare(b.n));
 }
 
 // ransomware.live 월 목록을 일별 건수로 바꾼다(공개일 KST 기준).
