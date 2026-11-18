@@ -1,5 +1,6 @@
 _site/
 _live/
+/local/
 state/
 live.json
 node_modules/

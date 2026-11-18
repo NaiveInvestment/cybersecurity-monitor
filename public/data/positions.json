@@ -1,0 +1,1724 @@
+{
+  "asOf": "2026-11-18",
+  "period": "2026-09",
+  "roles": {
+    "iam": "인증, 신원과 권한",
+    "access": "기기 접속 통제",
+    "transfer": "망연계, 자료 전송",
+    "net": "방화벽, 네트워크 방어",
+    "endpoint": "엔드포인트, 서버",
+    "web": "웹, API 보안",
+    "data": "문서, 데이터 보호",
+    "soc": "탐지, 관제와 위협 정보",
+    "exposure": "취약점 진단",
+    "content": "메일, 웹 필터링과 콘텐츠",
+    "hardware": "보안칩, 차량 보안",
+    "forensics": "포렌식",
+    "services": "보안 구축과 SI"
+  },
+  "issues": {
+    "auth": {
+      "label": "금융 MFA, 접근 통제",
+      "status": "외부접점 점검과 대체 통제",
+      "examples": "라온시큐어, 아톤, 지니언스",
+      "path": "금융사가 사용자 인증을 보강하면 생체인증이나 OTP, 등록된 단말만 허용하면 NAC, 관리자 접속을 재정비하면 서버 접근 통제를 발주할 수 있음.",
+      "proof": "인증 수단 교체, 사용자, 단말 확대, 금융사 발주와 유료 계약",
+      "source": "https://www.fsc.go.kr/no010101/88086"
+    },
+    "patch": {
+      "label": "웹, API와 취약점 점검",
+      "status": "외부접점 전수점검",
+      "examples": "에스에스알, 싸이버원, 모니터랩",
+      "path": "노출 시스템을 찾고 결함을 고치는 진단과 패치, 공개 웹, API 앞단에서 위험한 요청을 걸러내는 WAF는 구매 항목이 다름. 코드 수정과 설정 보완만으로 처리하는 경우도 있음.",
+      "proof": "유료 취약점 점검, 웹, API 보호 장비 또는 구독 신규 도입",
+      "source": "https://www.fsc.go.kr/no010101/88086"
+    },
+    "detect": {
+      "label": "AI 위협 탐지, 관제",
+      "status": "금융권 공동 관제 고도화 추진",
+      "examples": "안랩, 지니언스, 이글루, 싸이버원",
+      "path": "안랩, 지니언스 EDR은 단말 행동을 조사하고, 이글루 SIEM은 여러 곳의 보안 로그를 모아 분석함. 싸이버원은 관제 운영, 샌즈랩, 에스투더블유는 위협 정보를 제공함.",
+      "proof": "유료 EDR 단말 수 확대, SIEM 구축, 관제 계약 또는 구독",
+      "source": "https://www.fsc.go.kr/no010101/88086"
+    },
+    "saas": {
+      "label": "금융 망분리 완화, SaaS",
+      "status": "조건부 테스트, 확대 방안 추진",
+      "examples": "한싹, 휴네시온, 소프트캠프, 지니언스",
+      "path": "중요한 망을 남기고 승인된 파일, 로그만 밖으로 보내는 구조는 한싹, 휴네시온의 별도 망연계 발주로 이어질 수 있음. 문서 반출은 소프트캠프, 파수AI, 접속 검증은 지니언스 등 적용 구간에 따라 갈림. 허용 SaaS 직접 연결과 기존 통제도 가능한 구조.",
+      "proof": "2027년 1분기 대체 보안 방안, 분리망 유지 범위, 전송 통제 규격과 실제 납품",
+      "source": "https://www.fsc.go.kr/no010101/88086",
+      "source2": "https://better.fsc.go.kr/fsc_new/replyCase/OpinionDetail.do?actCd=R&muGpNo=88&muNo=117&opinionIdx=2314&stNo=11"
+    },
+    "n2sf": {
+      "label": "공공 N2SF 전환",
+      "status": "6개 컨소시엄 도입 지원 진행",
+      "examples": "휴네시온, 한싹",
+      "path": "공공 업무를 기밀, 민감, 공개로 나누고 허용된 연계를 통제. 보호 등급이 다른 망의 자료 전송이 필요하면 망연계, CDS가 발주 후보. 휴네시온은 한국부동산원 도입 지원 과제 참여를 공시함.",
+      "proof": "실증 후 본사업 예산, 기관별 장비 규격, 공급사와 납품 범위",
+      "source": "https://www.kisa.or.kr/402/form?postSeq=2600",
+      "source2": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003283"
+    },
+    "resilience": {
+      "label": "정보유출 예방, 사고 대응",
+      "status": "금융사 내부통제 보완",
+      "examples": "파수AI, 케이사인, 지란지교시큐리티",
+      "path": "파일 권한, 암호화, DB 암호화, 외부 메일 발신 통제는 유출 예방에 쓰임. 독립 백업, 재해 복구와 포렌식은 별도 구매 항목.",
+      "proof": "암호화, 문서보안 제품 채택, 민감 시스템 적용 범위와 사고 대응 용역 계약",
+      "source": "https://www.fsc.go.kr/no010101/88086"
+    }
+  },
+  "leaders": [
+    {
+      "id": "042510",
+      "label": "FIDO 생체인증",
+      "claim": "국내 1위, 회사 발표 (2024.02)",
+      "source": "https://www.raon.com/ko/about/news_list/view/334"
+    },
+    {
+      "id": "263860",
+      "label": "기기 접속 통제(NAC)",
+      "claim": "2024년 조달청 75%, 1위 (회사 IR)",
+      "source": "https://kind.krx.co.kr/external/dst/irReference/16911/%EC%9C%A0%EC%A7%84Corporate%20Day_Genians_IRBook.pdf"
+    },
+    {
+      "id": "290270",
+      "label": "공공 망연계",
+      "claim": "2025년 공공조달 47%, 11년 연속 1위",
+      "source": "https://kind.krx.co.kr/external/2026/03/19/000601/20260319002825/11011.htm",
+      "source2": "https://file.alphasquare.co.kr/media/pdfs/market-report/%ED%9C%B4%EB%84%A4%EC%8B%9C%EC%98%A8%EB%A7%9D%EC%97%B0%EA%B3%8420260427%ED%95%9C%EA%B5%ADIR%ED%98%91%EC%9D%98%ED%9A%8C."
+    },
+    {
+      "id": "053800",
+      "label": "백신, 엔드포인트 예방",
+      "claim": "V3 관련 시장 1위, 회사 공시 (2024년)",
+      "source": "https://kind.krx.co.kr/external/2025/03/14/000629/20250314001816/00591.htm"
+    },
+    {
+      "id": "263860",
+      "label": "단말 탐지와 대응(EDR)",
+      "claim": "2026년 상반기 공공조달 58.4%, 1위 (회사 공시)",
+      "source": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814000732"
+    }
+  ],
+  "stocks": [
+    {
+      "id": "456010",
+      "name": "아이씨티케이",
+      "role": "hardware",
+      "other": [
+        "data"
+      ],
+      "product": "PUF 보안칩, 양자내성암호 연계",
+      "issues": {},
+      "note": "기기 복제 방지와 암호 칩 채택이 구매 경로. 전송 통제나 금융 SaaS와의 연결은 별도.",
+      "source": "https://www.ictk.com/",
+      "finance": {
+        "name": "아이씨티케이",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001619",
+        "annualReceipt": "20260723000522",
+        "rev": {
+          "quarter": 3931393955,
+          "currentYtd": 6259730477,
+          "priorYtd": 1642845706,
+          "priorYear": 4020136626,
+          "account": "수익",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": 106183356,
+          "currentYtd": -4876010189,
+          "priorYtd": -8098631087,
+          "priorYear": -8864162135,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -4664060307,
+          "currentYtd": -18622121521,
+          "priorYtd": -8862934203,
+          "priorYear": -6679992941,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "053800",
+      "name": "안랩",
+      "role": "endpoint",
+      "other": [
+        "net",
+        "soc",
+        "access"
+      ],
+      "product": "V3, EPP, 안랩 EDR, TrusGuard, MDR",
+      "issues": {
+        "detect": "direct",
+        "patch": "conditional",
+        "saas": "conditional"
+      },
+      "note": "은행이 단말 탐지나 관제 계약을 확대하면 연결. 단말 수와 유료 EDR, MDR 추가 구매를 확인.",
+      "source": "https://www.ahnlab.com/ko",
+      "finance": {
+        "name": "안랩",
+        "basis": "CFS",
+        "quarterReceipt": "20261113000391",
+        "annualReceipt": "20260320000868",
+        "rev": {
+          "quarter": 79458805645,
+          "currentYtd": 209829718880,
+          "priorYtd": 184011473203,
+          "priorYear": 267656916942,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 10931755429,
+          "currentYtd": 18240368071,
+          "priorYtd": 12384852500,
+          "priorYear": 33276653034,
+          "account": "영업이익",
+          "annualAccount": "영업이익"
+        },
+        "ni": {
+          "quarter": 8575249160,
+          "currentYtd": 21119047614,
+          "priorYtd": 30633824419,
+          "priorYear": 54271723233,
+          "account": "지배기업의 소유주지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "042510",
+      "name": "라온시큐어",
+      "role": "iam",
+      "other": [
+        "endpoint"
+      ],
+      "product": "OnePass FIDO 생체인증, TouchEn mOTP, 옴니원",
+      "issues": {
+        "auth": "direct"
+      },
+      "note": "외부 인력, 임직원 인증 재구축, 모바일 단말 보안이 구매 경로. 디지털 신원 사업은 적용 사업별로 확인.",
+      "source": "https://www.raon.com/ko/about/news_list/view/334",
+      "finance": {
+        "name": "라온시큐어",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001256",
+        "annualReceipt": "20260320000835",
+        "rev": {
+          "quarter": 13002625809,
+          "currentYtd": 34598166516,
+          "priorYtd": 40764482109,
+          "priorYear": 63751052492,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 960657600,
+          "currentYtd": -1861081232,
+          "priorYtd": -2311109812,
+          "priorYear": 2782270207,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 1208330969,
+          "currentYtd": -557318688,
+          "priorYtd": -2036493174,
+          "priorYear": 3382038377,
+          "account": "지배기업의 소유주지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "263860",
+      "name": "지니언스",
+      "role": "access",
+      "other": [
+        "endpoint",
+        "soc"
+      ],
+      "product": "Genian NAC, ZTNA, EDR",
+      "issues": {
+        "auth": "direct",
+        "detect": "direct",
+        "saas": "conditional",
+        "n2sf": "conditional"
+      },
+      "note": "등록, 정상 단말만 허용하는 NAC와 원격 접근 ZTNA가 맞물림. EDR은 유료 추가 판매 확인.",
+      "source": "https://www.genians.co.kr/",
+      "finance": {
+        "name": "지니언스",
+        "basis": "CFS",
+        "quarterReceipt": "20261112000006",
+        "annualReceipt": "20260316000916",
+        "rev": {
+          "quarter": 13778198451,
+          "currentYtd": 38702243323,
+          "priorYtd": 31205603884,
+          "priorYear": 48381253076,
+          "account": "매출액",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": 3777746675,
+          "currentYtd": 8089224922,
+          "priorYtd": 2163692162,
+          "priorYear": 7007064713,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 3050584435,
+          "currentYtd": 7706697918,
+          "priorYtd": 3214494986,
+          "priorYear": 7496920564,
+          "account": "지배기업의 소유주지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "411080",
+      "name": "샌즈랩",
+      "role": "soc",
+      "other": [
+        "net"
+      ],
+      "product": "CTX 위협 인텔리전스, MNX 네트워크 탐지",
+      "issues": {
+        "detect": "direct",
+        "patch": "conditional"
+      },
+      "note": "외부 위협 정보 구독이나 내부 네트워크 탐지에 지출할 때 연결.",
+      "source": "https://sandslab.io/ko/company/newsroom/sandslab-agentic-ndr-mnx-cti-mdr",
+      "finance": {
+        "name": "샌즈랩",
+        "basis": "CFS",
+        "quarterReceipt": "20261116000632",
+        "annualReceipt": "20260313000886",
+        "rev": {
+          "quarter": 1205063730,
+          "currentYtd": 4579566097,
+          "priorYtd": 5224783554,
+          "priorYear": 11612082342,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": -1305051608,
+          "currentYtd": -3180909456,
+          "priorYtd": -4303271446,
+          "priorYear": -1770367370,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -835719399,
+          "currentYtd": -3300923160,
+          "priorYtd": -2040948069,
+          "priorYear": -549643519,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "053350",
+      "name": "이니텍",
+      "role": "iam",
+      "other": [
+        "data"
+      ],
+      "product": "INISAFE 금융 인증, 암호화",
+      "issues": {
+        "auth": "direct"
+      },
+      "note": "은행, 증권의 인증 모듈 교체나 전자서명, 암호화 구축 발주에 연결.",
+      "source": "https://www.initech.com/",
+      "finance": {
+        "name": "이니텍",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001061",
+        "annualReceipt": "20260320001193",
+        "rev": {
+          "quarter": 11813662183,
+          "currentYtd": 29634810927,
+          "priorYtd": 23445564189,
+          "priorYear": 32805743548,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -93051920,
+          "currentYtd": -1582476983,
+          "priorYtd": -2262004086,
+          "priorYear": -2393409573,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 563178081,
+          "currentYtd": 5444805375,
+          "priorYtd": 20437936466,
+          "priorYear": 2831771821,
+          "account": "지배기업의 소유주 지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "434480",
+      "name": "모니터랩",
+      "role": "web",
+      "other": [
+        "access",
+        "net"
+      ],
+      "product": "AIWAF, AIONCLOUD WAF, 웹 접속 보안",
+      "issues": {
+        "patch": "direct",
+        "saas": "conditional"
+      },
+      "note": "인터넷에 노출된 웹, API 보호 보완이 구매 경로. 암호화된 요청의 가시화, 클라우드 전환은 별도 범위.",
+      "source": "https://www.monitorapp.com/",
+      "finance": {
+        "name": "모니터랩",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001708",
+        "annualReceipt": "20260611000460",
+        "rev": {
+          "quarter": 4540429105,
+          "currentYtd": 13808896418,
+          "priorYtd": 12344755756,
+          "priorYear": 19168619599,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -51792775,
+          "currentYtd": -335132353,
+          "priorYtd": -143321200,
+          "priorYear": 943352791,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -334495715,
+          "currentYtd": 164039545,
+          "priorYtd": -205235248,
+          "priorYear": 665079594,
+          "account": "지배기업의 소유주지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "150900",
+      "name": "파수AI",
+      "role": "data",
+      "other": [
+        "exposure"
+      ],
+      "product": "Fasoo Enterprise DRM, Wrapsody, 스패로우 앱 보안",
+      "issues": {
+        "saas": "conditional",
+        "patch": "conditional",
+        "resilience": "conditional"
+      },
+      "note": "문서 반출, 권한 통제 발주가 생기면 연결. 앱 보안은 계열사 제품이고, 실제 계약 주체 확인 필요.",
+      "source": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261116000021",
+      "finance": {
+        "name": "파수AI",
+        "basis": "CFS",
+        "quarterReceipt": "20261116000021",
+        "annualReceipt": "20260703000477",
+        "rev": {
+          "quarter": 13476352487,
+          "currentYtd": 35609641904,
+          "priorYtd": 29581077017,
+          "priorYear": 46676052578,
+          "account": "수익",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": 1247931557,
+          "currentYtd": 237120789,
+          "priorYtd": -3398533273,
+          "priorYear": 2535965884,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 1669300762,
+          "currentYtd": 728267369,
+          "priorYtd": -3446657171,
+          "priorYear": 2661868838,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "136540",
+      "name": "윈스테크넷",
+      "role": "net",
+      "other": [
+        "soc",
+        "web"
+      ],
+      "product": "SNIPER IPS, DDoS 방어, 관제 서비스",
+      "issues": {
+        "patch": "conditional",
+        "detect": "direct"
+      },
+      "note": "회선, 데이터센터의 침입방지와 이상 트래픽 탐지, 유료 관제에 연결. 웹 인증 결함은 별도 보완.",
+      "source": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261113001351",
+      "finance": {
+        "name": "윈스테크넷",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001351",
+        "annualReceipt": "20260312000862",
+        "rev": {
+          "quarter": 22700915258,
+          "currentYtd": 60723675597,
+          "priorYtd": 58393033699,
+          "priorYear": 98597670521,
+          "account": "매출액",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": 4309797254,
+          "currentYtd": 9206441478,
+          "priorYtd": 10627095421,
+          "priorYear": 21158874065,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 3500668414,
+          "currentYtd": 10213847859,
+          "priorYtd": 10538278113,
+          "priorYear": 18404794500,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "067920",
+      "name": "이글루",
+      "role": "soc",
+      "other": [
+        "exposure"
+      ],
+      "product": "SPiDER SIEM, SOAR, 보안관제",
+      "issues": {
+        "detect": "direct",
+        "saas": "conditional",
+        "patch": "conditional"
+      },
+      "note": "로그 수집, 분석과 관제 고도화 발주에 연결. 금융권별 사업자 선정과 외부 연계 범위 확인.",
+      "source": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261111000183",
+      "finance": {
+        "name": "이글루",
+        "basis": "CFS",
+        "quarterReceipt": "20261111000183",
+        "annualReceipt": "20260320000590",
+        "rev": {
+          "quarter": 47143778463,
+          "currentYtd": 131980314061,
+          "priorYtd": 76027676435,
+          "priorYear": 143257199274,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 1661425450,
+          "currentYtd": -1492727399,
+          "priorYtd": 1175824671,
+          "priorYear": 16009426307,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익"
+        },
+        "ni": {
+          "quarter": 929094900,
+          "currentYtd": 9418401,
+          "priorYtd": 1634311523,
+          "priorYear": 3629261620,
+          "account": "분기순이익",
+          "annualAccount": "당기순이익",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "203650",
+      "name": "드림시큐리티",
+      "role": "iam",
+      "other": [
+        "data",
+        "hardware"
+      ],
+      "product": "Magic PKI, 인증, 암호모듈, PQC",
+      "issues": {
+        "auth": "direct",
+        "saas": "conditional"
+      },
+      "note": "계정, 전자서명 인증 강화와 암호 시스템 교체가 구매 경로. 양자내성암호는 별도 교체 일정.",
+      "source": "https://www.dreamsecurity.com/",
+      "finance": {
+        "name": "드림시큐리티",
+        "basis": "CFS",
+        "quarterReceipt": "20261116000829",
+        "annualReceipt": "20260318001615",
+        "rev": {
+          "quarter": 103220077282,
+          "currentYtd": 319920639940,
+          "priorYtd": 224175666541,
+          "priorYear": 318850687156,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 9840292299,
+          "currentYtd": 21762500544,
+          "priorYtd": 12404013088,
+          "priorYear": 22485342269,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 1641778256,
+          "currentYtd": 7742993318,
+          "priorYtd": 4862566943,
+          "priorYear": 8280518224,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "053300",
+      "name": "한국정보인증",
+      "role": "iam",
+      "other": [
+        "data"
+      ],
+      "product": "SignGATE 공동인증서, 전자서명",
+      "issues": {
+        "auth": "direct"
+      },
+      "note": "금융사가 인증서, 전자서명, 본인확인 서비스를 계약하거나 갱신할 때 연결.",
+      "source": "https://www.signgate.com/",
+      "finance": {
+        "name": "한국정보인증",
+        "basis": "CFS",
+        "quarterReceipt": "20261113000895",
+        "annualReceipt": "20260318001623",
+        "rev": {
+          "quarter": 35656610105,
+          "currentYtd": 108124475078,
+          "priorYtd": 99912734444,
+          "priorYear": 138465829337,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 9224618895,
+          "currentYtd": 26887785449,
+          "priorYtd": 21240520980,
+          "priorYear": 27060645605,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 4642371945,
+          "currentYtd": 16120785949,
+          "priorYtd": 24348305570,
+          "priorYear": 26184908889,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "041460",
+      "name": "한국전자인증",
+      "role": "iam",
+      "other": [
+        "data"
+      ],
+      "product": "공동인증서, TLS 인증서, 전자서명",
+      "issues": {
+        "auth": "direct",
+        "patch": "conditional"
+      },
+      "note": "본인확인이나 전자서명 강화에 연결. TLS 인증서 수요는 인증서 갱신 범위에 따름.",
+      "source": "https://www.crosscert.com/",
+      "finance": {
+        "name": "한국전자인증",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001313",
+        "annualReceipt": "20260326000238",
+        "rev": {
+          "quarter": 10869687389,
+          "currentYtd": 32391590846,
+          "priorYtd": 27516256971,
+          "priorYear": 36746209552,
+          "account": "수익",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": 2557000933,
+          "currentYtd": 6707148454,
+          "priorYtd": 5142697016,
+          "priorYear": 6726887202,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 2083066546,
+          "currentYtd": 5660245595,
+          "priorYtd": 4017479756,
+          "priorYear": 4668169063,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "158430",
+      "name": "아톤",
+      "role": "iam",
+      "other": [
+        "endpoint"
+      ],
+      "product": "금융 앱 인증, 모바일 OTP, ATON mSafeBox",
+      "issues": {
+        "auth": "direct"
+      },
+      "note": "은행, 증권 앱에서 간편인증, 모바일 OTP, 키 보관을 도입, 교체할 때 직접 연결.",
+      "source": "https://www.atoncorp.com/press-view/40",
+      "finance": {
+        "name": "아톤",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001552",
+        "annualReceipt": "20260320001370",
+        "rev": {
+          "quarter": 17662580336,
+          "currentYtd": 49943089488,
+          "priorYtd": 51337573523,
+          "priorYear": 67603200088,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 731977239,
+          "currentYtd": 4314923095,
+          "priorYtd": 7057303463,
+          "priorYear": 10357738081,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -1944982379,
+          "currentYtd": 2830921313,
+          "priorYtd": 4778085189,
+          "priorYear": 1549577787,
+          "account": "지배기업의 소유주",
+          "annualAccount": "지배기업의 소유주",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "054920",
+      "name": "한컴위드",
+      "role": "iam",
+      "other": [
+        "data",
+        "forensics"
+      ],
+      "product": "PKI 인증, 암호화, 디지털 포렌식 사업",
+      "issues": {
+        "auth": "direct",
+        "resilience": "conditional"
+      },
+      "note": "PKI, 지속 인증은 금융 인증 발주에 연결. 연결 사업에는 문서 SW, 유통 등도 포함.",
+      "source": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261113000091",
+      "finance": {
+        "name": "한컴위드",
+        "basis": "CFS",
+        "quarterReceipt": "20261113000091",
+        "annualReceipt": "20260814002876",
+        "rev": {
+          "quarter": 128851204163,
+          "currentYtd": 394639477779,
+          "priorYtd": 497202277985,
+          "priorYear": 771217330234,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 9429259857,
+          "currentYtd": 8774741979,
+          "priorYtd": 4136636479,
+          "priorYear": 6086860721,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -28559684688,
+          "currentYtd": -20321722712,
+          "priorYtd": 10661474002,
+          "priorYear": 7843066420,
+          "account": "지배기업 소유주지분",
+          "annualAccount": "지배기업 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "192250",
+      "name": "케이사인",
+      "role": "data",
+      "other": [
+        "iam"
+      ],
+      "product": "SecureDB, 계정, 통합인증 제품",
+      "issues": {
+        "auth": "conditional",
+        "saas": "conditional",
+        "resilience": "conditional"
+      },
+      "note": "금융 DB 암호화와 권한 개선 예산에 연결. 외부 전송, 웹 방어와는 구매 항목이 다름.",
+      "source": "https://www.ksign.com/",
+      "finance": {
+        "name": "케이사인",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001310",
+        "annualReceipt": "20260318000845",
+        "rev": {
+          "quarter": 10569154813,
+          "currentYtd": 28255166995,
+          "priorYtd": 26478906542,
+          "priorYear": 48394106475,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 649832396,
+          "currentYtd": 1826919301,
+          "priorYtd": -3085165786,
+          "priorYear": 2895367155,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -19311786,
+          "currentYtd": 1890579475,
+          "priorYtd": -2158109226,
+          "priorYear": 2397722552,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "258790",
+      "name": "소프트캠프",
+      "role": "data",
+      "other": [
+        "access"
+      ],
+      "product": "문서 DRM, SHIELDGate 원격 브라우저 격리, 접속",
+      "issues": {
+        "saas": "conditional",
+        "n2sf": "conditional",
+        "auth": "conditional"
+      },
+      "note": "클라우드에서 문서를 열되 반출을 제한하거나 접속 환경을 격리하는 설계에 연결.",
+      "source": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261113001285",
+      "finance": {
+        "name": "소프트캠프",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001285",
+        "annualReceipt": "20260626000150",
+        "rev": {
+          "quarter": 6365268906,
+          "currentYtd": 17941466534,
+          "priorYtd": 15740469231,
+          "priorYear": 25721722546,
+          "account": "수익",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": -311278888,
+          "currentYtd": -943390635,
+          "priorYtd": 324591507,
+          "priorYear": 2981626076,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -510093203,
+          "currentYtd": 1400477604,
+          "priorYtd": 229725579,
+          "priorYear": 3780777289,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "430690",
+      "name": "한싹",
+      "role": "transfer",
+      "other": [
+        "iam",
+        "net"
+      ],
+      "product": "SecureGate V4.0, CDS, PassGuard",
+      "issues": {
+        "n2sf": "direct",
+        "saas": "conditional",
+        "auth": "conditional"
+      },
+      "note": "공공과 방산에 공급 경험. 금융은 중요 망을 유지하고 승인된 자료만 옮기는 별도 중계 발주가 생길 때 연결.",
+      "source": "https://hanssak.co.kr/news/press/view.php?seq=88",
+      "finance": {
+        "name": "한싹",
+        "basis": "CFS",
+        "quarterReceipt": "20261116000196",
+        "annualReceipt": "20260323000952",
+        "rev": {
+          "quarter": 6576690962,
+          "currentYtd": 17674792432,
+          "priorYtd": 14904463716,
+          "priorYear": 26257901602,
+          "account": "수익(매출액)",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -502855459,
+          "currentYtd": -1503971750,
+          "priorYtd": -2689043426,
+          "priorYear": -1947522602,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -400878400,
+          "currentYtd": -1320343289,
+          "priorYtd": -2608465793,
+          "priorYear": -2671697096,
+          "account": "지배기업의 소유주",
+          "annualAccount": "지배기업의 소유주",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "356680",
+      "name": "엑스게이트",
+      "role": "net",
+      "other": [
+        "access"
+      ],
+      "product": "AXGATE 차세대 방화벽, VPN",
+      "issues": {
+        "auth": "conditional",
+        "saas": "conditional",
+        "n2sf": "conditional"
+      },
+      "note": "접속 경로를 분리하고 VPN, 방화벽을 교체하는 경우 연결. 사용자 인증 단계는 별도 설계.",
+      "source": "https://www.axgate.com/",
+      "finance": {
+        "name": "엑스게이트",
+        "basis": "OFS",
+        "quarterReceipt": "20261116001052",
+        "annualReceipt": "20260318000875",
+        "rev": {
+          "quarter": 10432864528,
+          "currentYtd": 32220999382,
+          "priorYtd": 26906694963,
+          "priorYear": 48135693935,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -1477509896,
+          "currentYtd": -855753927,
+          "priorYtd": -3131799152,
+          "priorYear": 3753096506,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -2268255483,
+          "currentYtd": -1205513151,
+          "priorYtd": -3169354367,
+          "priorYear": 3874151374,
+          "account": "당기순이익(손실)",
+          "annualAccount": "당기순이익(손실)",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "290270",
+      "name": "휴네시온",
+      "role": "transfer",
+      "other": [
+        "access",
+        "net"
+      ],
+      "product": "i-oneNet, 일방향 전송, i-oneNet CDS",
+      "issues": {
+        "n2sf": "direct",
+        "saas": "conditional",
+        "auth": "conditional"
+      },
+      "note": "한싹과 망연계 직접 경쟁. 한국부동산원 N2SF 과제 참여. 금융은 별도 중계 발주가 생길 때 연결.",
+      "source": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260814003283&dcmNo=11536532&eleId=15&offset=142892&length=10386&dtd=dart4.xsd",
+      "finance": {
+        "name": "휴네시온",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001490",
+        "annualReceipt": "20260319000482",
+        "rev": {
+          "quarter": 8002942422,
+          "currentYtd": 22042627816,
+          "priorYtd": 22805399482,
+          "priorYear": 37730120046,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 578841345,
+          "currentYtd": -252663112,
+          "priorYtd": 631686544,
+          "priorYear": 4802475204,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 540283467,
+          "currentYtd": -409900760,
+          "priorYtd": 777345203,
+          "priorYear": 5768891620,
+          "account": "당기순이익(손실)",
+          "annualAccount": "당기순이익(손실)",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "050960",
+      "name": "수산아이앤티",
+      "role": "content",
+      "other": [
+        "net",
+        "access"
+      ],
+      "product": "eWalker 웹 필터링, 트래픽 통제",
+      "issues": {
+        "saas": "conditional",
+        "patch": "conditional"
+      },
+      "note": "업무 중 허용 사이트와 접속 경로를 제한할 때 연결. 금융 핵심 시스템 방어는 실제 발주 범위 확인.",
+      "source": "https://www.soosanint.com/",
+      "finance": {
+        "name": "수산아이앤티",
+        "basis": "OFS",
+        "quarterReceipt": "20261116000773",
+        "annualReceipt": "20260323001694",
+        "rev": {
+          "quarter": 7317096342,
+          "currentYtd": 21664581552,
+          "priorYtd": 19257438232,
+          "priorYear": 30711816841,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 598165016,
+          "currentYtd": 1706012376,
+          "priorYtd": 2800343778,
+          "priorYear": 5096939062,
+          "account": "영업이익",
+          "annualAccount": "영업이익"
+        },
+        "ni": {
+          "quarter": 14146145,
+          "currentYtd": 5118349534,
+          "priorYtd": 3731061313,
+          "priorYear": 5222937542,
+          "account": "분기순이익",
+          "annualAccount": "당기순이익",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "170790",
+      "name": "파이오링크",
+      "role": "net",
+      "other": [
+        "web",
+        "soc"
+      ],
+      "product": "PAS-K ADC, TiFRONT 보안스위치, 관제",
+      "issues": {
+        "patch": "conditional",
+        "detect": "conditional",
+        "saas": "conditional"
+      },
+      "note": "네트워크 장비, 보안 운영 교체에 연결. ADC는 앱 트래픽을 배분하고 가용성을 보조.",
+      "source": "https://www.piolink.com/",
+      "finance": {
+        "name": "파이오링크",
+        "basis": "CFS",
+        "quarterReceipt": "20261111000063",
+        "annualReceipt": "20260320000730",
+        "rev": {
+          "quarter": 18753730371,
+          "currentYtd": 47426273741,
+          "priorYtd": 41405858472,
+          "priorYear": 65634922825,
+          "account": "수익",
+          "annualAccount": "수익(매출액)"
+        },
+        "op": {
+          "quarter": 2598723979,
+          "currentYtd": 989441233,
+          "priorYtd": -1037501547,
+          "priorYear": 5402528991,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 1597106047,
+          "currentYtd": 1481854312,
+          "priorYtd": 1546244177,
+          "priorYear": 7520270640,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "356890",
+      "name": "싸이버원",
+      "role": "soc",
+      "other": [
+        "exposure"
+      ],
+      "product": "보안관제, 보안컨설팅과 취약점 진단",
+      "issues": {
+        "detect": "direct",
+        "patch": "direct"
+      },
+      "note": "관제 인력과 외부 점검 용역 수요에 연결. 관제 상주, 원격과 투입 인력 조건 확인.",
+      "source": "https://www.cyberone.kr/",
+      "finance": {
+        "name": "싸이버원",
+        "basis": "CFS",
+        "quarterReceipt": "20261113000450",
+        "annualReceipt": "20260323000912",
+        "rev": {
+          "quarter": 9941809915,
+          "currentYtd": 26953554008,
+          "priorYtd": 24335243532,
+          "priorYear": 33726070959,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 852096037,
+          "currentYtd": 1412245551,
+          "priorYtd": -163433669,
+          "priorYear": 414314485,
+          "account": "영업이익",
+          "annualAccount": "영업이익"
+        },
+        "ni": {
+          "quarter": 814628181,
+          "currentYtd": 2052570402,
+          "priorYtd": 866305085,
+          "priorYear": -1208055193,
+          "account": "지배기업의 소유주지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "275630",
+      "name": "에스에스알",
+      "role": "exposure",
+      "other": [
+        "soc"
+      ],
+      "product": "SolidStep 인프라 취약점 진단, 보안 컨설팅",
+      "issues": {
+        "patch": "direct"
+      },
+      "note": "자산, 서버 취약점 점검을 유료 진단 또는 자동화 솔루션으로 전환할 때 연결.",
+      "source": "https://www.ssrinc.co.kr/",
+      "finance": {
+        "name": "에스에스알",
+        "basis": "OFS",
+        "quarterReceipt": "20261113000969",
+        "annualReceipt": "20260320001229",
+        "rev": {
+          "quarter": 2649569627,
+          "currentYtd": 6717151579,
+          "priorYtd": 7924059341,
+          "priorYear": 11236500799,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -386073400,
+          "currentYtd": -2265485886,
+          "priorYtd": -1141525716,
+          "priorYear": 754182555,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -223515854,
+          "currentYtd": -1736524354,
+          "priorYtd": -539403664,
+          "priorYear": -813553922,
+          "account": "당기순이익(손실)",
+          "annualAccount": "당기순이익(손실)",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "208350",
+      "name": "지란지교시큐리티",
+      "role": "content",
+      "other": [
+        "data",
+        "endpoint"
+      ],
+      "product": "SpamSniper, MailScreen 발신 통제, DocuONE 문서중앙화",
+      "issues": {
+        "patch": "conditional",
+        "saas": "conditional",
+        "resilience": "conditional"
+      },
+      "note": "피싱 메일 차단과 중요정보가 담긴 메일, 첨부의 발신 통제에 연결.",
+      "source": "https://www.jiransecurity.com/prcenter/news/260",
+      "finance": {
+        "name": "지란지교시큐리티",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001054",
+        "annualReceipt": "20260323001717",
+        "rev": {
+          "quarter": 8330131377,
+          "currentYtd": 25556973010,
+          "priorYtd": 24562182735,
+          "priorYear": 38927841312,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 21490574,
+          "currentYtd": -367279993,
+          "priorYtd": -1819801604,
+          "priorYear": 2483169475,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익"
+        },
+        "ni": {
+          "quarter": -258300767,
+          "currentYtd": 1054540068,
+          "priorYtd": 82756463,
+          "priorYear": 1836524497,
+          "account": "지배기업 소유주지분",
+          "annualAccount": "지배기업 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "184230",
+      "name": "SGA솔루션즈",
+      "role": "endpoint",
+      "other": [
+        "access",
+        "iam"
+      ],
+      "product": "RedCastle 서버보안, SecureGuard AM, SGA ZTA",
+      "issues": {
+        "auth": "conditional",
+        "detect": "conditional",
+        "n2sf": "conditional",
+        "patch": "conditional"
+      },
+      "note": "서버 권한과 실행 통제를 보강하거나 제로트러스트 구축에 참여하는 경우 연결.",
+      "source": "https://www.sgasol.kr/notice/press_view/press_no%3D290",
+      "finance": {
+        "name": "SGA솔루션즈",
+        "basis": "CFS",
+        "quarterReceipt": "20261113001484",
+        "annualReceipt": "20260323001335",
+        "rev": {
+          "quarter": 32327682771,
+          "currentYtd": 107425451172,
+          "priorYtd": 38348200436,
+          "priorYear": 61635674499,
+          "account": "수익（매출액）",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -256464395,
+          "currentYtd": 1869146449,
+          "priorYtd": 6149331031,
+          "priorYear": 14823977696,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -2639966823,
+          "currentYtd": -6554242066,
+          "priorYtd": 5235117670,
+          "priorYear": 17509662762,
+          "account": "지배기업 소유주지분",
+          "annualAccount": "지배기업 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "131090",
+      "name": "시큐브",
+      "role": "endpoint",
+      "other": [
+        "iam"
+      ],
+      "product": "Secuve TOS 서버보안, iGRIFFIN 접근, 계정 관리",
+      "issues": {
+        "auth": "direct",
+        "patch": "conditional"
+      },
+      "note": "관리자 권한과 서버 실행 정책을 정비할 때 연결. 외부 SaaS의 직접 이용과는 별도 구매.",
+      "source": "https://www.secuve.com/",
+      "finance": {
+        "name": "시큐브",
+        "basis": "OFS",
+        "quarterReceipt": "20261116002136",
+        "annualReceipt": "20260323001582",
+        "rev": {
+          "quarter": 2835700899,
+          "currentYtd": 7876406694,
+          "priorYtd": 7618755873,
+          "priorYear": 13438054169,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 587965322,
+          "currentYtd": 990923793,
+          "priorYtd": 937828262,
+          "priorYear": 4313922657,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 664373666,
+          "currentYtd": 1465559998,
+          "priorYtd": 1478250453,
+          "priorYear": 4698796110,
+          "account": "당기순이익",
+          "annualAccount": "당기순이익",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "232830",
+      "name": "아이티센피엔에스",
+      "role": "iam",
+      "other": [
+        "services"
+      ],
+      "product": "생체인증, 전자서명, 디지털금융 SI",
+      "issues": {
+        "auth": "direct",
+        "saas": "conditional"
+      },
+      "note": "금융 본인확인, 전자서명 시스템 구축에 연결. 기존 SI 계약과 추가 인증 매출 구분.",
+      "source": "https://itcenpns.com/pns/aboutUs/page.do",
+      "finance": {
+        "name": "아이티센피엔에스",
+        "basis": "CFS",
+        "quarterReceipt": "20261113000953",
+        "annualReceipt": "20260318001634",
+        "rev": {
+          "quarter": 120940005808,
+          "currentYtd": 239468404759,
+          "priorYtd": 208336547523,
+          "priorYear": 269551291750,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": 1662525304,
+          "currentYtd": -91635717,
+          "priorYtd": 85560239,
+          "priorYear": -302711455,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 1533907815,
+          "currentYtd": 1080144051,
+          "priorYtd": -2902322699,
+          "priorYear": -4549430613,
+          "account": "지배회사지분순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "488280",
+      "name": "에스투더블유",
+      "role": "soc",
+      "other": [
+        "forensics"
+      ],
+      "product": "QUAXAR 위협 인텔리전스, XARVIS 수사 분석",
+      "issues": {
+        "detect": "direct",
+        "patch": "conditional"
+      },
+      "note": "유출정보, 위협 인텔리전스 구독에 연결. 수사기관용 분석과 금융 보안 계약을 구분.",
+      "source": "https://s2w.inc/",
+      "finance": {
+        "name": "에스투더블유",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001381",
+        "annualReceipt": "20260318001533",
+        "rev": {
+          "quarter": 2125300208,
+          "currentYtd": 6387353897,
+          "priorYtd": 6386192855,
+          "priorYear": 10088850738,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": -2925660365,
+          "currentYtd": -8340083202,
+          "priorYtd": -5158754657,
+          "priorYear": -5640472823,
+          "account": "영업손실",
+          "annualAccount": "영업손실"
+        },
+        "ni": {
+          "quarter": -3055148203,
+          "currentYtd": -8079124287,
+          "priorYtd": -4980018905,
+          "priorYear": -5290915573,
+          "account": "지배기업 소유주지분",
+          "annualAccount": "지배기업 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "465480",
+      "name": "인스피언",
+      "role": "data",
+      "other": [
+        "iam",
+        "soc",
+        "exposure"
+      ],
+      "product": "BizInsider xCon, SIEM, SAP 데이터 보안",
+      "issues": {
+        "auth": "conditional",
+        "detect": "conditional",
+        "saas": "conditional"
+      },
+      "note": "SAP를 쓰는 고객의 권한, 감사로그, 데이터 보안으로 구매 범위가 잡힐 때 연결.",
+      "source": "https://inspien.co.kr/brochure",
+      "finance": {
+        "name": "인스피언",
+        "basis": "OFS",
+        "quarterReceipt": "20261113000932",
+        "annualReceipt": "20260319000185",
+        "rev": {
+          "quarter": 5111853294,
+          "currentYtd": 13855068534,
+          "priorYtd": 12338026429,
+          "priorYear": 19025889792,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 1200496234,
+          "currentYtd": 2441759924,
+          "priorYtd": -628217903,
+          "priorYear": 2398018482,
+          "account": "영업손익",
+          "annualAccount": "영업손익"
+        },
+        "ni": {
+          "quarter": -1231441707,
+          "currentYtd": 3414500186,
+          "priorYtd": 276153652,
+          "priorYear": 3177599580,
+          "account": "분기순이익(손실)",
+          "annualAccount": "당기순이익(손실)",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "331740",
+      "name": "아우토크립트",
+      "role": "hardware",
+      "other": [
+        "iam"
+      ],
+      "product": "AutoCrypt 차량, V2X 보안, 차량 PKI",
+      "issues": {},
+      "note": "자동차 OEM, 모빌리티의 차량 SW, 통신 보안 요구가 구매 경로.",
+      "source": "https://autocrypt.io/",
+      "finance": {
+        "name": "아우토크립트",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001561",
+        "annualReceipt": "20260604000439",
+        "rev": {
+          "quarter": 6129398597,
+          "currentYtd": 18689142630,
+          "priorYtd": 15939475348,
+          "priorYear": 25479479430,
+          "account": "I. 영업수익",
+          "annualAccount": "I. 영업수익"
+        },
+        "op": {
+          "quarter": -3341559391,
+          "currentYtd": -8787049925,
+          "priorYtd": -12966929250,
+          "priorYear": -13519713490,
+          "account": "III. 영업손실",
+          "annualAccount": "III. 영업손실"
+        },
+        "ni": {
+          "quarter": -2335709791,
+          "currentYtd": -7369544971,
+          "priorYtd": -13994425099,
+          "priorYear": -12504664231,
+          "account": "지배기업의 소유주지분",
+          "annualAccount": "지배기업의 소유주지분",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "0015S0",
+      "name": "페스카로",
+      "role": "hardware",
+      "other": [
+        "endpoint"
+      ],
+      "product": "차량 ECU 보안, 자동차 보안 검증, 컨설팅",
+      "issues": {},
+      "note": "완성차, 부품사의 자체 보안 검증, 인증과 양산 프로젝트에 연결.",
+      "source": "https://kind.krx.co.kr/external/dst/irReference/18514/IR%20BOOK_FESCARO_2026.0513_vf.pdf",
+      "finance": {
+        "name": "페스카로",
+        "basis": "CFS",
+        "quarterReceipt": "20261116001241",
+        "annualReceipt": "20260317000353",
+        "rev": {
+          "quarter": 12816822913,
+          "currentYtd": 29884373102,
+          "priorYtd": 11783687492,
+          "priorYear": 16627916707,
+          "account": "매출액",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": -267569144,
+          "currentYtd": 834307979,
+          "priorYtd": 543760236,
+          "priorYear": 879442201,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -180042234,
+          "currentYtd": 2064830430,
+          "priorYtd": 1272893042,
+          "priorYear": 2563129231,
+          "account": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "annualAccount": "지배기업의 소유주에게 귀속되는 당기순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "197140",
+      "name": "디지캡",
+      "role": "content",
+      "other": [
+        "data"
+      ],
+      "product": "방송 콘텐츠 보호, DRM, 수신제한",
+      "issues": {},
+      "note": "방송, 콘텐츠 사업자의 접근 권한과 저작권 보호에 연결. 일반 금융 데이터 보안과 적용처가 다름.",
+      "source": "https://www.digicaps.com/",
+      "finance": {
+        "name": "디지캡",
+        "basis": "OFS",
+        "quarterReceipt": "20261116000810",
+        "annualReceipt": "20260316001426",
+        "rev": {
+          "quarter": 14247730870,
+          "currentYtd": 46730963830,
+          "priorYtd": 51232513340,
+          "priorYear": 66632227178,
+          "account": "매출액",
+          "annualAccount": "매출액"
+        },
+        "op": {
+          "quarter": -241570915,
+          "currentYtd": -2561784136,
+          "priorYtd": -2615710144,
+          "priorYear": -2530392638,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -802134363,
+          "currentYtd": -2285760552,
+          "priorYtd": -765828606,
+          "priorYear": -528568955,
+          "account": "당기순이익(손실)",
+          "annualAccount": "당기순이익(손실)",
+          "scope": "total"
+        }
+      }
+    },
+    {
+      "id": "075130",
+      "name": "플랜티넷",
+      "role": "content",
+      "other": [
+        "net"
+      ],
+      "product": "유해사이트, 콘텐츠 필터링, 인터넷 안전 서비스",
+      "issues": {},
+      "note": "통신사 및 기관 웹 필터링, 유해 콘텐츠 통제 수요에 연동.",
+      "source": "https://www.plantynet.com/",
+      "finance": {
+        "name": "플랜티넷",
+        "basis": "CFS",
+        "quarterReceipt": "20261116000979",
+        "annualReceipt": "20260319000522",
+        "rev": {
+          "quarter": 10178879612,
+          "currentYtd": 30195225179,
+          "priorYtd": 36032548201,
+          "priorYear": 45612921206,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": 647355949,
+          "currentYtd": 1208011073,
+          "priorYtd": 3410844482,
+          "priorYear": 3260980299,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": 910269093,
+          "currentYtd": 1720471308,
+          "priorYtd": 3186971016,
+          "priorYear": 2259770328,
+          "account": "지배기업의소유주지분순이익(손실)",
+          "annualAccount": "계속영업지배기업소유주지분순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    },
+    {
+      "id": "047560",
+      "name": "이스트소프트",
+      "role": "endpoint",
+      "other": [],
+      "product": "이스트시큐리티의 알약, ALYac EDR",
+      "issues": {
+        "detect": "conditional",
+        "patch": "conditional"
+      },
+      "note": "상장사 노출은 보안 자회사 경유. 공공, 기업 유료 단말 계약과 자회사 손익을 확인.",
+      "source": "https://www.estsecurity.com/",
+      "finance": {
+        "name": "이스트소프트",
+        "basis": "CFS",
+        "quarterReceipt": "20261113000850",
+        "annualReceipt": "20260318001289",
+        "rev": {
+          "quarter": 27299565908,
+          "currentYtd": 88016040211,
+          "priorYtd": 81342208696,
+          "priorYear": 106793497959,
+          "account": "영업수익",
+          "annualAccount": "영업수익"
+        },
+        "op": {
+          "quarter": -1933330946,
+          "currentYtd": -3935928074,
+          "priorYtd": -8766930356,
+          "priorYear": -18953916533,
+          "account": "영업이익(손실)",
+          "annualAccount": "영업이익(손실)"
+        },
+        "ni": {
+          "quarter": -2938209811,
+          "currentYtd": -3652741274,
+          "priorYtd": -9007250336,
+          "priorYear": -17728147608,
+          "account": "지배지분순이익(손실)",
+          "annualAccount": "지배지분순이익(손실)",
+          "scope": "parent"
+        }
+      }
+    }
+  ]
+}

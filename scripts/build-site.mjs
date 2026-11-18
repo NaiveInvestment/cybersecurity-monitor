@@ -3,7 +3,7 @@
 // --live를 주거나 GITHUB_REPOSITORY가 있으면 브라우저가 live 브랜치를 폴링한다. 없으면 스냅샷만 보여 준다.
 import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { join } from "node:path";
+import { join, resolve, sep } from "node:path";
 import { ROOT } from "../src/universe.mjs";
 
 const args = process.argv.slice(2);
@@ -14,10 +14,30 @@ const option = (name, fallback) => {
 const outDir = option("--out", join(ROOT, "_site"));
 const liveRepo = option("--live", process.env.GITHUB_REPOSITORY || null);
 const defaultTheme = option("--default-theme", "dark");
+const localMode = !liveRepo && resolve(outDir) === join(ROOT, "_live");
 
 const publicDir = join(ROOT, "public");
+const localDir = join(ROOT, "local");
 mkdirSync(join(outDir, "data"), { recursive: true });
 cpSync(publicDir, outDir, { recursive: true });
+if (localMode && existsSync(localDir)) {
+  cpSync(localDir, outDir, { recursive: true });
+  const reportPaths = join(ROOT, "state", "position-library-paths.json");
+  if (existsSync(reportPaths)) {
+    const manifest = JSON.parse(readFileSync(reportPaths, "utf8"));
+    const archive = resolve(manifest.archive);
+    const reportDir = join(outDir, "reports");
+    mkdirSync(reportDir, { recursive: true });
+    for (const [hash, relative] of Object.entries(manifest.files)) {
+      const source = resolve(archive, relative);
+      if (!/^[0-9a-f]{64}$/.test(hash) || !source.startsWith(archive + sep) || !source.toLowerCase().endsWith(".pdf")) {
+        throw new Error("Invalid local PDF catalog entry");
+      }
+      const target = join(reportDir, hash + ".pdf");
+      if (!existsSync(target)) cpSync(source, target);
+    }
+  }
+}
 if (existsSync(join(ROOT, "data", "financials.json"))) cpSync(join(ROOT,"data","financials.json"),join(outDir,"data","financials.json"));
 
 // 큐레이션 카드: 스키마를 확인하고 날짜 내림차순으로 싣는다.
@@ -60,7 +80,8 @@ const hashOf = (paths) => {
 };
 const scripts = [...readdirSync(outDir).filter((name) => name.endsWith(".js")).map((name) => join(outDir, name)),
   ...readdirSync(join(outDir, "lib")).map((name) => join(outDir, "lib", name))].sort();
-const versions = { "styles.css": hashOf([join(outDir, "styles.css")]), js: hashOf(scripts) };
+const versions = { css: hashOf(readdirSync(outDir).filter((name) => name.endsWith(".css"))
+  .sort().map((name) => join(outDir, name))), js: hashOf(scripts) };
 // 모든 스크립트(lib 폴더 포함)의 import 경로에도 같은 해시를 붙여 새 파일과 옛 캐시가 섞이지 않게 한다.
 for (const path of scripts) {
   const source = readFileSync(path, "utf8");
@@ -69,8 +90,10 @@ for (const path of scripts) {
 }
 for (const name of readdirSync(outDir).filter((file) => file.endsWith(".html"))) {
   const path = join(outDir, name);
-  const html = readFileSync(path, "utf8")
-    .replace(/(href="styles\.css)(")/g, `$1?v=${versions["styles.css"]}$2`)
+  const source = readFileSync(path, "utf8");
+  const hasLocalReports = localMode && name === "positions.html" && existsSync(join(localDir, "data", "position-library.json"));
+  const html = (hasLocalReports ? source.replace('<body class="positions-page">', '<body class="positions-page" data-report-library>') : source)
+    .replace(/(href="[\w-]+\.css)(")/g, `$1?v=${versions.css}$2`)
     .replace(/(src="[\w-]+\.js)(")/g, `$1?v=${versions.js}$2`)
     .replace('data-default-theme="dark"', `data-default-theme="${defaultTheme === "light" ? "light" : "dark"}"`);
   writeFileSync(path, html);

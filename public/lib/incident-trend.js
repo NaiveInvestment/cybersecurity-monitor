@@ -1,4 +1,4 @@
-// 해킹 사건 추이: 국내와 해외의 일별 신규 사건 수(보도가 시작된 날 기준)와 사건별 강도(보도한 매체 수).
+// 보안 사고 추이: 국내와 해외의 일별 신규 사건 수(보도가 시작된 날 기준)와 사건별 강도(보도한 매체 수).
 // 기사 1건짜리 묶음은 단발 기사나 사건이 아닌 기사가 대부분이라 세지 않는다. 사건은 2개 매체 이상이 보도한 묶음이다.
 // 강도는 소(2~4개 매체), 중(5~19개), 대(20개 이상)다.
 
@@ -112,6 +112,6 @@ export function trendSvg(trend, region, { width = 640, today = null } = {}) {
     if ((n - 1 - i) % step) return;
     parts.push(`<text class="tr-tick" x="${round(x(i))}" y="${height - 7}" text-anchor="middle">${date === today ? "오늘" : date.slice(5)}</text>`);
   });
-  const label = `${region.label} 일별 신규 해킹 사건 수: ${trend.start}부터 ${trend.end}까지 ${region.total}개, 대 ${region.tiers[2]}개, 중 ${region.tiers[1]}개`;
+  const label = `${region.label} 일별 신규 보안 사고 수: ${trend.start}부터 ${trend.end}까지 ${region.total}개, 대 ${region.tiers[2]}개, 중 ${region.tiers[1]}개`;
   return `<svg class="trend-svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeText(label)}">${parts.join("")}</svg>`;
 }

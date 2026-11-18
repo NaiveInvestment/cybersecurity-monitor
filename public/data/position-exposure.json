@@ -1,0 +1,700 @@
+{
+  "iam": {
+    "131090": {
+      "product": "iGRIFFIN",
+      "connection": "서버 관리자 계정과 접근 제어 제품을 도입하거나 교체할 때 연결됩니다.",
+      "evidence": {
+        "label": "시큐브 제품",
+        "url": "https://www.secuve.com/html/sub01/sub01_0103.php"
+      }
+    },
+    "158430": {
+      "product": "ATON mOTP, ATON mPKI",
+      "connection": "메리츠증권 모바일트레이딩 앱에 거래용 모바일 OTP와 자체 인증 솔루션을 공급했습니다.",
+      "evidence": {
+        "label": "아톤 공급 사례",
+        "url": "https://www.atoncorp.com/press-view/40"
+      }
+    },
+    "184230": {
+      "product": "SecureGuard AM",
+      "connection": "관리자가 업무 서버에 접속하는 경로와 권한을 교체하는 사업에 연결됩니다.",
+      "evidence": {
+        "label": "SGA솔루션즈",
+        "url": "https://www.sgasol.kr/"
+      }
+    },
+    "192250": {
+      "product": "KSignAccess for SSO",
+      "connection": "여러 사내 시스템 로그인을 통합하는 인증 사업에 연결됩니다.",
+      "evidence": {
+        "label": "케이사인 제품",
+        "url": "https://ksign.com/ksign/solution/sso.php"
+      }
+    },
+    "203650": {
+      "product": "Magic PKI, Magic FIDO",
+      "connection": "인증서 기반 업무 로그인이나 전자서명 모듈을 교체할 때 연결됩니다.",
+      "evidence": {
+        "label": "드림시큐리티 제품 인증",
+        "url": "https://en.dreamsecurity.com/pr/certification"
+      }
+    },
+    "232830": {
+      "product": "DocuTrust III",
+      "connection": "대면 창구나 디지털 금융의 전자서명 절차에 생체 확인을 연동할 때 연결됩니다.",
+      "evidence": {
+        "label": "아이티센피엔에스 제품",
+        "url": "https://itcenpns.com/user/offerings/BD_productView.do?q_productSn=36"
+      }
+    },
+    "331740": {
+      "product": "AutoCrypt V2X-PKI",
+      "connection": "차량과 도로장비의 통신 주체를 인증하는 용도로 모빌리티 인증 인프라 발주에 연결됩니다.",
+      "evidence": {
+        "label": "아우토크립트 제품",
+        "url": "https://autocrypt.io/products/v2x-pki/"
+      }
+    },
+    "430690": {
+      "product": "PassGuard AM",
+      "connection": "금융사 인증 개편 중 서버 관리자 계정과 접속 권한을 정비하는 발주에 해당합니다.",
+      "evidence": {
+        "label": "한싹 제품",
+        "url": "https://hanssak.co.kr/"
+      }
+    },
+    "465480": {
+      "product": "BizInsider xCon",
+      "connection": "금융사 접근통제 개편 중 SAP ERP 조회 권한과 접속기록을 점검하는 범위에 해당합니다.",
+      "evidence": {
+        "label": "인스피언 제품과 적용 사례",
+        "url": "https://www.inspien.co.kr/xcon"
+      }
+    },
+    "042510": {
+      "product": "OnePass, TouchEn mOTP",
+      "connection": "DGB대구은행이 직원의 내부 업무 로그인과 인증을 개편할 때 OnePass를 구축했습니다.",
+      "evidence": {
+        "label": "라온시큐어 구축 사례",
+        "url": "https://www.raon.com/ko/about/news_list/view/334"
+      }
+    },
+    "053350": {
+      "product": "INISAFE Nexess 통합인증",
+      "connection": "은행이나 증권사가 사내 업무 로그인에 다중 인증과 통합 로그인을 묶어 구축할 때 연결됩니다.",
+      "evidence": {
+        "label": "이니텍 제품",
+        "url": "https://initech.com/html/sub/solu/solu_nexe.html"
+      }
+    },
+    "053300": {
+      "product": "SignGATE 공동인증서, SignOK",
+      "connection": "공동인증서 발급과 갱신, 금융 계약의 전자서명 서비스 구매에 연결됩니다.",
+      "evidence": {
+        "label": "한국정보인증 서비스",
+        "url": "https://www.signgate.com/main/indvdlMain.sg"
+      }
+    },
+    "041460": {
+      "product": "공동인증서, 전자서명",
+      "connection": "금융회사의 거래 서명에 공동인증서를 계속 적용하거나 서비스 계약을 갱신할 때 연결됩니다.",
+      "evidence": {
+        "label": "한국전자인증",
+        "url": "https://www.crosscert.com/"
+      }
+    },
+    "054920": {
+      "product": "Hancom xPKI",
+      "connection": "기관이 사설 인증서의 발급과 검증, 폐기를 통합 관리하는 시스템을 구축할 때 연결됩니다.",
+      "evidence": {
+        "label": "한컴위드 제품",
+        "url": "https://www.hancomwith.com/authentication/pki01.php"
+      }
+    }
+  },
+  "access": {
+    "184230": {
+      "product": "SGA ZTA",
+      "connection": "기관이 제로트러스트 도입에서 접속 대상과 단말 상태를 함께 검증할 때 연결됩니다.",
+      "evidence": {
+        "label": "SGA솔루션즈 제품",
+        "url": "https://sgasol.kr/assets/user/download/brochure/2024-SGA%20ZTA_Brochure.pdf"
+      }
+    },
+    "258790": {
+      "product": "SHIELD Gate",
+      "connection": "웹과 SaaS 업무에서 단말 조건에 따라 접속을 허용하고 브라우저도 격리하는 계약에 연결됩니다.",
+      "evidence": {
+        "label": "소프트캠프 제품",
+        "url": "https://docs.softcamp.co.kr/shieldgate/"
+      }
+    },
+    "263860": {
+      "product": "Genian NAC, Genian ZTNA",
+      "connection": "하나은행 등 도입 사례를 공개한 NAC는 등록 단말 식별과 사내망 접속 통제를 함께 발주할 때 연결됩니다.",
+      "evidence": {
+        "label": "지니언스 NAC 적용 사례",
+        "url": "https://www.genians.co.kr/products/genian-nac/"
+      }
+    },
+    "290270": {
+      "product": "i-oneNAC",
+      "connection": "등록 단말을 확인하고 비인가 기기를 차단하는 사내망 NAC 항목에 연결됩니다.",
+      "evidence": {
+        "label": "부산김해경전철 장비 자료",
+        "url": "https://www.bglrt.com/Download.do?key=bidding2&name=3.+%EA%B3%BC%EC%97%85%EC%A7%80%EC%8B%9C%EC%84%9C%282023-053%29.pdf"
+      }
+    },
+    "356680": {
+      "product": "AXGATE VPN",
+      "connection": "기기 접속 통제가 원격 사용자용 VPN 교체까지 포함할 때 연결됩니다.",
+      "evidence": {
+        "label": "엑스게이트 제품",
+        "url": "https://www.axgate.com/"
+      }
+    },
+    "434480": {
+      "product": "AIZTNA, AIONCLOUD ZTNA",
+      "connection": "외부 인력이 사내 앱에 접속하는 경로를 사용자와 단말별로 재설계할 때 연결됩니다.",
+      "evidence": {
+        "label": "모니터랩 제품",
+        "url": "https://www.monitorapp.com/ko/technologies/ztna"
+      }
+    },
+    "053800": {
+      "product": "AhnLab XTG의 ZTNA, EPP 연동",
+      "connection": "기존 방화벽 교체 때 원격 접속자의 단말 상태까지 검증하는 규격에 연결됩니다.",
+      "evidence": {
+        "label": "안랩 제품",
+        "url": "https://www.ahnlab.com/ko/contents/content-center/35833"
+      }
+    },
+    "050960": {
+      "product": "eWalker SSL VPN, eWalker SSG",
+      "connection": "원격 접속 암호화와 업무 단말의 승인된 SaaS 접속 통제에 연결됩니다.",
+      "evidence": {
+        "label": "수산아이앤티 제품",
+        "url": "https://www.soosanint.com/contents.php?con_id=solution9"
+      }
+    }
+  },
+  "transfer": {
+    "290270": {
+      "product": "i-oneNet, i-oneNet CDS",
+      "connection": "한국부동산원 N2SF 도입 지원에 CDS로 참여했고, 금융은 분리망 자료 전송 발주를 확인합니다.",
+      "evidence": {
+        "label": "휴네시온 반기보고서",
+        "url": "https://dart.fss.or.kr/report/viewer.do?rcpNo=20260814003283&dcmNo=11536532&eleId=15&offset=142892&length=10386&dtd=dart4.xsd"
+      }
+    },
+    "430690": {
+      "product": "SecureGate V4.0",
+      "connection": "공공 N2SF 대응 제품을 출시했고, 금융 SaaS는 분리망 간 파일 전송이 별도 발주될 때 연결됩니다.",
+      "evidence": {
+        "label": "한싹 제품 출시",
+        "url": "https://hanssak.co.kr/news/press/view.php?seq=88"
+      }
+    }
+  },
+  "net": {
+    "136540": {
+      "product": "SNIPER IPS, DDoS 대응",
+      "connection": "대외 서비스 회선에 침입방지와 대량 트래픽 공격 차단 장비를 교체할 때 연결됩니다.",
+      "evidence": {
+        "label": "윈스테크넷 제품군",
+        "url": "https://www.wins21.com/kor/company/intro__overview.html"
+      }
+    },
+    "170790": {
+      "product": "TiFRONT 보안스위치, PAS-K",
+      "connection": "보안망 개편에 내부 유해 트래픽 확산 차단 스위치와 서비스 부하 분산 장비 교체가 포함될 때 연결됩니다.",
+      "evidence": {
+        "label": "파이오링크 제품",
+        "url": "https://www.piolink.com/kr/company/Company-Overview.php"
+      }
+    },
+    "290270": {
+      "product": "i-oneNet DD 일방향 망연계",
+      "connection": "산업 제어망에서 수집 데이터를 한 방향으로 보내는 별도 통신 구간에 해당합니다.",
+      "evidence": {
+        "label": "휴네시온 반기보고서",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260814003283"
+      }
+    },
+    "356680": {
+      "product": "AXGATE 방화벽, VPN",
+      "connection": "금융사가 외부 경계 방화벽과 지점 연결용 VPN을 교체하거나 통합할 때 연결됩니다.",
+      "evidence": {
+        "label": "엑스게이트 제품",
+        "url": "https://www.axgate.com/"
+      }
+    },
+    "411080": {
+      "product": "MNX 네트워크 탐지",
+      "connection": "망에서 지나가는 통신의 이상 탐지와 분석을 별도 도입하는 구매에 연결됩니다.",
+      "evidence": {
+        "label": "샌즈랩 제품",
+        "url": "https://sandslab.io/ko/company/newsroom/sandslab-agentic-ndr-mnx-cti-mdr"
+      }
+    },
+    "430690": {
+      "product": "BlueKeen VA",
+      "connection": "보안 장비가 암호화된 외부 통신을 확인할 수 있도록 별도 가시성 장비를 붙이는 구매에 연결됩니다.",
+      "evidence": {
+        "label": "한싹 제품",
+        "url": "https://hanssak.co.kr/"
+      }
+    },
+    "434480": {
+      "product": "AISVA SSL/TLS 가시성",
+      "connection": "금융사 접점 점검 후 암호화된 트래픽을 보안장비가 검사하도록 보강할 때 연결됩니다.",
+      "evidence": {
+        "label": "모니터랩 제품",
+        "url": "https://www.monitorapp.com/ko/products"
+      }
+    },
+    "053800": {
+      "product": "TrusGuard, AhnLab XTG",
+      "connection": "금융사 인터넷 경계의 방화벽을 교체하고 트래픽 검사 기능을 확대할 때 연결됩니다.",
+      "evidence": {
+        "label": "안랩 제품",
+        "url": "https://www.ahnlab.com/ko/contents/content-center/35833"
+      }
+    },
+    "050960": {
+      "product": "ePrism SSL VA",
+      "connection": "암호화 트래픽의 가시성을 보강하고 기존 차단 장비와 연동하는 발주에 연결됩니다.",
+      "evidence": {
+        "label": "수산아이앤티 제품",
+        "url": "https://www.soosanint.com/contents.php?con_id=solution10"
+      }
+    },
+    "075130": {
+      "product": "LANEBOW, OfficeGuard SV",
+      "connection": "회선 트래픽 분석과 직원 인터넷 접속 보호를 보강할 때 제품군이 연결됩니다.",
+      "evidence": {
+        "label": "플랜티넷 사업보고서",
+        "url": "https://www.plantynet.com/upload/bbs/attach/310_20240326103701.pdf"
+      }
+    }
+  },
+  "endpoint": {
+    "131090": {
+      "product": "Secuve TOS",
+      "connection": "기관이 서버 운영체제 접근과 파일 변경 권한을 강화하는 보안 사업에 연결됩니다.",
+      "evidence": {
+        "label": "시큐브 제품",
+        "url": "https://www.secuve.com/html/sub01/sub01_0103.php"
+      }
+    },
+    "158430": {
+      "product": "ATON mSafeBox",
+      "connection": "금융 앱 안에서 인증서와 인증 정보를 보호하는 모바일 보안매체를 도입할 때 연결됩니다.",
+      "evidence": {
+        "label": "아톤 금융 앱 적용 사례",
+        "url": "https://www.atoncorp.com/press-view/40"
+      }
+    },
+    "184230": {
+      "product": "RedCastle 서버보안",
+      "connection": "서버 보강 사업에 운영체제 접근권한과 프로그램 실행 통제가 포함될 때 연결됩니다.",
+      "evidence": {
+        "label": "SGA솔루션즈 제품",
+        "url": "https://www.sgasol.kr/assets/user/download/brochure/2024-Redcastle_v6.0_Brochure.pdf"
+      }
+    },
+    "208350": {
+      "product": "DocuONE 문서중앙화",
+      "connection": "PC에 문서가 퍼지지 않도록 중앙 관리하고 랜섬웨어 피해 파일을 복구하는 구매에 해당합니다.",
+      "evidence": {
+        "label": "지란지교시큐리티 제품",
+        "url": "https://jiransecurity.com/products/docuone"
+      }
+    },
+    "263860": {
+      "product": "Genian EDR",
+      "connection": "2026년 1분기 회사 자료에 백신과 EDR을 함께 도입한 공공과 민간 사례가 공개됐습니다.",
+      "evidence": {
+        "label": "지니언스 2026년 1분기 자료",
+        "url": "https://www.genians.co.kr/pr-room/company/2026-1q-genians"
+      }
+    },
+    "053800": {
+      "product": "V3, AhnLab EPP, AhnLab EDR",
+      "connection": "기존 백신과 단말 관리 환경에 EDR을 유료로 추가하거나 적용 PC 수를 늘리는 구매에 연결됩니다.",
+      "evidence": {
+        "label": "안랩 제품 연동",
+        "url": "https://www.ahnlab.com/ko/contents/content-center/33225"
+      }
+    },
+    "042510": {
+      "product": "TouchEn mVaccine",
+      "connection": "금융 앱을 쓰는 모바일 단말의 악성 앱 검사와 모바일 백신을 별도 발주할 때 연결됩니다.",
+      "evidence": {
+        "label": "라온시큐어 제품",
+        "url": "https://www.raon.com/ko/solution/mvaccine"
+      }
+    },
+    "0015S0": {
+      "product": "차량 ECU 보안 솔루션",
+      "connection": "엔드포인트 연결은 차량 제어기 보호에 해당하며 구매처는 완성차와 부품사입니다.",
+      "evidence": {
+        "label": "페스카로 IR 자료",
+        "url": "https://kind.krx.co.kr/external/dst/irReference/18514/IR%20BOOK_FESCARO_2026.0513_vf.pdf"
+      }
+    },
+    "047560": {
+      "product": "이스트시큐리티 알약, 알약 EDR",
+      "connection": "공공과 기업이 백신에 단말 탐지와 대응을 추가 구매할 때 보안 자회사를 통해 연결됩니다.",
+      "evidence": {
+        "label": "이스트시큐리티 제품",
+        "url": "https://www.estsecurity.com/enterprise/product/alyac-edr"
+      }
+    }
+  },
+  "web": {
+    "136540": {
+      "product": "웹방화벽 임대와 운영",
+      "connection": "금융사가 공개 웹 보호를 장비 구매 대신 웹방화벽 임대와 운영 서비스로 계약할 때 연결됩니다.",
+      "evidence": {
+        "label": "윈스테크넷 임대 서비스",
+        "url": "https://www.wins21.com/kor/service/security__asp.html"
+      }
+    },
+    "170790": {
+      "product": "WEBFRONT-K",
+      "connection": "외부 로그인과 고객 조회 페이지를 포함한 웹 서비스에 웹방화벽을 교체하거나 추가할 때 연결됩니다.",
+      "evidence": {
+        "label": "파이오링크 제품",
+        "url": "https://www.piolink.com/kr/product/Web-Application-Firewall.php"
+      }
+    },
+    "434480": {
+      "product": "AIWAAP, AIONCLOUD WAAP",
+      "connection": "금융 외부 접점 점검 후 공개 웹과 API를 보호할 장비 또는 구독을 신규 도입하는 구매에 연결됩니다.",
+      "evidence": {
+        "label": "모니터랩 제품",
+        "url": "https://www.monitorapp.com/ko/products"
+      }
+    }
+  },
+  "data": {
+    "150900": {
+      "product": "Fasoo Enterprise DRM, Wrapsody",
+      "connection": "문서가 외부나 클라우드로 이동해도 암호화와 열람 권한을 유지하는 항목에 연결됩니다.",
+      "evidence": {
+        "label": "파수AI 분기보고서",
+        "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20261116000021"
+      }
+    },
+    "192250": {
+      "product": "KSignSecureDB",
+      "connection": "고객 정보 DB의 암호화 범위 확대와 기존 암호화 솔루션 교체에 연결됩니다.",
+      "evidence": {
+        "label": "케이사인 제품",
+        "url": "https://ksign.com/ksign/solution/secureDB.php"
+      }
+    },
+    "197140": {
+      "product": "방송 콘텐츠 DRM, 수신 제한",
+      "connection": "방송과 콘텐츠 사업자의 영상 열람 권한 및 저작권 통제 도입에 연결됩니다.",
+      "evidence": {
+        "label": "디지캡",
+        "url": "https://www.digicaps.com/"
+      }
+    },
+    "203650": {
+      "product": "Magic DB Plus, Magic FCrypto",
+      "connection": "개편 사업에 데이터베이스와 파일 암호화 및 암호모듈 교체가 포함될 때 연결됩니다.",
+      "evidence": {
+        "label": "드림시큐리티 제품 인증",
+        "url": "https://en.dreamsecurity.com/pr/certification"
+      }
+    },
+    "208350": {
+      "product": "DocuONE, MailScreen",
+      "connection": "기관이 문서를 중앙에 저장하고 발신 메일로 반출되는 파일을 별도로 점검할 때 연결됩니다.",
+      "evidence": {
+        "label": "지란지교시큐리티 제품",
+        "url": "https://jiransecurity.com/products/docuone"
+      }
+    },
+    "258790": {
+      "product": "소프트캠프 문서 DRM",
+      "connection": "기존 암호화 문서를 M365 같은 클라우드 환경으로 옮기면서 열람과 공유 통제를 유지할 때 연결됩니다.",
+      "evidence": {
+        "label": "소프트캠프 문서보안",
+        "url": "https://www.softcamp.co.kr/"
+      }
+    },
+    "456010": {
+      "product": "PUF 기반 보안칩",
+      "connection": "암호키를 기기 내부에서 보호하는 하드웨어 채택에 연결되는 제품입니다.",
+      "evidence": {
+        "label": "아이씨티케이 제품",
+        "url": "https://www.ictk.com/"
+      }
+    },
+    "465480": {
+      "product": "BizInsider xCon",
+      "connection": "금융사 SAP에서 민감 데이터의 대량 조회 기록을 남기고 감사하려는 사업에 연결됩니다.",
+      "evidence": {
+        "label": "인스피언 금융 적용 사례",
+        "url": "https://www.inspien.co.kr/xcon"
+      }
+    },
+    "053350": {
+      "product": "SafeDB",
+      "connection": "개편 사업에 고객 정보와 거래 DB의 암호화가 포함될 때 연결됩니다.",
+      "evidence": {
+        "label": "이니텍 DB 암호화",
+        "url": "https://www.initech.com/html/sub/solu/solu_safe.html"
+      }
+    },
+    "053300": {
+      "product": "SignOK 전자계약",
+      "connection": "전자계약 문서의 서명 검증과 원본 확인을 맡기는 구매에 연결됩니다.",
+      "evidence": {
+        "label": "한국정보인증 서비스",
+        "url": "https://www.signgate.com/main/indvdlMain.sg"
+      }
+    },
+    "041460": {
+      "product": "SSL/TLS 서버 인증서",
+      "connection": "외부 웹 서비스에서 고객 정보를 암호화해 전송하기 위한 인증서 발급과 갱신에 연결됩니다.",
+      "evidence": {
+        "label": "한국전자인증 서버 인증서",
+        "url": "https://cert.crosscert.com/"
+      }
+    },
+    "054920": {
+      "product": "Hancom xDB",
+      "connection": "공공이나 금융의 민감 정보에 파일, 저장장치, DB 암호화를 도입하는 사업에 연결됩니다.",
+      "evidence": {
+        "label": "한컴위드 제품",
+        "url": "https://www.hancomwith.com/secure/data02.php"
+      }
+    }
+  },
+  "soc": {
+    "136540": {
+      "product": "보안관제 용역",
+      "connection": "2025년 김포시 사이버 보안관제 용역 수행 이력이 있다.",
+      "evidence": {
+        "label": "김포시 계약 자료",
+        "url": "https://www.gimpocouncil.go.kr/upload/mnts/apndx/a08/20250717165406-361774.pdf"
+      }
+    },
+    "170790": {
+      "product": "원격, 파견 및 클라우드 관제",
+      "connection": "자체 관제센터에서 원격 대응을 맡거나 고객 센터에 인력을 파견한다.",
+      "evidence": {
+        "label": "파이오링크 관제",
+        "url": "https://www.piolink.com/kr/service/Managed-Security-Services.php"
+      }
+    },
+    "263860": {
+      "product": "Genian MDR",
+      "connection": "단말 EDR에 24시간 분석과 대응을 붙인 구독형 서비스로, 단말 관제 외주에 해당한다.",
+      "evidence": {
+        "label": "지니언스 MDR",
+        "url": "https://www.genians.co.kr/products/genian-mdr/"
+      }
+    },
+    "275630": {
+      "product": "SolidStep 취약점 점검 연계",
+      "connection": "관제 발주에 인프라 취약점 자동 점검이 포함될 때 관련되며, 별도 관제 제품은 확인이 필요하다.",
+      "evidence": {
+        "label": "에스에스알 제품",
+        "url": "https://www.ssrinc.co.kr/"
+      }
+    },
+    "356890": {
+      "product": "통합 보안관제 용역",
+      "connection": "상주 또는 원격 관제 인력과 운영 범위를 늘리는 위탁계약에 연결된다.",
+      "evidence": {
+        "label": "싸이버원 관제",
+        "url": "https://www.cyberone.kr/security-monitor"
+      }
+    },
+    "411080": {
+      "product": "CTX 위협정보, MNX 네트워크 탐지",
+      "connection": "외부 위협 데이터 구매나 네트워크 탐지 도입이 관제 사업 범위에 포함될 때 연결된다.",
+      "evidence": {
+        "label": "샌즈랩 MNX와 CTX",
+        "url": "https://sandslab.io/ko/company/newsroom/sandslab-agentic-ndr-mnx-cti-mdr"
+      }
+    },
+    "465480": {
+      "product": "BizInsider SIEM",
+      "connection": "통합 관제 도입에서 여러 시스템의 로그 수집과 분석이 포함될 때 연결된다.",
+      "evidence": {
+        "label": "인스피언 SIEM",
+        "url": "https://inspien.co.kr/pressrelease/?bmode=view&idx=163881456"
+      }
+    },
+    "488280": {
+      "product": "QUAXAR 위협 인텔리전스",
+      "connection": "싱가포르 정부기관에 공급한 위협정보 플랫폼으로, 관제에 외부 위협 데이터가 들어갈 때 연결된다.",
+      "evidence": {
+        "label": "S2W 싱가포르 공급",
+        "url": "https://www.s2w.inc/en/news/745"
+      }
+    },
+    "053800": {
+      "product": "AhnLab MDR, MXDR",
+      "connection": "단말 탐지와 접근 로그를 모아 외부 전문가가 대응하는 관리형 관제를 공급한다.",
+      "evidence": {
+        "label": "안랩 관제",
+        "url": "https://www.ahnlab.com/ko/contents/content-center/36398"
+      }
+    },
+    "067920": {
+      "product": "SPiDER SIEM, SOAR, 위탁관제",
+      "connection": "로그 통합, 자동 대응, 관제 운영까지 각각 사업 범위에 포함될 수 있다.",
+      "evidence": {
+        "label": "이글루 관제",
+        "url": "https://www.igloo.co.kr/service/security-control/"
+      }
+    }
+  },
+  "exposure": {
+    "150900": {
+      "product": "계열사 Sparrow SAST, DAST",
+      "connection": "소스코드나 웹 앱 진단을 상시화하는 사업과 맞물리며 실제 계약 주체를 확인할 필요가 있다.",
+      "evidence": {
+        "label": "스패로우 제품 자료",
+        "url": "https://sparrow.im/kr/wp-content/uploads/sites/2/2025/12/2025-12%ED%9A%8C%EC%82%AC%EC%86%8C%EA%B0%9C%EC%84%9C.pdf"
+      }
+    },
+    "275630": {
+      "product": "SolidStep CCE, CVE",
+      "connection": "서버와 네트워크의 보안 설정과 알려진 취약점을 정기 전수 점검하는 자동화 수요에 해당한다.",
+      "evidence": {
+        "label": "에스에스알 제품",
+        "url": "https://www.ssrinc.co.kr/"
+      }
+    },
+    "356890": {
+      "product": "기반시설 취약점 분석, PROM CVMS",
+      "connection": "지자체 기반시설 취약점 분석 과업을 수주한 사례가 있다.",
+      "evidence": {
+        "label": "싸이버원 진단 수주",
+        "url": "https://www.cyberone.kr/news-detail?id=173&page=null"
+      }
+    },
+    "465480": {
+      "product": "BizInsider xScan",
+      "connection": "SAP ERP의 계정, 권한, 설정 점검이 정기 진단 범위에 들어갈 때 연결된다.",
+      "evidence": {
+        "label": "인스피언 xScan",
+        "url": "https://www.inspien.co.kr/xScan"
+      }
+    },
+    "067920": {
+      "product": "I² AXIS asm, 취약점 진단 컨설팅",
+      "connection": "외부에 드러난 자산을 정기 점검하며, 기존 관제에 상시 노출 관리가 추가될 때 연결된다.",
+      "evidence": {
+        "label": "이글루 ASM",
+        "url": "https://www.igloo.co.kr/pdf/IGLOO_PLUS_202601.pdf"
+      }
+    }
+  },
+  "content": {
+    "197140": {
+      "product": "방송 수신제한 CAS, DRM",
+      "connection": "방송과 영상 서비스의 수신 권한 및 저작권 관리 시스템 교체가 구매 경로다.",
+      "evidence": {
+        "label": "디지캡 콘텐츠 보호",
+        "url": "https://digicap-solution.com/%EC%BD%98%ED%85%90%EC%B8%A0-%EB%B3%B4%ED%98%B8-%EC%86%94%EB%A3%A8%EC%85%98/"
+      }
+    },
+    "208350": {
+      "product": "SpamSniper 메일 필터, MailScreen 발신 통제",
+      "connection": "SpamSniper 제품 자료에 산업은행, 카카오뱅크 등 금융권 도입 사례가 공개돼 있다.",
+      "evidence": {
+        "label": "지란지교시큐리티 도입 사례",
+        "url": "https://www.jiransecurity.com/products/spamsniper"
+      }
+    },
+    "050960": {
+      "product": "eWalker SWG 웹 필터",
+      "connection": "조달 등록된 웹 접속 관리 제품으로, 기관이 유해 사이트 차단 장비를 교체할 때 연결된다.",
+      "evidence": {
+        "label": "수산아이앤티 조달 이력",
+        "url": "https://www.soosanint.com/contents.php?con_id=history"
+      }
+    },
+    "075130": {
+      "product": "웹 필터링, 악성 사이트 차단",
+      "connection": "KT 가족안심 인터넷에 유해 매체와 악성 사이트 차단 기능을 공급한 이력이 있다.",
+      "evidence": {
+        "label": "플랜티넷 KT 공급",
+        "url": "https://www.plantynet.com/pr/view.php?b=press&id=145"
+      }
+    }
+  },
+  "hardware": {
+    "203650": {
+      "product": "Magic QCrypto 양자내성암호 모듈",
+      "connection": "장비에 넣는 암호 소프트웨어로, 고객사의 양자내성암호 전환에서 모듈 교체가 잡힐 때 연결된다.",
+      "evidence": {
+        "label": "드림시큐리티 PQC 모듈",
+        "url": "https://www.dreamsecurity.com/product/password/qcyrpto"
+      }
+    },
+    "331740": {
+      "product": "AutoCrypt IVS, V2X-PKI",
+      "connection": "완성차 업체의 차량 보안 개발과 연결되며, 해외 완성차의 V2X 인증 인프라 채택 사례가 있다.",
+      "evidence": {
+        "label": "아우토크립트 연혁",
+        "url": "https://autocrypt.io/company/about-us/"
+      }
+    },
+    "456010": {
+      "product": "VIA PUF 기반 보안칩",
+      "connection": "2026년 5월 글로벌 빅테크향 정품 인증용 보안칩 양산 공급 시작을 발표했다.",
+      "evidence": {
+        "label": "아이씨티케이 양산 발표",
+        "url": "https://ictk.com/pressRelease/?bmode=view&idx=171346115"
+      }
+    },
+    "0015S0": {
+      "product": "FAST HSM, 보안 적용 전장 제어기",
+      "connection": "자체 HSM을 적용한 전장 제어기의 완성차 양산 적용 사례를 공개했다.",
+      "evidence": {
+        "label": "페스카로 전장 제어기",
+        "url": "https://www.fescaro.com/en/product/car_control_overview.php"
+      }
+    }
+  },
+  "forensics": {
+    "488280": {
+      "product": "XARVIS 안보 데이터 분석",
+      "connection": "싱가포르 정부기관에 공급한 도구로, 사고 조사에서 온라인 단서 수집과 연관 분석이 필요할 때 연결된다.",
+      "evidence": {
+        "label": "S2W 싱가포르 공급",
+        "url": "https://www.s2w.inc/en/news/745"
+      }
+    },
+    "054920": {
+      "product": "MD-NEXT, MD-RED 모바일 포렌식",
+      "connection": "한컴지엠디 명의로 영국 수사기관 두 곳에 모바일 증거 수집과 분석 도구를 공급한 이력이 있다.",
+      "evidence": {
+        "label": "한컴위드 공급 발표",
+        "url": "https://www.hancomwith.com/about/newsroom.php?code=newsroom&idx=613&page=2&ptype=view"
+      }
+    }
+  },
+  "services": {
+    "232830": {
+      "product": "디지털금융 SI, 보안 통합 구축",
+      "connection": "신한은행 혁신전점 구축 이력이 있으며 금융 시스템 개편에 보안 통합 과업이 포함될 때 연결된다.",
+      "evidence": {
+        "label": "아이티센그룹 사업 자료",
+        "url": "https://itcen.com/webcontent/bbs/data/files/2025/07/g1Tp9qc1qmtn6883144e9a1617.52933988.pdf"
+      }
+    }
+  }
+}

@@ -266,6 +266,8 @@ try {
     leadCount: Number(document.querySelectorAll('.lead-stats b')[1]?.textContent), leadDigest: document.querySelector('.lead-digest') !== null,
     ranks: document.querySelectorAll('.rank li').length, notes: document.querySelectorAll('.note').length,
     headlines: document.querySelectorAll('.headline').length, tab: document.querySelector('#tabs [aria-selected="true"]').dataset.tab,
+    region: document.querySelector('#region-switch [aria-pressed="true"]').dataset.region,
+    leadRegion: document.querySelector('.kicker span')?.textContent,
     countries: [...new Set([...document.querySelectorAll('.note-head em')].map((el) => el.textContent.trim()))],
     related: document.querySelectorAll('details.related').length, focus: document.querySelector('.focus-bar') !== null,
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
@@ -274,9 +276,16 @@ try {
   }))()`;
   let page = await evaluate(NEWS);
   check(page.theme === "dark", "기본 테마가 다크가 아님");
-  check(page.lead.length > 5 && page.leadSources >= 2 && page.ranks >= 3, `주요 이슈 구성: 대표 ${page.leadSources}개 매체, 순위 ${page.ranks}건`);
-  check(page.tab === "incident" && page.notes >= 10 && page.headlines >= 15, `뉴스 첫 화면 정리 ${page.notes}건, 기사 ${page.headlines}건`);
+  check(page.region === "KR" && page.tab === "incident" && page.leadRegion === "국내", "뉴스 첫 화면에서 국내 주요 이슈가 선택되지 않음");
+  check(page.countries.length === 1 && page.countries[0] === "한국", `뉴스 첫 화면 정리 국가 ${page.countries.join(",")}`);
+  check(page.headlines > 0 && await evaluate("[...document.querySelectorAll('.headline p.meta')].every((el) => el.textContent.includes('국내'))"), "뉴스 첫 화면에 국내 기사만 표시되지 않음");
   check(!page.overflow, "뉴스 페이지 가로 넘침");
+  await shot("news-desktop-dark");
+  await click('#region-switch [data-region="ALL"]');
+  page = await evaluate(NEWS);
+  check(page.region === "ALL" && page.countries.includes("한국") && page.countries.length > 1, `전체 필터 뒤 국가 ${page.countries.join(",")}`);
+  check(page.lead.length > 5 && page.leadSources >= 2 && page.ranks >= 3, `주요 이슈 구성: 대표 ${page.leadSources}개 매체, 순위 ${page.ranks}건`);
+  check(page.tab === "incident" && page.notes >= 10 && page.headlines >= 15, `뉴스 전체 지역 정리 ${page.notes}건, 기사 ${page.headlines}건`);
   const rankSources = await evaluate("[...document.querySelectorAll('.rank .meta')].map((el) => Number((/(\\d+)개 매체/.exec(el.textContent) || [])[1]))");
   check(rankSources.every((value, index) => (index === 0 ? page.leadSources >= value : rankSources[index - 1] >= value)), `주요 이슈가 매체 수 순이 아님: ${page.leadSources}, ${rankSources.join(",")}`);
   const noteDates = await evaluate("[...document.querySelectorAll('.note-date')].map((el) => el.firstChild.textContent)");
@@ -285,8 +294,6 @@ try {
   await evaluate("document.querySelectorAll('.note')[1].querySelector('summary').click()");
   check(await evaluate("document.querySelectorAll('.note')[1].open && document.querySelectorAll('.note')[1].querySelectorAll('.facts dt').length >= 2"), "정리 펼치기 실패");
   check(page.related >= 1, "같은 사건 묶음이 없음");
-  await shot("news-desktop-dark");
-
   // 주요 이슈의 관련 기사 모두 보기
   await click(".lead-more");
   page = await evaluate(NEWS);
@@ -328,6 +335,12 @@ try {
   check(page.notes >= 1 && (await evaluate("document.querySelector('#search').value")) === "SK텔레콤", "검색어 진입 실패");
   check(await evaluate("document.querySelector('#period-switch [aria-pressed=\"true\"]').dataset.period") === "0", "검색어 진입 시 기간이 전체로 바뀌지 않음");
 
+  const overseasStock = "팔로알토 네트웍스";
+  await open(`news.html?q=${encodeURIComponent(overseasStock)}`);
+  await click('#tabs [data-tab="spending"]');
+  page = await evaluate(NEWS);
+  check(page.region === "ALL" && page.countries.includes("미국") && await evaluate("document.querySelector('#search').value") === overseasStock, "해외 종목 뉴스 검색어 진입 실패");
+
   await open(`index.html?q=${encodeURIComponent("팔로알토")}`);
   table = await evaluate(TABLE);
   check(table.count === 1 && table.first === "팔로알토 네트웍스", `종목 검색어 진입 결과 ${table.count} ${table.first}`);
@@ -335,8 +348,9 @@ try {
   await open("news.html", { width: 390, height: 844, scheme: "light" });
   page = await evaluate(NEWS);
   check(!page.overflow, "모바일 뉴스 가로 넘침");
-  check(page.lead.length > 5, "모바일 주요 이슈 없음");
+  check(page.region === "KR" && page.lead.length > 5 && page.leadRegion === "국내", "모바일 뉴스 첫 화면에서 국내 주요 이슈가 선택되지 않음");
   check(await evaluate("getComputedStyle(document.querySelector('.jump')).display") === "flex", "모바일 바로가기 없음");
+  await click('#region-switch [data-region="ALL"]');
   await click('#tabs [data-tab="policy"]');
   page = await evaluate(NEWS);
   check(page.notes === 3 && await evaluate("document.querySelector('#more-digest') !== null"), `모바일 정리 미리보기 ${page.notes}건`);

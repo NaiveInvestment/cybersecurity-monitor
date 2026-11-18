@@ -1,4 +1,4 @@
-// 해킹 사건 페이지 계산과 차트(순수 함수). 사건 하나 = 피해 기관 하나, 숫자는 발표된 것만 쓴다.
+// 보안 사고 페이지 계산과 차트(순수 함수). 사건 하나 = 피해 기관 하나, 숫자는 발표된 것만 쓴다.
 // 종합 지수: 주마다 세 요소를 0~100으로 바꿔 평균한다(가중치 같음).
 //   건수 = 사건 수 / 기간 최대 주
 //   유출 = log10(1 + 유출 건수 합 / 1천) / 기간 최대 주
@@ -83,7 +83,7 @@ export function summary(events, weeks, region, { since = weeks[0].start, until =
 export function claimText(s, label) {
   const ratio = s.beforePerWeek ? s.recentPerWeek / s.beforePerWeek : null;
   const trend = ratio == null ? "" : ratio >= 1.3 ? `그 전(주당 ${fmt1(s.beforePerWeek)}건)의 ${fmt1(ratio)}배` : ratio <= 0.77 ? `그 전(주당 ${fmt1(s.beforePerWeek)}건)보다 줄었다` : `그 전(주당 ${fmt1(s.beforePerWeek)}건)과 비슷하다`;
-  return `${label} 해킹 사건은 최근 4주 주당 ${fmt1(s.recentPerWeek)}건으로 ${trend}.`;
+  return `${label} 보안 사고는 최근 4주 주당 ${fmt1(s.recentPerWeek)}건으로 ${trend}.`;
 }
 
 // 업권별 건수(최근 4주와 그 전, 주당).

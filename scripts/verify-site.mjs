@@ -1,4 +1,4 @@
-// 조립된 사이트 폴더를 검사한다. 사용: node scripts/verify-site.mjs <사이트 폴더> [--same-as _site]
+// 조립된 사이트 폴더를 검사한다. 사용: node scripts/verify-site.mjs <사이트 폴더> [--same-as _site] [--public]
 // 데이터 채움률, 카드 구성, 금지 문자, 자산 참조, (선택) 다른 빌드 폴더와의 파일 일치를 본다. 실패하면 종료 코드 1.
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
@@ -22,6 +22,17 @@ const walk = (root) => readdirSync(root).flatMap((name) => {
 
 for (const file of ["index.html", "news.html", "styles.css", "theme.js", "common.js", "app.js", "news.js", "lib/calc.js", "lib/status.js", "lib/text.js", "lib/issues.js", "lib/incident-trend.js", "lib/incident-metrics.js", "incidents.html", "incidents.js", "data/incident-events.json", "data/snapshot.json", "data/news.json", "data/incidents.json", "data/cards.json", "data/meta.json", "robots.txt"]) {
   check(existsSync(join(dir, file)), `파일 없음: ${file}`);
+}
+for (const file of ["positions.html", "positions.css", "positions.js", "data/positions.json", "data/position-sectors.json", "data/position-exposure.json", "data/position-mix.json"]) {
+  check(existsSync(join(dir, file)), `밸류체인 파일 없음: ${file}`);
+}
+
+if (args.includes("--public")) {
+  for (const path of ["reports", "report-view.html", "report-view.js", "report-view.css", "data/position-library.json"]) {
+    check(!existsSync(join(dir, path)), `공개 폴더에 로컬 자료 경로가 있음: ${path}`);
+  }
+  check(!existsSync(join(dir, "positions.html")) || !read("positions.html").includes("data-report-library"),
+    "공개 밸류체인에 로컬 자료함 표시가 켜져 있음");
 }
 
 if (!failures.length) {

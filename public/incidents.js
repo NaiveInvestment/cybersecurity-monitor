@@ -1,4 +1,4 @@
-// 해킹 사건 페이지: 통합, 국내, 해외를 바꿔 보며 종합 지수, 건수, 유출 규모, 탈취 금액, 업권, 사건 목록, 최근 보도를 본다.
+// 보안 사고 페이지: 통합, 국내, 해외를 바꿔 보며 종합 지수, 건수, 유출 규모, 탈취 금액, 업권, 사건 목록, 최근 보도를 본다.
 import { esc, fmtKst, loadJson, initTheme } from "./common.js";
 import { groupStories } from "./lib/issues.js";
 import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, summary, claimText, orgBreakdown, indexChart, countChart, sizeChart, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw } from "./lib/incident-metrics.js";
@@ -25,7 +25,7 @@ const legend = (keys) => keys.map((k) => `<span class="${k}"><i></i>${REGION_LAB
 function renderTop() {
   const opts = { since: first() > data.since ? first() : data.since, until: data.until };
   const sums = Object.fromEntries(["KR", "GL", "ALL"].map((r) => [r, summary(data.events, weeks, r, opts)]));
-  $("#inc-title").textContent = `${state.region === "ALL" ? "국내외" : REGION_LABEL[state.region]} 해킹 사건 동향`;
+  $("#inc-title").textContent = `${state.region === "ALL" ? "국내외" : REGION_LABEL[state.region]} 보안 사고 동향`;
   $("#inc-range").textContent = `최근 13주, ${first().slice(5).replace("-", ".")}~${data.until.slice(5).replace("-", ".")}`;
   $("#inc-claim").innerHTML = regionList().map((r) => `<p>${esc(claimText(sums[r], REGION_LABEL[r]))}</p>`).join("");
   const s = sums[state.region];

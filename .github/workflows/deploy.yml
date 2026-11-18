@@ -63,7 +63,7 @@ jobs:
       - name: Assemble site
         run: node scripts/build-site.mjs
       - name: Verify assembled site
-        run: node scripts/verify-site.mjs _site
+        run: node scripts/verify-site.mjs _site --public
       - name: Save state to data branch
         run: node scripts/save-state.mjs
       - uses: actions/configure-pages@v5

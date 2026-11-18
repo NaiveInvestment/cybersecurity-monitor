@@ -1,0 +1,273 @@
+{
+  "iam": {
+    "function": "로그인하거나 거래할 때 본인인지 확인하고, 계정별로 이용할 수 있는 서비스를 정합니다.",
+    "revenueModel": "인증 시스템을 구축하거나 인증서를 발급합니다. 계약에 따라 인증 사용료나 유지보수료도 받습니다.",
+    "eventTitle": "금융권 인증과 접근통제 점검",
+    "development": "금융위는 11월 5일 은행과 핀테크 등의 외부 접점 전수점검에 인증과 접근통제 시스템을 포함했습니다.",
+    "trigger": "은행과 핀테크가 로그인이나 중요 거래의 생체인증, 전자서명, 계정 관리 개편을 발주하는지 봅니다.",
+    "sources": [
+      {
+        "label": "금융위 11월 5일 보안 혁신방안",
+        "url": "https://www.fsc.go.kr/no010101/88086"
+      }
+    ]
+  },
+  "access": {
+    "function": "사내망에 접속하는 기기가 등록됐고 보안 기준을 충족하는지 확인해, 미등록 기기나 기준 미달 기기를 격리합니다.",
+    "revenueModel": "기기 접속을 관리하는 제품을 설치하고, 적용 기기 수가 늘면 라이선스나 관리 범위를 늘립니다.",
+    "eventTitle": "민간 제로트러스트 시범 도입",
+    "development": "과기정통부와 KISA가 민간 기업의 실제 환경에 제로트러스트를 적용하는 시범사업을 지원합니다. 공고상 사업기간은 12월 11일까지입니다.",
+    "trigger": "시범 적용 후 기기 등록과 보안 상태 검사를 맡는 NAC의 신규 도입, 교체 또는 적용 단말 확대가 발주되는지 봅니다.",
+    "sources": [
+      {
+        "label": "KISA 제로트러스트 시범사업",
+        "url": "https://www.kisa.or.kr/401/form?postSeq=3601"
+      }
+    ]
+  },
+  "transfer": {
+    "function": "업무망과 인터넷망을 분리해 쓰는 금융사와 공공기관에서, 승인된 파일을 검사하고 다른 망으로 옮길 때 씁니다.",
+    "revenueModel": "기관이 망을 새로 연동하거나 교체할 때 장비와 소프트웨어를 납품합니다. 구축 뒤 유지보수 계약도 매출이 됩니다.",
+    "eventTitle": "금융권 보안 SaaS 예외와 공공 N2SF 도입",
+    "development": "금융위는 잇따른 침해사고 이후 보안용 AI와 SaaS를 더 넓게 쓰도록 기존 한시 예외의 상시화를 추진합니다. 공공은 정보 등급에 맞춰 망 보안을 바꾸는 N2SF 도입사업을 진행합니다.",
+    "trigger": "공공은 후속 발주서, 금융은 분리를 유지하는 구간의 보안 설계에서 망 간 자료 전송과 파일 검사가 별도 구매로 잡히는지 봅니다.",
+    "sources": [],
+    "context": [
+      {
+        "title": "금융권 망분리 규제 일정",
+        "milestones": [
+          {
+            "when": "2026.04.20 시행",
+            "text": "조건을 충족한 업무용 SaaS의 망분리 예외가 시행됐습니다. 고유식별정보와 개인신용정보 처리는 예외 대상에서 제외됩니다."
+          },
+          {
+            "when": "2026.06~09 한시 완화",
+            "text": "6월 1차 보안 목적 AI 테스트를 시작했고, 9월 3일 보안 SaaS까지 활용하는 2차 테스트 방안을 확정했습니다."
+          },
+          {
+            "when": "2026.11 추진 일정",
+            "text": "11월 5일 금융위가 망분리 전면해제 TF 발족과 보안용 AI 및 SaaS 예외 상시화를 위한 감독규정 개정 추진을 발표했습니다."
+          },
+          {
+            "when": "2026.11.18~30 예고",
+            "text": "별도 개정안은 IT자산 관리와 취약점 평가 강화가 대상이며, 절차를 거쳐 2027년 1분기 시행을 목표로 합니다."
+          },
+          {
+            "when": "2027년 1분기 목표",
+            "text": "망분리 재편과 대체 보안체계 방안 마련, 디지털금융 안전법 법안 마련을 추진합니다."
+          }
+        ],
+        "sources": [
+          {
+            "label": "금융위 4월 업무용 SaaS",
+            "url": "https://www.fsc.go.kr/no010101/86745?srchKey=sj&srchText=SaaS"
+          },
+          {
+            "label": "금융위 9월 한시 완화",
+            "url": "https://fsc.go.kr/po010104/87646?curPage=7&srchBeginDt=&srchCtgry=&srchEndDt=&srchKey=&srchText="
+          },
+          {
+            "label": "금융위 11월 5일 대책과 별첨",
+            "url": "https://fsc.go.kr/no010101/88086?curPage=2&srchBeginDt=&srchCtgry=&srchEndDt=&srchKey=&srchText="
+          },
+          {
+            "label": "금융위 11월 18일 개정안",
+            "url": "https://www.fsc.go.kr/no010101/88162?curPage=&srchBeginDt=&srchCtgry=&srchEndDt=&srchKey=&srchText="
+          }
+        ]
+      },
+      {
+        "title": "공공 N2SF 지원사업",
+        "text": "업무 정보를 기밀, 민감, 공개로 나누고 등급에 맞는 보호조치를 적용합니다.",
+        "milestones": [
+          {
+            "when": "2026.06 선정",
+            "text": "KISA가 공공기관과 보안기업으로 구성된 6개 연합체를 선정했습니다. 공고상 전체 지원 규모는 45억원입니다."
+          },
+          {
+            "when": "2026.12.11 예정",
+            "text": "도입 지원사업 공고상 종료일입니다. 이후 기관별 본사업과 교체 예산을 확인합니다."
+          }
+        ],
+        "sources": [
+          {
+            "label": "KISA 6개 연합체 선정",
+            "url": "https://www.kisa.or.kr/402/form?postSeq=2600"
+          },
+          {
+            "label": "KISA 지원사업 공고",
+            "url": "https://www.kisa.or.kr/401/form?postSeq=3626"
+          }
+        ]
+      }
+    ]
+  },
+  "net": {
+    "function": "방화벽이 네트워크에서 오가는 연결을 검사해 위험한 통신을 차단합니다.",
+    "revenueModel": "방화벽과 네트워크 보안 장비를 판매하고, 계약에 따라 위협정보 업데이트나 유지보수료를 받습니다.",
+    "eventTitle": "금융권 외부 접점 점검과 망분리 대체통제",
+    "development": "금융위는 11월 5일 외부 접점 전수점검 계획을 발표하고, 망분리 예외에 적용할 대체 보안수단을 마련하기로 했습니다.",
+    "trigger": "금융회사가 외부 연결 구간에 네트워크 검사나 방화벽 교체를 발주하는지 봅니다.",
+    "sources": [
+      {
+        "label": "금융위 11월 5일 보안 혁신방안",
+        "url": "https://www.fsc.go.kr/no010101/88086"
+      }
+    ]
+  },
+  "endpoint": {
+    "function": "PC와 서버의 이상 행동을 감시해 공격을 찾고 감염 장비를 격리합니다. 이를 단말 탐지 및 대응, EDR이라고 부릅니다.",
+    "revenueModel": "보호할 PC와 서버 수에 따라 라이선스나 구독료를 받습니다. 기존 고객이 EDR과 관제 서비스(MDR)를 추가하거나 보호 기기 수를 늘리면 계약 규모가 커질 수 있습니다.",
+    "eventTitle": "백신 고객에게 EDR과 관제를 추가 판매",
+    "development": "안랩은 2026년 9월 EPP와 EDR을 SaaS 기반으로 묶고, MDR과 통합관제까지 연결하는 제품 체계를 발표했습니다. 10월 발표에서도 EDR과 MDR 수요 확대를 언급했습니다.",
+    "trigger": "국내 업체는 유료로 추가한 단말 수, EDR과 MDR 동시 도입, 구독 갱신 및 확장 계약을 봅니다.",
+    "sources": [
+      {
+        "label": "안랩 AI 플러스 발표",
+        "url": "https://company.ahnlab.com/kr/news/press_release_view.do?seqPressRelease=11150"
+      },
+      {
+        "label": "안랩 2026년 3분기 실적",
+        "url": "https://company.ahnlab.com/kr/news/press_release_view.do?seqPressRelease=11252"
+      }
+    ],
+    "context": [
+      {
+        "title": "CrowdStrike 사례",
+        "text": "Falcon 단말 보안을 쓰던 고객에게 클라우드 보안, 신원 보호, 로그 분석 모듈을 함께 판매합니다.",
+        "milestones": [
+          {
+            "when": "2026.07.31 기준",
+            "text": "구독 고객의 51%가 6개 이상 모듈을 사용했습니다. 소규모 고객용 Falcon Go는 분모에서 제외합니다."
+          },
+          {
+            "when": "FY2027 2분기",
+            "text": "기말 연간 반복매출(ARR)은 58.4억 달러로 전년 대비 25% 늘었습니다. 분기 매출은 14.7억 달러로 26%, 조정 영업이익은 3.72억 달러로 46% 증가했습니다."
+          }
+        ],
+        "sources": [
+          {
+            "label": "CrowdStrike FY2027 2분기 실적",
+            "url": "https://ir.crowdstrike.com/news-releases/news-release-details/crowdstrike-reports-second-quarter-fiscal-year-2027-financial"
+          },
+          {
+            "label": "CrowdStrike 모듈 도입과 실적 자료",
+            "url": "https://ir.crowdstrike.com/static-files/7d32e91f-6184-4ade-8f02-f685e91b420f"
+          }
+        ]
+      }
+    ]
+  },
+  "web": {
+    "function": "웹사이트와 API에 들어오는 요청을 검사해 비정상적인 접근을 차단합니다.",
+    "revenueModel": "웹 방화벽을 설치하거나 운영 중인 웹서비스와 API에 클라우드형 보안을 구독으로 제공합니다.",
+    "eventTitle": "금융권 공개 웹서비스와 API 점검",
+    "development": "금융위의 11월 전수점검 계획에 대고객 웹서비스와 영업, 관리 목적 API가 포함됐습니다.",
+    "trigger": "점검 뒤 웹 방화벽이나 API 보안 계약이 나오고, 기존 계약의 적용 서비스 수가 늘어나는지 봅니다.",
+    "sources": [
+      {
+        "label": "금융위 11월 5일 보안 혁신방안",
+        "url": "https://www.fsc.go.kr/no010101/88086"
+      }
+    ]
+  },
+  "data": {
+    "function": "문서와 데이터베이스를 암호화하고, 자료를 볼 수 있는 사람이나 밖으로 보낼 수 있는 범위를 정합니다.",
+    "revenueModel": "문서 보호와 데이터 암호화 제품을 구축합니다. 도입 범위에 따라 사용자나 보호할 시스템 수를 늘립니다.",
+    "eventTitle": "공공 N2SF 클라우드 문서 업무",
+    "development": "공공 N2SF 도입 지원에는 자료 중요도에 맞춰 보호 수준을 정하는 클라우드 문서체계 모델이 포함됐습니다.",
+    "trigger": "공공기관의 새 문서 시스템에 데이터 분류, 암호화, 외부 반출 통제가 포함되는지 봅니다.",
+    "sources": [
+      {
+        "label": "KISA 공공 N2SF 선정 결과",
+        "url": "https://www.kisa.or.kr/402/form?postSeq=2600"
+      }
+    ]
+  },
+  "soc": {
+    "function": "보안 경보와 외부 위협정보를 모아 사고 신호를 찾고, 관제 인력이 대응할 순서를 정합니다.",
+    "revenueModel": "통합 관제 소프트웨어를 구축하거나, 보안관제 인력과 운영을 위탁받아 계약 기간에 걸쳐 대가를 받습니다.",
+    "eventTitle": "금융권 공동관제 시스템 고도화",
+    "development": "금융위는 금융회사가 탐지한 위협정보를 공유하는 공동관제 시스템의 12월 시범운영을 추진합니다.",
+    "trigger": "금융회사가 위협정보를 내부 시스템에 연결하기 위해 관제 플랫폼 확장이나 운영 위탁을 새로 발주하는지 봅니다.",
+    "sources": [
+      {
+        "label": "금융위 11월 5일 보안 혁신방안",
+        "url": "https://www.fsc.go.kr/no010101/88086"
+      }
+    ]
+  },
+  "exposure": {
+    "function": "외부에 노출된 시스템과 취약점을 찾아 어디부터 고쳐야 하는지 알려줍니다.",
+    "revenueModel": "기관의 취약점을 정기적으로 점검하는 용역을 맡거나, 외부 자산과 취약점을 계속 탐색하는 제품을 판매합니다.",
+    "eventTitle": "대형 금융사 취약점 평가 연 2회 추진",
+    "development": "금융위가 11월 18일 평가를 연 1회에서 2회로 늘리는 개정안을 예고했습니다. 평가 주기 단축은 행정지도로 11월부터 추진할 계획입니다.",
+    "trigger": "평가 주기 단축으로 진단 용역을 추가 발주하는지, 연간 계약에 상시 탐색과 취약점 관리도 넣는지 봅니다.",
+    "sources": [
+      {
+        "label": "금융위 11월 18일 규정변경예고",
+        "url": "https://www.fsc.go.kr/no010101/88162"
+      }
+    ]
+  },
+  "content": {
+    "function": "메일과 첨부파일, 웹 링크에서 악성코드나 사칭을 찾아 전달과 접속을 막습니다.",
+    "revenueModel": "메일과 웹 필터를 구축하거나 보호할 계정 수에 따라 서비스 이용료를 받습니다.",
+    "eventTitle": "공공기관과 금융기관 사칭 메일",
+    "development": "KISA는 9월 29일 공공기관과 금융기관을 사칭한 메일이 계속 유포되고 있다고 공지했습니다.",
+    "trigger": "메일 보안 교체 발주에 첨부파일 검사와 위조 웹주소 차단을 포함하는지 봅니다.",
+    "sources": [
+      {
+        "label": "KISA 기관 사칭 이메일 보안공지",
+        "url": "https://www.boho.or.kr/kr/bbs/view.do?bbsId=B0000133&menuNo=205020&nttId=72202&pageIndex=1"
+      }
+    ]
+  },
+  "hardware": {
+    "function": "보안칩과 차량용 소프트웨어에 암호화와 기기 인증 등의 보호 기능을 넣습니다.",
+    "revenueModel": "기기 제조사에 보안칩을 양산 납품하거나, 완성차 업체에 차량용 보안 소프트웨어와 개발 서비스를 공급합니다.",
+    "eventTitle": "자동차 사이버보안 인증과 암호 전환",
+    "development": "자동차 사이버보안 관리체계 인증 고시가 시행 중입니다. KISA는 양자내성암호 전환 실무 교육 일정도 별도로 발표했습니다.",
+    "trigger": "완성차 보안 설계 계약이나 기기 제조사의 보안칩 채택이 차종 또는 기기 양산 공급으로 이어지는지 봅니다.",
+    "sources": [
+      {
+        "label": "자동차 사이버보안 관리체계 인증 고시",
+        "url": "https://www.law.go.kr/admRulLsInfoP.do?admRulSeq=2100000272720"
+      },
+      {
+        "label": "KISA 양자내성암호 전환 교육",
+        "url": "https://www.kisa.or.kr/402/form?postSeq=2627"
+      }
+    ]
+  },
+  "forensics": {
+    "function": "사고가 난 기기와 시스템의 기록을 보존하고, 침해 경로와 피해 범위를 확인합니다.",
+    "revenueModel": "수사기관에 증거 수집과 분석 도구를 공급하거나, 사고가 난 기업의 원인 조사 용역을 맡습니다.",
+    "eventTitle": "가상화 서버 침해사고 원인 분석",
+    "development": "KISA는 8월에 가상화 인프라의 침해 경로와 원인 분석 사례를 공개했습니다.",
+    "trigger": "수사기관의 증거 분석 도구 교체나 기업의 사고 조사 계약이 나오는지 봅니다.",
+    "sources": [
+      {
+        "label": "KISA 상반기 침해사고 분석",
+        "url": "https://www.boho.or.kr/kr/bbs/view.do?bbsId=B0000127&menuNo=205021&nttId=72167&pageIndex=1"
+      }
+    ]
+  },
+  "services": {
+    "function": "기관의 보안 계획을 세우고, 여러 제품을 묶어 시스템을 구축하거나 운영합니다.",
+    "revenueModel": "보안 진단과 설계, 시스템 통합에 사업비를 받고, 구축한 시스템의 운영이나 유지보수도 맡습니다.",
+    "eventTitle": "민간 제로트러스트 전환 컨설팅",
+    "development": "KISA는 올해 민간 기업과 기관을 대상으로 제로트러스트 진단과 전환 계획 수립을 지원하는 사업을 공고했습니다.",
+    "trigger": "진단을 마친 기관이 통합 구축을 발주하고, 시스템 운영 계약까지 체결하는지 봅니다.",
+    "sources": [
+      {
+        "label": "KISA 제로트러스트 전환 컨설팅",
+        "url": "https://www.kisa.or.kr/401/form?postSeq=3619"
+      },
+      {
+        "label": "KISA 제로트러스트 시범사업",
+        "url": "https://www.kisa.or.kr/401/form?postSeq=3601"
+      }
+    ]
+  }
+}

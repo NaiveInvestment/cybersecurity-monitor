@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko" data-default-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>사이버보안 모니터, 밸류체인</title>
+<link rel="icon" href="data:,">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="positions.css">
+</head>
+<body class="positions-page">
+<header class="top">
+  <a class="brand" href="index.html" aria-label="사이버보안 모니터 첫 화면">
+    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path d="M10 1 2 4v6c0 5 3.4 9 8 11V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m6.5 11 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="position-brand">사이버보안 <b>모니터</b></span>
+  </a>
+  <nav aria-label="페이지">
+    <a href="index.html">종목</a>
+    <a href="positions.html" aria-current="page">밸류체인</a>
+    <a href="news.html">뉴스</a>
+    <a href="incidents.html">보안 사고</a>
+  </nav>
+  <div class="status">
+    <span id="position-date"></span>
+    <button type="button" class="theme-btn" data-theme-toggle>라이트 모드</button>
+  </div>
+</header>
+<main id="position-main">
+  <section class="position-overview" aria-labelledby="position-map-title">
+    <header class="position-map-head">
+      <div>
+        <h1 id="position-map-title">밸류체인</h1>
+        <p>은행 직원이 로그인해 업무 시스템을 쓰고 외부와 자료를 주고받는 흐름입니다.</p>
+      </div>
+    </header>
+    <div id="position-map" role="group" aria-label="보안 분야 선택">
+      <ol class="position-flow" aria-label="은행 업무 흐름">
+        <li class="position-step">
+          <h3>로그인</h3>
+          <p>사용자 본인과 권한을 확인</p>
+          <div class="position-step-choices">
+            <button type="button" data-sector="iam" aria-pressed="false">인증과 권한</button>
+          </div>
+        </li>
+        <li class="position-step">
+          <h3>네트워크 접속</h3>
+          <p>허용된 기기와 통신만 연결</p>
+          <div class="position-step-choices">
+            <button type="button" data-sector="access" aria-pressed="false">기기 접속 통제</button>
+            <button type="button" data-sector="net" aria-pressed="false">네트워크 방어</button>
+          </div>
+        </li>
+        <li class="position-step">
+          <h3>업무 시스템 사용</h3>
+          <p>단말과 웹 서비스를 보호</p>
+          <div class="position-step-choices">
+            <button type="button" data-sector="endpoint" aria-pressed="false">단말과 서버</button>
+            <button type="button" data-sector="web" aria-pressed="false">웹과 API</button>
+          </div>
+        </li>
+        <li class="position-step">
+          <h3>자료 전송과 열람</h3>
+          <p>망 사이 이동과 열람을 통제</p>
+          <div class="position-step-choices">
+            <button type="button" data-sector="transfer" aria-pressed="false">망연계</button>
+            <button type="button" data-sector="data" aria-pressed="false">문서와 데이터 보호</button>
+          </div>
+        </li>
+      </ol>
+      <div class="position-signal-lines" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      <div class="position-operations">
+        <strong>전 구간 점검과 대응</strong>
+        <div class="position-map-controls">
+          <button type="button" data-sector="soc" aria-pressed="false">탐지와 관제</button>
+          <button type="button" data-sector="exposure" aria-pressed="false">취약점 진단</button>
+          <button type="button" data-sector="forensics" aria-pressed="false">사고 조사</button>
+          <button type="button" data-sector="services" aria-pressed="false">보안 구축과 SI</button>
+        </div>
+      </div>
+      <div class="position-map-extras">
+        <button type="button" data-sector="content" aria-pressed="false">메일과 콘텐츠</button>
+        <button type="button" data-sector="all" aria-pressed="false">전체 종목</button>
+      </div>
+    </div>
+  </section>
+  <section id="position-sector" class="position-sector" aria-labelledby="position-sector-title" aria-live="polite">
+    <div class="position-sector-business">
+      <h2 id="position-sector-title">분야별 설명</h2>
+      <p class="position-sector-function">자료를 불러오는 중입니다.</p>
+      <p class="position-sector-revenue" hidden></p>
+    </div>
+    <div class="position-sector-event" hidden>
+      <h3 id="position-event-title"></h3>
+      <p class="position-sector-development"></p>
+      <p class="position-sector-trigger"></p>
+      <div class="position-sector-sources"></div>
+    </div>
+    <div class="position-sector-context" hidden></div>
+  </section>
+  <section id="position-company-section" class="position-lookup" aria-labelledby="lookup-heading">
+    <header class="position-section-head">
+      <div>
+        <h2 id="lookup-heading">관련 종목</h2>
+        <p class="position-table-meta">
+          <span id="position-count" aria-live="polite">종목 자료를 불러오는 중</span>
+          <span>단위 억원</span>
+          <span id="position-quote-time"></span>
+        </p>
+      </div>
+      <div class="position-table-controls">
+        <button type="button" id="position-hardware" data-sector="hardware" aria-pressed="false" hidden>보안칩과 차량보안</button>
+        <label class="position-search-label" hidden>
+          <input id="position-search" type="search" aria-label="종목 검색" placeholder="전체 종목 검색" autocomplete="off">
+        </label>
+      </div>
+    </header>
+    <div class="position-table-frame">
+      <table class="position-table" aria-labelledby="lookup-heading" role="table">
+        <colgroup>
+          <col class="position-col-company"><col class="position-col-connection"><col class="position-col-cap">
+        </colgroup>
+        <colgroup span="3" class="position-col-finance"></colgroup>
+        <thead>
+          <tr>
+            <th scope="col" rowspan="2">종목</th>
+            <th scope="col" rowspan="2" id="position-connection-heading">제품과 연결 근거</th>
+            <th scope="col" rowspan="2" class="position-number" aria-sort="descending">시가총액 <span class="position-sort-mark" aria-hidden="true">↓</span></th>
+            <th scope="colgroup" colspan="3" class="position-finance-period">최근 4분기 실적</th>
+          </tr>
+          <tr>
+            <th scope="col" class="position-number">매출</th>
+            <th scope="col" class="position-number">영업이익</th>
+            <th scope="col" class="position-number">순이익</th>
+          </tr>
+        </thead>
+        <tbody id="position-body"></tbody>
+      </table>
+      <p id="position-empty" class="position-empty" hidden></p>
+    </div>
+  </section>
+  <details class="position-method">
+    <summary>분류, 시총과 실적 기준</summary>
+    <ul>
+      <li>국내 보안주 35개를 대상으로 대표 또는 겹치는 보안 분야에 포함합니다. 회사별 제품과 공시 자료는 표에서 열 수 있습니다.</li>
+      <li>시총과 실적의 단위는 억원입니다. 시총은 종목 탭과 같은 시세를 쓰고, 개별 기준 시각은 시총 값에서 확인할 수 있습니다.</li>
+      <li>매출, 영업이익, 순이익은 2025년 4분기부터 2026년 3분기까지의 합계입니다. 연결 우선이며 순이익은 지배주주 귀속을 우선합니다. 회사명을 누르면 개별 기준과 공시가 열립니다.</li>
+      <li>매출 비중은 2026년 1~9월 공시의 사업 또는 제품 구분입니다. 공시에서 여러 제품을 한 항목으로 공개한 경우 그 항목 전체를 표시합니다.</li>
+    </ul>
+  </details>
+</main>
+<script type="module" src="positions.js"></script>
+</body>
+</html>

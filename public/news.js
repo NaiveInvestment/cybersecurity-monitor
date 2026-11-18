@@ -5,7 +5,7 @@ import { groupStories, topIssues, cardForStory } from "./lib/issues.js";
 
 const PAGE = 40;
 const DIGEST_PREVIEW = 3;
-const state = { tab: "incident", region: "ALL", period: 30, query: "", shown: PAGE, focus: null, digestOpen: false };
+const state = { tab: "incident", region: "KR", period: 30, query: "", shown: PAGE, focus: null, digestOpen: false };
 let cards = [];
 let news = { items: [], updatedAt: null };
 let names = {};
@@ -169,8 +169,9 @@ function selectTab(tab) {
   document.querySelectorAll("#tabs button").forEach((button) => button.setAttribute("aria-selected", String(button.dataset.tab === tab)));
 }
 
+const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === String(value))));
+
 function bind() {
-  const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === String(value))));
   $("#tabs").addEventListener("click", (event) => {
     const tab = event.target.closest("button")?.dataset.tab;
     if (!tab) return;
@@ -237,9 +238,11 @@ async function main() {
   const query = new URLSearchParams(location.search).get("q");
   if (query) {
     state.query = query;
+    state.region = "ALL";
     state.period = 0;
     $("#search").value = query;
-    document.querySelectorAll("#period-switch button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.period === "0")));
+    press($("#region-switch"), "region", state.region);
+    press($("#period-switch"), "period", state.period);
     // 검색어로 들어오면 결과가 있는 첫 범주를 연다.
     const first = ["incident", "policy", "spending"].find((tab) => { state.tab = tab; return filteredCards().length || filteredItems().length; });
     selectTab(first || "incident");

@@ -17,8 +17,9 @@
   </a>
   <nav aria-label="페이지">
     <a href="index.html">종목</a>
+    <a href="positions.html">밸류체인</a>
     <a href="news.html" aria-current="page">뉴스</a>
-    <a href="incidents.html">해킹 사건</a>
+    <a href="incidents.html">보안 사고</a>
   </nav>
   <div class="status" aria-live="polite">
     <span id="status-text">불러오는 중</span>
@@ -31,15 +32,15 @@
       <h2 id="issues-title">지금 주요 이슈</h2>
       <p>최근 3일, 보도한 매체 수 순</p>
       <div class="seg-switch" role="group" aria-label="지역" id="region-switch">
-        <button type="button" data-region="ALL" aria-pressed="true">전체</button>
-        <button type="button" data-region="KR" aria-pressed="false">국내</button>
+        <button type="button" data-region="ALL" aria-pressed="false">전체</button>
+        <button type="button" data-region="KR" aria-pressed="true">국내</button>
         <button type="button" data-region="GL" aria-pressed="false">해외</button>
       </div>
     </header>
     <div class="issues-grid" id="issues"></div>
   </section>
 
-  <a class="inc-link" href="incidents.html"><b>해킹 사건 추이</b><span>국내와 해외 사건 수, 유출 규모, 탈취 금액, 종합 지수는 해킹 사건 페이지에서</span><em>보기</em></a>
+  <a class="inc-link" href="incidents.html"><b>보안 사고 동향</b><span>국내외 사고 건수, 유출 규모, 탈취 금액, 종합 지수</span><em>보기</em></a>
 
   <div class="tabs" role="tablist" aria-label="뉴스 범주" id="tabs">
     <button type="button" role="tab" data-tab="incident" aria-selected="true">해킹 사례<small></small></button>

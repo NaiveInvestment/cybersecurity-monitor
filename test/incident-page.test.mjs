@@ -88,7 +88,7 @@ test("summary, claimText, orgBreakdown", () => {
   const s = summary(events, weeks, "KR", { since: "2026-08-18", until: "2026-11-17" });
   assert.equal(s.total, 29);
   assert.ok(s.recentPerWeek > s.beforePerWeek);
-  assert.match(claimText(s, "국내"), /국내 해킹 사건은 최근 4주 주당 .*배/);
+  assert.match(claimText(s, "국내"), /국내 보안 사고는 최근 4주 주당 .*배/);
   const orgs = orgBreakdown(events, weeks, "KR");
   assert.deepEqual(orgs.map((o) => o.org), ["금융회사", "일반 기업"]);
 });
