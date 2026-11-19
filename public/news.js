@@ -2,6 +2,7 @@
 import { esc, fmtKst, loadJson, initTheme } from "./common.js";
 import { statusTone } from "./lib/status.js";
 import { groupStories, topIssues, cardForStory } from "./lib/issues.js";
+import { recentIncidentStories } from "./lib/recent-incidents.js";
 
 const PAGE = 40;
 const DIGEST_PREVIEW = 3;
@@ -44,6 +45,59 @@ function filteredItems(tab = state.tab) {
 
 function findStory(items, id) {
   return groupStories(items.filter((item) => String(item.g || item.id) === id))[0];
+}
+
+function recentRow(story) {
+  const [item, ...others] = story.items;
+  const related = others.length ? `<details class="related" data-story="${esc(story.id)}">
+    <summary>다른 보도 ${others.length}건</summary>
+    <ul>${others.map((row) => `<li>${link(row)} <span class="meta">${esc(row.s)}, ${fmtKst(row.d)}</span></li>`).join("")}</ul>
+  </details>` : "";
+  return `<li class="recent-row">
+    <time class="num" datetime="${esc(item.d)}">${fmtKst(item.d)}</time>
+    <div class="recent-story">${link(item, "recent-title")}${related}</div>
+    <span class="recent-source">${esc(item.s)}</span>
+  </li>`;
+}
+
+function watchRecentIncidents(file) {
+  const panel = $("#recent-incidents");
+  let previousHtml;
+  let lastFetch = Date.now();
+  let fetching = false;
+  function paint() {
+    const stories = recentIncidentStories(file.items);
+    const visible = stories.slice(0, 4);
+    const extra = stories.slice(4);
+    const stale = Date.now() - Date.parse(file.updatedAt) >= 86400000;
+    const html = visible.length
+      ? `<ul>${visible.map(recentRow).join("")}</ul>` + (extra.length
+        ? `<details class="recent-overflow" data-story=""><summary>기사 묶음 ${extra.length}개 더 보기</summary><ul>${extra.map(recentRow).join("")}</ul></details>` : "")
+      : `<p class="recent-message">${stale ? `최근 수집은 ${fmtKst(file.updatedAt)} KST입니다. 새 수집을 기다리고 있습니다.` : "최근 24시간 동안 수집된 침해사고 보도가 없습니다."}</p>`;
+    if (html === previousHtml) return;
+    const openStories = new Set([...panel.querySelectorAll("details[open]")].map((detail) => detail.dataset.story));
+    panel.innerHTML = html;
+    panel.querySelectorAll("details").forEach((detail) => { detail.open = openStories.has(detail.dataset.story); });
+    previousHtml = html;
+  }
+  async function update() {
+    if (document.hidden) return;
+    paint();
+    if (fetching || Date.now() - lastFetch < 30 * 60000) return;
+    fetching = true;
+    lastFetch = Date.now();
+    try {
+      file = await loadJson("data/news.json");
+      paint();
+    } catch {
+      // 수집본이 잠시 응답하지 않으면 마지막 수집본에서도 지난 기사는 계속 만료한다.
+    } finally {
+      fetching = false;
+    }
+  }
+  paint();
+  window.setInterval(update, 60000);
+  document.addEventListener("visibilitychange", update);
 }
 
 // ---- 주요 이슈 ----
@@ -236,7 +290,14 @@ function bind() {
 async function main() {
   initTheme();
   try {
-    const [cardFile, newsFile, snapshot] = await Promise.all([loadJson("data/cards.json"), loadJson("data/news.json"), loadJson("data/snapshot.json")]);
+    const headlines = loadJson("data/news.json").then((file) => {
+      watchRecentIncidents(file);
+      return file;
+    }).catch((error) => {
+      $("#recent-incidents").innerHTML = '<p class="recent-message">침해사고 기사를 불러오지 못했습니다.</p>';
+      throw error;
+    });
+    const [cardFile, newsFile, snapshot] = await Promise.all([loadJson("data/cards.json"), headlines, loadJson("data/snapshot.json")]);
     cards = cardFile.cards;
     news = newsFile;
     names = Object.fromEntries(snapshot.stocks.map((stock) => [stock.id, stock.name]));

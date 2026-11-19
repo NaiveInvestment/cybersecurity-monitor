@@ -274,12 +274,16 @@ try {
     region: document.querySelector('#region-switch [aria-pressed="true"]').dataset.region,
     leadRegion: document.querySelector('.kicker span')?.textContent,
     countries: [...new Set([...document.querySelectorAll('.note-head em')].map((el) => el.textContent.trim()))],
-    related: document.querySelectorAll('details.related').length, focus: document.querySelector('.focus-bar') !== null,
+    related: document.querySelectorAll('#feed details.related').length, focus: document.querySelector('.focus-bar') !== null,
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
     feedTop: Math.round(document.querySelector('#feed-title').getBoundingClientRect().top + window.scrollY),
     theme: document.documentElement.dataset.theme,
   }))()`;
   let page = await evaluate(NEWS);
+  const recentLinks = "[...document.querySelectorAll('#recent-incidents li a')].map((a) => a.href).join(' ')";
+  const spotlightLinks = await evaluate(recentLinks);
+  check(await evaluate("document.querySelector('main > section:first-child h2')?.id === 'recent-title'"), "24시간 보도가 뉴스 첫 구역에 없음");
+  check(await evaluate("[...document.querySelectorAll('.recent-row time')].every(t => { const age = Date.now() - Date.parse(t.dateTime); return age >= 0 && age <= 86460000; })"), "최근 보도에 기간 밖 발행 시각이 포함됨");
   check(page.theme === "dark", "기본 테마가 다크가 아님");
   check(page.region === "KR" && page.tab === "incident" && page.leadRegion === "국내", "뉴스 첫 화면에서 국내 주요 이슈가 선택되지 않음");
   check(page.countries.length === 1 && page.countries[0] === "한국", `뉴스 첫 화면 정리 국가 ${page.countries.join(",")}`);
@@ -304,6 +308,7 @@ try {
   await click('#period-switch [data-period="7"]');
   const searchTerm = "사이버보안모니터_일치하지않는검증검색어";
   await type("#search", searchTerm);
+  check(await evaluate(recentLinks) === spotlightLinks, "하단 검색 또는 범주가 국내외 24시간 보도를 변경함");
   check(await evaluate("[...document.querySelectorAll('#tabs small')].every((el) => el.textContent === '0')"), "검색어가 범주별 기사 건수에 반영되지 않음");
   await click(".lead-more");
   page = await evaluate(NEWS);
@@ -326,6 +331,7 @@ try {
   check(await evaluate("document.querySelector('.kicker').textContent.includes('국내')"), "국내 필터 뒤 주요 이슈가 국내가 아님");
   await click('#region-switch [data-region="GL"]');
   page = await evaluate(NEWS);
+  check(await evaluate(recentLinks) === spotlightLinks, "해외 필터가 국내외 24시간 보도를 변경함");
   check(!page.countries.includes("한국") && page.notes >= 4, `해외 필터 뒤 정리 ${page.notes}건`);
   check(await evaluate("document.querySelector('.kicker').textContent.includes('해외')"), "해외 필터 뒤 주요 이슈가 해외가 아님");
   const overseasStory = await evaluate("({ id: document.querySelector('.lead-more').dataset.focus, category: document.querySelector('.kicker b').textContent })");
