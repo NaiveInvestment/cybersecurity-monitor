@@ -208,6 +208,11 @@ try {
   await click('[data-weight="cap"]');
   check(await evaluate("document.querySelector('[data-weight=cap]').getAttribute('aria-pressed')==='true'"), "시총가중 전환 실패");
   await click('[data-weight="equal"]');
+  await click('[data-range="1D"]');
+  check(await evaluate("(document.querySelector('.series-security').getAttribute('d').match(/[ML]/g)||[]).length===2"), "1D가 직전 거래일 대비 두 점이 아님");
+  await shot('sector-1d');
+  await click('[data-range="1W"]');
+  check(await evaluate("(n=>n>=4&&n<=7)((document.querySelector('.series-security').getAttribute('d').match(/[ML]/g)||[]).length)"), "1W 점 개수 이상");
   await click('[data-range="3M"]');
   await evaluate("document.querySelector('.sector-picker').open=true");
   await click('.sector-picker [data-series="staples"]');

@@ -2,12 +2,15 @@ import {basketSeries} from "./lib/sector-index.js";
 import {esc,fmtPct,signClass,loadJson} from "./common.js";
 const root=document.querySelector('#sector-panel');
 let data,period="YTD",mode="equal",hidden=new Set(),latest=[];
-const ranges=["1M","3M","6M","YTD","1Y"];
+const ranges=["1D","1W","1M","3M","6M","YTD","1Y"];
 function draw() {
   const pickerOpen=root.querySelector('.sector-picker')?.open;
   const all=data.benchmarks[0].history.map(p=>p.date);
   const end=all.at(-1), endDate=new Date(end+'T00:00:00Z'), start=new Date(endDate);
-  if(period==="YTD") start.setUTCFullYear(endDate.getUTCFullYear()-1,11,31);
+  // 1D는 일봉이라 직전 거래일 종가 대비 마지막 종가다.
+  if(period==="1D") start.setTime(Date.parse((all.at(-2)||end)+'T00:00:00Z'));
+  else if(period==="1W") start.setUTCDate(start.getUTCDate()-7);
+  else if(period==="YTD") start.setUTCFullYear(endDate.getUTCFullYear()-1,11,31);
   else if(period==="1Y") start.setUTCFullYear(start.getUTCFullYear()-1);
   else start.setUTCMonth(start.getUTCMonth()-Number(period[0]));
   const from=start.toISOString().slice(0,10);
@@ -31,9 +34,9 @@ function draw() {
   const rank=ranked.findIndex(s=>s.id==='security')+1;
   const kosdaq=latest.find(s=>s.id==='KOSDAQ').points.at(-1).value-100;
   root.innerHTML=`<div class="sector-head"><h2>섹터 상대주가</h2><strong class="${signClass(secReturn)}">보안 ${fmtPct(secReturn)}</strong><span>${rank}/${data.groups.length}위, 코스닥 대비 ${fmtPct(secReturn-kosdaq)}p</span><div class="sector-controls"><div class="seg-switch" aria-label="비교 기간">${ranges.map(r=>`<button data-range="${r}" aria-pressed="${period===r}">${r}</button>`).join('')}</div><div class="seg-switch" aria-label="지수 비중"><button data-weight="equal" aria-pressed="${mode==='equal'}">동일가중</button><button data-weight="cap" aria-pressed="${mode==='cap'}">시총가중</button></div></div></div>
-  <svg class="sector-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${period} 보안, 조선, 방산, 반도체, 바이오와 코스피, 코스닥, 시작 100 비교"><title>섹터 상대주가, 시작일 ${dates[0]} = 100</title>${grid}<line x1="${L}" x2="${W-R}" y1="${y(100)}" y2="${y(100)}" class="chart-base"/>${paths}<text x="${L}" y="${H-3}">${dates[0]}</text><text x="${W-R}" y="${H-3}" text-anchor="end">${end}</text></svg>
+  <svg class="sector-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${period} ${esc(visible.map(s=>s.name).join(', '))}, 시작 100 비교"><title>섹터 상대주가, 시작일 ${dates[0]} = 100</title>${grid}<line x1="${L}" x2="${W-R}" y1="${y(100)}" y2="${y(100)}" class="chart-base"/>${paths}<text x="${L}" y="${H-3}">${dates[0]}</text><text x="${W-R}" y="${H-3}" text-anchor="end">${end}</text></svg>
   <div class="sector-legend">${latest.filter(s=>!hidden.has(s.id)).map(s=>`<button class="legend-${s.id}" data-series="${s.id}" aria-pressed="${!hidden.has(s.id)}"><span class="legend-line"></span>${s.name} <b>${fmtPct(s.points.at(-1)?.value-100)}</b>${s.stocks?`<small>${s.included.length}/${s.stocks.length}</small>`:''}</button>`).join('')}<details class="sector-picker" ${pickerOpen?'open':''}><summary>비교 섹터 선택</summary><div class="sector-picker-list">${latest.filter(s=>s.id!=='security').map(s=>`<button data-series="${s.id}" aria-pressed="${!hidden.has(s.id)}">${s.name}</button>`).join('')}</div></details><details><summary>구성, 계산 기준</summary><div class="sector-method"><p>${data.membershipAsOf} 구성으로 소급 계산. 선택 기간 시작일 100, 기간 시작 비중으로 고정 수량 보유, 배당 제외. 시작일 미상장 종목은 제외. 시총가중은 현재 주식수를 시작 가격에 적용한 근사치. 일봉 갱신 ${data.generatedAt.slice(0,10)}.</p>${data.groups.map(g=>{const row=latest.find(s=>s.id===g.id);return `<p><b>${g.name}</b> ${g.source?`<a href="${esc(g.source)}" target="_blank" rel="noopener">${esc(g.reference)}</a>`:esc(g.reference)}: ${g.stocks.map(s=>esc(s.name)).join(', ')}${row.excluded.length?`<br>제외: ${row.excluded.map(s=>esc(s.name)).join(', ')}`:''}</p>`}).join('')}</div></details></div>`;
 }
 root?.addEventListener('click',event=>{const b=event.target.closest('button');if(!b)return;if(b.dataset.range)period=b.dataset.range;if(b.dataset.weight)mode=b.dataset.weight;if(b.dataset.series&&b.dataset.series!=='security'){hidden.has(b.dataset.series)?hidden.delete(b.dataset.series):hidden.add(b.dataset.series);}draw();});
-if(root) loadJson('data/sectors.json').then(result=>{data=result;hidden=new Set([...data.groups.filter(g=>!['security','ship','defense','semi','bio'].includes(g.id)).map(g=>g.id),'KOSPI']);draw();}).catch(()=>{root.textContent='섹터 비교 데이터를 불러오지 못했습니다.';});
+if(root) loadJson('data/sectors.json').then(result=>{data=result;hidden=new Set(data.groups.filter(g=>!['security','semi','bio'].includes(g.id)).map(g=>g.id));draw();}).catch(()=>{root.textContent='섹터 비교 데이터를 불러오지 못했습니다.';});
 window.addEventListener('resize',()=>{if(data)draw();});
