@@ -40,6 +40,8 @@ test("classify: 사례, 정책, 지출, 기타", () => {
   assert.equal(classify("Microsoft patches 1,094 flaws"), "other");
   assert.equal(classify("제목에 단서 없음", "", "policy"), "policy");
   assert.equal(classify("유출 기업에 과징금"), "incident");
+  assert.equal(classify("United Airlines says tech outage disrupts departures, no signs of cyberattack", "", "incident"), "other");
+  assert.equal(classify("Coles reports customer data breach, no signs of cyberattack", "", "incident"), "incident");
 });
 
 test("buildStockMatcher: 한글은 앞 글자 경계, 영문은 단어 경계", () => {
@@ -69,6 +71,15 @@ test("mergeItems: URL, 제목 중복과 유사 제목 제거, 보존 기간", ()
   assert.deepEqual(items.map((row) => row.id), ["d", "c", "a"]);
   assert.equal(added, 2);
   assert.ok(similarity("금융보안원 해킹 피해 650여 건 유출", "금융보안원 해킹 피해, 650여 건 유출 확인") >= 0.5);
+});
+
+test("mergeItems: 원인 부인으로 끝난 기존 사례를 다시 싣지 않는다", () => {
+  const d = "2026-11-19T00:00:00Z";
+  const archived = [
+    { id: "outage", t: "Trump administration says tech outages are not a cyberattack", d, c: "incident" },
+    { id: "breach", t: "Coles reports customer data breach, no signs of cyberattack", d, c: "incident" },
+  ];
+  assert.deepEqual(mergeItems(archived, [], { now: Date.parse(d) }).items, [archived[1]]);
 });
 
 test("assignGroups: 같은 사건 기사는 한 묶음, 지역이나 기간이 다르면 따로", () => {

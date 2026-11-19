@@ -1,7 +1,8 @@
 // 보안 사고 페이지: 통합, 국내, 해외를 바꿔 보며 종합 지수, 건수, 유출 규모, 탈취 금액, 업권, 사건 목록, 최근 보도를 본다.
 import { esc, fmtKst, loadJson, initTheme } from "./common.js";
 import { groupStories } from "./lib/issues.js";
-import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, summary, claimText, orgBreakdown, indexChart, countChart, sizeChart, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw } from "./lib/incident-metrics.js";
+import { isDeniedIncidentTitle } from "./lib/incident-trend.js";
+import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, summary, claimText, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw } from "./lib/incident-metrics.js";
 
 const $ = (s) => document.querySelector(s);
 const PAGE = 25;
@@ -11,7 +12,7 @@ let news = { items: [] };
 let weeks = [];
 let widths = "";
 
-const fmt1 = (v) => v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const fmt1 = (v) => v == null ? "-" : v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 // 화면 기간은 13주 칸의 첫날부터. 그 앞 자료는 쓰지 않는다.
 const first = () => weeks[0].start;
 const inView = (e) => e.d >= first() && e.d <= data.until;
@@ -23,8 +24,7 @@ const width = (el) => { const cs = getComputedStyle(el); return Math.max(260, Ma
 const legend = (keys) => keys.map((k) => `<span class="${k}"><i></i>${REGION_LABEL[k]}</span>`).join("");
 
 function renderTop() {
-  const opts = { since: first() > data.since ? first() : data.since, until: data.until };
-  const sums = Object.fromEntries(["KR", "GL", "ALL"].map((r) => [r, summary(data.events, weeks, r, opts)]));
+  const sums = Object.fromEntries(["KR", "GL", "ALL"].map((r) => [r, summary(data.events, weeks, r, data)]));
   $("#inc-title").textContent = `${state.region === "ALL" ? "국내외" : REGION_LABEL[state.region]} 보안 사고 동향`;
   $("#inc-range").textContent = `최근 13주, ${first().slice(5).replace("-", ".")}~${data.until.slice(5).replace("-", ".")}`;
   $("#inc-claim").innerHTML = regionList().map((r) => `<p>${esc(claimText(sums[r], REGION_LABEL[r]))}</p>`).join("");
@@ -35,8 +35,8 @@ function renderTop() {
   const idxTile = regionList().map((r) => `<span class="${r}">${REGION_LABEL[r]} <b class="num">${Math.round(lastFull(r).index)}</b><small>평균 ${Math.round(avg(r))}</small></span>`).join("");
   $("#inc-kpis").innerHTML = `
     <div class="kpi-tile"><h3>사건 수</h3><p class="big num">${s.total.toLocaleString("ko-KR")}<small>건</small></p><p class="sub">최근 4주 주당 <b class="num">${fmt1(s.recentPerWeek)}</b>, 그 전 <b class="num">${fmt1(s.beforePerWeek)}</b></p></div>
-    <div class="kpi-tile"><h3>유출 발표 합계</h3><p class="big num">${fmtCount(s.rec)}<small>건</small></p><p class="sub">규모가 발표된 ${s.recKnown}건 기준, 최근 4주 ${fmtCount(s.recentRec)}건</p></div>
-    <div class="kpi-tile"><h3>탈취 금액 합계</h3><p class="big num">${s.usd ? fmtUsd(s.usd) : "$0"}</p><p class="sub">금액이 발표된 ${s.usdKnown}건 기준, 최근 4주 ${s.recentUsd ? fmtUsd(s.recentUsd) : "$0"}</p></div>
+    <div class="kpi-tile"><h3>유출 발표 합계</h3><p class="big num">${s.recKnown ? fmtCount(s.rec) + "<small>건</small>" : "발표 없음"}</p><p class="sub">규모가 발표된 ${s.recKnown}건 기준, 최근 4주 ${s.recentRecKnown ? fmtCount(s.recentRec) + "건" : "발표 없음"}</p></div>
+    <div class="kpi-tile"><h3>금전 피해 발표 합계</h3><p class="big num">${s.usdKnown ? fmtUsd(s.usd) : "발표 없음"}</p><p class="sub">금액이 발표된 ${s.usdKnown}건 기준, 최근 4주 ${s.recentUsdKnown ? fmtUsd(s.recentUsd) : "발표 없음"}</p></div>
     <div class="kpi-tile"><h3>종합 지수, 지난주</h3><p class="idx-tile">${idxTile}</p><p class="sub">0~100, 기간 중 가장 센 주의 각 요소가 100</p></div>`;
 }
 
@@ -69,19 +69,19 @@ function renderCounts() {
 }
 
 function renderOrgs() {
-  const rows = orgBreakdown(data.events, weeks, state.region);
+  const rows = orgBreakdown(data.events, weeks, state.region, data);
   const max = Math.max(0.1, ...rows.flatMap((r) => [r.recent, r.before]));
-  const bar = (v, cls) => `<svg class="org-bar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="10"></rect><rect class="${cls}" width="${Math.max(0.5, (v / max) * 100).toFixed(1)}" height="10"></rect></svg>`;
+  const bar = (v, cls) => `<svg class="org-bar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="10"></rect><rect class="${cls}" width="${Math.max(0, (v / max) * 100).toFixed(1)}" height="10"></rect></svg>`;
   $("#org-table").innerHTML = `<table class="org-table"><thead><tr><th>업권</th><th>그 전 9주</th><th>최근 4주</th><th class="n">전체</th></tr></thead><tbody>${rows.map((r) => `<tr><th scope="row">${esc(r.label)}</th><td>${bar(r.before, "before")}<b class="num">${fmt1(r.before)}</b></td><td>${bar(r.recent, `recent${/금융|가상자산|감독/.test(r.org) ? " fin" : ""}`)}<b class="num">${fmt1(r.recent)}</b></td><td class="n num">${r.total}</td></tr>`).join("")}</tbody></table><p class="inc-foot">노랑은 금융권(금융회사, 가상자산 거래소, 감독과 보안 기관)</p>`;
 }
 
 function renderSizes() {
   const list = data.events.filter(inView).filter((e) => regionList().includes(e.r));
-  const recN = list.filter(knownRec).length, usdN = list.filter(knownUsd).length;
+  const recN = list.filter(hasRec).length, usdN = list.filter(hasUsd).length;
   $("#rec-sub").textContent = `점 하나가 사건 하나, 높이가 발표된 유출 건수(로그 눈금, 한 칸이 10배). 규모가 발표된 ${recN}건, 나머지 ${list.length - recN}건은 미공개이거나 해커 주장`;
   $("#usd-sub").textContent = `금전 피해(가상자산 탈취, 무단 사용 등) 금액이 발표된 ${usdN}건. 높이가 금액(로그 눈금, 달러). 원화로만 발표된 금액은 사이트 시세의 원달러 환율${data.fx ? `(${Math.round(data.fx).toLocaleString("ko-KR")}원)` : ""}로 환산`;
-  $("#rec-chart").innerHTML = recN ? sizeChart(list, weeks, "rec", { width: width($("#rec-chart")) }) : '<p class="empty">유출 규모가 발표된 사건 없음</p>';
-  $("#usd-chart").innerHTML = usdN ? sizeChart(list, weeks, "usd", { width: width($("#usd-chart")) }) : '<p class="empty">이 기간 금액이 발표된 사건 없음</p>';
+  $("#rec-chart").innerHTML = list.some(knownRec) ? sizeChart(list, weeks, "rec", { width: width($("#rec-chart")) }) : recN ? '<p class="empty">발표된 유출 규모는 모두 0건입니다.</p>' : '<p class="empty">유출 규모가 발표된 사건 없음</p>';
+  $("#usd-chart").innerHTML = list.some(knownUsd) ? sizeChart(list, weeks, "usd", { width: width($("#usd-chart")) }) : usdN ? '<p class="empty">발표된 피해 금액은 모두 0달러입니다.</p>' : '<p class="empty">이 기간 금액이 발표된 사건 없음</p>';
 }
 
 function renderTable() {
@@ -95,8 +95,8 @@ function renderTable() {
       <td class="num nowrap">${e.d.slice(2).replace(/-/g, ".")}</td>
       <th scope="row"><span class="rg ${e.r}">${e.r === "KR" ? "국내" : "해외"}</span>${e.via === "자동 감지" ? '<span class="auto" title="리서치 이후 기사 제목에서 자동으로 찾은 사건">자동 감지</span>' : ""}${e.src[0] ? `<a href="${esc(e.src[0].u)}" target="_blank" rel="noopener">${esc(e.n)}</a>` : esc(e.n)}</th>
       <td class="nowrap">${esc(e.org || "-")}</td>
-      <td class="n num nowrap">${knownRec(e) ? `${fmtCount(e.rec)}${esc(e.recUnit || "건")}` : e.claim && e.rec ? `<span class="claim" title="해커 주장, 집계 제외">${fmtCount(e.rec)}?</span>` : "-"}${e.basis && (knownRec(e) || knownUsd(e)) ? `<small>${esc(e.basis)}</small>` : ""}</td>
-      <td class="n num nowrap">${e.krw ? `${fmtKrw(e.krw)}<small>원화 발표, ${fmtUsd(e.usd)} 환산</small>` : knownUsd(e) ? fmtUsd(e.usd) : "-"}</td>
+      <td class="n num nowrap">${hasRec(e) ? `${fmtCount(e.rec)}${esc(e.recUnit || "건")}` : e.claim && e.rec ? `<span class="claim" title="해커 주장, 집계 제외">${fmtCount(e.rec)}?</span>` : "-"}${e.basis && (hasRec(e) || hasUsd(e)) ? `<small>${esc(e.basis)}</small>` : ""}</td>
+      <td class="n num nowrap">${e.krw ? `${fmtKrw(e.krw)}<small>원화 발표, ${fmtUsd(e.usd)} 환산</small>` : hasUsd(e) ? fmtUsd(e.usd) : "-"}</td>
       <td class="atk">${esc(e.atk || "")}</td>
       <td class="src">${e.src.slice(0, 3).map((s) => `<a href="${esc(s.u)}" target="_blank" rel="noopener" title="${esc(s.t || "")}">${esc(s.o)}</a>`).join("")}</td>
     </tr>`).join("")}</tbody>`;
@@ -107,7 +107,7 @@ function renderTable() {
 
 function renderPress() {
   const cutoff = Date.now() - 7 * 86400000;
-  const items = news.items.filter((i) => i.c === "incident" && regionList().includes(i.r) && Date.parse(i.d) >= cutoff);
+  const items = news.items.filter((i) => i.c === "incident" && regionList().includes(i.r) && Date.parse(i.d) >= cutoff && !isDeniedIncidentTitle(i.t));
   const stories = groupStories(items).sort((a, b) => b.sources - a.sources || b.last.localeCompare(a.last)).slice(0, 8);
   $("#inc-press").innerHTML = stories.length ? stories.map((s) => `<li><a href="${esc(s.lead.u)}" target="_blank" rel="noopener">${esc(s.lead.t)}</a><p class="meta"><span class="rg ${s.r}">${s.r === "KR" ? "국내" : "해외"}</span>${s.sources}개 매체, ${s.count}건, 최근 ${fmtKst(s.last)}</p></li>`).join("") : '<li class="empty">최근 7일 기사 없음</li>';
 }

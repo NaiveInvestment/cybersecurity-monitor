@@ -2,7 +2,6 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { koSubject, enSubject, autoDetect } from "../src/incident-auto.mjs";
 import { sameName, kstDay, mergeEvents } from "../src/incident-events.mjs";
-import { NOT_INCIDENT } from "../public/lib/incident-trend.js";
 
 test("koSubject: 제목 첫머리 기관명, 일반명사와 부사형은 뺀다", () => {
   assert.equal(koSubject("[단독] 메가MGC커피 고객정보 유출…수탁사 해킹"), "메가MGC커피");
@@ -12,6 +11,9 @@ test("koSubject: 제목 첫머리 기관명, 일반명사와 부사형은 뺀다
   assert.equal(koSubject("대학마다 다 털렸다, 해킹 공격 비상"), null);
   assert.equal(koSubject("정부, 해킹 피해 조사"), null);
   assert.equal(koSubject("TSMC, SEC에 개인정보 유출 공시"), null, "국내 기사 속 영문 해외 기업은 국내 사건으로 잡지 않는다");
+  for (const title of ["금융사 IT자산 관리 의무화…침해사고 40건이 불렀다", "도내 대학 위탁관리 서버 잇단 해킹", "모바일 지역사랑상품권 앱 개인정보 유출", "대구경북권 대학서 해킹 피해 잇따라"]) assert.equal(koSubject(title), null, title);
+  assert.equal(koSubject('이영남 서울시의원 "따릉이 462만명 정보 유출에도 9개월째 관리자 징계 없어"'), null);
+  for (const name of ["충남", "충남도", "충청남도"]) assert.equal(koSubject(`${name} 지역화폐 개인정보 유출`), "충청남도");
 });
 
 test("enSubject: 동사 앞 고유명사", () => {
@@ -32,6 +34,8 @@ test("autoDetect: 마감 뒤, 사건 낱말, 해설과 해킹 아님 제외, 같
     item("d1", "Coles reports no data breach as investigation continues", "E"),
     item("e1", "레고랜드 코리아 고객정보 유출…예약시스템 해킹", "마"),
     item("f1", "이전 사건 유출", "바"),
+    item("g1", "Coles reports customer data breach, no signs of cyberattack", "G"),
+    item("h1", "이영남 서울시의원, 따릉이 관리와 개인정보 유출 질타", "아"),
   ];
   const byId = new Map(items.map((i) => [i.id, i]));
   const stories = [
@@ -41,18 +45,20 @@ test("autoDetect: 마감 뒤, 사건 낱말, 해설과 해킹 아님 제외, 같
     story("d", "GL", "2026-11-18T01:00:00Z", 1, ["d1"], items[4].t),
     story("e", "KR", "2026-11-18T01:00:00Z", 1, ["e1"], items[5].t),
     story("f", "KR", "2026-11-10T01:00:00Z", 1, ["f1"], items[6].t),
+    story("g", "GL", "2026-11-18T01:00:00Z", 1, ["g1"], items[7].t),
+    story("h", "KR", "2026-11-18T01:00:00Z", 1, ["h1"], items[8].t),
   ];
-  const found = autoDetect(stories, byId, { after: "2026-11-17", known: [{ n: "레고랜드", r: "KR", d: "2026-11-17" }], sameName, kstDay, notIncident: NOT_INCIDENT });
-  assert.deepEqual(found.map((f) => f.name), ["메가MGC커피"]);
+  const found = autoDetect(stories, byId, { after: "2026-11-17", known: [{ n: "레고랜드", r: "KR", d: "2026-11-17" }], sameName, kstDay });
+  assert.deepEqual(found.map((f) => f.name), ["메가MGC커피", "Coles"]);
 });
 
 test("mergeEvents: 자동 감지는 리서치 마감 다음 날부터, 표시와 제목 숫자", () => {
   const newsLog = [{ id: "z", r: "KR", f: "2026-11-18T01:00:00Z", s: 2, m: ["z1", "z2"], t: "번개장터, 개인정보 유출 49건", u: "https://n/z" }];
   const newsItems = [{ id: "z1", t: "번개장터, 고객 개인정보 49건 유출", s: "가", u: "https://n/z1" }, { id: "z2", t: "번개장터 해킹 사고 확인…전화번호 49건 유출", s: "나", u: "https://n/z2" }];
-  const events = mergeEvents({ research: [], newsLog, newsItems, since: "2026-08-18", researchUntil: "2026-11-17", notIncident: NOT_INCIDENT });
+  const events = mergeEvents({ research: [], newsLog, newsItems, since: "2026-08-18", researchUntil: "2026-11-17" });
   assert.equal(events.length, 1);
   assert.equal(events[0].via, "자동 감지");
   assert.equal(events[0].n, "번개장터");
   assert.equal(events[0].rec, 49);
-  assert.equal(mergeEvents({ research: [], newsLog, newsItems, since: "2026-08-18", researchUntil: "2026-11-20", notIncident: NOT_INCIDENT }).length, 0);
+  assert.equal(mergeEvents({ research: [], newsLog, newsItems, since: "2026-08-18", researchUntil: "2026-11-20" }).length, 0);
 });

@@ -6,7 +6,6 @@ import { join } from "node:path";
 import { ROOT } from "../src/universe.mjs";
 import { compileEntities } from "../src/incident-log.mjs";
 import { mergeEvents, ransomwareDays, kstDay } from "../src/incident-events.mjs";
-import { NOT_INCIDENT } from "../public/lib/incident-trend.js";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : fallback; };
@@ -72,7 +71,7 @@ const newsItems = read(join(stateDir, "news.json"))?.items || [];
 // 원화 금전 피해 환산용 환율: 같은 조립의 시세 스냅샷, 없으면 직전 스냅샷, 그것도 없으면 환산하지 않는다.
 const fx = read(join(outDir, "snapshot.json"))?.fx?.USD || read(join(stateDir, "snapshot.json"))?.fx?.USD || null;
 const researchUntil = read(join(ROOT, "data", "incidents", "research.json")).collectedAt;
-const events = mergeEvents({ research, newsLog, entities: compileEntities(entityConfig), hacks, newsItems, since, fx, researchUntil, notIncident: NOT_INCIDENT });
+const events = mergeEvents({ research, newsLog, entities: compileEntities(entityConfig), hacks, newsItems, since, fx, researchUntil });
 const ransomware = Object.fromEntries(Object.entries(rw.days).filter(([day]) => day >= since).sort().map(([day, v]) => [day, { total: v.total, KR: v.KR, kr: (v.kr || []).slice(0, 12) }]));
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "incident-events.json"), JSON.stringify({ updatedAt: new Date().toISOString(), since, until: kstDay(now), researchUntil, fx, events, ransomware }));

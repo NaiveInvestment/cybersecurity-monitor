@@ -107,7 +107,22 @@ export async function fetchFinance(kind, code, options = {}) {
   const url = kind === "KR"
     ? `https://m.stock.naver.com/api/stock/${code}/finance/quarter`
     : `https://api.stock.naver.com/stock/${encodeURIComponent(code)}/finance/quarter`;
-  return parseFinance(kind, await getJson(url, options));
+  const finance = parseFinance(kind, await getJson(url, options));
+  if (kind === "GL" && code === "4475.T" && finance.unit === "JPY") {
+    const june = finance.periods.findIndex(({ ym, consensus }) => ym === "2026-06" && !consensus);
+    const september = finance.periods.findIndex(({ ym, consensus }) => ym === "2026-09" && !consensus);
+    // 네이버가 6월 분기 매출과 영업이익을 9월에 중복 전송한 경우 정정한다.
+    if (june >= 0 && september >= 0 && finance.rev[june] > 0 && finance.op[june] != null
+        && finance.rev[september] === finance.rev[june] && finance.op[september] === finance.op[june]) {
+      // FY2026 연결 손익계산서 p.8에서 9개월 누적 p.5를 빼고 천엔을 백만엔으로 환산.
+      // https://www2.jpx.co.jp/disc/44750/140120261102562428.pdf
+      // https://www2.jpx.co.jp/disc/44750/140120260803507607.pdf
+      finance.rev[september] = (12_781_770 - 9_389_746) / 1_000;
+      finance.op[september] = (2_239_372 - 1_854_080) / 1_000;
+      finance.ni[september] = (1_786_131 - 1_361_299) / 1_000;
+    }
+  }
+  return finance;
 }
 
 // 동시 실행 수를 제한한 map. 개별 실패는 { error }로 남기고 전체는 계속한다.

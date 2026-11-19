@@ -1,4 +1,5 @@
 import { esc, fmtKst, initTheme, loadJson, signClass } from "./common.js";
+import { startQuoteFeed } from "./lib/quote-feed.js";
 
 const byId = (id) => document.getElementById("position-" + id);
 const search = byId("search");
@@ -30,18 +31,41 @@ const legacySectors = new Map(Object.entries({
 const quotes = new Map();
 const expanded = new Set();
 const percent = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 2 });
-const quoteSources = { kiwoom: "키움", naver: "네이버" };
+const quoteSources = { kiwoom: "키움", naver: "네이버", relay: "PC 시세 중계" };
 let active;
 let data;
+let quarterLabel;
+let mixLabel;
 let sectors;
 let sectorReports;
 let stocks;
-let polling = false;
 let pendingQuotes = false;
 
 function ttm({ priorYear, currentYtd, priorYtd } = {}) {
   return [priorYear, currentYtd, priorYtd].every(Number.isSafeInteger)
     ? priorYear + currentYtd - priorYtd : null;
+}
+
+function quarterOf(period) {
+  const matched = /^(\d{4})-(03|06|09|12)$/.exec(period ?? "");
+  if (!matched) return null;
+  const [, year, month] = matched.map(Number);
+  return { year, month, quarter: month / 3 };
+}
+
+function renderPeriods(financePeriod, mixPeriod) {
+  const finance = quarterOf(financePeriod);
+  const mix = quarterOf(mixPeriod);
+  quarterLabel = finance ? `${finance.year}년 ${finance.quarter}분기` : "최근 분기";
+  mixLabel = mix ? `${mix.year}년 ${mix.quarter}분기 누적` : "공시 누적";
+  if (finance) {
+    const firstYear = finance.quarter === 4 ? finance.year : finance.year - 1;
+    const firstQuarter = finance.quarter % 4 + 1;
+    byId("finance-period").textContent = `${finance.year}년 ${finance.month}월 기준 최근 4분기 실적`;
+    byId("mobile-period").textContent = byId("finance-period").textContent;
+    byId("finance-range").textContent = `${firstYear}년 ${firstQuarter}분기부터 ${quarterLabel}까지의`;
+  }
+  if (mix) byId("mix-period").textContent = `${mix.year}년 1~${mix.month}월 공시`;
 }
 
 function amount(value) {
@@ -115,7 +139,7 @@ function stockRow(stock, sector) {
   const mixBasis = mix?.basis === "OFS" ? "별도" : "연결";
 
   const fullMix = mix
-    ? `<div><h3>매출 비중</h3><p class="position-sub">2026년 3분기 누적, ${mixBasis}</p>
+    ? `<div><h3>매출 비중</h3><p class="position-sub">${mixLabel}, ${mixBasis}</p>
        <ul class="position-mix-full">${mixItems(mix.items)}</ul>
        ${mix.note ? `<p class="position-sub position-detail-note">${esc(mix.note)}</p>` : ""}
        ${source(mix.url, "매출 비중 공시")}</div>`
@@ -141,7 +165,7 @@ function stockRow(stock, sector) {
       <div><h3>제품과 사업</h3><p>${esc(product)}</p><p class="position-sub">${esc(labels)}</p>
         <p class="position-detail-note">${esc(note)}</p><div class="position-detail-links">${stock.source ? source(stock.source, "제품 자료") : ""}${exposure?.evidence ? source(exposure.evidence.url, exposure.evidence.label) : ""}</div></div>
       <div><h3>실적 기준</h3><p>${basis} / ${netBasis}</p>
-        <p class="position-sub">2026년 3분기 영업이익 ${amount(finance.op.quarter == null ? null : finance.op.quarter / 1e8)}억원</p>
+        <p class="position-sub">${quarterLabel} 영업이익 ${amount(finance.op.quarter == null ? null : finance.op.quarter / 1e8)}억원</p>
         <div class="position-detail-links">${filing(finance.quarterReceipt, "분기 공시")}${filing(finance.annualReceipt, "연간 공시")}</div></div>
       ${fullMix}
       ${stock.reports.length ? `<div class="position-reports"><h3>기업 리포트와 IR 자료</h3>${renderReportList(stock.reports)}</div>` : ""}
@@ -174,7 +198,7 @@ function renderStocks() {
 
   const shownQuotes = matches.map((stock) => quotes.get(stock.id)).filter(Boolean);
   const latest = shownQuotes.reduce((previous, quote) => !previous || quote.ms > previous.ms ? quote : previous, null);
-  quoteTime.textContent = latest?.at ? `최신 시세 ${fmtKst(latest.at)} KST` : "";
+  quoteTime.textContent = latest?.at ? `시세 기준 ${fmtKst(latest.at)} KST` : "";
   pendingQuotes = false;
 }
 
@@ -228,29 +252,21 @@ function selectSector(key, updateUrl = false) {
   }
 }
 
-async function refreshQuotes(url) {
-  if (polling || document.hidden) return;
-  polling = true;
-  try {
-    const response = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(3500) });
-    if (!response.ok) return;
-    const { q } = await response.json();
-    let changed = false;
-    for (const { id } of stocks) {
-      const row = q?.[id];
-      if (Array.isArray(row) && Number.isFinite(Date.parse(row[5]))) {
-        changed = setQuote(id, row[3], row[5], row[7]) || changed;
-      }
+function renderQuoteChanges() {
+  if (body.contains(document.activeElement)) pendingQuotes = true;
+  else renderStocks();
+}
+
+function applyQuotes(payload, feed) {
+  const provider = feed === "relay" ? "relay" : "naver";
+  let changed = false;
+  for (const { id } of stocks) {
+    const row = payload?.q?.[id];
+    if (Array.isArray(row) && Number.isFinite(Date.parse(row[5]))) {
+      changed = setQuote(id, row[3] ?? row[2], row[5], row[7] ?? provider) || changed;
     }
-    if (changed) {
-      if (body.contains(document.activeElement)) pendingQuotes = true;
-      else renderStocks();
-    }
-  } catch {
-    // Keep the latest usable quotes when the live feed is temporarily unavailable.
-  } finally {
-    polling = false;
   }
+  return changed;
 }
 
 async function start() {
@@ -283,6 +299,7 @@ async function start() {
   }
 
   byId("date").textContent = `공시 ${data.asOf} 기준`;
+  renderPeriods(data.period, businessMix?.period);
   for (const [key, button] of buttons) {
     button.setAttribute("aria-controls", "position-sector position-company-section");
     button.addEventListener("click", () => selectSector(key === "hardware" && active === key ? "all" : key, true));
@@ -307,12 +324,18 @@ async function start() {
   const initial = params.get("sector");
   selectSector(buttons.has(initial) ? initial : legacySectors.get(params.get("issue")) ?? "transfer");
 
-  if (meta?.live?.url) {
-    const poll = () => refreshQuotes(meta.live.url);
-    void poll();
-    setInterval(poll, meta.live.interval || 2000);
-    document.addEventListener("visibilitychange", poll);
-  }
+  const baseQuotes = new Map(quotes);
+  startQuoteFeed(meta?.live, {
+    onQuotes: (payload, feed) => {
+      if (applyQuotes(payload, feed)) renderQuoteChanges();
+    },
+    onRelayLost: (cloud) => {
+      quotes.clear();
+      for (const [id, quote] of baseQuotes) quotes.set(id, quote);
+      applyQuotes(cloud, "cloud");
+      renderQuoteChanges();
+    },
+  });
 }
 
 start().catch((error) => {

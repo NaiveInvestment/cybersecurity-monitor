@@ -36,10 +36,14 @@ function filteredCards() {
     && matches([card.title, card.entity, card.claim, ...(card.facts || []).map((fact) => fact.value), stockNames(card.tickers || [])].join(" ")));
 }
 
-function filteredItems() {
+function filteredItems(tab = state.tab) {
   const cutoff = state.period ? Date.now() - state.period * 86400000 : 0;
-  return news.items.filter((item) => item.c === state.tab && inRegion(item.r) && Date.parse(item.d) >= cutoff
+  return news.items.filter((item) => item.c === tab && inRegion(item.r) && Date.parse(item.d) >= cutoff
     && matches(`${item.t} ${item.s} ${stockNames(item.k || [])}`));
+}
+
+function findStory(items, id) {
+  return groupStories(items.filter((item) => String(item.g || item.id) === id))[0];
 }
 
 // ---- 주요 이슈 ----
@@ -64,7 +68,7 @@ function renderIssues() {
       <p class="lead-stats"><span><b class="num">${lead.sources}</b>개 매체</span><span><b class="num">${lead.count}</b>건 보도</span>${lead.k.length ? `<span class="lead-stocks">${esc(stockNames(lead.k))}</span>` : ""}</p>
       ${digest}
       <ul class="lead-list">${others.map((item) => `<li>${link(item)}<span class="meta">${esc(item.s)}</span></li>`).join("")}</ul>
-      ${lead.count > 1 ? `<button type="button" class="lead-more" data-focus="${esc(lead.id)}" data-tab="${lead.c}">관련 기사 ${lead.count}건 모두 보기</button>` : ""}
+      ${lead.count > 1 ? `<button type="button" class="lead-more" data-focus="${esc(lead.id)}">관련 기사 ${lead.count}건 모두 보기</button>` : ""}
     </article>`;
   const top = lead.sources;
   const rankHtml = `<ol class="rank">${rest.map((story, index) => `<li>
@@ -74,19 +78,20 @@ function renderIssues() {
         <p class="meta"><b>${CATEGORY[story.c]}</b>, ${REGION[story.r]}, ${story.sources}개 매체 ${story.count}건, 최근 ${fmtKst(story.last)}</p>
         <svg class="bar" viewBox="0 0 100 4" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="4"></rect><rect class="fill" width="${Math.max(2, Math.round((story.sources / top) * 100))}" height="4"></rect></svg>
       </div>
-      ${story.count > 1 ? `<button type="button" class="rank-more" data-focus="${esc(story.id)}" data-tab="${story.c}" aria-label="관련 기사 ${story.count}건 보기">${story.count}건</button>` : ""}
+      ${story.count > 1 ? `<button type="button" class="rank-more" data-focus="${esc(story.id)}" aria-label="관련 기사 ${story.count}건 보기">${story.count}건</button>` : ""}
     </li>`).join("")}</ol>`;
   $("#issues").innerHTML = leadHtml + rankHtml;
 }
 
 // ---- 최신 기사 ----
 function renderFeed() {
-  const items = filteredItems();
-  const stories = groupStories(items);
-  const focus = state.focus ? stories.find((story) => story.id === state.focus) : null;
+  const focus = state.focus;
+  const items = focus?.items ?? filteredItems();
+  const stories = focus ? [focus] : groupStories(items);
+  $("#feed-title").textContent = focus ? "관련 기사" : "최신 기사";
   let html = "";
   if (focus) {
-    html += `<p class="focus-bar"><span>같은 사건 기사 ${focus.count}건, ${focus.sources}개 매체</span><button type="button" id="focus-clear">전체 기사로 돌아가기</button></p>`;
+    html += `<p class="focus-bar"><span>같은 사건 기사 ${focus.count}건, ${focus.sources}개 매체</span><button type="button" id="focus-clear">기사 목록으로 돌아가기</button></p>`;
     let day = "";
     html += focus.items.map((item) => {
       const date = kstDate(item.d);
@@ -115,7 +120,8 @@ function renderFeed() {
     if (stories.length > shown.length) html += `<button type="button" class="more" id="more">더 보기 (사건 ${stories.length - shown.length}개 남음)</button>`;
   }
   $("#feed").innerHTML = html || '<p class="empty">조건에 맞는 기사가 없음</p>';
-  $("#feed-sub").textContent = `기사 ${items.length}건, 사건 ${stories.length}개. 키워드 규칙 분류, 요약 없음`;
+  $("#feed-sub").textContent = focus ? `${CATEGORY[focus.c]}, ${REGION[focus.r]}`
+    : `기사 ${items.length}건, 사건 ${stories.length}개. 키워드 규칙 분류, 요약 없음`;
 }
 
 // ---- 사건과 정책 정리 ----
@@ -146,10 +152,8 @@ function renderDigest() {
 }
 
 function renderCounts() {
-  const cutoff = state.period ? Date.now() - state.period * 86400000 : 0;
   document.querySelectorAll("#tabs button").forEach((button) => {
-    const tab = button.dataset.tab;
-    const count = news.items.filter((item) => item.c === tab && inRegion(item.r) && Date.parse(item.d) >= cutoff).length;
+    const count = filteredItems(button.dataset.tab).length;
     button.querySelector("small").textContent = count.toLocaleString("ko-KR");
   });
   $("#count").textContent = `기사 ${filteredItems().length}건, 정리 ${filteredCards().length}건`;
@@ -171,6 +175,12 @@ function selectTab(tab) {
 
 const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === String(value))));
 
+function bringFeedIntoView() {
+  const title = $("#feed-title");
+  title.focus({ preventScroll: true });
+  title.scrollIntoView({ block: "start" });
+}
+
 function bind() {
   $("#tabs").addEventListener("click", (event) => {
     const tab = event.target.closest("button")?.dataset.tab;
@@ -191,6 +201,7 @@ function bind() {
     const period = event.target.closest("button")?.dataset.period;
     if (period == null) return;
     state.period = Number(period);
+    state.focus = null;
     press($("#period-switch"), "period", period);
     render();
   });
@@ -199,18 +210,20 @@ function bind() {
   document.addEventListener("click", (event) => {
     const button = event.target.closest("[data-focus]");
     if (!button) return;
-    if (button.dataset.tab) selectTab(button.dataset.tab);
-    state.focus = button.dataset.focus;
-    state.period = 0;
-    state.query = "";
-    $("#search").value = "";
-    press($("#period-switch"), "period", 0);
-    render();
-    $("#feed-title").scrollIntoView({ block: "start" });
+    const sourceItems = button.closest("#issues") ? news.items.filter((item) => inRegion(item.r)) : filteredItems();
+    const story = findStory(sourceItems, button.dataset.focus);
+    if (!story) return;
+    state.focus = story;
+    renderFeed();
+    bringFeedIntoView();
   });
   $("#feed").addEventListener("click", (event) => {
     if (event.target.id === "more") { state.shown += PAGE; renderFeed(); }
-    if (event.target.id === "focus-clear") { state.focus = null; renderFeed(); renderCounts(); }
+    if (event.target.id === "focus-clear") {
+      state.focus = null;
+      renderFeed();
+      $("#feed-title").focus({ preventScroll: true });
+    }
   });
   $("#digest").addEventListener("click", (event) => {
     if (event.target.id !== "more-digest") return;
@@ -235,20 +248,28 @@ async function main() {
     $("#issues").innerHTML = `<p class="empty">${esc(error.message)}</p>`;
     return;
   }
-  const query = new URLSearchParams(location.search).get("q");
-  if (query) {
+  const params = new URLSearchParams(location.search);
+  const storyId = params.get("story");
+  const linkedStory = storyId && findStory(news.items, storyId);
+  const query = params.get("q");
+  if (linkedStory && topIssues([linkedStory]).length) {
+    state.region = linkedStory.r;
+    selectTab(linkedStory.c);
+    state.focus = linkedStory;
+  } else if (query) {
     state.query = query;
     state.region = "ALL";
     state.period = 0;
     $("#search").value = query;
-    press($("#region-switch"), "region", state.region);
     press($("#period-switch"), "period", state.period);
     // 검색어로 들어오면 결과가 있는 첫 범주를 연다.
     const first = ["incident", "policy", "spending"].find((tab) => { state.tab = tab; return filteredCards().length || filteredItems().length; });
     selectTab(first || "incident");
   }
+  press($("#region-switch"), "region", state.region);
   bind();
   render();
+  if (state.focus) bringFeedIntoView();
 }
 
 main();

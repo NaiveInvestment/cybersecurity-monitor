@@ -42,7 +42,7 @@
   </section>
 
   <section class="panel inc-panel" aria-labelledby="idx-title">
-    <header><h2 id="idx-title">종합 지수</h2><p>건수, 유출 건수, 탈취 금액을 주마다 0~100으로 바꿔 평균. 기간 중 가장 센 주의 각 요소가 100. 별표(*)와 흐린 점은 집계 중인 이번 주</p></header>
+    <header><h2 id="idx-title">종합 지수</h2><p>건수, 유출 건수, 금전 피해액을 주마다 0~100으로 바꿔 평균. 기간 중 가장 센 주의 각 요소가 100. 별표(*)와 흐린 점은 집계 중인 이번 주</p></header>
     <p class="inc-legend" id="idx-legend"></p>
     <div class="inc-chart" id="idx-chart"></div>
     <details class="inc-method">
@@ -50,7 +50,7 @@
       <ul>
         <li>건수 = 그 주에 처음 보도된 사건 수 / 기간 최대 주의 사건 수 x 100</li>
         <li>유출 = log10(1 + 그 주 발표된 유출 건수 합 / 1천) / 기간 최댓값 x 100</li>
-        <li>금액 = log10(1 + 그 주 발표된 탈취 금액 합 / 100만 달러) / 기간 최댓값 x 100</li>
+        <li>금액 = log10(1 + 그 주 발표된 금전 피해액 합 / 100만 달러) / 기간 최댓값 x 100</li>
         <li>종합 = 세 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
         <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 건수에만 들어감</li>
       </ul>
@@ -66,7 +66,7 @@
       <div class="inc-chart" id="rw-chart"></div>
     </section>
     <section class="panel inc-panel" aria-labelledby="org-title">
-      <header><h2 id="org-title">피해 업권</h2><p>주당 사건 수, 최근 4주와 그 전</p></header>
+      <header><h2 id="org-title">피해 업권</h2><p>주당 사건 수, 진행 중인 주는 집계된 날짜까지 반영</p></header>
       <div id="org-table"></div>
     </section>
   </div>
@@ -77,7 +77,7 @@
   </section>
 
   <section class="panel inc-panel" aria-labelledby="usd-title">
-    <header><h2 id="usd-title">탈취 금액</h2><p id="usd-sub"></p></header>
+    <header><h2 id="usd-title">금전 피해액</h2><p id="usd-sub"></p></header>
     <div class="inc-chart" id="usd-chart"></div>
   </section>
 

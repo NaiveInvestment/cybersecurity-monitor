@@ -5,6 +5,7 @@ import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync
 import { createHash } from "node:crypto";
 import { join, resolve, sep } from "node:path";
 import { ROOT } from "../src/universe.mjs";
+import { groupStories, topIssues } from "../public/lib/issues.js";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -65,6 +66,13 @@ for (const required of ["snapshot.json", "news.json", "incidents.json", "inciden
   if (!existsSync(join(outDir, "data", required))) throw new Error(`data/${required}가 없다. build-data와 fetch-news를 먼저 실행할 것.`);
 }
 
+// 첫 화면에 필요한 기사 묶음의 요약만 내려보낸다. 최신 기사가 72시간을 넘긴 묶음은 브라우저에서도 걸러 낸다.
+const headlines = JSON.parse(readFileSync(join(outDir, "data", "news.json"), "utf8")).items;
+const stories = groupStories(headlines);
+const bannerIssues = topIssues(stories, { limit: stories.length })
+  .filter((story) => story.sources >= 3)
+  .map(({ id, lead, last, count, sources }) => ({ id, title: lead.t, last, count, sources }));
+writeFileSync(join(outDir, "data", "issue-banner.json"), JSON.stringify(bannerIssues));
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
   builtAt: new Date().toISOString(),
   live: liveRepo ? { repo: liveRepo, branch: "live", file: "live.json", relayConfig: `https://raw.githubusercontent.com/${liveRepo}/relay/relay.json` } : null,

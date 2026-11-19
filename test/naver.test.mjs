@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseDaily, parseFinance, fetchRealtime } from "../src/naver.mjs";
+import { parseDaily, parseFinance, fetchFinance, fetchRealtime } from "../src/naver.mjs";
+import { financeMetrics } from "../public/lib/calc.js";
 
 test("parseDaily: 날짜 형식과 정렬, 잘못된 행 제거", () => {
   const rows = parseDaily([
@@ -43,6 +44,33 @@ test("parseFinance: 해외는 EBIT과 당기순이익, 통화 단위, 기간 오
   assert.deepEqual(parsed.periods.map((period) => period.ym), ["2026-04", "2026-07"]);
   assert.deepEqual(parsed.rev, [1385.63, 1470.9]);
   assert.deepEqual(parsed.op, [-29.2, -33.03]);
+});
+
+test("fetchFinance: HENNGE FY2026 4분기의 중복 원천값을 실제 공시로 정정", async () => {
+  const periods = ["2025.12.31", "2026.03.31", "2026.06.30", "2026.09.30"];
+  const json = {
+    unit: "JPY(백만)",
+    trTitleList: periods.map((key) => ({ key, isConsensus: "N" })),
+    rowList: [
+      ["매출액", [3015.76, 3113.09, 3260.89, 3260.89]],
+      ["EBIT", [529.63, 738.28, 586.17, 586.17]],
+      ["당기순이익", [365.97, 518.26, 477.07, 477.07]],
+    ].map(([title, values]) => ({
+      title,
+      columns: Object.fromEntries(periods.map((key, index) => [key, { value: String(values[index]) }])),
+    })),
+  };
+  const fetchImpl = async () => ({ ok: true, json: async () => json });
+  const finance = await fetchFinance("GL", "4475.T", { fetchImpl });
+  assert.deepEqual(finance.rev.slice(-2), [3260.89, 3392.024]);
+  assert.deepEqual(finance.op.slice(-2), [586.17, 385.292]);
+  assert.deepEqual(finance.ni.slice(-2), [477.07, 424.832]);
+  const { ym, revTtm, opTtm, niTtm } = financeMetrics(finance);
+  assert.deepEqual([ym, revTtm, opTtm, niTtm], ["2026-09", 12781.8, 2239.4, 1786.1]);
+  assert.deepEqual(await fetchFinance("GL", "OTHER.T", { fetchImpl }), parseFinance("GL", json));
+
+  json.rowList[0].columns[periods.at(-1)].value = "3392.02";
+  assert.deepEqual(await fetchFinance("GL", "4475.T", { fetchImpl }), parseFinance("GL", json));
 });
 
 test("fetchRealtime: 40개씩 나눠 받고 코드로 묶는다", async () => {

@@ -22,6 +22,8 @@ export function weeksEnding(until, n = 13) {
 }
 
 export const inRegion = (region) => (e) => region === "ALL" || e.r === region;
+export const hasRec = (e) => Number.isFinite(e.rec) && e.rec >= 0 && !e.claim;
+export const hasUsd = (e) => Number.isFinite(e.usd) && e.usd >= 0;
 export const knownRec = (e) => (e.rec && !e.claim ? e.rec : 0);
 export const knownUsd = (e) => e.usd || 0;
 
@@ -33,7 +35,8 @@ export function weeklyStats(events, weeks, region) {
     const usd = inWeek.reduce((t, e) => t + knownUsd(e), 0);
     const topRec = [...inWeek].sort((a, b) => knownRec(b) - knownRec(a))[0];
     const topUsd = [...inWeek].sort((a, b) => knownUsd(b) - knownUsd(a))[0];
-    return { ...w, count: inWeek.length, rec, usd, topRec: knownRec(topRec || {}) ? topRec : null, topUsd: knownUsd(topUsd || {}) ? topUsd : null, events: inWeek };
+    return { ...w, count: inWeek.length, rec, usd, recKnown: inWeek.filter(hasRec).length, usdKnown: inWeek.filter(hasUsd).length,
+      topRec: knownRec(topRec || {}) ? topRec : null, topUsd: knownUsd(topUsd || {}) ? topUsd : null, events: inWeek };
   });
 }
 
@@ -50,7 +53,7 @@ export function compositeIndex(events, weeks) {
     const c = (w.count / max.count) * 100;
     const r = (recScale(w.rec) / max.rec) * 100;
     const m = (usdScale(w.usd) / max.usd) * 100;
-    return { start: w.start, end: w.end, partial: w.partial, c, r, m, index: (c + r + m) / 3, count: w.count, rec: w.rec, usd: w.usd };
+    return { start: w.start, end: w.end, partial: w.partial, c, r, m, index: (c + r + m) / 3, count: w.count, rec: w.rec, usd: w.usd, recKnown: w.recKnown, usdKnown: w.usdKnown };
   };
   return { KR: kr.map(score), GL: gl.map(score), max };
 }
@@ -63,10 +66,15 @@ const fmt1 = (v) => v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximu
 // 결론 문장 재료: 최근 4주(마지막 미완성 주 포함) 대 그 전 주들의 주당 건수.
 // since, until: 자료 범위(첫 주와 마지막 주가 잘려 있을 수 있어 실제 일수로 나눈다).
 export function summary(events, weeks, region, { since = weeks[0].start, until = weeks.at(-1).end } = {}) {
-  const stats = weeklyStats(events, weeks, region);
+  const observed = events.filter((event) => event.d >= since && event.d <= until);
+  const stats = weeklyStats(observed, weeks, region);
   const recent = stats.slice(-4), before = stats.slice(0, -4);
   const span = (w) => (Math.min(toMs(w.end), toMs(until)) - Math.max(toMs(w.start), toMs(since))) / DAY + 1;
-  const perWeek = (list) => (list.reduce((t, w) => t + w.count, 0) / Math.max(1, list.reduce((t, w) => t + Math.max(0, span(w)), 0))) * 7;
+  const perWeek = (list) => {
+    const days = list.reduce((total, week) => total + Math.max(0, span(week)), 0);
+    return days ? list.reduce((total, week) => total + week.count, 0) * 7 / days : null;
+  };
+  const sumField = (list, field) => list.reduce((total, week) => total + week[field], 0);
   return {
     total: stats.reduce((t, w) => t + w.count, 0),
     recentPerWeek: perWeek(recent),
@@ -75,27 +83,30 @@ export function summary(events, weeks, region, { since = weeks[0].start, until =
     recentUsd: recent.reduce((t, w) => t + w.usd, 0),
     rec: stats.reduce((t, w) => t + w.rec, 0),
     usd: stats.reduce((t, w) => t + w.usd, 0),
-    recKnown: stats.reduce((t, w) => t + w.events.filter((e) => knownRec(e)).length, 0),
-    usdKnown: stats.reduce((t, w) => t + w.events.filter((e) => knownUsd(e)).length, 0),
+    recKnown: sumField(stats, "recKnown"),
+    usdKnown: sumField(stats, "usdKnown"),
+    recentRecKnown: sumField(recent, "recKnown"),
+    recentUsdKnown: sumField(recent, "usdKnown"),
   };
 }
 
 export function claimText(s, label) {
-  const ratio = s.beforePerWeek ? s.recentPerWeek / s.beforePerWeek : null;
-  const trend = ratio == null ? "" : ratio >= 1.3 ? `그 전(주당 ${fmt1(s.beforePerWeek)}건)의 ${fmt1(ratio)}배` : ratio <= 0.77 ? `그 전(주당 ${fmt1(s.beforePerWeek)}건)보다 줄었다` : `그 전(주당 ${fmt1(s.beforePerWeek)}건)과 비슷하다`;
+  if (s.recentPerWeek === null) return `${label} 보안 사고의 최근 4주 집계 자료가 없습니다.`;
+  if (s.beforePerWeek === null) return `${label} 보안 사고는 최근 4주 주당 ${fmt1(s.recentPerWeek)}건입니다. 앞선 기간의 집계 자료는 없습니다.`;
+  if (!s.beforePerWeek) return `${label} 보안 사고는 최근 4주 주당 ${fmt1(s.recentPerWeek)}건이며, 앞선 기간에 집계된 사고는 0건입니다.`;
+  const ratio = s.recentPerWeek / s.beforePerWeek;
+  const trend = ratio >= 1.3 ? `그 전(주당 ${fmt1(s.beforePerWeek)}건)의 ${fmt1(ratio)}배` : ratio <= 0.77 ? `그 전(주당 ${fmt1(s.beforePerWeek)}건)보다 줄었다` : `그 전(주당 ${fmt1(s.beforePerWeek)}건)과 비슷하다`;
   return `${label} 보안 사고는 최근 4주 주당 ${fmt1(s.recentPerWeek)}건으로 ${trend}.`;
 }
 
 // 업권별 건수(최근 4주와 그 전, 주당).
 export const ORG_ORDER = ["금융회사", "가상자산 거래소", "국가기관, 금융 감독 또는 보안 기관", "공공기관", "통신사", "상장 대기업", "일반 기업", "대학, 병원", "기타"];
 export const ORG_SHORT = { "국가기관, 금융 감독 또는 보안 기관": "국가, 감독, 보안 기관" };
-export function orgBreakdown(events, weeks, region) {
-  const list = events.filter(inRegion(region));
-  const split = weeks.at(-4).start;
-  const beforeWeeks = weeks.length - 4;
+export function orgBreakdown(events, weeks, region, coverage) {
   return ORG_ORDER.map((org) => {
-    const mine = list.filter((e) => (e.org || "기타") === org || (org === "기타" && !ORG_ORDER.includes(e.org)));
-    return { org, label: ORG_SHORT[org] || org, total: mine.length, recent: mine.filter((e) => e.d >= split).length / 4, before: mine.filter((e) => e.d < split).length / beforeWeeks };
+    const mine = events.filter((e) => e.org === org || (org === "기타" && !ORG_ORDER.includes(e.org)));
+    const { total, recentPerWeek, beforePerWeek } = summary(mine, weeks, region, coverage);
+    return { org, label: ORG_SHORT[org] || org, total, recent: recentPerWeek, before: beforePerWeek };
   }).filter((row) => row.total);
 }
 
@@ -112,7 +123,8 @@ function boundaryLine(weeks, boundary, xOf, top, bottom) {
   const i = boundary ? weeks.findIndex((w) => boundary >= w.start && boundary <= w.end) : -1;
   if (i < 0) return "";
   const x = r1(xOf(i));
-  return `<line class="ic-bound" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/><text class="ic-boundlab" x="${x + 4}" y="${top + 10}">자동 감지</text>`;
+  const labelOnLeft = i >= weeks.length / 2;
+  return `<line class="ic-bound" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/><text class="ic-boundlab" x="${x + (labelOnLeft ? -4 : 4)}" y="${top + 10}" text-anchor="${labelOnLeft ? "end" : "start"}">자동 감지</text>`;
 }
 
 export function indexChart(series, weeks, { width = 800, components = null, boundary = null } = {}) {
@@ -131,7 +143,7 @@ export function indexChart(series, weeks, { width = 800, components = null, boun
   }
   for (const s of series) {
     p.push(`<path class="ic-line ${s.key}" d="${path(s.points, "index")}"/>`);
-    s.points.forEach((pt, i) => p.push(`<circle class="ic-pt ${s.key}${pt.partial ? " partial" : ""}" cx="${r1(x(i))}" cy="${r1(y(pt.index))}" r="4"><title>${esc(`${s.label} ${weekLabel(pt)} 주${pt.partial ? "(집계 중)" : ""}: 종합 ${Math.round(pt.index)} (건수 ${Math.round(pt.c)}, 유출 ${Math.round(pt.r)}, 금액 ${Math.round(pt.m)}) / ${pt.count}건, 유출 ${fmtCount(pt.rec)}건, 탈취 ${pt.usd ? fmtUsd(pt.usd) : "$0"}`)}</title></circle>`));
+    s.points.forEach((pt, i) => p.push(`<circle class="ic-pt ${s.key}${pt.partial ? " partial" : ""}" cx="${r1(x(i))}" cy="${r1(y(pt.index))}" r="4"><title>${esc(`${s.label} ${weekLabel(pt)} 주${pt.partial ? "(집계 중)" : ""}: 종합 ${Math.round(pt.index)} (건수 ${Math.round(pt.c)}, 유출 ${Math.round(pt.r)}, 금액 ${Math.round(pt.m)}) / ${pt.count}건, 유출 ${pt.recKnown ? fmtCount(pt.rec) + "건" : "발표 없음"}, 금전 피해 ${pt.usdKnown ? fmtUsd(pt.usd) : "발표 없음"}`)}</title></circle>`));
     const last = s.points.at(-1);
     p.push(`<text class="ic-end ${s.key}" x="${r1(x(s.points.length - 1) + 9)}" y="${r1(y(last.index) + 4)}">${s.label} ${Math.round(last.index)}${last.partial ? "*" : ""}</text>`);
   }
@@ -198,5 +210,5 @@ export function sizeChart(events, weeks, kind, { width = 800, maxLabels = 10 } =
     boxes.push(box);
     p.push(`<text class="ic-lab ${e.r}" x="${r1(box.x)}" y="${r1(box.y + 11)}">${esc(text)}</text>`);
   }
-  return `<svg class="ic" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img" aria-label="${kind === "rec" ? "사건별 유출 건수" : "사건별 탈취 금액"}">${p.join("")}</svg>`;
+  return `<svg class="ic" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img" aria-label="${kind === "rec" ? "사건별 유출 건수" : "사건별 금전 피해액"}">${p.join("")}</svg>`;
 }

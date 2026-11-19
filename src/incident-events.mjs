@@ -101,20 +101,20 @@ export function fromDefiLlama(hacks, research, { since, minUsd = 1e7 }) {
 }
 
 // 리서치 마감(researchUntil) 다음 날부터는 사전 밖 사건도 기사 제목에서 자동 감지한다("자동 감지"로 표시).
-export function fromAuto(stories, { newsItems = [], known = [], after, notIncident = null }) {
+export function fromAuto(stories, { newsItems = [], known = [], after }) {
   const itemsById = new Map(newsItems.map((item) => [item.id, item]));
-  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay, notIncident }).map(({ story, name, day, items }) => {
+  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay }).map(({ story, name, day, items }) => {
     const rec = headlineCount(items);
     const lead = items.find((item) => item.u) || { t: story.t, u: story.u, s: "" };
     return { id: `a-${story.id}`, d: day, n: name, r: story.r, org: "기타", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: lead.t, src: [{ o: story.s > 1 ? `보도 ${story.s}개 매체` : lead.s || "보도", u: lead.u || story.u, t: lead.t, d: day }], media: story.s, via: "자동 감지" };
   });
 }
 
-export function mergeEvents({ research, newsLog = [], entities = [], hacks = [], newsItems = [], since, fx = null, researchUntil = null, notIncident = null }) {
+export function mergeEvents({ research, newsLog = [], entities = [], hacks = [], newsItems = [], since, fx = null, researchUntil = null }) {
   const r = fromResearch(research, { fx }).filter((e) => e.d >= since);
   const n = fromNewsLog(newsLog, entities, r, { since, newsItems });
   const d = fromDefiLlama(hacks, r, { since });
-  const a = researchUntil ? fromAuto(newsLog, { newsItems, known: [...r, ...n, ...d], after: researchUntil > since ? researchUntil : since, notIncident }) : [];
+  const a = researchUntil ? fromAuto(newsLog, { newsItems, known: [...r, ...n, ...d], after: researchUntil > since ? researchUntil : since }) : [];
   const ids = new Set();
   return [...r, ...n, ...d, ...a].filter((e) => (ids.has(e.id) ? false : ids.add(e.id))).sort((a, b) => b.d.localeCompare(a.d) || a.n.localeCompare(b.n));
 }

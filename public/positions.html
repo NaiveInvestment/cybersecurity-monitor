@@ -107,6 +107,7 @@
           <span id="position-count" aria-live="polite">종목 자료를 불러오는 중</span>
           <span>단위 억원</span>
           <span id="position-quote-time"></span>
+          <span class="position-mobile-label" id="position-mobile-period">최근 4분기 실적</span>
         </p>
       </div>
       <div class="position-table-controls">
@@ -127,7 +128,7 @@
             <th scope="col" rowspan="2">종목</th>
             <th scope="col" rowspan="2" id="position-connection-heading">제품과 연결 근거</th>
             <th scope="col" rowspan="2" class="position-number" aria-sort="descending">시가총액 <span class="position-sort-mark" aria-hidden="true">↓</span></th>
-            <th scope="colgroup" colspan="3" class="position-finance-period">최근 4분기 실적</th>
+            <th scope="colgroup" colspan="3" class="position-finance-period" id="position-finance-period">최근 4분기 실적</th>
           </tr>
           <tr>
             <th scope="col" class="position-number">매출</th>
@@ -145,8 +146,8 @@
     <ul>
       <li>국내 보안주 35개를 대상으로 대표 또는 겹치는 보안 분야에 포함합니다. 회사별 제품과 공시 자료는 표에서 열 수 있습니다.</li>
       <li>시총과 실적의 단위는 억원입니다. 시총은 종목 탭과 같은 시세를 쓰고, 개별 기준 시각은 시총 값에서 확인할 수 있습니다.</li>
-      <li>매출, 영업이익, 순이익은 2025년 4분기부터 2026년 3분기까지의 합계입니다. 연결 우선이며 순이익은 지배주주 귀속을 우선합니다. 회사명을 누르면 개별 기준과 공시가 열립니다.</li>
-      <li>매출 비중은 2026년 1~9월 공시의 사업 또는 제품 구분입니다. 공시에서 여러 제품을 한 항목으로 공개한 경우 그 항목 전체를 표시합니다.</li>
+      <li>매출, 영업이익, 순이익은 <span id="position-finance-range">최근 4분기</span> 합계입니다. 연결 우선이며 순이익은 지배주주 귀속을 우선합니다. 회사명을 누르면 개별 기준과 공시가 열립니다.</li>
+      <li>매출 비중은 <span id="position-mix-period">공시</span>의 사업 또는 제품 구분입니다. 공시에서 여러 제품을 한 항목으로 공개한 경우 그 항목 전체를 표시합니다.</li>
     </ul>
   </details>
 </main>

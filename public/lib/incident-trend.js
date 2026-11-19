@@ -11,8 +11,18 @@ export const TIERS = [
 export const tierOf = (sources) => (sources >= 20 ? 2 : sources >= 5 ? 1 : 0);
 export const REGIONS = [["KR", "국내"], ["GL", "해외"]];
 
-// 사건이 아님을 밝히는 제목("no signs of cyberattack", "Not Cyberattack", "해킹 아냐"). 분류와 추이 모두에서 뺀다.
-export const NOT_INCIDENT = /reports? no (data )?breach|\bno (signs?|evidence|indications?) of (a |any )?(cyber|hack)|\bnot (a |an )?(cyber\s?attack|hack)|\b(caused by|due to) [\w\s-]{0,30}, not (a )?cyber|\brules? out [\w\s-]{0,20}cyber|해킹\s?(아냐|아니다|아닌 것|흔적\s?없|과\s?무관|무관)/i;
+const DENIAL = /reports? no (data )?breach|\bno (signs?|evidence|indications?) of (a |any )?(cyber\s?attack|hack(?:ing)?)\b|\bnot (a |an )?(cyber\s?attack|hack(?:ing)?)\b|\brule[sd]? out [\w\s-]{0,20}cyber\s?attack\b|해킹\s?(아냐|아니다|아닌 것|흔적\s?없|과\s?무관|무관)/i;
+const CONFIRMED_HARM = /\b(?:confirms|confirmed|discloses|disclosed|reports|reported) (?:a |an |the )?(?:(?:customer |personal )?data (?:breach|leak|exposure)|ransomware attack)\b/i;
+const UNCERTAIN_CAUSE = /\b(?:hasn['’]t|haven['’]t|didn['’]t|has not|have not|did not|has yet to|have yet to)\s*$/i;
+
+// 별도 유출이 확인됐거나 공격 가능성을 배제하지 않은 보도는 유지한다.
+export function isDeniedIncidentTitle(title) {
+  const denial = DENIAL.exec(title);
+  if (!denial) return false;
+  const context = title.slice(0, denial.index);
+  if (CONFIRMED_HARM.test(context) || /외부(?:기관)?(?:\s*주소)?\s*침해.{0,16}자체\s*$/.test(context)) return false;
+  return !(/^rule/i.test(denial[0]) && UNCERTAIN_CAUSE.test(context));
+}
 
 const DAY = 86400000;
 export const kstDay = (value) => new Date((typeof value === "number" ? value : Date.parse(value)) + 9 * 3600000).toISOString().slice(0, 10);
@@ -30,7 +40,7 @@ export function buildTrend(stories, { now = Date.now(), since = null, days = 60 
     const daily = dates.map((date) => ({ date, tiers: [0, 0, 0], total: 0 }));
     const counted = [];
     for (const story of stories) {
-      if (story.r !== id || story.s < MIN_SOURCES || NOT_INCIDENT.test(story.t)) continue;
+      if (story.r !== id || story.s < MIN_SOURCES || isDeniedIncidentTitle(story.t)) continue;
       const slot = index.get(kstDay(story.f));
       if (slot == null) continue;
       const tier = tierOf(story.s);

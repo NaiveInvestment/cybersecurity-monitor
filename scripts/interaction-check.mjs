@@ -294,13 +294,25 @@ try {
   await evaluate("document.querySelectorAll('.note')[1].querySelector('summary').click()");
   check(await evaluate("document.querySelectorAll('.note')[1].open && document.querySelectorAll('.note')[1].querySelectorAll('.facts dt').length >= 2"), "정리 펼치기 실패");
   check(page.related >= 1, "같은 사건 묶음이 없음");
-  // 주요 이슈의 관련 기사 모두 보기
+  // 주요 이슈의 관련 기사를 열었다 돌아와도 기사 목록의 조건은 유지된다.
+  await click('#tabs [data-tab="policy"]');
+  await click('#period-switch [data-period="7"]');
+  const searchTerm = "사이버보안모니터_일치하지않는검증검색어";
+  await type("#search", searchTerm);
+  check(await evaluate("[...document.querySelectorAll('#tabs small')].every((el) => el.textContent === '0')"), "검색어가 범주별 기사 건수에 반영되지 않음");
   await click(".lead-more");
   page = await evaluate(NEWS);
   check(page.focus && page.headlines === page.leadCount, `사건 모아 보기: 기사 ${page.headlines}건, 기대 ${page.leadCount}건`);
+  check(await evaluate("document.activeElement.id === 'feed-title' && document.activeElement.textContent === '관련 기사'"), "모아보기로 이동했을 때 제목 포커스 누락");
   await shot("news-desktop-focus");
   await click("#focus-clear");
-  check(!(await evaluate(NEWS)).focus, "전체 기사로 돌아가기 실패");
+  page = await evaluate(NEWS);
+  check(!page.focus && page.tab === "policy" && page.headlines === 0, "기사 목록의 범주와 검색 결과가 보존되지 않음");
+  check(await evaluate("document.querySelector('#period-switch [aria-pressed=true]').dataset.period === '7'") &&
+    (await evaluate("document.querySelector('#search').value")) === searchTerm, "기사 목록의 기간과 검색어가 보존되지 않음");
+  await click('#tabs [data-tab="incident"]');
+  await click('#period-switch [data-period="30"]');
+  await type("#search", "");
 
   await click('#region-switch [data-region="KR"]');
   page = await evaluate(NEWS);
@@ -311,6 +323,7 @@ try {
   page = await evaluate(NEWS);
   check(!page.countries.includes("한국") && page.notes >= 4, `해외 필터 뒤 정리 ${page.notes}건`);
   check(await evaluate("document.querySelector('.kicker').textContent.includes('해외')"), "해외 필터 뒤 주요 이슈가 해외가 아님");
+  const overseasStory = await evaluate("({ id: document.querySelector('.lead-more').dataset.focus, category: document.querySelector('.kicker b').textContent })");
   await click('#region-switch [data-region="ALL"]');
 
   await click('#tabs [data-tab="policy"]');
@@ -340,6 +353,26 @@ try {
   await click('#tabs [data-tab="spending"]');
   page = await evaluate(NEWS);
   check(page.region === "ALL" && page.countries.includes("미국") && await evaluate("document.querySelector('#search').value") === overseasStock, "해외 종목 뉴스 검색어 진입 실패");
+
+  await open(`news.html?story=${encodeURIComponent(overseasStory.id)}`);
+  page = await evaluate(NEWS);
+  check(page.region === "GL" && page.focus && page.headlines > 1, "해외 이슈 링크에서 관련 기사 열기 실패");
+  check((await evaluate("document.querySelector('#tabs [aria-selected=true]').firstChild.textContent")) === overseasStory.category, "이슈 링크에서 범주 선택 실패");
+  await open("news.html?story=unknown-test-story");
+  page = await evaluate(NEWS);
+  check(page.region === "KR" && !page.focus && page.tab === "incident", "없는 이슈 링크에서 국내 기본 뉴스로 돌아가지 않음");
+  const expiredStory = await evaluate(`(async () => {
+    const { items } = await (await fetch('data/news.json')).json();
+    const key = (item) => item.g || item.id;
+    const cutoff = Date.now() - 72 * 3600000;
+    const recent = new Set(items.filter((item) => Date.parse(item.d) >= cutoff).map(key));
+    return items.filter((item) => item.r === 'GL').map(key).find((id) => !recent.has(id)) ?? null;
+  })()`);
+  if (expiredStory) {
+    await open(`news.html?story=${encodeURIComponent(expiredStory)}`);
+    page = await evaluate(NEWS);
+    check(page.region === "KR" && !page.focus && page.tab === "incident", "기간이 지난 이슈 링크에서 국내 기본 뉴스로 돌아가지 않음");
+  }
 
   await open(`index.html?q=${encodeURIComponent("팔로알토")}`);
   table = await evaluate(TABLE);

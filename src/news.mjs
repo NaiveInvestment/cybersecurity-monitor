@@ -1,7 +1,7 @@
 // 헤드라인 수집용 순수 함수: RSS/Atom 파싱, 분류, 중복 제거, 종목 연결. 요약문은 만들지 않는다.
 import { createHash } from "node:crypto";
 import { titleKey, similarity } from "../public/lib/text.js";
-import { NOT_INCIDENT } from "../public/lib/incident-trend.js";
+import { isDeniedIncidentTitle } from "../public/lib/incident-trend.js";
 
 const ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", "#39": "'" };
 
@@ -99,14 +99,15 @@ const ORDER = ["incident", "policy", "spending"];
 
 // 제목 중심 키워드 규칙. 동점이면 피드 힌트, 그다음 사례 > 정책 > 지출 순. 어디에도 안 걸리면 other.
 export function classify(title, summary = "", hint = null) {
+  const denied = isDeniedIncidentTitle(title);
   const scores = {};
   for (const category of ORDER) {
     // "no signs of cyberattack"처럼 사건이 아님을 밝힌 제목은 사례 점수를 주지 않는다.
-    if (category === "incident" && NOT_INCIDENT.test(title)) { scores[category] = 0; continue; }
+    if (category === "incident" && denied) { scores[category] = 0; continue; }
     scores[category] = RULES[category].reduce((total, rule) => total + (rule.test(title) ? 2 : 0) + (rule.test(summary) ? 1 : 0), 0);
   }
   const best = Math.max(...ORDER.map((category) => scores[category]));
-  if (best === 0) return hint && ORDER.includes(hint) ? hint : "other";
+  if (best === 0) return ORDER.includes(hint) && !(denied && hint === "incident") ? hint : "other";
   const leaders = ORDER.filter((category) => scores[category] === best);
   return hint && leaders.includes(hint) ? hint : leaders[0];
 }
@@ -134,7 +135,7 @@ export const itemId = (url) => createHash("sha1").update(url).digest("hex").slic
 // 새 항목을 기존 보관분에 합친다. URL이 같거나, 같은 지역에서 4일 안에 제목이 거의 같은 기사는 버린다.
 export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 180, maxItems = 3000, threshold = 0.5 } = {}) {
   const cutoff = now - keepDays * 86400000;
-  const kept = existing.filter((item) => Date.parse(item.d) >= cutoff);
+  const kept = existing.filter((item) => Date.parse(item.d) >= cutoff && (item.c !== "incident" || !isDeniedIncidentTitle(item.t)));
   const urls = new Set(kept.map((item) => item.u));
   const keys = new Set(kept.map((item) => `${item.r}|${titleKey(item.t)}`));
   let added = 0;

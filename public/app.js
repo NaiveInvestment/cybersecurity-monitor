@@ -1,7 +1,6 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { pct, valuation, mean } from "./lib/calc.js";
-import { groupStories, topIssues } from "./lib/issues.js";
-import { relayUrl, freshRelay } from "./lib/relay.js";
+import { startQuoteFeed } from "./lib/quote-feed.js";
 import { financialRow, annualValuation } from "./lib/financials.js";
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
@@ -13,11 +12,11 @@ let snapshot = null;
 let meta = null;
 let financials = null;
 let horizon = "threeMonth";
-let relay = null, lastDiscovery = 0, cloud = null, relayRunning = false, relayActive = false;
 let baseQuotes = {};
 
 const $ = (selector) => document.querySelector(selector);
 const narrow = window.matchMedia("(max-width: 640px)");
+const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === value)));
 
 // 화면에 쓰는 파생값. 금액은 원화 환산(억원)과 현지 통화(국내 억원, 해외 백만)를 함께 들고 있다.
 function derive(stock) {
@@ -72,7 +71,7 @@ let GROUPS = [
 
 let COLUMNS = [
   { key: "name", group: "id", label: "종목", cls: "name", sort: (s) => s.name,
-    cell: (s) => ({ html: `<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}" title="${esc(s.market)}, ${esc(s.desc)} (관련 뉴스 보기)">${esc(s.name)}</a>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
+    cell: (s) => ({ html: `<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}" aria-label="${esc(s.name)} 관련 뉴스" title="${esc(s.market)}, ${esc(s.desc)} (관련 뉴스 보기)">${esc(s.name)}</a>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
   { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
   { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
@@ -126,14 +125,16 @@ function financialColumns() {
 
 const segLabel = (id) => snapshot.segments.find((segment) => segment.id === id)?.label || id;
 
-function visibleStocks() {
-  const query = state.query.trim().toLowerCase();
+const normalizeStockQuery = (text) => text.toLowerCase().replace(/\s+/g, "");
+
+function visibleStocks(view = state.view) {
+  const query = normalizeStockQuery(state.query);
   return snapshot.stocks.filter((stock) => {
-    if (state.view !== "ALL" && stock.kind !== state.view) return false;
+    if (view !== "ALL" && stock.kind !== view) return false;
 
     if (state.segs.size && !state.segs.has(stock.seg)) return false;
     if (!query) return true;
-    return [stock.name, stock.nameEn, stock.id].some((text) => text && text.toLowerCase().includes(query));
+    return [stock.name, stock.nameEn, stock.id].some((text) => text && normalizeStockQuery(text).includes(query));
   });
 }
 
@@ -156,7 +157,11 @@ function renderTable() {
   const rows = visibleStocks().map((stock) => ({ stock, d: derive(stock) })).sort(compare);
   $("#count").textContent = `${rows.length}종목`;
   if (!rows.length) {
-    $("#table-wrap").innerHTML = '<p class="empty">조건에 맞는 종목이 없음</p>';
+    const otherView = state.view === "KR" ? "GL" : "KR";
+    const alternative = state.view !== "ALL" && state.query.trim() && visibleStocks(otherView).length
+      ? ` <button type="button" data-stock-view="${otherView}">${otherView === "KR" ? "국내" : "해외"} 종목에서 찾기</button>` : "";
+    $("#table-wrap").innerHTML = `<p class="empty stock-empty">조건에 맞는 종목이 없음${alternative}</p>`;
+    updateTablePan();
     return;
   }
   const activeGroups=GROUPS.filter(g=>COLS.some(c=>c.group===g.id));
@@ -274,11 +279,13 @@ function renderNotes() {
 // 가장 많이 보도된 사건 하나를 종목 표 위에 한 줄로 보여 준다. 세 매체 이상이 다룬 사건이 없으면 숨긴다.
 async function renderIssueBar() {
   try {
-    const news = await loadJson("data/news.json");
-    const [top] = topIssues(groupStories(news.items), { limit: 1 });
-    if (!top || top.sources < 3) return;
+    const issues = await loadJson("data/issue-banner.json");
+    const cutoff = Date.now() - 72 * 3600000;
+    const top = issues.find((issue) => Date.parse(issue.last) >= cutoff);
+    if (!top) return;
     const bar = $("#issue-bar");
-    bar.innerHTML = `<span class="label">주요 이슈</span><span class="title">${esc(top.lead.t)}</span><span class="meta">${top.sources}개 매체 ${top.count}건</span><span class="go">뉴스에서 보기</span>`;
+    bar.href = `news.html?story=${encodeURIComponent(top.id)}`;
+    bar.innerHTML = `<span class="label">주요 이슈</span><span class="title">${esc(top.title)}</span><span class="meta">${top.sources}개 매체 ${top.count}건</span><span class="go">관련 기사 보기</span>`;
     bar.hidden = false;
   } catch { /* 뉴스를 못 읽어도 종목 표는 그대로 둔다 */ }
 }
@@ -312,67 +319,53 @@ function applyLive(live, force = false) {
   flash.clear();
 }
 
-// 실시간 시세를 읽는다. 숨은 탭에서는 쉰다.
-// 배포본: live 브랜치의 live.json. 무인증 API 한도(시간당 60회)를 넘지 않게 75초 간격.
-// 로컬 실시간 서버: meta.live.url(같은 서버의 live.json)을 2초 간격.
-async function pollLive() {
-  if (!meta?.live || document.hidden) return;
-  const { repo, branch, file, url } = meta.live;
-  const attempts = url ? [() => fetch(url, { cache: "no-store" })] : [
-    () => fetch(`https://api.github.com/repos/${repo}/contents/${file}?ref=${branch}`, { headers: { Accept: "application/vnd.github.raw+json" }, cache: "no-store" }),
-    () => fetch(`https://raw.githubusercontent.com/${repo}/${branch}/${file}`, { cache: "no-store" }),
-  ];
-  for (const attempt of attempts) {
-    try {
-      const response = await attempt();
-      if (response.ok) { cloud = await response.json(); if(!relayActive) applyLive(cloud); return; }
-    } catch { /* 다음 경로로 */ }
-  }
+function restoreCloudQuotes(cloud) {
+  for (const stock of snapshot.stocks) stock.q = structuredClone(baseQuotes[stock.id]);
+  state.liveRev = null;
+  state.liveAsOf = null;
+  state.liveSource = null;
+  if (cloud) applyLive(cloud, true);
+  else renderAll();
+}
+
+function selectView(view) {
+  state.view = view;
+  press($("#view-switch"), "view", view);
+  renderTable();
   renderStatus();
 }
 
-async function pollRelay() {
-  if (!meta?.live?.relayConfig || document.hidden || relayRunning) return;
-  relayRunning=true;
-  try {
-  const now=Date.now();
-  if(now-lastDiscovery>60000) {
-    lastDiscovery=now;
-    try { const response=await fetch(`${meta.live.relayConfig}?t=${Math.floor(now/60000)}`,{signal:AbortSignal.timeout(2500),cache:"no-store"}); if(response.ok) relay=relayUrl((await response.json()).url); } catch {}
+function saveStockSelection() {
+  const { view, cur, query, segs, sort } = state;
+  history.replaceState({ ...history.state, stocks: { view, cur, query, segs: [...segs], sort, horizon } }, "");
+}
+
+function restoreStockSelection() {
+  const saved = history.state?.stocks;
+  if (saved) {
+    const { view, cur, query, segs, sort } = saved;
+    Object.assign(state, { view, cur, query, segs: new Set(segs), sort });
+    horizon = saved.horizon;
+  } else {
+    // 뉴스의 관련 종목 링크는 국내외 종목에서 검색한다.
+    const query = new URLSearchParams(location.search).get("q");
+    if (query) Object.assign(state, { query, view: "ALL" });
   }
-  if(!relay) return;
-  try {
-    const response=await fetch(relay,{signal:AbortSignal.timeout(2500),cache:"no-store"});
-    if(!response.ok) throw new Error("relay unavailable");
-    const data=await response.json();
-    if(!freshRelay(data)) throw new Error("stale relay");
-    const sourceChanged=state.liveSource!==data.source;
-    relayActive=true;
-    applyLive(data,sourceChanged);
-  } catch {
-    if(relayActive) {
-      relayActive=false;
-      for(const stock of snapshot.stocks) stock.q=structuredClone(baseQuotes[stock.id]);
-      state.liveRev=null; state.liveAsOf=null;state.liveSource=null;
-      if(cloud) applyLive(cloud,true); else renderAll();
-    }
-  }
-  } finally { relayRunning=false; }
+  $("#search").value = state.query;
+  $("#financial-horizon").value = horizon;
+  press($("#view-switch"), "view", state.view);
+  press($("#cur-switch"), "cur", state.cur);
 }
 
 function bind() {
+  window.addEventListener("pagehide", saveStockSelection);
   $('#table-pan').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(w.scrollLeft!==p.scrollLeft)w.scrollLeft=p.scrollLeft;});
   $('#table-wrap').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(p.scrollLeft!==w.scrollLeft)p.scrollLeft=w.scrollLeft;});
   window.addEventListener('resize',()=>{fitOverviewColumns();updateTablePan();});
   $('#financial-horizon').addEventListener('change',e=>{horizon=e.target.value;renderTable();});
-  const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === value)));
   $("#view-switch").addEventListener("click", (event) => {
     const view = event.target.closest("button")?.dataset.view;
-    if (!view) return;
-    state.view = view;
-    press($("#view-switch"), "view", view);
-    renderTable();
-    renderStatus();
+    if (view) selectView(view);
   });
   $("#cur-switch").addEventListener("click", (event) => {
     const cur = event.target.closest("button")?.dataset.cur;
@@ -382,7 +375,7 @@ function bind() {
     renderTable();
   });
   $("#search").addEventListener("input", (event) => { state.query = event.target.value; renderTable(); });
-  $("#seg-chips").innerHTML = snapshot.segments.map((segment) => `<button type="button" data-seg="${segment.id}" aria-pressed="false">${esc(segment.label)}</button>`).join("");
+  $("#seg-chips").innerHTML = snapshot.segments.map((segment) => `<button type="button" data-seg="${segment.id}" aria-pressed="${state.segs.has(segment.id)}">${esc(segment.label)}</button>`).join("");
   $("#seg-chips").addEventListener("click", (event) => {
     const button = event.target.closest("button");
     if (!button) return;
@@ -392,6 +385,12 @@ function bind() {
     renderTable();
   });
   $("#table-wrap").addEventListener("click", (event) => {
+    const alternative = event.target.closest("[data-stock-view]")?.dataset.stockView;
+    if (alternative) {
+      selectView(alternative);
+      $("#view-switch [aria-pressed=true]").focus({ preventScroll: true });
+      return;
+    }
     const key = event.target.closest("[data-sort]")?.dataset.sort;
     if (!key) return;
     const textual = ["name", "seg"].includes(key);
@@ -412,23 +411,16 @@ async function main() {
   baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
   try { financials=await loadJson("data/financials.json"); } catch {}
   $("#financial-date").textContent=financials?`실적 OpenDART, 추정 ${financials.workbookBaseDate}`:"";
+  restoreStockSelection();
   bind();
-  // 뉴스 카드의 관련 종목에서 넘어오면 전체 보기에서 그 종목만 보여 준다.
-  const query = new URLSearchParams(location.search).get("q");
-  if (query) {
-    state.query = query;
-    state.view = "ALL";
-    $("#search").value = query;
-    document.querySelectorAll("#view-switch button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.view === "ALL")));
-  }
   renderAll();
   renderIssueBar();
-  if (meta.live) {
-    pollLive();
-    setInterval(pollLive, meta.live.interval || 75000);
-    if(meta.live.relayConfig) { pollRelay(); setInterval(pollRelay,2000); }
-    document.addEventListener("visibilitychange", () => { if (!document.hidden) pollLive(); });
-  }
+  startQuoteFeed(meta.live, {
+    onQuotes: (payload, feed) => applyLive(payload, feed === "relay" && state.liveSource !== payload.source),
+    onRelayLost: restoreCloudQuotes,
+    onUnavailable: renderStatus,
+  });
+
   narrow.addEventListener("change", renderTable);
   setInterval(renderStatus, 60000);
 }

@@ -73,6 +73,23 @@ if (!failures.length) {
   check(cards.every((card) => !("note" in card)), "공개 카드에 검증 메모가 남아 있음");
 
   const news = JSON.parse(read("data/news.json"));
+  const bannerFile = "data/issue-banner.json";
+  check(existsSync(join(dir, bannerFile)), "첫 화면 주요 이슈 자료 없음");
+  if (existsSync(join(dir, bannerFile))) {
+    const items = JSON.parse(read(bannerFile));
+    const groups = new Map();
+    for (const item of news.items) {
+      const id = item.g || item.id;
+      if (!groups.has(id)) groups.set(id, []);
+      groups.get(id).push(item);
+    }
+    for (const item of items) {
+      const members = groups.get(item.id) || [];
+      check(item.sources >= 3 && item.sources === new Set(members.map((article) => article.s)).size
+        && members.length === item.count && members.some((article) => article.t === item.title),
+        `주요 이슈와 기사 목록 불일치: ${item.id}`);
+    }
+  }
   check(news.items.length >= 50, `헤드라인 ${news.items.length}건, 기대 50 이상`);
   check(news.items.every((item) => ["incident", "policy", "spending"].includes(item.c) && ["KR", "GL"].includes(item.r) && /^https?:\/\//.test(item.u)), "헤드라인 필드 오류");
   check(new Set(news.items.map((item) => item.u)).size === news.items.length, "헤드라인 URL 중복");
@@ -81,7 +98,7 @@ if (!failures.length) {
     const text = readFileSync(file, "utf8");
     const name = relative(dir, file);
     // 수집한 기사 제목은 원문 그대로 두므로 news.json과 사건 기록 incidents.json은 금지 문자 검사에서 뺀다.
-    if (!name.endsWith("news.json") && !name.endsWith("incidents.json") && !name.endsWith("incident-events.json")) {
+    if (!name.endsWith("news.json") && !name.endsWith("issue-banner.json") && !name.endsWith("incidents.json") && !name.endsWith("incident-events.json")) {
       check(!/[·‧・]/.test(text), `${name}: 가운뎃점`);
       check(!/[①-⑳]/.test(text), `${name}: 원문자 숫자`);
     }

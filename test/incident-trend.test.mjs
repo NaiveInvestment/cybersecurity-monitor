@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildTrend, trendSvg, niceMax, tierOf, kstDay, NOT_INCIDENT, heatRows, heatLevel } from "../public/lib/incident-trend.js";
+import { buildTrend, trendSvg, niceMax, tierOf, kstDay, isDeniedIncidentTitle, heatRows, heatLevel } from "../public/lib/incident-trend.js";
 import { updateIncidentLog, publicIncidentLog, compileEntities } from "../src/incident-log.mjs";
 
 const story = (id, r, f, s, n = s) => ({ id, r, f, s, n, t: `사건 ${id}`, u: `https://example.com/${id}` });
@@ -31,9 +31,9 @@ test("buildTrend: 2개 매체 이상만, 부정 제목 제외, 지역별 구간 
   assert.equal(trend.maxSources, 40);
 });
 
-test("NOT_INCIDENT: 사건이 아님을 밝힌 제목", () => {
-  for (const title of ["United Airlines says tech outage disrupts departures, no signs of cyberattack", "Meade County Dispatch Disruption Caused by Equipment Failure, Not Cyberattack", "Transport Secy Rules Out Foreign Cyberattack", "전산 장애, 해킹 아냐"]) assert.ok(NOT_INCIDENT.test(title), title);
-  for (const title of ["Uber reports data breach affecting nearly 150,000 drivers", "금융보안원 해킹, 개인정보 유출"]) assert.ok(!NOT_INCIDENT.test(title), title);
+test("isDeniedIncidentTitle: 원인 부인, 별도 확인된 유출, 원인 미확정 구분", () => {
+  for (const title of ["Trump administration says tech outages are not a cyberattack", "United Airlines says tech outage disrupts departures, no signs of cyberattack", "Meade County Dispatch Disruption Caused by Equipment Failure, Not Cyberattack", "Transport Secy Rules Out Foreign Cyberattack", "전산 장애, 해킹 아냐"]) assert.ok(isDeniedIncidentTitle(title), title);
+  for (const title of ["Uber reports data breach affecting nearly 150,000 drivers", "금융보안원 해킹, 개인정보 유출", "Coles reports customer data breach, no signs of cyberattack", "Transportation secretary still hasn't rule out a cyberattack hit the FAA", '라이터 "외부기관 주소 침해 정황…자체 해킹 아냐" 출금 일시 중단']) assert.ok(!isDeniedIncidentTitle(title), title);
 });
 
 test("niceMax: 1, 2, 2.5, 5, 10 배수", () => {

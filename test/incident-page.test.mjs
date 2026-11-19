@@ -104,6 +104,32 @@ test("차트 SVG: 지정 폭, 라벨, 빈 자료", () => {
   assert.doesNotMatch(sizeChart(events, weeks, "rec", { width: 700 }), /Vanderbilt/, "주장 숫자는 점으로 찍지 않는다");
 });
 
+test("피해 업권과 요약은 같은 관측 일수와 사건 범위를 사용한다", () => {
+  const coverage = { since: "2026-08-20", until: "2026-11-19" };
+  const weeks = weeksEnding(coverage.until);
+  const events = [
+    { d: "2026-08-20", r: "KR", org: "금융회사" },
+    { d: "2026-09-01", r: "KR", org: "금융회사", usd: 0 },
+    { d: "2026-11-19", r: "KR", org: "미분류", rec: 20, claim: true },
+    { d: "2026-11-20", r: "KR", org: "금융회사" },
+    { d: "2026-11-18", r: "GL", org: "금융회사", usd: 50 },
+  ];
+  const stats = summary(events, weeks, "KR", coverage);
+  const rows = orgBreakdown(events, weeks, "KR", coverage);
+  assert.equal(rows.reduce((sum, row) => sum + row.total, 0), 2);
+  assert.equal(stats.total, 2);
+  assert.equal(stats.recentPerWeek, 7 / 25);
+  assert.equal(rows.find((r) => r.org === "기타").recent, stats.recentPerWeek);
+  assert.equal(rows.find((r) => r.org === "금융회사").before, stats.beforePerWeek);
+  assert.equal(stats.recKnown, 0);
+  assert.equal(stats.usdKnown, 1);
+  assert.equal(stats.usd, 0);
+  assert.equal(stats.recentUsdKnown, 0);
+  const shortCoverage = summary(events, weeks, "KR", { since: "2026-11-17", until: coverage.until });
+  assert.equal(shortCoverage.beforePerWeek, null);
+  assert.match(claimText(shortCoverage, "국내"), /앞선 기간의 집계 자료는 없습니다/);
+});
+
 test("원화 금전 피해: 금전 손실 문맥일 때만 읽고 환율로 환산", async () => {
   const { parseKrw, researchKrw, fromResearch } = await import("../src/incident-events.mjs");
   assert.equal(parseKrw("피해 자산 약100000000 KRW"), 1e8);
