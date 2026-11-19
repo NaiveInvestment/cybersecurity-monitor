@@ -71,7 +71,9 @@ const headlines = JSON.parse(readFileSync(join(outDir, "data", "news.json"), "ut
 const stories = groupStories(headlines);
 const bannerIssues = topIssues(stories, { limit: stories.length })
   .filter((story) => story.sources >= 3)
-  .map(({ id, lead, last, count, sources }) => ({ id, title: lead.t, last, count, sources }));
+  .map(({ id, lead, last, count, sources }) => ({
+    id, title: lead.t, lang: lead.lang, tKo: lead.tKo, last, count, sources,
+  }));
 writeFileSync(join(outDir, "data", "issue-banner.json"), JSON.stringify(bannerIssues));
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
   builtAt: new Date().toISOString(),

@@ -5,6 +5,7 @@ import { join, dirname } from "node:path";
 import { loadUniverse, ROOT } from "../src/universe.mjs";
 import { parseFeed, decodeBody, canonicalUrl, splitPublisher, classify, buildStockMatcher, itemId, mergeItems, assignGroups } from "../src/news.mjs";
 import { updateIncidentLog, publicIncidentLog, compileEntities } from "../src/incident-log.mjs";
+import { translateHeadlines } from "../src/headline-translations.mjs";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -68,6 +69,8 @@ async function main() {
 
   const { items, added } = mergeItems(previous.items || [], incoming);
   const groupCount = assignGroups(items);
+  const { english, translated } = await translateHeadlines(items, { previous: previous.items });
+  console.log(`한국어 제목 ${translated}/${english}건`);
   const output = { updatedAt: new Date().toISOString(), feeds: report, items };
   mkdirSync(outDir, { recursive: true });
   writeFileSync(join(outDir, "news.json"), JSON.stringify(output));

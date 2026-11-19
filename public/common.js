@@ -2,6 +2,17 @@
 
 export const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 
+// 원문 제목과 주소는 보존하고, 기사 링크를 표시할 때만 한국어 제목을 사용한다.
+export function headlineLink(item, className = "") {
+  const english = item.lang === "en";
+  const translation = english && item.tKo;
+  const attrs = english ? ` hreflang="en" title="${esc(item.t)}"` : "";
+  const text = english
+    ? `<span lang="${translation ? "ko" : "en"}">${esc(translation || item.t)}</span> <span class="headline-language">영어 원문</span>`
+    : esc(item.t);
+  return `<a${className ? ` class="${esc(className)}"` : ""} href="${esc(item.u)}" target="_blank" rel="noopener"${attrs}>${text}</a>`;
+}
+
 const number = (value, digits = 0) => value.toLocaleString("ko-KR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 
 // 억원 값을 "1,234억" 또는 "12.3조"로.

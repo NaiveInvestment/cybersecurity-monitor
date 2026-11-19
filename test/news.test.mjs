@@ -1,6 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { headlineLink } from "../public/common.js";
 import { parseFeed, decodeBody, canonicalUrl, splitPublisher, classify, buildStockMatcher, mergeItems, similarity, assignGroups, anchorTokens } from "../src/news.mjs";
+
+test("영문 기사 링크는 번역, 원문 언어와 주소를 함께 보존한다", () => {
+  const english = { t: 'Hospital confirms "breach"', u: "https://example.com/incident", lang: "en" };
+  const translated = headlineLink({ ...english, tKo: "병원, <침해> 확인" });
+  assert.match(translated, /병원, &lt;침해&gt; 확인/);
+  assert.match(translated, /href="https:\/\/example\.com\/incident"/);
+  assert.match(translated, /title="Hospital confirms &quot;breach&quot;"/);
+  assert.match(translated, /hreflang="en"/);
+  assert.match(translated, /영어 원문/);
+  assert.match(headlineLink(english), /lang="en">Hospital confirms/);
+  assert.doesNotMatch(headlineLink({ t: "KT, 보안 조치 발표", u: english.u }), /영어 원문|hreflang/);
+});
 
 test("parseFeed: RSS와 Atom, CDATA와 엔티티", () => {
   const rss = `<rss><channel><title>피드</title>

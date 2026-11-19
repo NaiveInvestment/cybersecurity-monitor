@@ -86,7 +86,8 @@ if (!failures.length) {
     for (const item of items) {
       const members = groups.get(item.id) || [];
       check(item.sources >= 3 && item.sources === new Set(members.map((article) => article.s)).size
-        && members.length === item.count && members.some((article) => article.t === item.title),
+        && members.length === item.count && members.some((article) =>
+          article.t === item.title && article.tKo === item.tKo && article.lang === item.lang),
         `주요 이슈와 기사 목록 불일치: ${item.id}`);
     }
   }

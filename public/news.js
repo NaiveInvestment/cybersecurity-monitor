@@ -1,5 +1,5 @@
 // 뉴스 페이지. 위에서부터: 보도량으로 고른 주요 이슈, 범주별 최신 기사(사건 묶음), 1차 출처로 정리한 기록.
-import { esc, fmtKst, loadJson, initTheme } from "./common.js";
+import { esc, fmtKst, headlineLink as link, loadJson, initTheme } from "./common.js";
 import { statusTone } from "./lib/status.js";
 import { groupStories, topIssues, cardForStory } from "./lib/issues.js";
 import { recentIncidentStories } from "./lib/recent-incidents.js";
@@ -27,7 +27,6 @@ const matches = (text) => {
   const query = state.query.trim().toLowerCase();
   return !query || text.toLowerCase().includes(query);
 };
-const link = (item, cls = "") => `<a${cls ? ` class="${cls}"` : ""} href="${esc(item.u)}" target="_blank" rel="noopener">${esc(item.t)}</a>`;
 // 정부, 규제기관, 회사 자료 없이 기사만으로 정리한 항목.
 const mediaOnly = (card) => card.sources.every((source) => source.kind === "media");
 const stockNames = (ids) => ids.map((id) => names[id] || id).join(", ");
@@ -40,7 +39,7 @@ function filteredCards() {
 function filteredItems(tab = state.tab) {
   const cutoff = state.period ? Date.now() - state.period * 86400000 : 0;
   return news.items.filter((item) => item.c === tab && inRegion(item.r) && Date.parse(item.d) >= cutoff
-    && matches(`${item.t} ${item.s} ${stockNames(item.k || [])}`));
+    && matches(`${item.t} ${item.tKo || ""} ${item.s} ${stockNames(item.k || [])}`));
 }
 
 function findStory(items, id) {
@@ -303,7 +302,7 @@ async function main() {
     names = Object.fromEntries(snapshot.stocks.map((stock) => [stock.id, stock.name]));
     segments = Object.fromEntries(snapshot.segments.map((segment) => [segment.id, segment.label]));
     $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST, 정리 ${cardFile.updated} 기준`;
-    $("#notes").textContent = "기사 출처: 구글 뉴스 검색, 데일리시큐, BleepingComputer, The Record, The Hacker News, SecurityWeek, Krebs on Security, CISA. 주요 이슈는 같은 사건을 다룬 매체 수로 정함. 주요 이슈의 매체 수는 같은 범주 안에서 센 것임. 정리의 금액과 건수는 각 항목의 출처 기준이며, 계획과 확정과 집행은 상태 표시로 구분함.";
+    $("#notes").textContent = "기사 출처: 구글 뉴스 검색, 데일리시큐, BleepingComputer, The Record, The Hacker News, SecurityWeek, Krebs on Security, CISA. 영어 원문 기사의 제목은 자동 번역하며 일부는 원문과 대조해 다듬었습니다. 주요 이슈는 같은 사건을 다룬 매체 수로 정함. 주요 이슈의 매체 수는 같은 범주 안에서 센 것임. 정리의 금액과 건수는 각 항목의 출처 기준이며, 계획과 확정과 집행은 상태 표시로 구분함.";
   } catch (error) {
     $("#status-text").textContent = "데이터를 불러오지 못함";
     $("#issues").innerHTML = `<p class="empty">${esc(error.message)}</p>`;

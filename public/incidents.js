@@ -1,5 +1,5 @@
 // 보안 사고 페이지: 통합, 국내, 해외를 바꿔 보며 종합 지수, 건수, 유출 규모, 탈취 금액, 업권, 사건 목록, 최근 보도를 본다.
-import { esc, fmtKst, loadJson, initTheme } from "./common.js";
+import { esc, fmtKst, headlineLink, loadJson, initTheme } from "./common.js";
 import { groupStories } from "./lib/issues.js";
 import { isDeniedIncidentTitle } from "./lib/incident-trend.js";
 import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, summary, claimText, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw } from "./lib/incident-metrics.js";
@@ -109,7 +109,7 @@ function renderPress() {
   const cutoff = Date.now() - 7 * 86400000;
   const items = news.items.filter((i) => i.c === "incident" && regionList().includes(i.r) && Date.parse(i.d) >= cutoff && !isDeniedIncidentTitle(i.t));
   const stories = groupStories(items).sort((a, b) => b.sources - a.sources || b.last.localeCompare(a.last)).slice(0, 8);
-  $("#inc-press").innerHTML = stories.length ? stories.map((s) => `<li><a href="${esc(s.lead.u)}" target="_blank" rel="noopener">${esc(s.lead.t)}</a><p class="meta"><span class="rg ${s.r}">${s.r === "KR" ? "국내" : "해외"}</span>${s.sources}개 매체, ${s.count}건, 최근 ${fmtKst(s.last)}</p></li>`).join("") : '<li class="empty">최근 7일 기사 없음</li>';
+  $("#inc-press").innerHTML = stories.length ? stories.map((s) => `<li>${headlineLink(s.lead)}<p class="meta"><span class="rg ${s.r}">${s.r === "KR" ? "국내" : "해외"}</span>${s.sources}개 매체, ${s.count}건, 최근 ${fmtKst(s.last)}</p></li>`).join("") : '<li class="empty">최근 7일 기사 없음</li>';
 }
 
 function renderCharts() {

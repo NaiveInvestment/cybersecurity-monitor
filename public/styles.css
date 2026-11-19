@@ -171,6 +171,7 @@ body.reading main { max-width: 1340px; margin: 0 auto; padding: 20px 22px 44px; 
 .recent-row time, .recent-source { color: var(--muted); font-size: 12.5px; }
 .recent-row time { white-space: nowrap; }
 .recent-title { font-weight: 700; overflow-wrap: anywhere; }
+.headline-language { display: inline-block; color: var(--muted); font-size: 12px; font-weight: 500; white-space: nowrap; vertical-align: baseline; }
 .recent-source { text-align: right; overflow-wrap: anywhere; }
 .recent-overflow > summary { cursor: pointer; padding: 9px 16px; color: var(--brand); font-size: 13px; font-weight: 700; }
 .recent-message { padding: 12px 16px; color: var(--muted); }

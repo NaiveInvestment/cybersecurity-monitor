@@ -1,0 +1,4 @@
+ctranslate2==4.8.1
+sentencepiece==0.2.2
+huggingface-hub==0.36.2
+lingua-language-detector==2.2.0

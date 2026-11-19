@@ -23,6 +23,8 @@
 
 ## 실행
 
+로컬에서 처음 뉴스를 수집할 때 `python -m pip install -r scripts/translation-requirements.txt`로 제목 번역기를 설치한다. 영문 제목은 빌드 기기에서 한국어로 번역하고 원제목과 함께 보관한다. 첫 실행은 고정 버전의 모델을 내려받는다. [Helsinki-NLP OPUS-MT, CC BY 4.0](https://huggingface.co/Helsinki-NLP/opus-mt-tc-big-en-ko), [CTranslate2 변환본](https://huggingface.co/eskara1398/opus-mt-tc-big-en-ko-ct2/tree/c4722b722b477acb3635059af5e7aa0fc1769084).
+
 ```
 npm run build     # 스냅샷 + 헤드라인 + 사이트 조립 (_site/)
 npm run serve     # http://127.0.0.1:8895/

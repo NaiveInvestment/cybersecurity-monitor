@@ -285,7 +285,8 @@ async function renderIssueBar() {
     if (!top) return;
     const bar = $("#issue-bar");
     bar.href = `news.html?story=${encodeURIComponent(top.id)}`;
-    bar.innerHTML = `<span class="label">주요 이슈</span><span class="title">${esc(top.title)}</span><span class="meta">${top.sources}개 매체 ${top.count}건</span><span class="go">관련 기사 보기</span>`;
+    const language = top.lang === "en" ? '<span class="headline-language">영어</span>' : "";
+    bar.innerHTML = `<span class="label">주요 이슈</span><span class="title" title="${esc(top.title)}">${esc(top.tKo || top.title)}</span>${language}<span class="meta">${top.sources}개 매체 ${top.count}건</span><span class="go">관련 기사 보기</span>`;
     bar.hidden = false;
   } catch { /* 뉴스를 못 읽어도 종목 표는 그대로 둔다 */ }
 }
