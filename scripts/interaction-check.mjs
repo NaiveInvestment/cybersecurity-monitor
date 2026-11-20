@@ -278,7 +278,13 @@ try {
   }))()`;
   await open("news.html");
   let newsPage = await evaluate(readNews);
-  check(newsPage.view === "recent" && newsPage.panels.join() === "view-recent", "새 사고가 기본 보기로 열리지 않음");
+  check(newsPage.view === "search" && newsPage.panels.join() === "view-search", "하단 기사 검색 기본값 오류");
+  check(await evaluate(`(() => {
+    const left = document.querySelector("#recent-incidents").getBoundingClientRect();
+    const right = document.querySelector("#major-incidents").getBoundingClientRect();
+    return left.width > 0 && right.width > 0 && right.left >= left.right && Math.abs(left.top - right.top) < 2
+      && document.querySelector("#news-library").getBoundingClientRect().top > Math.max(left.bottom,right.bottom);
+  })()`), "두 사고 목록을 나란히 볼 수 없음");
   check(!newsPage.overflow && await evaluate("!document.querySelector('#issues')"), "새 사고 화면에 중복 주요 이슈 또는 가로 넘침");
   const recentCoverage = await evaluate(`(async () => {
     const { recentIncidentStories } = await import("./lib/recent-incidents.js");
@@ -313,9 +319,8 @@ try {
   check(await evaluate("[...document.querySelectorAll('#feed time')].every(t => Date.now() - Date.parse(t.dateTime) <= 7 * 86400000)"), "7일 기사 필터 오류");
   await type("#search", "사이버보안모니터_일치하지않는검색어");
   check((await evaluate(readNews)).heads.length === 0, "뉴스 검색 빈 결과 오류");
-  await click("#tab-recent");
   check(await evaluate("document.querySelectorAll('.recent-new .recent-title').length") === recentCoverage.expected.length, "검색 조건이 새 사고에 영향을 줌");
-  await evaluate("document.querySelector('#tab-recent').dispatchEvent(new KeyboardEvent('keydown',{key:'End'}))");
+  await evaluate("document.querySelector('#tab-search').dispatchEvent(new KeyboardEvent('keydown',{key:'End'}))");
   newsPage = await evaluate(readNews);
   check(newsPage.view === "policy" && newsPage.panels.join() === "view-policy" && newsPage.notes > 0, "키보드 탭 전환 또는 정책 정리 오류");
   check(await evaluate("Boolean(document.querySelector('#digest .note[open] .src a'))"), "정책 출처가 표시되지 않음");
@@ -347,14 +352,19 @@ try {
     check(await evaluate("document.querySelector('#feed-title').textContent === '기사 목록'"), "관련 기사에서 일반 목록으로 복귀 실패");
   }
   await open("news.html?story=unknown-test-story");
-  check((await evaluate(readNews)).view === "recent", "없는 이슈 링크가 새 사고로 돌아오지 않음");
+  check((await evaluate(readNews)).view === "search" && await evaluate("!document.querySelector('#focus-clear')"), "없는 이슈 링크가 첫 화면으로 돌아오지 않음");
 
   await open(`index.html?q=${encodeURIComponent("팔로알토")}`);
   table = await evaluate(TABLE);
   check(table.count === 1 && table.first === "팔로알토 네트웍스", `종목 검색어 진입 결과 ${table.count} ${table.first}`);
 
   await open("news.html", { width: 390, height: 844, scheme: "light" });
-  for (const view of ["recent", "search", "policy"]) {
+  check(await evaluate(`(() => {
+    const left = document.querySelector("#recent-incidents").getBoundingClientRect();
+    const right = document.querySelector("#major-incidents").getBoundingClientRect();
+    return right.top >= left.bottom && Math.abs(right.left-left.left) < 2;
+  })()`), "모바일에서 사고 목록 두 영역이 위아래로 보이지 않음");
+  for (const view of ["search", "policy"]) {
     await click(`#tab-${view}`);
     newsPage = await evaluate(readNews);
     check(!newsPage.overflow && newsPage.panels.join() === `view-${view}`, `모바일 ${view} 구역 표시 또는 가로 넘침`);

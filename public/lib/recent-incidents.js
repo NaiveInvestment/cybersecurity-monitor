@@ -97,6 +97,16 @@ function samePastIncident(item, earlier, name) {
   return score >= 0.6 || (item.g && item.g === earlier.g && score >= 0.4);
 }
 
+export function incidentUpdate(items, sources, now = Date.now()) {
+  const reference = sources.filter(source => source.t && source.d)
+    .map(source => ({ ...source, subject: subject(source.t) })).filter(source => source.subject);
+  if (!reference.length) return null;
+  return items.find(item => Date.parse(item.d) <= now && reference.some(source =>
+    item.u !== source.u && item.d.slice(0, 10) > source.d
+    && subject(item.t) === source.subject && samePastIncident(item, source, source.subject))
+    && /^https?:\/\//i.test(item.u) && reportsIncident(item.t)) || null;
+}
+
 export function recentIncidentStories(items, now = Date.now()) {
   const cutoff = now - DAY;
   const groups = new Map();

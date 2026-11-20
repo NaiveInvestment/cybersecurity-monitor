@@ -1,12 +1,47 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { recentIncidentStories } from "../public/lib/recent-incidents.js";
+import { recentIncidentStories, incidentUpdate } from "../public/lib/recent-incidents.js";
+import { majorIncidents } from "../public/lib/major-incidents.js";
 
 const now = Date.UTC(2026, 10, 20, 2);
 const hour = 3600000;
+
+test("주요 사고는 최근 기록의 공개 피해 규모를 사용하고 새 보도와 중복되지 않는다", () => {
+  const event = (n, fields = {}) => ({
+    n, d: "2026-11-20", rec: 0, usd: 0,
+    src: [{ u: `https://example.com/${n}`, d: "2026-11-20" }], ...fields,
+  });
+  const events = [
+    event("records", { rec: 50000 }),
+    event("loss", { usd: 10000000, d: "2026-10-24" }),
+    event("small", { rec: 49999 }),
+    event("guess", { rec: 1000000, claim: true }),
+    event("old", { rec: 1000000, d: "2026-10-23" }),
+    event("future", { rec: 1000000, d: "2026-11-21" }),
+    event("fresh", { rec: 1000000 }),
+    event("without-source", { usd: 10000000, src: [] }),
+  ];
+  const fresh = [{ items: [{ u: "https://example.com/fresh" }] }];
+  assert.deepEqual(majorIncidents(events, fresh, "2026-10-24", "2026-11-20")
+    .map(({ event, records, loss }) => [event.n, records, loss]), [
+    ["records", 50000, 0],
+    ["loss", 0, 10000000],
+  ]);
+});
 const article = (id, title, overrides = {}) => ({
   id, t: title, u: "https://news.example/" + id, d: new Date(now).toISOString(),
   s: "매체 " + id, c: "incident", r: "GL", g: id, ...overrides,
+});
+
+test("후속 보도는 이전 출처와 피해 대상 및 사건 정황이 맞을 때만 연결한다", () => {
+  const source = { t: "Uber Data Breach Exposes Driver's License Info of Thousands", d: "2026-11-13",
+    u: "https://news.example/original" };
+  const update = article("uber", "Uber says nearly 150,000 impacted by third-party breach");
+  assert.equal(incidentUpdate([
+    article("other", "Binance confirms data breach", { g: "uber" }),
+    article("settlement", "Uber settles driver data breach lawsuit"),
+    update,
+  ], [source], now), update);
 });
 
 test("names a concrete breach or confirmed intrusion even when its impact is uncertain", () => {

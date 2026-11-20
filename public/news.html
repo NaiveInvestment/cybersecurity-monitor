@@ -8,6 +8,7 @@
 <link rel="icon" href="data:,">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="news.css">
 </head>
 <body class="reading news-page">
 <header class="top">
@@ -27,21 +28,33 @@
   </div>
 </header>
 <main>
-  <div class="tabs news-tabs" role="tablist" aria-label="뉴스 보기">
-    <button id="tab-recent" type="button" role="tab" aria-selected="true" aria-controls="view-recent" data-view="recent">새 사고</button>
-    <button id="tab-search" type="button" role="tab" aria-selected="false" aria-controls="view-search" data-view="search" tabindex="-1">기사 검색</button>
+  <div class="news-overview">
+    <section aria-labelledby="recent-title">
+      <header class="news-section-head">
+        <h2 id="recent-title">최근 24시간 새 침해사고</h2>
+        <p>국내외 첫 보도, 최신순 (KST)</p>
+      </header>
+      <div class="news-stream" id="recent-incidents" role="region" aria-labelledby="recent-title" tabindex="0">
+        <p class="recent-message">기사를 불러오는 중</p>
+      </div>
+    </section>
+    <section aria-labelledby="major-title">
+      <header class="news-section-head">
+        <h2 id="major-title">그간의 주요 침해사고</h2>
+        <p>최근 4주, 영향 범위 5만 이상 또는 금전 피해 1천만 달러 이상</p>
+      </header>
+      <div class="news-stream" id="major-incidents" role="region" aria-labelledby="major-title" tabindex="0">
+        <p class="recent-message">사고 기록을 불러오는 중</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="tabs news-tabs" id="news-library" role="tablist" aria-label="기사와 정책 자료">
+    <button id="tab-search" type="button" role="tab" aria-selected="true" aria-controls="view-search" data-view="search">기사 검색</button>
     <button id="tab-policy" type="button" role="tab" aria-selected="false" aria-controls="view-policy" data-view="policy" tabindex="-1">정책과 기업 대응</button>
   </div>
 
-  <section id="view-recent" role="tabpanel" aria-labelledby="tab-recent">
-    <header class="sec-head">
-      <h2 id="recent-title">최근 24시간 새 침해사고</h2>
-      <p>국내외 전체, 수집 기사 중 첫 보도 기준 (KST)</p>
-    </header>
-    <div id="recent-incidents"><p class="recent-message">기사를 불러오는 중</p></div>
-  </section>
-
-  <section id="view-search" role="tabpanel" aria-labelledby="tab-search" hidden>
+  <section id="view-search" role="tabpanel" aria-labelledby="tab-search">
     <div class="tools news-tools">
       <input class="search" id="search" type="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
       <div class="seg-switch" role="group" aria-label="지역" id="region-switch">

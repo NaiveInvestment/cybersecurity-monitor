@@ -1,10 +1,12 @@
 import { esc, fmtKst, headlineLink as link, loadJson, initTheme } from "./common.js";
 import { statusTone } from "./lib/status.js";
 import { groupStories, topIssues } from "./lib/issues.js";
-import { recentIncidentStories } from "./lib/recent-incidents.js";
+import { recentIncidentStories, incidentUpdate } from "./lib/recent-incidents.js";
+import { majorIncidents } from "./lib/major-incidents.js";
+import { fmtCount, fmtKrw } from "./lib/incident-metrics.js";
 
 const PAGE = 40;
-const state = { view: "recent", category: "all", region: "KR", period: 30, query: "", shown: PAGE, focus: null, topic: "policy" };
+const state = { view: "search", category: "all", region: "KR", period: 30, query: "", shown: PAGE, focus: null, topic: "policy" };
 let cards = [];
 let news = { items: [], updatedAt: null };
 let names = {};
@@ -59,28 +61,65 @@ function recentRow(story, firstReport = false) {
     ${related}</li>`;
 }
 
-function watchRecentIncidents(file) {
-  const panel = $("#recent-incidents");
-  let previousHtml;
+function renderStream(panel, html) {
+  if (panel.renderedHtml === html) return;
+  const open = new Set([...panel.querySelectorAll("details[open]")].map(detail => detail.dataset.story));
+  panel.innerHTML = html;
+  panel.querySelectorAll("details").forEach(detail => { detail.open = open.has(detail.dataset.story); });
+  panel.renderedHtml = html;
+}
+
+function majorRow({ event, records, loss, sources }, items, updates) {
+  const firstDate = [...sources].reverse().find(source => /^\d{4}-\d{2}-\d{2}$/.test(source.d))?.d;
+  const latest = sources[0];
+  const impact = [
+    records ? `${event.recUnit ? "영향 범위" : "보도 규모"} ${fmtCount(records)}${esc(event.recUnit || "")}` : "",
+    loss ? `금전 피해 ${event.krw ? fmtKrw(event.krw) : fmtCount(loss) + " 달러"}` : "",
+  ].filter(Boolean).join(", ");
+  const displayDate = firstDate || event.d;
+  const dateLabel = firstDate && event.via !== "DeFiLlama" ? "확인 출처 기준" : "기록일";
+  const update = sources.map(source => updates.get(source.u)).find(Boolean) ||
+    (event.via === "보도 수집" ? incidentUpdate(items, sources) : null);
+  const basis = event.recUnit || loss ? event.basis : "";
+  const references = sources.length > 1
+    ? `<details class="related major-sources" data-story="${esc(event.id)}"><summary>출처 ${sources.length}개</summary>
+      <ul>${sources.map(source => `<li><a href="${esc(source.u)}" target="_blank" rel="noopener">${esc(source.o)}</a>
+        <span class="meta">${esc(source.d || "")}</span></li>`).join("")}</ul></details>`
+    : "";
+  return `<li class="major-row" data-event="${esc(event.id)}">
+    <div class="major-meta meta"><time datetime="${esc(displayDate)}" title="${dateLabel}">${esc(displayDate.slice(5).replace("-", "."))}</time><span>${REGION[event.r] || ""}</span></div>
+    <h3>${esc(event.n)}</h3>
+    <p class="major-impact">${impact}${basis ? ` <span class="meta">${esc(basis)}</span>` : ""}</p>
+    ${/[가-힣]/.test(event.atk || "") ? `<p class="major-summary">${esc(event.atk)}</p>` : ""}
+    <p class="major-citation meta">${update ? `후속 보도 ${link(update)}` : `<a href="${esc(latest.u)}" target="_blank" rel="noopener">${esc(latest.o)}</a>${latest.d && latest.d !== displayDate ? ` <span>${esc(latest.d.slice(5).replace("-", "."))} 자료</span>` : ""}`}</p>
+    ${references}
+  </li>`;
+}
+
+function watchIncidentStreams(file, events) {
   let lastFetch = Date.now();
   let fetching = false;
   function paint() {
-    const stories = recentIncidentStories(file.items);
+    const now = Date.now();
+    const stories = recentIncidentStories(file.items, now);
     const fresh = stories.filter((story) => !story.followUp).sort((a, b) => Date.parse(b.first) - Date.parse(a.first));
     const followUps = stories.filter((story) => story.followUp);
-    const stale = Date.now() - Date.parse(file.updatedAt) >= 86400000;
+    const stale = now - Date.parse(file.updatedAt) >= 86400000;
     const newReports = fresh.length
       ? `<ul class="recent-new" aria-label="새 침해사고">${fresh.map((story) => recentRow(story, true)).join("")}</ul>`
       : `<p class="recent-message">${stale ? `최근 수집은 ${fmtKst(file.updatedAt)} KST입니다. 새 수집을 기다리고 있습니다.` : "최근 24시간 안에 처음 보도된 침해사고가 없습니다."}</p>`;
+    renderStream($("#recent-incidents"), newReports);
+
+    const majors = events ? majorIncidents(events.events, fresh, kstDate(now - 27 * 86400000), kstDate(now)) : [];
+    const updates = new Map(followUps.flatMap(story => [story.earlier, ...story.items]
+      .filter(Boolean).map(item => [item.u, story.lead])));
+    const majorReports = majors.length
+      ? `<ul class="major-list">${majors.map(major => majorRow(major, file.items, updates)).join("")}</ul>`
+      : `<p class="recent-message">${events ? "최근 4주 기록에 해당 규모의 사고가 없습니다." : "주요 사고 기록을 불러오지 못했습니다."}</p>`;
     const latestOnKnown = followUps.length
       ? `<details class="recent-followups" data-story=""><summary>후속 보도 ${followUps.length}개 보기</summary><ul>${followUps.map((story) => recentRow(story)).join("")}</ul></details>`
       : "";
-    const html = newReports + latestOnKnown;
-    if (html === previousHtml) return;
-    const openStories = new Set([...panel.querySelectorAll("details[open]")].map((detail) => detail.dataset.story));
-    panel.innerHTML = html;
-    panel.querySelectorAll("details").forEach((detail) => { detail.open = openStories.has(detail.dataset.story); });
-    previousHtml = html;
+    renderStream($("#major-incidents"), majorReports + latestOnKnown);
   }
   async function update() {
     if (document.hidden) return;
@@ -89,7 +128,7 @@ function watchRecentIncidents(file) {
     fetching = true;
     lastFetch = Date.now();
     try {
-      file = await loadJson("data/news.json");
+      [file, events] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events)]);
       news = file;
       $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
       paint();
@@ -249,8 +288,9 @@ async function main() {
   initTheme();
   bind();
   try {
-    const [cardFile, newsFile, snapshot] = await Promise.all([
+    const [cardFile, newsFile, snapshot, eventFile] = await Promise.all([
       loadJson("data/cards.json"), loadJson("data/news.json"), loadJson("data/snapshot.json"),
+      loadJson("data/incident-events.json").catch(() => null),
     ]);
     cards = cardFile.cards;
     news = newsFile;
@@ -258,10 +298,11 @@ async function main() {
     segments = Object.fromEntries(snapshot.segments.map((segment) => [segment.id, segment.label]));
     $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
     $("#notes").textContent = "영문 제목은 자동 번역을 기본으로 합니다. 제목을 누르면 원문이 열립니다.";
-    watchRecentIncidents(news);
+    watchIncidentStreams(news, eventFile);
   } catch {
     $("#status-text").textContent = "데이터를 불러오지 못했습니다.";
     $("#recent-incidents").innerHTML = '<p class="recent-message">침해사고 기사를 불러오지 못했습니다.</p>';
+    $("#major-incidents").innerHTML = '<p class="recent-message">사고 기록을 불러오지 못했습니다.</p>';
     renderFeed();
     renderPolicy();
     return;
@@ -278,6 +319,11 @@ async function main() {
   }
   selectSearchFilters();
   selectView(state.view);
+  if (state.focus || query) {
+    const target = state.focus ? $("#feed-title") : $("#search");
+    target.focus({ preventScroll: true });
+    $("#news-library").scrollIntoView({ block: "start" });
+  }
 }
 
 main();
