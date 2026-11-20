@@ -76,7 +76,7 @@ let COLUMNS = [
   { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
   { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
   { key: "cap", group: "quote", label: "시가총액", sort: (s, d) => d.cap, cell: (s, d) => ({ html: money(s, d, "cap") }) },
-  { key: "tv", group: "quote", label: "거래대금", sort: (s, d) => d.tv, cell: (s, d) => ({ html: fmtEok(d.tv) }) },
+  { key: "tv", group: "quote", label: "거래대금", title: "국내 기준: KRX + NXT 당일 누적", sort: (s, d) => d.tv, cell: (s, d) => ({ html: fmtEok(d.tv) }) },
   { key: "w1", group: "ret", label: "1W", sort: (s, d) => d.w1, cell: (s, d) => pctCell(d.w1) },
   { key: "m1", group: "ret", label: "1M", sort: (s, d) => d.m1, cell: (s, d) => pctCell(d.m1) },
   { key: "m3", group: "ret", label: "3M", sort: (s, d) => d.m3, cell: (s, d) => pctCell(d.m3) },
@@ -173,7 +173,8 @@ function renderTable() {
   const headRow = COLS.map((column) => {
     const sorted = state.sort.key === column.key ? ` aria-sort="${state.sort.dir === "asc" ? "ascending" : "descending"}"` : "";
     const classes = [column.cls || "", firstOfGroup.has(column.key) && column.group !== "id" ? "g-start" : ""].filter(Boolean).join(" ");
-    const inner = column.sort ? `<button type="button" class="sort" data-sort="${column.key}">${column.label}</button>` : column.label;
+    const title = column.title ? ` title="${esc(column.title)}"` : "";
+    const inner = column.sort ? `<button type="button" class="sort" data-sort="${column.key}"${title}>${column.label}</button>` : column.label;
     return `<th scope="col" class="${classes}"${sorted}>${inner}</th>`;
   }).join("");
   const body = rows.map(({ stock, d }) => `<tr>${COLS.map((column) => {
@@ -267,13 +268,6 @@ function renderStatus() {
   badge.dataset.state = tone;
   badge.hidden = false;
   $("#status-text").textContent = `시세 ${fmtKst(latest)} KST, ${state.liveSource || "네이버 금융"}`;
-}
-
-function renderNotes() {
-  const usd = snapshot.fx.USD ? `1달러 ${snapshot.fx.USD.toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
-  const jpy = snapshot.fx.JPY ? `100엔 ${(snapshot.fx.JPY * 100).toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
-  $("#notes").innerHTML = `출처: 네이버 금융 (재무 갱신 ${fmtKst(snapshot.generatedAt)} KST). 종목 구성 기준일 ${esc(snapshot.universeAsOf)}.<br>`
-    + `국내 주가는 KRX 기준, 거래대금은 KRX + NXT 당일 누적. 수익률은 수정주가 종가 대비, 해외 영업이익은 EBIT 기준. PER은 직전 4개 분기 순이익 기준이며 0 이하이면 -. 원화 환산은 현재 환율(${[usd, jpy].filter(Boolean).join(", ")}).`;
 }
 
 // 가장 많이 보도된 사건 하나를 종목 표 위에 한 줄로 보여 준다. 세 매체 이상이 다룬 사건이 없으면 숨긴다.
