@@ -79,4 +79,30 @@ test("joins source regions for the same vendor report, splits unrelated victims 
   assert.equal(stories[0].sources, 2);
   assert.equal(stories[0].count, 2);
   assert.equal(stories[0].last, stories[0].lead.d);
+  assert.equal(stories[0].followUp, true);
+  assert.equal(stories[0].earlier.id, "old");
+});
+
+test("uses prior reports for the same incident, and keeps a new incident at the same company", () => {
+  const dated = (id, title, hoursAgo, fields) => article(id, title, {
+    d: new Date(now - hoursAgo * hour).toISOString(), ...fields,
+  });
+  const stories = recentIncidentStories([
+    dated("kpmg", "회계법인 KPMG 해킹 피해", 1, { g: "korean" }),
+    dated("tax", "KPMG Canada says client documents accessed in cybersecurity breach", 2),
+    dated("older-tax", "Client files at KPMG Canada compromised in a data breach", 35),
+    dated("new-kpmg", "KPMG cybersecurity breach disrupts payroll operations", 3),
+    dated("uber", "Uber Data Breach Exposes Personal Information of Nearly 150,000 Drivers", 4, { g: "mixed" }),
+    dated("other-g", "Binance confirms cyberattack", 43, { g: "mixed" }),
+    dated("older-uber", "Uber says nearly 150,000 impacted by third-party breach", 50),
+    dated("report", "Fort Smith officials release full report on August cyberattack", 5),
+    dated("boundary", "Northeast Clinic confirms data breach", 24),
+  ], now);
+  assert.deepEqual(stories.map(({ id, followUp, earlier }) => [id, followUp, earlier?.id]), [
+    ["kpmg", true, "older-tax"],
+    ["new-kpmg", false, undefined],
+    ["uber", true, "older-uber"],
+    ["report", true, undefined],
+    ["boundary", false, undefined],
+  ]);
 });

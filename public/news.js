@@ -46,15 +46,17 @@ function findStory(items, id) {
   return groupStories(items.filter((item) => String(item.g || item.id) === id))[0];
 }
 
-function recentRow(story) {
-  const [item, ...others] = story.items;
+function recentRow(story, firstReport = false) {
+  const item = firstReport ? story.items.at(-1) : story.lead;
+  const others = story.items.filter((article) => article !== item);
   const related = others.length ? `<details class="related" data-story="${esc(story.id)}">
     <summary>다른 보도 ${others.length}건</summary>
     <ul>${others.map((row) => `<li>${link(row)} <span class="meta">${esc(row.s)}, ${fmtKst(row.d)}</span></li>`).join("")}</ul>
   </details>` : "";
   return `<li class="recent-row">
     <time class="num" datetime="${esc(item.d)}">${fmtKst(item.d)}</time>
-    <div class="recent-story">${link(item, "recent-title")}${related}</div>
+    <div class="recent-story">${link(item, "recent-title")}${story.earlier
+      ? `<p class="meta"><a href="${esc(story.earlier.u)}" target="_blank" rel="noopener">이전 보도 ${fmtKst(story.earlier.d)}</a></p>` : ""}${related}</div>
     <span class="recent-source">${esc(item.s)}</span>
   </li>`;
 }
@@ -66,13 +68,16 @@ function watchRecentIncidents(file) {
   let fetching = false;
   function paint() {
     const stories = recentIncidentStories(file.items);
-    const visible = stories.slice(0, 4);
-    const extra = stories.slice(4);
+    const fresh = stories.filter((story) => !story.followUp).sort((a, b) => Date.parse(b.first) - Date.parse(a.first));
+    const followUps = stories.filter((story) => story.followUp);
     const stale = Date.now() - Date.parse(file.updatedAt) >= 86400000;
-    const html = visible.length
-      ? `<ul>${visible.map(recentRow).join("")}</ul>` + (extra.length
-        ? `<details class="recent-overflow" data-story=""><summary>기사 묶음 ${extra.length}개 더 보기</summary><ul>${extra.map(recentRow).join("")}</ul></details>` : "")
-      : `<p class="recent-message">${stale ? `최근 수집은 ${fmtKst(file.updatedAt)} KST입니다. 새 수집을 기다리고 있습니다.` : "최근 24시간 동안 수집된 침해사고 보도가 없습니다."}</p>`;
+    const newReports = fresh.length
+      ? `<ul class="recent-new" aria-label="새 침해사고">${fresh.map((story) => recentRow(story, true)).join("")}</ul>`
+      : `<p class="recent-message">${stale ? `최근 수집은 ${fmtKst(file.updatedAt)} KST입니다. 새 수집을 기다리고 있습니다.` : "최근 24시간 안에 처음 보도된 침해사고가 없습니다."}</p>`;
+    const latestOnKnown = followUps.length
+      ? `<details class="recent-followups" data-story=""><summary>후속 보도 ${followUps.length}개 보기</summary><ul>${followUps.map((story) => recentRow(story)).join("")}</ul></details>`
+      : "";
+    const html = newReports + latestOnKnown;
     if (html === previousHtml) return;
     const openStories = new Set([...panel.querySelectorAll("details[open]")].map((detail) => detail.dataset.story));
     panel.innerHTML = html;

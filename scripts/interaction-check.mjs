@@ -284,6 +284,24 @@ try {
   const spotlightLinks = await evaluate(recentLinks);
   check(await evaluate("document.querySelector('main > section:first-child h2')?.id === 'recent-title'"), "24시간 보도가 뉴스 첫 구역에 없음");
   check(await evaluate("[...document.querySelectorAll('.recent-row time')].every(t => { const age = Date.now() - Date.parse(t.dateTime); return age >= 0 && age <= 86460000; })"), "최근 보도에 기간 밖 발행 시각이 포함됨");
+  const recentCoverage = await evaluate(`(async () => {
+    const { recentIncidentStories } = await import("./lib/recent-incidents.js");
+    const { items } = await (await fetch("data/news.json")).json();
+    const stories = recentIncidentStories(items);
+    const expected = stories.filter(story => !story.followUp)
+      .sort((a,b) => Date.parse(b.first) - Date.parse(a.first)).map(story => story.items.at(-1).u);
+    const visible = [...document.querySelectorAll(".recent-new .recent-title")]
+      .filter(link => link.getClientRects().length).map(link => link.href);
+    return { expected, visible, followUps: stories.filter(story => story.followUp).length,
+      renderedFollowUps: document.querySelectorAll(".recent-followups .recent-title").length };
+  })()`);
+  check(JSON.stringify(recentCoverage.expected) === JSON.stringify(recentCoverage.visible), "첫 보도 목록이 발행 순서대로 모두 표시되지 않음");
+  check(recentCoverage.followUps === recentCoverage.renderedFollowUps, "후속 보도 목록 불일치");
+  if (recentCoverage.followUps) {
+    await click(".recent-followups > summary");
+    check(await evaluate("document.querySelector('.recent-followups[open] .recent-title').getClientRects().length > 0"), "후속 보도 펼치기 실패");
+    await click(".recent-followups > summary");
+  }
   check(page.theme === "dark", "기본 테마가 다크가 아님");
   check(page.region === "KR" && page.tab === "incident" && page.leadRegion === "국내", "뉴스 첫 화면에서 국내 주요 이슈가 선택되지 않음");
   check(page.countries.length === 1 && page.countries[0] === "한국", `뉴스 첫 화면 정리 국가 ${page.countries.join(",")}`);

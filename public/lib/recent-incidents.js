@@ -1,4 +1,5 @@
 import { isDeniedIncidentTitle } from "./incident-trend.js";
+import { similarity } from "./text.js";
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -12,7 +13,7 @@ const otherFocus = [
   /(?:시대의|감당할\s?수|신뢰\s?흔들|시민사회|말아야|강화해야|늘었는데|급증세|로\s?본|의\s?교훈|회수\s?추적|긴급\s?소집|되짚|짚어본|증원|화제)/,
   /\b(?:quarterly|surge[sd]?|on record|record high|digest|the toll of|freez(?:ing|e) order|ruling|pay[s]? to settle|statistic[s]?|report\s*:|\w+ preparedness|prepares? for)\b/i,
   /\b(?:ransomware gang (?:lists|names)|(?:hackers?|group|gang) (?:claim[s]?|threaten[s]?)|leak site|data for sale|ransom deadline|threatens? to (?:leak|publish))\b/i,
-  /^(?:what the tech|日\s?기업들)|\b(?:warn(?:s|ing) (?:as|ahead)|first[- ]ever (?:autonomous|simulated)|theoretical attack)\b/i,
+  /^(?:what the tech|日\s?기업들|ticker\s*:)|\b(?:warn(?:s|ing) (?:as|ahead)|first[- ]ever (?:autonomous|simulated)|theoretical attack)\b/i,
 ];
 const disputed = /사실\s?무근|(?:유출|침해|피해|해킹).{0,8}(?:확인되지\s?않|된\s?적\s?없|사실이?\s?없|발생하지\s?않)|\b(?:not|never|yet to)\s+(?:been\s+)?confirm(?:ed)?\b|\b(?:denies|denied|disputes|refutes)\b.{0,50}\b(?:hack|attack|breach)|\b(?:no|without) evidence of\b/i;
 const attack = String.raw`(?:cyber[ -]?attack|ransomware (?:attack|infection|incident)|(?:data |security |cybersecurity )?breach|hack(?:ing)?|intrusion|data (?:theft|leak)|security incident)\b`;
@@ -22,6 +23,7 @@ const englishIncident = [
   new RegExp(String.raw`\b` + attack + String.raw`.{0,35}?\b(?:expos(?:es|ed)|leaks?|hits?|hit|disrupt(?:s|ed|ing)|shuts? down|affects?|impacts?|forces?|continues|remains ongoing)\b`, "i"),
   /\b(?:was|were|got|been) (?:hacked|breached|compromised)\b|\bhackers? (?:breach(?:ed)?|stole|steal|leak(?:s|ed)?|used\b.{0,45}\bto breach)\b|\b(?:records|data|documents|information|emails?|details) (?:were |was )?(?:stolen|leaked|accessed|exposed)\b/i,
   /\b(?:affected|impacted) (?:in|by) .{1,65}\bdata breach\b/i,
+  /\b(?:million|billion|trillion) (?:dollars? )?stolen from\b/i,
   /\b(?:cope with|responds? to|notifies? .{1,40} of|recovery from) (?:a |the )?data breach\b|\bcyberattack reported at\b|\b(?:data breach|cyberattack) affecting\b/i,
   /\b(?:infected|struck|hit) (?:with|by) ransomware\b/i,
 ];
@@ -42,10 +44,14 @@ const commonName = /^(?:a|an|the|how|why|what|who|when|did|at|as|in|on|of|after|
 const leadingTags = /^(?:\s*\[[^\]]+\]\s*)+/;
 // 금융기관, EU 기관처럼 한국어와 영어권 기사에서 서로 다른 이름으로 불리는 경우.
 const aliases = [
-  ["jpmorgan", /(?:\bJPMorgan(?:\s*Chase)?\b|\bChase(?: Bank)?\b|(?:JP|제이피)모[건간]|체이스\s?은행)/i],
+  ["jpmorgan", /(?:\bJ\.?\s?P\.?\s?Morgan\b|\bChase(?: Bank)?\b|(?:JP|제이피)모[건간]|체이스)/i],
   ["eu-commission", /EU\s*(?:집행위|집행위원회)|유럽\s?연합\s?집행위|(?:European|EU) (?:Commission|executive(?: branch)?)\b/i],
   ["kpmg", /\bKPMG\b/i], ["binance", /\bBinance\b|바이낸스/i],
   ["tfl", /Transport for London|\bTfL\b/i],
+  ["uber", /\bUber\b|우버/i],
+  ["jeonju-university", /전주대/],
+  ["savings-bank-training", /KG\s?에듀원|저축(?:은행|銀).{0,20}(?:직원|교육사이트)/i],
+  ["busan-research", /부산.{0,22}(?:산학협력단|연구비\s?시스템)/],
 ];
 function subject(title) {
   const clean = title.replace(leadingTags, "").trim();
@@ -68,24 +74,56 @@ const facets = [
   /\b(?:HR|staff|employee|payroll)\b|직원|임직원/i,
 ];
 
+// 회사가 같다는 이유로 과거의 별개 사고를 연결하지 않는다.
+// 서로 다른 언어의 기사에는 피해 대상이나 유출 자료로 확인되는 공통 정황을 쓴다.
+const incidentDetails = {
+  kpmg: /client (?:tax )?(?:documents|files|data)|고객.{0,12}(?:세금|문서|자료)|^회계법인 KPMG 해킹 피해$/i,
+  uber: /drivers?|운전자|운전면허|fireworks|파이어웍스|\b(?:149,346|150,000)\b|15만/i,
+  tfl: /oyster|오이스터/i,
+  jpmorgan: /vendors?|third[ -]party|협력업체|외부\s?업체|서비스\s?업체/i,
+  binance: /192 (?:types|cryptocurrencies)|\$6\.(?:3|43) ?(?:billion|b\b)|6[34]억.{0,10}달러/i,
+  "eu-commission": /AI|인공지능/i,
+  "jeonju-university": /18만|온라인\s?교육|학습\s?관리/,
+  "savings-bank-training": /교육\s?사이트|교육\s?업체|에듀원|직원.{0,10}(?:정보|실명)/,
+  "busan-research": /산학협력단|연구비\s?시스템/,
+};
+const followUpTitle = /(?:피해|유출).{0,22}(?:늘어|확대|추가 확인)|피해\s?규모.{0,12}(?:정정|재산정)|\b(?:full|final) report on .{0,30}(?:attack|breach|hack)|\b(?:reopens?|still down|restores? services?)\b.{0,50}\b(?:following|after)\b.{0,24}\b(?:hack|cyberattack|breach)|\b(?:breach|attack) toll (?:rises|grows)\b/i;
+
+function samePastIncident(item, earlier, name) {
+  const details = Object.hasOwn(incidentDetails, name) ? incidentDetails[name] : null;
+  if (details?.test(item.t) && details.test(earlier.t)
+      && Date.parse(item.d) - Date.parse(earlier.d) <= 14 * DAY) return true;
+  const score = similarity(item.t, earlier.t);
+  return score >= 0.6 || (item.g && item.g === earlier.g && score >= 0.4);
+}
+
 export function recentIncidentStories(items, now = Date.now()) {
+  const cutoff = now - DAY;
   const groups = new Map();
   const seenUrls = new Set();
-  const recent = items.filter((item) => {
+  const historical = new Map();
+  const timely = items.filter((item) => {
     const time = Date.parse(item.d);
-    return time >= now - DAY && time <= now && /^https?:\/\//i.test(item.u) && reportsIncident(item.t);
+    return time <= now && /^https?:\/\//i.test(item.u) && reportsIncident(item.t);
   }).sort((a, b) => Date.parse(b.d) - Date.parse(a.d));
-  for (const item of recent) {
+  for (const item of timely) {
     if (seenUrls.has(item.u)) continue;
     seenUrls.add(item.u);
     const name = subject(item.t);
     if (!name) continue;
+    if (Date.parse(item.d) < cutoff) {
+      if (!historical.has(name)) historical.set(name, []);
+      historical.get(name).push(item);
+      continue;
+    }
     const keys = [name + "/group/" + (item.g || item.id)];
+    const details = Object.hasOwn(incidentDetails, name) ? incidentDetails[name] : null;
+    if (details?.test(item.t)) keys.push(name + "/detail");
     if (aliases.some(([id]) => id === name)) {
       for (const [i, facet] of facets.entries()) if (facet.test(item.t)) keys.push(name + "/facet/" + i);
     }
     const [existing, ...matching] = new Set(keys.map((key) => groups.get(key)).filter(Boolean));
-    const merged = existing || { items: [], keys: new Set() };
+    const merged = existing || { name, items: [], keys: new Set() };
     merged.items.push(item);
     for (const key of keys) merged.keys.add(key);
     for (const group of matching) {
@@ -94,11 +132,14 @@ export function recentIncidentStories(items, now = Date.now()) {
     }
     for (const key of merged.keys) groups.set(key, merged);
   }
-  return [...new Set(groups.values())].map(({ items }) => {
+  return [...new Set(groups.values())].map(({ name, items }) => {
     const members = items.sort((a, b) => Date.parse(b.d) - Date.parse(a.d));
     const lead = members[0];
+    const earlier = (historical.get(name) || []).findLast((old) =>
+      members.some((member) => samePastIncident(member, old, name)));
     return {
       id: lead.id, lead, items: members, first: members.at(-1).d, last: lead.d,
+      earlier, followUp: Boolean(earlier) || members.every((item) => followUpTitle.test(item.t)),
       sources: new Set(members.map((item) => item.s)).size, count: members.length,
       r: lead.r, c: "incident", k: [...new Set(members.flatMap((item) => item.k || []))],
     };
