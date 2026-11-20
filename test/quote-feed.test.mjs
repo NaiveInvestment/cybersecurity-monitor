@@ -74,7 +74,7 @@ test("local quotes poll the same origin at the configured cadence", async (t) =>
 });
 
 test("sector polling is opt-in and falls back when the chart rejects the relay snapshot", async (t) => {
-  const config = "https://raw.githubusercontent.com/owner/site/relay/relay.json";
+  const config = "https://raw.githubusercontent.com/owner/sector-site/relay/relay.json";
   const relay = "https://test.trycloudflare.com/live.json";
   const at = new Date().toISOString();
   const open = (at) => ({ indices: { KOSPI: { at, st: "OPEN" }, KOSDAQ: { at, st: "OPEN" } } });
@@ -89,10 +89,10 @@ test("sector polling is opt-in and falls back when the chart rejects the relay s
     const url = String(input);
     if (url.startsWith(config + "?t=")) return { ok: true, json: async () => ({ url: relay }) };
     if (url === relay + "?sector=1") return { ok: true, json: async () => relayPayload };
-    assert.match(url, /api\.github\.com\/repos\/owner\/site\/contents\/live\.json\?ref=live$/);
+    assert.match(url, /api\.github\.com\/repos\/owner\/sector-site\/contents\/live\.json\?ref=live$/);
     return { ok: true, json: async () => cloud };
   });
-  const refresh = startQuoteFeed({ repo: "owner/site", branch: "live", file: "live.json", relayConfig: config }, {
+  const refresh = startQuoteFeed({ repo: "owner/sector-site", branch: "live", file: "live.json", relayConfig: config }, {
     isActive: () => active,
     acceptSector: (snapshot) => Date.now() - Date.parse(snapshot?.indices?.KOSDAQ?.at) < 120000,
     onQuotes: (payload, source) => seen.push([source, payload]),
@@ -111,4 +111,19 @@ test("sector polling is opt-in and falls back when the chart rejects the relay s
   await scheduled.get(2000)();
   await scheduled.get(75000)();
   assert.equal(fetch.mock.callCount(), count);
+});
+
+test("the table and chart share the GitHub snapshot within one page", async (t) => {
+  const payload = { q: { a: [1] }, sector: {} };
+  t.mock.method(globalThis, "setInterval", () => {});
+  globalThis.document = { hidden: false, addEventListener() {} };
+  t.after(() => { delete globalThis.document; });
+  const fetch = t.mock.method(globalThis, "fetch", async () => ({ ok: true, json: async () => payload }));
+  const live = { repo: "owner/shared", branch: "live", file: "live.json" };
+  const seen = [];
+  startQuoteFeed(live, { onQuotes: (snapshot) => seen.push(snapshot) });
+  startQuoteFeed({ ...live }, { onQuotes: (snapshot) => seen.push(snapshot) });
+  await setImmediate();
+  assert.deepEqual(seen, [payload, payload]);
+  assert.equal(fetch.mock.callCount(), 1);
 });
