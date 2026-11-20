@@ -49,11 +49,11 @@ function absorb(stocks, quotes) {
 
 async function tick(sessions) {
   const jobs = [];
+  const kr = sessions.kr ? fetchRealtime("KR", krCodes) : null;
+  if (kr) jobs.push(kr.then((quotes) => absorb(groups.kr, quotes)));
   if (sessions.asia) {
-    const kr = fetchRealtime("KR", krCodes);
     const indices = fetchIndexRealtime("KR", ["KOSPI", "KOSDAQ"]);
     const comparison = fetchRealtime("KR", comparisonCodes, { attempts: 1 });
-    jobs.push(kr.then((quotes) => absorb(groups.kr, quotes)));
     jobs.push(fetchRealtime("GL", groups.jp.map((stock) => stock.code)).then((quotes) => absorb(groups.jp, quotes)));
     jobs.push(indices.then((quotes) => { if (quotes.KOSDAQ) state.idx.KOSDAQ = quotes.KOSDAQ; }));
     jobs.push(Promise.all([kr, comparison, indices]).then(([stocks, extra, benchmarks]) => {
@@ -74,7 +74,7 @@ async function tick(sessions) {
 
 async function main() {
   if (once) {
-    const count = await tick({ asia: true, us: true });
+    const count = await tick({ kr: true, asia: true, us: true });
     console.log(`live.json 작성: ${count}종목`);
     return;
   }
@@ -83,7 +83,7 @@ async function main() {
   while (true) {
     if (Date.now() - startedAt > MAX_AGE_MS) { console.log("가동 한도 도달, 다음 폴러에 넘김"); break; }
     const sessions = activeSessions();
-    if (!sessions.asia && !sessions.us) {
+    if (!sessions.kr && !sessions.us) {
       const wait = minutesToNextSession();
       if (wait > WAIT_LIMIT_MIN) { console.log(`다음 장까지 ${wait}분, 종료`); break; }
       await sleep(60000);

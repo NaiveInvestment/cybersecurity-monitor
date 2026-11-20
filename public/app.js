@@ -273,7 +273,7 @@ function renderNotes() {
   const usd = snapshot.fx.USD ? `1달러 ${snapshot.fx.USD.toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
   const jpy = snapshot.fx.JPY ? `100엔 ${(snapshot.fx.JPY * 100).toLocaleString("ko-KR", { maximumFractionDigits: 0 })}원` : "";
   $("#notes").innerHTML = `출처: 네이버 금융 (재무 갱신 ${fmtKst(snapshot.generatedAt)} KST). 종목 구성 기준일 ${esc(snapshot.universeAsOf)}.<br>`
-    + `수익률은 수정주가 종가 대비, 국내 시세와 거래대금은 KRX 기준, 해외 영업이익은 EBIT, PER은 직전 4개 분기 순이익 기준이며 0 이하이면 -. 원화 환산은 현재 환율(${[usd, jpy].filter(Boolean).join(", ")}).`;
+    + `국내 주가는 KRX 기준, 거래대금은 KRX + NXT 당일 누적. 수익률은 수정주가 종가 대비, 해외 영업이익은 EBIT 기준. PER은 직전 4개 분기 순이익 기준이며 0 이하이면 -. 원화 환산은 현재 환율(${[usd, jpy].filter(Boolean).join(", ")}).`;
 }
 
 // 가장 많이 보도된 사건 하나를 종목 표 위에 한 줄로 보여 준다. 세 매체 이상이 다룬 사건이 없으면 숨긴다.

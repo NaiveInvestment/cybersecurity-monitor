@@ -53,6 +53,20 @@ test("normalizeQuote: 국내는 억원, 하락은 음수", () => {
   assert.deepEqual(quote, { p: 121900, chg: -12.66, cap: 13563.2, capKrw: 13563.2, tv: 723, at: "2026-11-11T10:30:00+09:00", st: "OPEN" });
 });
 
+test("normalizeQuote: 거래대금은 KRX + NXT 합계, 주가는 KRX", () => {
+  const row = {
+    closePriceRaw: "112000",
+    accumulatedTradingValueRaw: "29024000000",
+    overMarketPriceInfo: { overPrice: "112100", accumulatedTradingValueRaw: "92944000000" },
+    integratedPriceInfo: { accumulatedTradingValueRaw: "121968000000" },
+  };
+  const quote = normalizeQuote("KR", row);
+  assert.equal(quote.tv, 1219.7);
+  assert.equal(quote.p, 112000);
+  assert.equal(normalizeQuote("KR", { ...row, integratedPriceInfo: null }).tv, null);
+  assert.equal(normalizeQuote("KR", { ...row, integratedPriceInfo: { accumulatedTradingValueRaw: "0" } }).tv, 0);
+});
+
 test("normalizeQuote: 해외는 현지 통화 백만과 원화 억원을 함께", () => {
   const quote = normalizeQuote("GL", {
     closePriceRaw: "225.76", fluctuationsRatioRaw: "-1.23", compareToPreviousPrice: { name: "FALLING" },

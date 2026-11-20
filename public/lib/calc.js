@@ -73,7 +73,10 @@ export function normalizeQuote(kind, row) {
   }
   const capLocal = toNum(row.marketValueFullRaw ?? row.marketValueFull);
   const capKrw = kind === "KR" ? capLocal : toNum(row.marketValueKrwRaw);
-  const valueKrw = kind === "KR" ? toNum(row.accumulatedTradingValueRaw) : toNum(row.accumulatedTradingValueKrwRaw);
+  const domesticValue = row.integratedPriceInfo || row.overMarketPriceInfo
+    ? row.integratedPriceInfo?.accumulatedTradingValueRaw
+    : row.accumulatedTradingValueRaw;
+  const valueKrw = toNum(kind === "KR" ? domesticValue : row.accumulatedTradingValueKrwRaw);
   return {
     p: price,
     chg: round(change, 2),

@@ -14,18 +14,21 @@ test("universe: 국내 35종목, 해외 36종목, id 중복 없음", () => {
 
 const kst = (text) => new Date(`${text}+09:00`);
 
-test("sessions: 아시아장과 미국장 구간", () => {
-  assert.deepEqual(activeSessions(kst("2026-11-11T10:00:00")), { asia: true, us: false });   // 수요일 장중
-  assert.deepEqual(activeSessions(kst("2026-11-11T16:00:00")), { asia: false, us: false });  // 장 마감 뒤
-  assert.deepEqual(activeSessions(kst("2026-11-11T23:40:00")), { asia: false, us: true });   // 수요일 밤 미국장
-  assert.deepEqual(activeSessions(kst("2026-11-14T05:00:00")), { asia: false, us: true });   // 토요일 새벽(금요일 미국장)
-  assert.deepEqual(activeSessions(kst("2026-11-14T10:00:00")), { asia: false, us: false });  // 토요일 낮
-  assert.deepEqual(activeSessions(kst("2026-11-16T05:00:00")), { asia: false, us: false });  // 월요일 새벽
+test("sessions: NXT 프리마켓과 애프터마켓, 아시아와 미국 정규장", () => {
+  assert.deepEqual(activeSessions(kst("2026-11-11T07:59:00")), { kr: false, asia: false, us: false });
+  assert.deepEqual(activeSessions(kst("2026-11-11T08:00:00")), { kr: true, asia: false, us: false });
+  assert.deepEqual(activeSessions(kst("2026-11-11T10:00:00")), { kr: true, asia: true, us: false });
+  assert.deepEqual(activeSessions(kst("2026-11-11T20:00:00")), { kr: true, asia: false, us: false });
+  assert.deepEqual(activeSessions(kst("2026-11-11T20:05:00")), { kr: false, asia: false, us: false });
+  assert.deepEqual(activeSessions(kst("2026-11-11T23:40:00")), { kr: false, asia: false, us: true });
+  assert.deepEqual(activeSessions(kst("2026-11-14T05:00:00")), { kr: false, asia: false, us: true });
+  assert.deepEqual(activeSessions(kst("2026-11-14T10:00:00")), { kr: false, asia: false, us: false });
+  assert.deepEqual(activeSessions(kst("2026-11-16T05:00:00")), { kr: false, asia: false, us: false });
 });
 
 test("sessions: 다음 구간까지 남은 분", () => {
   assert.equal(minutesToNextSession(kst("2026-11-11T10:00:00")), 0);
-  assert.equal(minutesToNextSession(kst("2026-11-11T08:40:00")), 15);
+  assert.equal(minutesToNextSession(kst("2026-11-11T07:45:00")), 15);
   assert.ok(minutesToNextSession(kst("2026-11-14T10:00:00")) > 45);
 });
 
