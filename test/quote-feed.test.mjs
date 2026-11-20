@@ -72,3 +72,43 @@ test("local quotes poll the same origin at the configured cadence", async (t) =>
   assert.equal(fetch.mock.callCount(), 1);
   assert.deepEqual(seen, [{ payload, source: "local" }]);
 });
+
+test("sector polling is opt-in and falls back when the chart rejects the relay snapshot", async (t) => {
+  const config = "https://raw.githubusercontent.com/owner/site/relay/relay.json";
+  const relay = "https://test.trycloudflare.com/live.json";
+  const at = new Date().toISOString();
+  const open = (at) => ({ indices: { KOSPI: { at, st: "OPEN" }, KOSDAQ: { at, st: "OPEN" } } });
+  const cloud = { q: { a: [1] }, sector: open(at) };
+  let relayPayload = { asOf: at, q: { a: [2] }, sector: open(at) };
+  let active = false;
+  const scheduled = new Map(), seen = [];
+  t.mock.method(globalThis, "setInterval", (poll, interval) => scheduled.set(interval, poll));
+  globalThis.document = { hidden: false, addEventListener() {} };
+  t.after(() => { delete globalThis.document; });
+  const fetch = t.mock.method(globalThis, "fetch", async (input) => {
+    const url = String(input);
+    if (url.startsWith(config + "?t=")) return { ok: true, json: async () => ({ url: relay }) };
+    if (url === relay + "?sector=1") return { ok: true, json: async () => relayPayload };
+    assert.match(url, /api\.github\.com\/repos\/owner\/site\/contents\/live\.json\?ref=live$/);
+    return { ok: true, json: async () => cloud };
+  });
+  const refresh = startQuoteFeed({ repo: "owner/site", branch: "live", file: "live.json", relayConfig: config }, {
+    isActive: () => active,
+    acceptSector: (snapshot) => Date.now() - Date.parse(snapshot?.indices?.KOSDAQ?.at) < 120000,
+    onQuotes: (payload, source) => seen.push([source, payload]),
+    onRelayLost: (payload) => seen.push(["returned to cloud", payload]),
+  });
+  assert.equal(fetch.mock.callCount(), 0);
+  active = true;
+  refresh();
+  await setImmediate();
+  assert.deepEqual(seen.at(-1), ["relay", relayPayload]);
+  relayPayload = { ...relayPayload, sector: open(new Date(Date.now() - 121000).toISOString()) };
+  await scheduled.get(2000)();
+  assert.deepEqual(seen.at(-1), ["returned to cloud", cloud]);
+  active = false;
+  const count = fetch.mock.callCount();
+  await scheduled.get(2000)();
+  await scheduled.get(75000)();
+  assert.equal(fetch.mock.callCount(), count);
+});

@@ -7,7 +7,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
 import { join, normalize, extname } from "node:path";
-import { loadUniverse, ROOT } from "../src/universe.mjs";
+import { comparisonSectorCodes, loadUniverse, ROOT } from "../src/universe.mjs";
 import { LocalLive } from "../src/live-local.mjs";
 import { createQuoteRelay } from "../src/public-relay.mjs";
 
@@ -75,9 +75,15 @@ function rebuildInBackground() {
 let live = null;
 if (liveMode) {
   buildAtStartup();
-  live = new LocalLive({ universe: loadUniverse(), log });
+  const universe = loadUniverse();
+  const sectorCodes = comparisonSectorCodes();
+  const publicCodes = [...new Set([...sectorCodes, ...universe.stocks.filter(s => s.kind === "KR").map(s => s.code)])];
+  live = new LocalLive({ universe, sectorCodes, log });
   live.start();
-  createQuoteRelay({ getPayload: () => live.snapshot(), ids: loadUniverse().stocks.map(s => s.id) })
+  createQuoteRelay({
+    getPayload: () => live.snapshot(), ids: universe.stocks.map(s => s.id),
+    getSector: () => live.sectorSnapshot(), sectorCodes: publicCodes,
+  })
     .listen(8859, "127.0.0.1", () => log("공개 시세 전용 중계 8859"));
   setInterval(rebuildInBackground, REBUILD_MS).unref();
 }
@@ -95,9 +101,10 @@ createServer(async (request, response) => {
     return;
   }
   if (live && pathname === "/live.json") { json(response, live.snapshot()); return; }
+  if (live && pathname === "/sector-live.json") { json(response, live.sectorSnapshot()); return; }
   if (live && pathname === "/data/meta.json") {
     // 조립본의 meta.json 대신 로컬 실시간 주소를 알려 준다. 화면은 이 주소를 2초마다 읽는다.
-    json(response, { builtAt: lastBuildAt || startedAt, live: { url: "live.json", interval: 2000 } });
+    json(response, { builtAt: lastBuildAt || startedAt, live: { url: "live.json", interval: 2000 }, sectorLive: { url: "sector-live.json", interval: 2000 } });
     return;
   }
   const file = normalize(join(root, pathname.endsWith("/") ? `${pathname}index.html` : pathname));

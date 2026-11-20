@@ -10,7 +10,7 @@ async function fetchJson(url, options) {
   return response.json();
 }
 
-export function startQuoteFeed(live, { onQuotes, onRelayLost, onUnavailable }) {
+export function startQuoteFeed(live, { onQuotes, onRelayLost, onUnavailable, acceptSector, isActive = () => true }) {
   if (!live) return;
   const { repo, branch, file, url, relayConfig } = live;
   if (!url && !(repo && branch && file)) return;
@@ -23,7 +23,7 @@ export function startQuoteFeed(live, { onQuotes, onRelayLost, onUnavailable }) {
   let lastDiscovery = -Infinity;
 
   async function pollCloud() {
-    if (document.hidden || cloudRunning) return;
+    if (document.hidden || !isActive() || cloudRunning) return;
     cloudRunning = true;
     try {
       const attempts = url ? [() => fetchJson(url)] : [
@@ -47,7 +47,7 @@ export function startQuoteFeed(live, { onQuotes, onRelayLost, onUnavailable }) {
   }
 
   async function pollRelay() {
-    if (document.hidden || relayRunning) return;
+    if (document.hidden || !isActive() || relayRunning) return;
     relayRunning = true;
     try {
       const now = Date.now();
@@ -61,9 +61,11 @@ export function startQuoteFeed(live, { onQuotes, onRelayLost, onUnavailable }) {
       }
       let payload;
       if (relay) {
-        try { payload = await fetchJson(relay); } catch { /* Fall back to cloud. */ }
+        const endpoint = new URL(relay);
+        if (acceptSector) endpoint.searchParams.set("sector", "1");
+        try { payload = await fetchJson(endpoint); } catch { /* Fall back to cloud. */ }
       }
-      if (freshRelay(payload)) {
+      if (freshRelay(payload) && (!acceptSector || acceptSector(payload.sector, cloud?.sector))) {
         relayActive = true;
         onQuotes(payload, "relay");
       } else if (relayActive) {
@@ -75,14 +77,13 @@ export function startQuoteFeed(live, { onQuotes, onRelayLost, onUnavailable }) {
     }
   }
 
-  void pollCloud();
-  setInterval(pollCloud, live.interval || (url ? RELAY_INTERVAL : CLOUD_INTERVAL));
-  if (relayConfig) {
-    void pollRelay();
-    setInterval(pollRelay, RELAY_INTERVAL);
-  }
-  document.addEventListener("visibilitychange", () => {
+  function refresh() {
     void pollCloud();
     if (relayConfig) void pollRelay();
-  });
+  }
+  refresh();
+  setInterval(pollCloud, live.interval || (url ? RELAY_INTERVAL : CLOUD_INTERVAL));
+  if (relayConfig) setInterval(pollRelay, RELAY_INTERVAL);
+  document.addEventListener("visibilitychange", refresh);
+  return refresh;
 }

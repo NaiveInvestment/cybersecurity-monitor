@@ -27,6 +27,11 @@ export async function getJson(url, { attempts = 3, fetchImpl = fetch } = {}) {
 
 const chunk = (list, size) => Array.from({ length: Math.ceil(list.length / size) }, (_, i) => list.slice(i * size, (i + 1) * size));
 
+function withPreviousClose(quote, row) {
+  const diff = toNum(row.compareToPreviousClosePriceRaw ?? row.compareToPreviousClosePrice);
+  return diff != null && quote.p - diff > 0 ? { ...quote, previousClose: quote.p - diff } : quote;
+}
+
 // kind: "KR"(국내) | "GL"(해외). 반환: { 코드: 정규화 시세 }
 export async function fetchRealtime(kind, codes, options = {}) {
   const path = kind === "KR" ? "domestic" : "worldstock";
@@ -36,7 +41,7 @@ export async function fetchRealtime(kind, codes, options = {}) {
     for (const row of json?.datas || []) {
       const code = kind === "KR" ? row.itemCode : row.reutersCode;
       const quote = normalizeQuote(kind, row);
-      if (code && quote) output[code] = quote;
+      if (code && quote) output[code] = kind === "KR" ? withPreviousClose(quote, row) : quote;
     }
   }
   return output;
@@ -50,7 +55,10 @@ export async function fetchIndexRealtime(kind, codes, options = {}) {
   for (const row of json?.datas || []) {
     const code = kind === "KR" ? row.itemCode : row.reutersCode;
     const quote = normalizeQuote(kind, row);
-    if (code && quote) output[code] = { p: quote.p, chg: quote.chg, at: quote.at, st: quote.st };
+    if (code && quote) {
+      const index = { p: quote.p, chg: quote.chg, at: quote.at, st: quote.st };
+      output[code] = kind === "KR" ? withPreviousClose(index, row) : index;
+    }
   }
   return output;
 }

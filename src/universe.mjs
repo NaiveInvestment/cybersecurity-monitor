@@ -3,6 +3,16 @@ import { fileURLToPath } from "node:url";
 
 export const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
+export function loadSectorMembership() {
+  const membership = JSON.parse(readFileSync(new URL("../data/sector-membership.json", import.meta.url), "utf8"));
+  const extra = JSON.parse(readFileSync(new URL("../data/sector-extra.json", import.meta.url), "utf8"));
+  return { ...membership, groups: [...membership.groups, ...extra.groups] };
+}
+
+export function comparisonSectorCodes() {
+  return [...new Set(loadSectorMembership().groups.flatMap((group) => group.stocks.map((stock) => stock.code)))];
+}
+
 // universe.json을 화면과 수집기가 쓰는 평평한 목록으로 바꾼다. id는 국내 종목코드, 해외 티커.
 export function loadUniverse(path = new URL("../universe.json", import.meta.url)) {
   const raw = JSON.parse(readFileSync(path, "utf8"));

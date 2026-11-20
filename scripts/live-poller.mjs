@@ -2,8 +2,9 @@
 // 크론 지연에 대비해 하루 여러 번 기동되며, 원격 live.json이 신선하면 대기하다가 앞선 폴러가 멈추면 이어받는다.
 // --once: 한 번만 받아 live.json을 쓰고 끝낸다(푸시 없음, 로컬 확인용).
 import { writeFileSync } from "node:fs";
-import { loadUniverse } from "../src/universe.mjs";
+import { comparisonSectorCodes, loadUniverse } from "../src/universe.mjs";
 import { fetchRealtime, fetchIndexRealtime } from "../src/naver.mjs";
+import { publicSectorSnapshot } from "../src/public-relay.mjs";
 import { activeSessions, minutesToNextSession } from "../src/sessions.mjs";
 import { configureBot, pushOrphan } from "../src/git-orphan.mjs";
 
@@ -21,7 +22,11 @@ const groups = {
   jp: universe.stocks.filter((stock) => stock.kind === "GL" && stock.country === "JP"),
   us: universe.stocks.filter((stock) => stock.kind === "GL" && stock.country !== "JP"),
 };
-const state = { q: {}, idx: {} };
+const krCodes = groups.kr.map((stock) => stock.code);
+const krSet = new Set(krCodes);
+const comparisonCodes = comparisonSectorCodes().filter((code) => !krSet.has(code));
+const publicCodes = [...krCodes, ...comparisonCodes];
+const state = { q: {}, idx: {}, sector: null };
 
 async function remoteState() {
   if (!process.env.GITHUB_REPOSITORY) return null;
@@ -45,9 +50,16 @@ function absorb(stocks, quotes) {
 async function tick(sessions) {
   const jobs = [];
   if (sessions.asia) {
-    jobs.push(fetchRealtime("KR", groups.kr.map((stock) => stock.code)).then((quotes) => absorb(groups.kr, quotes)));
+    const kr = fetchRealtime("KR", krCodes);
+    const indices = fetchIndexRealtime("KR", ["KOSPI", "KOSDAQ"]);
+    const comparison = fetchRealtime("KR", comparisonCodes, { attempts: 1 });
+    jobs.push(kr.then((quotes) => absorb(groups.kr, quotes)));
     jobs.push(fetchRealtime("GL", groups.jp.map((stock) => stock.code)).then((quotes) => absorb(groups.jp, quotes)));
-    jobs.push(fetchIndexRealtime("KR", ["KOSDAQ"]).then((quotes) => { if (quotes.KOSDAQ) state.idx.KOSDAQ = quotes.KOSDAQ; }));
+    jobs.push(indices.then((quotes) => { if (quotes.KOSDAQ) state.idx.KOSDAQ = quotes.KOSDAQ; }));
+    jobs.push(Promise.all([kr, comparison, indices]).then(([stocks, extra, benchmarks]) => {
+      const sector = publicSectorSnapshot({ quotes: { ...stocks, ...extra }, indices: benchmarks }, publicCodes);
+      if (sector) state.sector = sector;
+    }));
   }
   if (sessions.us) {
     jobs.push(fetchRealtime("GL", groups.us.map((stock) => stock.code)).then((quotes) => absorb(groups.us, quotes)));
@@ -56,7 +68,7 @@ async function tick(sessions) {
   const results = await Promise.allSettled(jobs);
   const failed = results.filter((result) => result.status === "rejected");
   if (failed.length === results.length) throw new Error(failed[0].reason.message);
-  writeFileSync("live.json", JSON.stringify({ asOf: new Date().toISOString(), sessions, q: state.q, idx: state.idx }));
+  writeFileSync("live.json", JSON.stringify({ asOf: new Date().toISOString(), sessions, ...state }));
   return Object.keys(state.q).length;
 }
 
@@ -82,6 +94,7 @@ async function main() {
       if (remote?.asOf && Date.now() - Date.parse(remote.asOf) < FRESH_MS) { await sleep(60000); continue; }
       if (remote?.q) Object.assign(state.q, remote.q);       // 닫힌 시장의 마지막 값은 이어받는다
       if (remote?.idx) Object.assign(state.idx, remote.idx);
+      if (remote?.sector) state.sector = publicSectorSnapshot(remote.sector, publicCodes);
       active = true;
       console.log("활성 폴러로 전환");
     }

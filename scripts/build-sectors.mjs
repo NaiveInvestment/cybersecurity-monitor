@@ -1,10 +1,9 @@
-import {readFileSync,writeFileSync,mkdirSync} from "node:fs";
+import {writeFileSync,mkdirSync} from "node:fs";
 import {join} from "node:path";
-import {ROOT,loadUniverse} from "../src/universe.mjs";
+import {ROOT,loadUniverse,loadSectorMembership} from "../src/universe.mjs";
 import {fetchDaily,fetchRealtime,mapLimit} from "../src/naver.mjs";
 const args=process.argv.slice(2), out=args.includes("--out")?args[args.indexOf("--out")+1]:join(ROOT,"_site","data");
-const membership=JSON.parse(readFileSync(join(ROOT,"data","sector-membership.json"),"utf8"));
-membership.groups.push(...JSON.parse(readFileSync(join(ROOT,"data","sector-extra.json"),"utf8")).groups);
+const membership=loadSectorMembership();
 const domestic=loadUniverse().stocks.filter(s=>s.kind==="KR");
 const groups=[{id:"security",name:"보안",reference:"사이버보안 모니터",asOf:loadUniverse().asOf,stocks:domestic.map(s=>({code:s.code,name:s.name}))},...membership.groups];
 const unique=[...new Set(groups.flatMap(g=>g.stocks.map(s=>s.code)))];

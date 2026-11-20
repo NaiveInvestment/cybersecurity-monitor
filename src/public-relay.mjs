@@ -22,12 +22,32 @@ export function publicQuotes(payload, ids, now = Date.now()) {
   return { asOf: payload.asOf, q, idx, source: kiwoom ? "국내 키움 실시간, 해외 네이버 10초" : "네이버 금융 10초 갱신" };
 }
 
-export function createQuoteRelay({ getPayload, ids, origin = "https://naiveinvestment.github.io" }) {
+function sectorQuote(value) {
+  const time = Date.parse(value?.at);
+  if (!Number.isFinite(value?.p) || value.p <= 0 || !Number.isFinite(time)) return null;
+  const fields = Object.fromEntries(["p", "chg", "cap", "previousClose"].filter(key => Number.isFinite(value[key])).map(key => [key, value[key]]));
+  return { ...fields, at: new Date(time).toISOString(), st: value.st === "OPEN" ? "OPEN" : "CLOSE",
+    src: value.src === "kiwoom" ? "kiwoom" : "naver" };
+}
+
+export function publicSectorSnapshot(snapshot, codes) {
+  if (!snapshot) return null;
+  const select = (values, keys) => Object.fromEntries(keys
+    .map(key => [key, sectorQuote(values?.[key])]).filter(([, quote]) => quote));
+  const indices = select(snapshot.indices, ["KOSPI", "KOSDAQ"]);
+  const quotes = select(snapshot.quotes, codes);
+  return indices.KOSPI && indices.KOSDAQ && Object.keys(quotes).length ? { quotes, indices } : null;
+}
+
+export function createQuoteRelay({ getPayload, ids, getSector, sectorCodes = [], origin = "https://naiveinvestment.github.io" }) {
   return createServer((req, res) => {
     const headers = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "Access-Control-Allow-Origin": origin, "Vary": "Origin" };
     if (req.url?.split("?")[0] !== "/live.json" || req.method !== "GET") { res.writeHead(404, headers).end('{}'); return; }
     const payload = publicQuotes(getPayload(), ids);
     if (!payload) { res.writeHead(503, headers).end('{}'); return; }
+    if (getSector && new URL(req.url, "http://localhost").searchParams.get("sector") === "1") {
+      payload.sector = publicSectorSnapshot(getSector(), sectorCodes);
+    }
     res.writeHead(200, headers).end(JSON.stringify(payload));
   });
 }
