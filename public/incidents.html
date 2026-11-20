@@ -28,46 +28,46 @@
 </header>
 <main class="inc">
   <section class="inc-top" aria-labelledby="inc-title">
-    <header class="sec-head">
-      <h2 id="inc-title">국내외 보안 사고 동향</h2>
-      <p id="inc-range"></p>
+    <header class="sec-head inc-head">
+      <p class="inc-eyebrow" id="inc-range">보안 사고 동향</p>
       <div class="seg-switch" role="group" aria-label="지역" id="inc-region">
         <button type="button" data-region="ALL" aria-pressed="true">통합</button>
         <button type="button" data-region="KR" aria-pressed="false">국내</button>
         <button type="button" data-region="GL" aria-pressed="false">해외</button>
       </div>
     </header>
-    <div class="inc-claim" id="inc-claim"></div>
-    <div class="inc-kpis" id="inc-kpis"></div>
+    <h2 class="inc-headline" id="inc-title">최근 7일 보안 사고 강도</h2>
+    <div class="inc-brief" id="inc-brief"></div>
+    <p class="inc-rule" id="inc-rule"></p>
   </section>
 
-  <section class="panel inc-panel" aria-labelledby="idx-title">
-    <header><h2 id="idx-title">종합 지수</h2><p>건수, 유출 건수, 금전 피해액을 주마다 0~100으로 바꿔 평균. 기간 중 가장 센 주의 각 요소가 100. 별표(*)와 흐린 점은 집계 중인 이번 주</p></header>
+  <section class="panel inc-panel" aria-labelledby="trend-title">
+    <header><h2 id="trend-title">주별 추이</h2><p>같은 주끼리 위아래로 맞춰 봄. 흐린 표시(*)는 집계 중인 이번 주</p></header>
     <p class="inc-legend" id="idx-legend"></p>
+    <h3 class="inc-sub" id="idx-title">피해 규모(강도 지수, 0~100)</h3>
     <div class="inc-chart" id="idx-chart"></div>
+    <h3 class="inc-sub" id="cnt-title">사고 건수<span>점선 뒤는 자동 감지라 앞 구간보다 많이 잡힐 수 있음</span></h3>
+    <div class="inc-chart" id="cnt-chart"></div>
     <details class="inc-method">
       <summary>계산 방법</summary>
       <ul>
-        <li>건수 = 그 주에 처음 보도된 사건 수 / 기간 최대 주의 사건 수 x 100</li>
         <li>유출 = log10(1 + 그 주 발표된 유출 건수 합 / 1천) / 기간 최댓값 x 100</li>
         <li>금액 = log10(1 + 그 주 발표된 금전 피해액 합 / 100만 달러) / 기간 최댓값 x 100</li>
-        <li>종합 = 세 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
-        <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 건수에만 들어감</li>
+        <li>강도 = 두 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
+        <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 지수에 들어가지 않음</li>
+        <li>건수는 리서치 마감 뒤 자동 감지로 집계 방식이 바뀌어 지수에서 빼고 아래 건수 차트로 따로 봄</li>
       </ul>
     </details>
   </section>
 
-  <div class="inc-grid">
-    <section class="panel inc-panel" aria-labelledby="cnt-title">
-      <header><h2 id="cnt-title">건수</h2><p>주별 사건 수. 사건 하나는 피해 기관 하나</p></header>
-      <p class="inc-legend" id="cnt-legend"></p>
-      <div class="inc-chart" id="cnt-chart"></div>
-      <h3 class="inc-sub" id="rw-title">랜섬웨어 피해 공개 건수</h3>
-      <div class="inc-chart" id="rw-chart"></div>
-    </section>
+  <div class="inc-grid even">
     <section class="panel inc-panel" aria-labelledby="org-title">
-      <header><h2 id="org-title">피해 업권</h2><p>주당 사건 수, 진행 중인 주는 집계된 날짜까지 반영</p></header>
+      <header><h2 id="org-title">피해 업권</h2><p>주당 사고 수, 최근 4주와 그 전 9주</p></header>
       <div id="org-table"></div>
+    </section>
+    <section class="panel inc-panel" aria-labelledby="rw-title">
+      <header><h2 id="rw-title">랜섬웨어 피해 공개</h2><p id="rw-sub">랜섬웨어 조직이 유출 사이트에 올린 피해 기관 수(ransomware.live)</p></header>
+      <div class="inc-chart" id="rw-chart"></div>
     </section>
   </div>
 

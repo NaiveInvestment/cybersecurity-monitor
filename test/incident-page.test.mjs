@@ -5,7 +5,7 @@ import { compileEntities } from "../src/incident-log.mjs";
 import { weeksEnding, weeklyStats, compositeIndex, summary, claimText, orgBreakdown, indexChart, countChart, sizeChart } from "../public/lib/incident-metrics.js";
 
 test("parseCount: 한글, 영문 규모 표기", () => {
-  const cases = { "KB캐피탈 1,811명": 1811, "1천800명 유출": 1800, "2만4천여 건": 24000, "2만 4011건": 24011, "300여 계정": 300, "4.6만명": 46000, "Uber Data Breach Impacts 150,000 People": 150000, "involving 1.3 million people": 1300000, "해킹 사고 발생": null, "3명": null };
+  const cases = { "KB캐피탈 1,811명": 1811, "1천800명 유출": 1800, "2만4천여 건": 24000, "2만 4011건": 24011, "300여 계정": 300, "4.6만명": 46000, "Uber Data Breach Impacts 150,000 People": 150000, "involving 1.3 million people": 1300000, "해킹 사고 발생": null, "3명": null, "개인정보 1만9천978건 유출": 19978, "고팍스 정보유출 피해 9명→2009명": 2009, "2만5천여건 개인정보 유출": 25000 };
   for (const [text, expected] of Object.entries(cases)) assert.equal(parseCount(text), expected, text);
 });
 

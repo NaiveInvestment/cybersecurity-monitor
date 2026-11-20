@@ -57,13 +57,18 @@ export function parseCount(text) {
     const value = en[2] ? base * (en[2].toLowerCase() === "billion" ? 1e9 : 1e6) : base;
     if (Number.isFinite(value) && value >= 10) return Math.round(value);
   }
-  const m = /(\d[\d,]*(?:\.\d+)?)\s*(만|천)?\s*(\d[\d,]*)?\s*(천)?\s*여?\s*(명|건|개\s*계정|계정)/.exec(String(text));
-  if (!m) return null;
-  const head = Number(m[1].replace(/,/g, ""));
-  let value = m[2] === "만" ? head * 1e4 : m[2] === "천" ? head * 1e3 : head;
-  if (m[3]) value += Number(m[3].replace(/,/g, "")) * (m[4] ? 1e3 : 1);
-  return Number.isFinite(value) && value >= 10 ? Math.round(value) : null;
+  // "1만9천978건"처럼 단위가 이어진 숫자는 모두 더한다. 제목에 숫자가 여럿이면("9명→2009명") 가장 큰 값.
+  const UNIT = { 억: 1e8, 만: 1e4, 천: 1e3, "": 1 };
+  let best = null;
+  for (const m of String(text).matchAll(/((?:\d[\d,]*(?:\.\d+)?\s*[억만천]?\s*)+)여?\s*(?:명|건|개\s*계정|계정|계좌)/g)) {
+    let value = 0;
+    for (const [, num, unit] of m[1].matchAll(/(\d[\d,]*(?:\.\d+)?)\s*([억만천]?)/g)) value += Number(num.replace(/,/g, "")) * UNIT[unit];
+    if (Number.isFinite(value) && value >= 10 && (best === null || value > best)) best = Math.round(value);
+  }
+  return best;
 }
+
+const UNSURE = /우려|가능성|추정|주장|의혹|\balleged(ly)?\b|\bclaims?\b|\bmay\b|\bpossibl[ey]\b/i;
 
 // 서로 다른 매체 2곳 이상의 제목에 같은 숫자가 나와야 규모로 쓴다.
 export function headlineCount(items) {
@@ -103,10 +108,15 @@ export function fromDefiLlama(hacks, research, { since, minUsd = 1e7 }) {
 // 리서치 마감(researchUntil) 다음 날부터는 사전 밖 사건도 기사 제목에서 자동 감지한다("자동 감지"로 표시).
 export function fromAuto(stories, { newsItems = [], known = [], after }) {
   const itemsById = new Map(newsItems.map((item) => [item.id, item]));
-  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay }).map(({ story, name, day, items }) => {
-    const rec = headlineCount(items);
-    const lead = items.find((item) => item.u) || { t: story.t, u: story.u, s: "" };
-    return { id: `a-${story.id}`, d: day, n: name, r: story.r, org: "기타", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: lead.t, src: [{ o: story.s > 1 ? `보도 ${story.s}개 매체` : lead.s || "보도", u: lead.u || story.u, t: lead.t, d: day }], media: story.s, via: "자동 감지" };
+  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay }).map(({ story, name, day, items, lead: named }) => {
+    const lead = named || items.find((item) => item.u) || { t: story.t, u: story.u, s: "" };
+    // 규모: 매체 2곳 이상이 같은 숫자를 쓰면 그 숫자. 기사가 한 매체뿐이면 그 제목의 숫자(1개 매체로 표시).
+    // "우려", "가능성", "주장", "alleged"가 붙은 숫자는 확정이 아니라 집계에서 뺀다(해커 주장과 같은 취급).
+    const agreed = headlineCount(items);
+    const single = !agreed && new Set(items.map((item) => item.s)).size <= 1 ? parseCount(lead.t) : null;
+    const rec = agreed ?? single;
+    const unsure = Boolean(rec) && UNSURE.test(lead.t);
+    return { id: `a-${story.id}`, d: day, n: name, r: story.r, org: "기타", rec, recUnit: null, basis: rec ? (unsure ? "보도(확정 전)" : agreed ? "보도(제목 숫자)" : "보도(1개 매체 제목)") : null, claim: unsure, usd: null, amt: null, atk: lead.t, src: [{ o: story.s > 1 ? `보도 ${story.s}개 매체` : lead.s || "보도", u: lead.u || story.u, t: lead.t, d: day }], media: story.s, via: "자동 감지" };
   });
 }
 

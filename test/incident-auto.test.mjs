@@ -21,6 +21,34 @@ test("enSubject: 동사 앞 고유명사", () => {
   assert.equal(enSubject("Hong Kong Metropolitan University reports data breach"), "Hong Kong Metropolitan University");
   assert.equal(enSubject("Worrying data breach at CAL"), null);
   assert.equal(enSubject("Hackers claim breach of retailer"), null);
+  assert.equal(enSubject("Gentlemen ransomware gang involved in alleged breach of NVIDIA's systems"), null, "공격 조직 이름은 피해 기관이 아니다");
+  assert.equal(enSubject("AI-assisted cyberattack hit EU executive in October"), null);
+});
+
+test("koSubject: 나라 머리말과 업권 일반명사", () => {
+  assert.equal(koSubject("日기업들, 이용 끝난 개인정보 쌓아뒀다 해킹에 줄줄이 유출"), null);
+  assert.equal(koSubject("저축은행 직원 정보 유출"), null);
+  assert.equal(koSubject("포항공대 해킹으로 개인정보 1만9천978건 유출"), "포항공대");
+});
+
+test("autoDetect: 묶음 기사, 업계 동향, 대응 기사 제외", () => {
+  const titles = ["[해킹 경보④] 쿠팡 이어 G마켓·SSG닷컴도 털렸다", "부산대 등 대학가 해킹 잇따라…개인정보 1천여 건 유출", "연쇄 해킹에 놀란 은행권, ‘화이트해커' 모시기 경쟁", "인사혁신처, 공공기관 개인정보 유출 땐 기관장도 책임… 공무원 징계 수위 높인다", "SK쉴더스, 국제 보안 콘퍼런스서 랜섬웨어 공격 경로 공개", "충남도, 개인정보 유출 2차 피해 최소화 ‘총력’", "Satya Nadella says much critical infrastructure is 'unpatchable' amid AI cyberattack fears", "Lessons to learn from a first-of-its-kind cyberattack on a European wind farm", "소프트99, 위탁 시스템 침해로 주문정보 3813명 유출"];
+  const items = titles.map((t, i) => item(`x${i}`, t, `매체${i}`));
+  const stories = items.map((it, i) => story(`s${i}`, /[가-힣]/.test(it.t) ? "KR" : "GL", "2026-11-19T01:00:00Z", 1, [it.id], it.t));
+  const found = autoDetect(stories, new Map(items.map((i) => [i.id, i])), { after: "2026-11-17", sameName, kstDay });
+  assert.deepEqual(found.map((f) => f.name), ["소프트99"]);
+});
+
+test("mergeEvents: 한 매체뿐인 자동 감지는 그 제목 숫자, 확정 전 표현은 집계 제외", () => {
+  const newsItems = [{ id: "p1", t: "포항공대 해킹으로 개인정보 1만9천978건 유출", s: "가", u: "https://n/p1" }, { id: "q1", t: "라쿠텐증권 해킹…최대 447만명 정보 유출 우려", s: "나", u: "https://n/q1" }];
+  const newsLog = [{ id: "p", r: "KR", f: "2026-11-19T01:00:00Z", s: 1, m: ["p1"], t: newsItems[0].t, u: "https://n/p" }, { id: "q", r: "KR", f: "2026-11-19T02:00:00Z", s: 1, m: ["q1"], t: newsItems[1].t, u: "https://n/q" }];
+  const events = mergeEvents({ research: [], newsLog, newsItems, since: "2026-08-18", researchUntil: "2026-11-17" });
+  const p = events.find((e) => e.n === "포항공대"), q = events.find((e) => e.n === "라쿠텐증권");
+  assert.equal(p.rec, 19978);
+  assert.equal(p.claim, false);
+  assert.equal(p.basis, "보도(1개 매체 제목)");
+  assert.equal(q.rec, 4470000);
+  assert.equal(q.claim, true);
 });
 
 const story = (id, r, f, s, m, t) => ({ id, r, f, s, m, t, u: `https://x/${id}` });

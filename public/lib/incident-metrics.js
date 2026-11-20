@@ -1,6 +1,6 @@
 // 보안 사고 페이지 계산과 차트(순수 함수). 사건 하나 = 피해 기관 하나, 숫자는 발표된 것만 쓴다.
-// 종합 지수: 주마다 세 요소를 0~100으로 바꿔 평균한다(가중치 같음).
-//   건수 = 사건 수 / 기간 최대 주
+// 강도 지수: 주마다 유출과 금액 두 요소를 0~100으로 바꿔 평균한다(가중치 같음).
+// 건수는 리서치 마감 뒤 집계 방식(자동 감지)이 달라 지수에서 빼고 건수 차트로 따로 본다(c는 참고로만 계산).
 //   유출 = log10(1 + 유출 건수 합 / 1천) / 기간 최대 주
 //   금액 = log10(1 + 탈취 금액 합 / $100만) / 기간 최대 주
 // 기간 최대 주는 국내와 해외의 모든 주에서 찾는다. 그래서 두 지역 지수는 같은 잣대로 비교된다.
@@ -53,7 +53,7 @@ export function compositeIndex(events, weeks) {
     const c = (w.count / max.count) * 100;
     const r = (recScale(w.rec) / max.rec) * 100;
     const m = (usdScale(w.usd) / max.usd) * 100;
-    return { start: w.start, end: w.end, partial: w.partial, c, r, m, index: (c + r + m) / 3, count: w.count, rec: w.rec, usd: w.usd, recKnown: w.recKnown, usdKnown: w.usdKnown };
+    return { start: w.start, end: w.end, partial: w.partial, c, r, m, index: (r + m) / 2, count: w.count, rec: w.rec, usd: w.usd, recKnown: w.recKnown, usdKnown: w.usdKnown };
   };
   return { KR: kr.map(score), GL: gl.map(score), max };
 }
@@ -99,6 +99,58 @@ export function claimText(s, label) {
   return `${label} 보안 사고는 최근 4주 주당 ${fmt1(s.recentPerWeek)}건으로 ${trend}.`;
 }
 
+// ---- 최근 7일 브리핑 ----
+// until로 끝나는 7일 구간과 그 앞 7일 구간 n-1개를 같은 잣대로 비교한다(요일과 무관, 마지막 구간도 꽉 찬 7일).
+// 피해 규모 = (유출 요소 + 금액 요소) / 2. 요소는 강도 지수와 같은 로그 눈금을 두 지역, 모든 구간의 최댓값으로 나눈 0~100.
+// 건수도 같은 방식으로 순위를 매기되, 리서치 마감 뒤는 자동 감지라 앞 구간보다 많이 잡힐 수 있다(화면에 표시).
+// 13개 구간 중 1~3위는 "큰 편"(건수는 "많은 편"), 11~13위는 "작은 편"("적은 편"), 나머지 "보통".
+export function windowsEnding(until, n = 13) {
+  const end = toMs(until);
+  return Array.from({ length: n }, (_, i) => {
+    const last = end - (n - 1 - i) * 7 * DAY;
+    return { start: toDay(last - 6 * DAY), end: toDay(last) };
+  });
+}
+
+export const LEVELS = { high: "큰 편", mid: "보통", low: "작은 편" };
+export const COUNT_LEVELS = { high: "많은 편", mid: "보통", low: "적은 편" };
+const levelOf = (rank, n) => (rank <= 3 ? "high" : rank > n - 3 ? "low" : "mid");
+
+export function brief(events, until, { n = 13 } = {}) {
+  const wins = windowsEnding(until, n);
+  const stat = (region) => wins.map((w) => {
+    const list = events.filter((e) => e.r === region && e.d >= w.start && e.d <= w.end);
+    return { ...w, events: list, count: list.length, rec: list.reduce((t, e) => t + knownRec(e), 0), usd: list.reduce((t, e) => t + knownUsd(e), 0) };
+  });
+  const by = { KR: stat("KR"), GL: stat("GL") };
+  const all = [...by.KR, ...by.GL];
+  const max = { rec: Math.max(1e-9, ...all.map((w) => recScale(w.rec))), usd: Math.max(1e-9, ...all.map((w) => usdScale(w.usd))) };
+  const size = (w) => ((recScale(w.rec) / max.rec) * 100 + (usdScale(w.usd) / max.usd) * 100) / 2;
+  // 사건 하나의 크기: 유출과 금액 중 큰 쪽(같은 눈금)
+  const weight = (e) => Math.max(recScale(knownRec(e)) / max.rec, usdScale(knownUsd(e)) / max.usd);
+  const out = {};
+  for (const region of ["KR", "GL"]) {
+    const series = by[region].map((w) => ({ ...w, size: size(w) }));
+    const cur = series.at(-1);
+    const rank = series.filter((w) => w.size > cur.size).length + 1;
+    const level = levelOf(rank, n);
+    const countRank = series.filter((w) => w.count > cur.count).length + 1;
+    const countLevel = levelOf(countRank, n);
+    const ranked = [...cur.events].sort((a, b) => weight(b) - weight(a) || b.d.localeCompare(a.d));
+    out[region] = { region, start: cur.start, end: cur.end, count: cur.count, rec: cur.rec, usd: cur.usd, size: cur.size, rank, n, level, label: LEVELS[level], countRank, countLevel, countLabel: COUNT_LEVELS[countLevel],
+      top: ranked.filter((e) => weight(e) > 0).slice(0, 3), unsized: cur.events.filter((e) => !weight(e)).length,
+      today: cur.events.filter((e) => e.d === until), series };
+  }
+  return out;
+}
+
+// 브리핑 제목 한 줄
+export function briefTitle(b, region) {
+  const clause = (x) => `사고 수 ${x.countLabel}, 피해 규모 ${x.label}`;
+  if (region === "ALL") return `최근 7일 보안 사고: 국내는 ${clause(b.KR)}. 해외는 ${clause(b.GL)}`;
+  return `최근 7일 ${REGION_LABEL[region]} 보안 사고: ${clause(b[region])}`;
+}
+
 // 업권별 건수(최근 4주와 그 전, 주당).
 export const ORG_ORDER = ["금융회사", "가상자산 거래소", "국가기관, 금융 감독 또는 보안 기관", "공공기관", "통신사", "상장 대기업", "일반 기업", "대학, 병원", "기타"];
 export const ORG_SHORT = { "국가기관, 금융 감독 또는 보안 기관": "국가, 감독, 보안 기관" };
@@ -117,7 +169,7 @@ const weekLabel = (w) => w.start.slice(5).replace("-", ".");
 
 // ---- 차트: 모두 실제 표시 폭(px)을 받아 글자 크기가 줄지 않는다 ----
 
-// 종합 지수 선. series: [{ key, label, points }], 단일 지역이면 요소 선(c, r, m)을 옅게 함께.
+// 강도 지수 선. series: [{ key, label, points }], 단일 지역이면 요소 선(r, m)을 옅게 함께.
 // 리서치에서 자동 감지로 바뀌는 주에 세로 점선. boundary: 자동 감지가 시작되는 날(YYYY-MM-DD).
 function boundaryLine(weeks, boundary, xOf, top, bottom) {
   const i = boundary ? weeks.findIndex((w) => boundary >= w.start && boundary <= w.end) : -1;
@@ -127,8 +179,8 @@ function boundaryLine(weeks, boundary, xOf, top, bottom) {
   return `<line class="ic-bound" x1="${x}" x2="${x}" y1="${top}" y2="${bottom}"/><text class="ic-boundlab" x="${x + (labelOnLeft ? -4 : 4)}" y="${top + 10}" text-anchor="${labelOnLeft ? "end" : "start"}">자동 감지</text>`;
 }
 
-export function indexChart(series, weeks, { width = 800, components = null, boundary = null } = {}) {
-  const left = 40, right = 64, top = 14, plotH = 210, H = top + plotH + 28;
+export function indexChart(series, weeks, { width = 800, components = null, boundary = null, plotH = 210 } = {}) {
+  const left = 40, right = 64, top = 14, H = top + plotH + 28;
   const plotW = Math.max(200, width - left - right);
   const x = (i) => left + (plotW * (i + 0.5)) / weeks.length;
   const y = (v) => top + plotH - (v / 100) * plotH;
@@ -139,20 +191,21 @@ export function indexChart(series, weeks, { width = 800, components = null, boun
   const path = (pts, key) => pts.map((pt, i) => `${i ? "L" : "M"}${r1(x(i))} ${r1(y(pt[key]))}`).join("");
   p.push(boundaryLine(weeks, boundary, (i) => x(i) - plotW / weeks.length / 2, top, top + plotH));
   if (components) {
-    for (const [key, cls] of [["c", "comp-c"], ["r", "comp-r"], ["m", "comp-m"]]) p.push(`<path class="ic-comp ${cls}" d="${path(components, key)}"/>`);
+    for (const [key, cls] of [["r", "comp-r"], ["m", "comp-m"]]) p.push(`<path class="ic-comp ${cls}" d="${path(components, key)}"/>`);
   }
   for (const s of series) {
     p.push(`<path class="ic-line ${s.key}" d="${path(s.points, "index")}"/>`);
-    s.points.forEach((pt, i) => p.push(`<circle class="ic-pt ${s.key}${pt.partial ? " partial" : ""}" cx="${r1(x(i))}" cy="${r1(y(pt.index))}" r="4"><title>${esc(`${s.label} ${weekLabel(pt)} 주${pt.partial ? "(집계 중)" : ""}: 종합 ${Math.round(pt.index)} (건수 ${Math.round(pt.c)}, 유출 ${Math.round(pt.r)}, 금액 ${Math.round(pt.m)}) / ${pt.count}건, 유출 ${pt.recKnown ? fmtCount(pt.rec) + "건" : "발표 없음"}, 금전 피해 ${pt.usdKnown ? fmtUsd(pt.usd) : "발표 없음"}`)}</title></circle>`));
+    s.points.forEach((pt, i) => p.push(`<circle class="ic-pt ${s.key}${pt.partial ? " partial" : ""}" cx="${r1(x(i))}" cy="${r1(y(pt.index))}" r="4"><title>${esc(`${s.label} ${weekLabel(pt)} 주${pt.partial ? "(집계 중)" : ""}: 강도 ${Math.round(pt.index)} (유출 ${Math.round(pt.r)}, 금액 ${Math.round(pt.m)}) / ${pt.count}건, 유출 ${pt.recKnown ? fmtCount(pt.rec) + "건" : "발표 없음"}, 금전 피해 ${pt.usdKnown ? fmtUsd(pt.usd) : "발표 없음"}`)}</title></circle>`));
     const last = s.points.at(-1);
     p.push(`<text class="ic-end ${s.key}" x="${r1(x(s.points.length - 1) + 9)}" y="${r1(y(last.index) + 4)}">${s.label} ${Math.round(last.index)}${last.partial ? "*" : ""}</text>`);
   }
-  return `<svg class="ic" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img" aria-label="주별 종합 지수">${p.join("")}</svg>`;
+  return `<svg class="ic" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img" aria-label="주별 강도 지수">${p.join("")}</svg>`;
 }
 
 // 주별 건수 막대. groups: [{ key, label, stats }] 하나면 단일 막대, 둘이면 나란히. rw: 같은 주 랜섬웨어 피해 공개 건수(선택).
-export function countChart(groups, weeks, { width = 800, boundary = null } = {}) {
-  const left = 34, right = 10, top = 22, plotH = 190, H = top + plotH + 28;
+// left, right를 강도 지수와 같게 주면 같은 주가 위아래로 맞는다.
+export function countChart(groups, weeks, { width = 800, boundary = null, left = 34, right = 10, plotH = 190 } = {}) {
+  const top = 22, H = top + plotH + 28;
   const plotW = Math.max(200, width - left - right);
   const band = plotW / weeks.length;
   const max = Math.max(1, ...groups.flatMap((g) => g.stats.map((w) => w.count)));
