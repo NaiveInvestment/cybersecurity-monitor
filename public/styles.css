@@ -162,54 +162,31 @@ body.reading main { max-width: 1340px; margin: 0 auto; padding: 20px 22px 44px; 
 .sec-head p { color: var(--muted); font-size: 12.5px; }
 .sec-head .seg-switch { margin-left: auto; }
 
-/* 주요 이슈: 왼쪽에 가장 많이 보도된 사건 하나를 크게, 오른쪽에 그다음 순위를 보도량 막대와 함께. */
-.issues { margin-bottom: 26px; }
-.recent-incidents { margin-bottom: 24px; }
+body.news-page main { max-width: 1040px; }
+.tabs.news-tabs { margin-bottom: 17px; }
+.news-tabs button { white-space: nowrap; }
+.news-tools input { flex: 1 1 240px; min-width: 0; }
+.news-tools select { width: auto; }
+.policy-tools { justify-content: space-between; }
+#policy-to-search { color: var(--brand); font-weight: 700; }
+#policy-to-search:hover { text-decoration: underline; }
 #recent-incidents { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius); }
-.recent-row { display: grid; grid-template-columns: 86px minmax(0, 1fr) minmax(80px, 155px); gap: 5px 16px; align-items: baseline; padding: 10px 16px; }
+.recent-row { padding: 10px 16px; }
 .recent-row + .recent-row, .recent-followups { border-top: 1px solid var(--line); }
-.recent-row time, .recent-source { color: var(--muted); font-size: 12.5px; }
-.recent-row time { white-space: nowrap; }
-.recent-title { font-weight: 700; overflow-wrap: anywhere; }
+.recent-meta { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 3px; overflow-wrap: anywhere; }
+.recent-meta time { white-space: nowrap; }
+.recent-meta a { color: var(--brand); }
+.recent-title { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
 .headline-language { display: inline-block; color: var(--muted); font-size: 12px; font-weight: 500; white-space: nowrap; vertical-align: baseline; }
-.recent-source { text-align: right; overflow-wrap: anywhere; }
 .recent-followups > summary { cursor: pointer; padding: 9px 16px; color: var(--brand); font-size: 13px; font-weight: 700; }
 .recent-message { padding: 12px 16px; color: var(--muted); }
 @media (max-width: 640px) {
-  .recent-row { grid-template-columns: auto 1fr; gap: 3px 10px; padding: 9px 12px; }
-  .recent-story { grid-column: 1 / -1; grid-row: 1; }
-  .recent-source { text-align: left; }
+  .news-tabs button { flex: 1 1 auto; }
+  .news-tools { gap: 7px; }
+  .news-tools input { flex-basis: 100%; }
+  .news-tools .seg-switch button { padding-inline: 7px; }
+  .recent-row { padding: 9px 12px; }
 }
-.issues-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); background: var(--surface); border: 1px solid var(--line-strong); border-top: 3px solid var(--accent); border-radius: var(--radius); }
-.lead { min-width: 0; padding: 20px 24px 20px; border-right: 1px solid var(--line); }
-.kicker { display: flex; flex-wrap: wrap; gap: 2px 12px; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
-.kicker b { color: var(--accent); font-weight: 800; }
-.lead h3 { margin: 8px 0 12px; font-size: 24px; font-weight: 800; line-height: 1.34; letter-spacing: -.015em; word-break: keep-all; overflow-wrap: anywhere; }
-.lead-stats { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 22px; color: var(--muted); font-size: 13px; }
-.lead-stats b { margin-right: 3px; color: var(--ink); font-size: 28px; font-weight: 800; letter-spacing: -.02em; }
-.lead-stats .lead-stocks { color: var(--brand); font-weight: 700; }
-.lead-digest { margin-top: 16px; padding: 12px 16px; background: var(--surface-2); border-left: 3px solid var(--brand); }
-.lead-claim { margin-bottom: 8px; font-size: 14.5px; font-weight: 700; line-height: 1.6; word-break: keep-all; }
-.lead-src { margin-top: 8px; color: var(--muted); font-size: 12px; }
-.lead-list { margin-top: 14px; }
-.lead-list li { padding: 6px 0; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.5; overflow-wrap: anywhere; }
-.lead-list .meta { margin-left: 8px; white-space: nowrap; }
-.lead-more { margin-top: 12px; padding: 7px 13px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--brand); font-size: 12.5px; font-weight: 700; }
-.lead-more:hover { border-color: var(--brand); }
-
-.rank { min-width: 0; }
-.rank li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 0 12px; align-items: start; padding: 12px 18px; border-bottom: 1px solid var(--line); }
-.rank li:last-child { border-bottom: 0; }
-.rank-no { padding-top: 1px; color: var(--muted); font-size: 15px; font-weight: 800; text-align: center; }
-.rank-title { display: block; font-size: 14px; font-weight: 700; line-height: 1.45; overflow-wrap: anywhere; }
-.rank .meta { margin-top: 2px; font-variant-numeric: tabular-nums; }
-.rank .meta b { color: var(--ink); font-weight: 600; }
-.bar { display: block; width: 100%; height: 4px; margin-top: 7px; }
-.bar .track { fill: var(--surface-3); }
-.bar .fill { fill: var(--brand); }
-.rank-more { padding: 3px 8px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--brand); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.rank-more:hover { border-color: var(--brand); }
-
 /* 해킹 사건 추이: 국내와 해외를 같은 눈금으로 나란히. 강도 대는 노랑(주목), 중은 파랑, 소는 회색. */
 .trend { margin-bottom: 26px; }
 .trend-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-left: auto; color: var(--muted); font-size: 12.5px; }
@@ -261,11 +238,6 @@ body.reading main { max-width: 1340px; margin: 0 auto; padding: 20px 22px 44px; 
 .tabs button { padding: 9px 16px; font-size: 15px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
 .tabs button:hover { color: var(--ink); }
 .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
-.tabs button small { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--muted); font-variant-numeric: tabular-nums; }
-
-.jump { display: none; gap: 16px; margin-bottom: 8px; font-size: 12.5px; }
-.jump a { color: var(--brand); font-weight: 700; }
-.news-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; }
 .panel { min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 .panel > header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 11px 16px; border-bottom: 1px solid var(--line-strong); }
 .panel > header h2 { font-size: 15px; font-weight: 800; white-space: nowrap; }
@@ -274,20 +246,15 @@ body.reading main { max-width: 1340px; margin: 0 auto; padding: 20px 22px 44px; 
 /* 기사 목록: 왼쪽에 시각, 오른쪽에 제목. 여러 매체가 다룬 사건은 왼쪽 선과 굵은 제목으로 구분한다. */
 .day { padding: 6px 16px; background: var(--surface-2); color: var(--muted); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--line); }
 .headline { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 0 10px; padding: 9px 16px 9px 13px; border-bottom: 1px solid var(--line); border-left: 3px solid transparent; }
-.headline.hot { border-left-color: var(--accent); }
 .headline .time { padding-top: 2px; color: var(--muted); font-size: 12px; }
 .headline a.title { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-.headline.hot a.title { font-weight: 800; }
 .headline .meta { margin-top: 1px; }
-.headline .cover { margin-left: 10px; color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
-.headline .stocks { margin-left: 10px; color: var(--brand); font-weight: 700; }
 .more { display: block; width: 100%; padding: 11px; color: var(--brand); font-weight: 700; font-size: 13px; }
 .more:hover { background: var(--surface-2); }
 .related { margin-top: 4px; font-size: 12.5px; }
 .related summary { color: var(--brand); cursor: pointer; width: fit-content; }
 .related ul { margin-top: 5px; padding-left: 10px; border-left: 2px solid var(--line-strong); }
 .related li { padding: 2px 0; line-height: 1.5; overflow-wrap: anywhere; }
-.related-all { margin-top: 5px; color: var(--brand); font-weight: 700; }
 .focus-bar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; padding: 9px 16px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-weight: 700; }
 .focus-bar button { color: var(--brand); font-weight: 700; }
 
@@ -408,10 +375,6 @@ body.app .table-wrap::-webkit-scrollbar { display:none; }
   .trend-grid { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 1100px) {
-  .issues-grid { grid-template-columns: minmax(0, 1fr); }
-  .lead { border-right: 0; border-bottom: 1px solid var(--line); }
-  .news-layout { grid-template-columns: minmax(0, 1fr); }
-  .jump { display: flex; }
 }
 @media (max-width: 860px) {
   .kpis { grid-template-columns: minmax(0, 1fr); }
@@ -439,14 +402,7 @@ body.app .table-wrap::-webkit-scrollbar { display:none; }
   .trend-cap { margin: 8px 12px 2px; }
   .heat-wrap { margin: 0 12px; }
   .heat th.hn, .heat tbody th.hn { min-width: 120px; max-width: 150px; }
-  .lead { padding: 14px 14px 16px; }
-  .lead h3 { font-size: 19.5px; }
-  .lead-stats b { font-size: 23px; }
-  .lead-digest { padding: 10px 12px; }
-  .rank li { padding: 11px 12px; gap: 0 10px; }
-  .rank li:nth-child(n+5) { display: none; }
   .tabs button { padding: 8px 10px; font-size: 13.5px; }
-  .tabs button small { display: block; margin-left: 0; }
   .headline { padding: 9px 12px 9px 9px; grid-template-columns: 38px minmax(0, 1fr); gap: 0 8px; }
   .note > summary { grid-template-columns: minmax(0, 1fr); padding: 11px 32px 11px 12px; }
   .note-date { grid-row: auto; }
@@ -456,12 +412,6 @@ body.app .table-wrap::-webkit-scrollbar { display:none; }
   .facts { grid-template-columns: minmax(0, 1fr); gap: 0; }
   .facts dd { margin-bottom: 5px; }
 }
-
-.inc-link { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: -12px 0 22px; padding: 11px 16px; background: var(--surface); border: 1px solid var(--line-strong); border-left: 3px solid var(--accent); border-radius: var(--radius); }
-.inc-link:hover { text-decoration: none; background: var(--surface-2); }
-.inc-link b { font-size: 14.5px; }
-.inc-link span { color: var(--muted); font-size: 12.5px; }
-.inc-link em { margin-left: auto; color: var(--brand); font-style: normal; font-weight: 700; font-size: 12.5px; }
 
 /* ---- 해킹 사건 페이지: 국내 노랑(accent), 해외 파랑(brand). 차트는 실제 폭으로 그려 글자가 줄지 않는다 ---- */
 main.inc { max-width: 1340px; margin: 0 auto; padding: 18px 22px 44px; }

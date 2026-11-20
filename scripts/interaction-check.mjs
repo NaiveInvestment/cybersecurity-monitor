@@ -83,7 +83,11 @@ async function open(path, { width = 1440, height = 1000, scheme = "light" } = {}
   await send("Page.navigate", { url: `${base}/${path}` });
   for (let attempt = 0; attempt < 60; attempt += 1) {
     await sleep(150);
-    const ready = await evaluate("document.readyState === 'complete' && (document.querySelector('.grid tbody tr, .lead, .note, .empty') !== null)").catch(() => false);
+    const ready = await evaluate(`document.readyState === "complete" && (
+      document.body.classList.contains("news-page")
+        ? document.querySelector("#status-text").textContent !== "불러오는 중"
+        : document.querySelector(".grid tbody tr, .note, .empty") !== null
+    )`).catch(() => false);
     if (ready) return;
   }
   throw new Error(`${path}: 화면이 준비되지 않음`);
@@ -264,26 +268,18 @@ try {
   await click('#view-switch [data-view="GL"]');
   await shot("index-mobile-dark-overseas");
 
-  // ---- 뉴스 페이지 ----
-  await open("news.html");
-  const NEWS = `(() => ({
-    lead: document.querySelector('.lead h3')?.textContent || '', leadSources: Number(document.querySelector('.lead-stats b')?.textContent),
-    leadCount: Number(document.querySelectorAll('.lead-stats b')[1]?.textContent), leadDigest: document.querySelector('.lead-digest') !== null,
-    ranks: document.querySelectorAll('.rank li').length, notes: document.querySelectorAll('.note').length,
-    headlines: document.querySelectorAll('.headline').length, tab: document.querySelector('#tabs [aria-selected="true"]').dataset.tab,
-    region: document.querySelector('#region-switch [aria-pressed="true"]').dataset.region,
-    leadRegion: document.querySelector('.kicker span')?.textContent,
-    countries: [...new Set([...document.querySelectorAll('.note-head em')].map((el) => el.textContent.trim()))],
-    related: document.querySelectorAll('#feed details.related').length, focus: document.querySelector('.focus-bar') !== null,
+  // ---- 뉴스 보기와 검색 ----
+  const readNews = `(() => ({
+    view: document.querySelector(".news-tabs [aria-selected=true]").dataset.view,
+    panels: [...document.querySelectorAll("main [role=tabpanel]:not([hidden])")].map(panel => panel.id),
+    heads: [...document.querySelectorAll("#feed .headline .meta")].map(el => el.textContent),
+    notes: document.querySelectorAll("#view-policy .note").length,
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
-    feedTop: Math.round(document.querySelector('#feed-title').getBoundingClientRect().top + window.scrollY),
-    theme: document.documentElement.dataset.theme,
   }))()`;
-  let page = await evaluate(NEWS);
-  const recentLinks = "[...document.querySelectorAll('#recent-incidents li a')].map((a) => a.href).join(' ')";
-  const spotlightLinks = await evaluate(recentLinks);
-  check(await evaluate("document.querySelector('main > section:first-child h2')?.id === 'recent-title'"), "24시간 보도가 뉴스 첫 구역에 없음");
-  check(await evaluate("[...document.querySelectorAll('.recent-row time')].every(t => { const age = Date.now() - Date.parse(t.dateTime); return age >= 0 && age <= 86460000; })"), "최근 보도에 기간 밖 발행 시각이 포함됨");
+  await open("news.html");
+  let newsPage = await evaluate(readNews);
+  check(newsPage.view === "recent" && newsPage.panels.join() === "view-recent", "새 사고가 기본 보기로 열리지 않음");
+  check(!newsPage.overflow && await evaluate("!document.querySelector('#issues')"), "새 사고 화면에 중복 주요 이슈 또는 가로 넘침");
   const recentCoverage = await evaluate(`(async () => {
     const { recentIncidentStories } = await import("./lib/recent-incidents.js");
     const { items } = await (await fetch("data/news.json")).json();
@@ -292,133 +288,78 @@ try {
       .sort((a,b) => Date.parse(b.first) - Date.parse(a.first)).map(story => story.items.at(-1).u);
     const visible = [...document.querySelectorAll(".recent-new .recent-title")]
       .filter(link => link.getClientRects().length).map(link => link.href);
-    return { expected, visible, followUps: stories.filter(story => story.followUp).length,
-      renderedFollowUps: document.querySelectorAll(".recent-followups .recent-title").length };
+    return { expected, visible, followUps: stories.filter(story => story.followUp).length };
   })()`);
-  check(JSON.stringify(recentCoverage.expected) === JSON.stringify(recentCoverage.visible), "첫 보도 목록이 발행 순서대로 모두 표시되지 않음");
-  check(recentCoverage.followUps === recentCoverage.renderedFollowUps, "후속 보도 목록 불일치");
+  check(JSON.stringify(recentCoverage.expected) === JSON.stringify(recentCoverage.visible), "새 사고 일부가 감춰짐");
   if (recentCoverage.followUps) {
     await click(".recent-followups > summary");
-    check(await evaluate("document.querySelector('.recent-followups[open] .recent-title').getClientRects().length > 0"), "후속 보도 펼치기 실패");
+    check(await evaluate("document.querySelectorAll('.recent-followups[open] .recent-title').length") === recentCoverage.followUps, "후속 보도 펼치기 실패");
     await click(".recent-followups > summary");
   }
-  check(page.theme === "dark", "기본 테마가 다크가 아님");
-  check(page.region === "KR" && page.tab === "incident" && page.leadRegion === "국내", "뉴스 첫 화면에서 국내 주요 이슈가 선택되지 않음");
-  check(page.countries.length === 1 && page.countries[0] === "한국", `뉴스 첫 화면 정리 국가 ${page.countries.join(",")}`);
-  check(page.headlines > 0 && await evaluate("[...document.querySelectorAll('.headline p.meta')].every((el) => el.textContent.includes('국내'))"), "뉴스 첫 화면에 국내 기사만 표시되지 않음");
-  check(!page.overflow, "뉴스 페이지 가로 넘침");
-  await shot("news-desktop-dark");
-  await click('#region-switch [data-region="ALL"]');
-  page = await evaluate(NEWS);
-  check(page.region === "ALL" && page.countries.includes("한국") && page.countries.length > 1, `전체 필터 뒤 국가 ${page.countries.join(",")}`);
-  check(page.lead.length > 5 && page.leadSources >= 2 && page.ranks >= 3, `주요 이슈 구성: 대표 ${page.leadSources}개 매체, 순위 ${page.ranks}건`);
-  check(page.tab === "incident" && page.notes >= 10 && page.headlines >= 15, `뉴스 전체 지역 정리 ${page.notes}건, 기사 ${page.headlines}건`);
-  const rankSources = await evaluate("[...document.querySelectorAll('.rank .meta')].map((el) => Number((/(\\d+)개 매체/.exec(el.textContent) || [])[1]))");
-  check(rankSources.every((value, index) => (index === 0 ? page.leadSources >= value : rankSources[index - 1] >= value)), `주요 이슈가 매체 수 순이 아님: ${page.leadSources}, ${rankSources.join(",")}`);
-  const noteDates = await evaluate("[...document.querySelectorAll('.note-date')].map((el) => el.firstChild.textContent)");
-  check(noteDates.every((date, index) => index === 0 || noteDates[index - 1] >= date), "정리가 날짜 내림차순이 아님");
-  check(await evaluate("document.querySelector('.note').open && !document.querySelectorAll('.note')[1].open"), "정리의 첫 건만 펼쳐져 있어야 함");
-  await evaluate("document.querySelectorAll('.note')[1].querySelector('summary').click()");
-  check(await evaluate("document.querySelectorAll('.note')[1].open && document.querySelectorAll('.note')[1].querySelectorAll('.facts dt').length >= 2"), "정리 펼치기 실패");
-  check(page.related >= 1, "같은 사건 묶음이 없음");
-  // 주요 이슈의 관련 기사를 열었다 돌아와도 기사 목록의 조건은 유지된다.
-  await click('#tabs [data-tab="policy"]');
-  await click('#period-switch [data-period="7"]');
-  const searchTerm = "사이버보안모니터_일치하지않는검증검색어";
-  await type("#search", searchTerm);
-  check(await evaluate(recentLinks) === spotlightLinks, "하단 검색 또는 범주가 국내외 24시간 보도를 변경함");
-  check(await evaluate("[...document.querySelectorAll('#tabs small')].every((el) => el.textContent === '0')"), "검색어가 범주별 기사 건수에 반영되지 않음");
-  await click(".lead-more");
-  page = await evaluate(NEWS);
-  check(page.focus && page.headlines === page.leadCount, `사건 모아 보기: 기사 ${page.headlines}건, 기대 ${page.leadCount}건`);
-  check(await evaluate("document.activeElement.id === 'feed-title' && document.activeElement.textContent === '관련 기사'"), "모아보기로 이동했을 때 제목 포커스 누락");
-  await shot("news-desktop-focus");
-  await click("#focus-clear");
-  page = await evaluate(NEWS);
-  check(!page.focus && page.tab === "policy" && page.headlines === 0, "기사 목록의 범주와 검색 결과가 보존되지 않음");
-  check(await evaluate("document.querySelector('#period-switch [aria-pressed=true]').dataset.period === '7'") &&
-    (await evaluate("document.querySelector('#search').value")) === searchTerm, "기사 목록의 기간과 검색어가 보존되지 않음");
-  await click('#tabs [data-tab="incident"]');
-  await click('#period-switch [data-period="30"]');
-  await type("#search", "");
-
-  await click('#region-switch [data-region="KR"]');
-  page = await evaluate(NEWS);
-  check(page.countries.length === 1 && page.countries[0] === "한국", `국내 필터 뒤 국가 ${page.countries.join(",")}`);
-  check(await evaluate("[...document.querySelectorAll('.headline .meta')].filter((el) => !el.closest('.related')).every((el) => el.textContent.includes('국내'))"), "국내 필터 뒤 해외 기사가 남음");
-  check(await evaluate("document.querySelector('.kicker').textContent.includes('국내')"), "국내 필터 뒤 주요 이슈가 국내가 아님");
+  if (await evaluate("Boolean(document.querySelector('.recent-new .related summary'))")) {
+    await click(".recent-new .related summary");
+    check(await evaluate("document.querySelector('.recent-new .related[open] a').getClientRects().length > 0"), "다른 매체 원문 펼치기 실패");
+    await click(".recent-new .related summary");
+  }
+  await shot("news-desktop-recent");
+  await click("#tab-search");
+  newsPage = await evaluate(readNews);
+  check(newsPage.view === "search" && newsPage.panels.join() === "view-search" && newsPage.heads.length > 0
+    && newsPage.heads.every(text => text.includes(", 국내,")), "기사 검색의 국내 기본값 또는 패널 표시 오류");
   await click('#region-switch [data-region="GL"]');
-  page = await evaluate(NEWS);
-  check(await evaluate(recentLinks) === spotlightLinks, "해외 필터가 국내외 24시간 보도를 변경함");
-  check(!page.countries.includes("한국") && page.notes >= 4, `해외 필터 뒤 정리 ${page.notes}건`);
-  check(await evaluate("document.querySelector('.kicker').textContent.includes('해외')"), "해외 필터 뒤 주요 이슈가 해외가 아님");
-  const overseasStory = await evaluate("({ id: document.querySelector('.lead-more').dataset.focus, category: document.querySelector('.kicker b').textContent })");
-  await click('#region-switch [data-region="ALL"]');
+  newsPage = await evaluate(readNews);
+  check(newsPage.heads.length > 0 && newsPage.heads.every(text => text.includes(", 해외,")), "해외 기사 검색 결과 오류");
+  await click('#period-switch [data-period="7"]');
+  check(await evaluate("[...document.querySelectorAll('#feed time')].every(t => Date.now() - Date.parse(t.dateTime) <= 7 * 86400000)"), "7일 기사 필터 오류");
+  await type("#search", "사이버보안모니터_일치하지않는검색어");
+  check((await evaluate(readNews)).heads.length === 0, "뉴스 검색 빈 결과 오류");
+  await click("#tab-recent");
+  check(await evaluate("document.querySelectorAll('.recent-new .recent-title').length") === recentCoverage.expected.length, "검색 조건이 새 사고에 영향을 줌");
+  await evaluate("document.querySelector('#tab-recent').dispatchEvent(new KeyboardEvent('keydown',{key:'End'}))");
+  newsPage = await evaluate(readNews);
+  check(newsPage.view === "policy" && newsPage.panels.join() === "view-policy" && newsPage.notes > 0, "키보드 탭 전환 또는 정책 정리 오류");
+  check(await evaluate("Boolean(document.querySelector('#digest .note[open] .src a'))"), "정책 출처가 표시되지 않음");
+  await click('#policy-switch [data-topic="spending"]');
+  check(await evaluate("document.querySelector('#digest-title').textContent.startsWith('기업 대응')"), "기업 대응 정리 전환 오류");
+  await shot("news-desktop-policy");
+  await click("#policy-to-search");
+  newsPage = await evaluate(readNews);
+  check(newsPage.view === "search" && newsPage.heads.length > 0 && newsPage.heads.every(text => text.includes("기업 대응과 지출")), "정책 탭에서 기업 대응 기사로 진입 실패");
+  await shot("news-desktop-search");
 
-  await click('#tabs [data-tab="policy"]');
-  const tones = await evaluate("Object.fromEntries([...document.querySelectorAll('.note .state')].map((el) => [el.textContent, el.dataset.tone]))");
-  check(tones["시행 예정"] === "plan" && tones["제소"] === "plan" && tones["시행"] === "done", `상태 색 ${JSON.stringify(tones)}`);
-  check(await evaluate("[...document.querySelectorAll('.note-date i')].some((el) => el.textContent === '시행')"), "정리 날짜 의미 표시 없음");
-  for (const tab of ["policy", "spending"]) {
-    await click(`#tabs [data-tab="${tab}"]`);
-    page = await evaluate(NEWS);
-    check(page.tab === tab && page.notes >= 8 && page.headlines >= 5, `${tab} 탭 정리 ${page.notes}건, 기사 ${page.headlines}건`);
+  const english = await evaluate(`(async () => (await (await fetch("data/news.json")).json()).items.find(item =>
+    item.lang === "en" && item.tKo && !item.t.includes("#") && item.tKo.length > 15))()`);
+  if (english) {
+    for (const title of [english.t, english.tKo]) {
+      await open(`news.html?q=${encodeURIComponent(title)}`);
+      check(await evaluate(`(() => { const a = [...document.querySelectorAll("#feed a.title")].find(a => a.href === ${JSON.stringify(english.u)});
+        return a?.getAttribute("hreflang") === "en" && a?.title === ${JSON.stringify(english.t)}; })()`), "한국어 또는 영어 원제로 들어간 검색이 원문을 보존하지 않음");
+    }
   }
-  await shot("news-desktop-spending");
-  const sevenDays = await evaluate("(() => { document.querySelector('#period-switch [data-period=\"7\"]').click(); return document.querySelectorAll('.headline').length; })()");
-  const allDays = await evaluate("(() => { document.querySelector('#period-switch [data-period=\"0\"]').click(); return document.querySelectorAll('.headline').length; })()");
-  check(sevenDays <= allDays, "기간 필터 결과가 어긋남");
-  await type("#search", "KT");
-  page = await evaluate(NEWS);
-  check(page.notes >= 1 && page.notes <= 6, `검색 뒤 정리 ${page.notes}건`);
-
   await open(`news.html?q=${encodeURIComponent("SK텔레콤")}`);
-  page = await evaluate(NEWS);
-  check(page.notes >= 1 && (await evaluate("document.querySelector('#search').value")) === "SK텔레콤", "검색어 진입 실패");
-  check(await evaluate("document.querySelector('#period-switch [aria-pressed=\"true\"]').dataset.period") === "0", "검색어 진입 시 기간이 전체로 바뀌지 않음");
-
-  const overseasStock = "팔로알토 네트웍스";
-  await open(`news.html?q=${encodeURIComponent(overseasStock)}`);
-  await click('#tabs [data-tab="spending"]');
-  page = await evaluate(NEWS);
-  check(page.region === "ALL" && page.countries.includes("미국") && await evaluate("document.querySelector('#search').value") === overseasStock, "해외 종목 뉴스 검색어 진입 실패");
-
-  await open(`news.html?story=${encodeURIComponent(overseasStory.id)}`);
-  page = await evaluate(NEWS);
-  check(page.region === "GL" && page.focus && page.headlines > 1, "해외 이슈 링크에서 관련 기사 열기 실패");
-  check((await evaluate("document.querySelector('#tabs [aria-selected=true]').firstChild.textContent")) === overseasStory.category, "이슈 링크에서 범주 선택 실패");
-  await open("news.html?story=unknown-test-story");
-  page = await evaluate(NEWS);
-  check(page.region === "KR" && !page.focus && page.tab === "incident", "없는 이슈 링크에서 국내 기본 뉴스로 돌아가지 않음");
-  const expiredStory = await evaluate(`(async () => {
-    const { items } = await (await fetch('data/news.json')).json();
-    const key = (item) => item.g || item.id;
-    const cutoff = Date.now() - 72 * 3600000;
-    const recent = new Set(items.filter((item) => Date.parse(item.d) >= cutoff).map(key));
-    return items.filter((item) => item.r === 'GL').map(key).find((id) => !recent.has(id)) ?? null;
-  })()`);
-  if (expiredStory) {
-    await open(`news.html?story=${encodeURIComponent(expiredStory)}`);
-    page = await evaluate(NEWS);
-    check(page.region === "KR" && !page.focus && page.tab === "incident", "기간이 지난 이슈 링크에서 국내 기본 뉴스로 돌아가지 않음");
+  check((await evaluate(readNews)).view === "search" && await evaluate("document.querySelector('#search').value === 'SK텔레콤'"), "종목에서 뉴스 검색 진입 실패");
+  const issue = await evaluate(`(async () => (await (await fetch("data/issue-banner.json")).json())
+    .find(issue => Date.parse(issue.last) >= Date.now() - 72*3600000))()`);
+  if (issue) {
+    await open(`news.html?story=${encodeURIComponent(issue.id)}`);
+    check((await evaluate(readNews)).heads.length === issue.count && await evaluate("document.querySelector('#feed-title').textContent === '관련 기사'"), "첫 화면 주요 이슈의 관련 기사 링크 오류");
+    await click("#focus-clear");
+    check(await evaluate("document.querySelector('#feed-title').textContent === '기사 목록'"), "관련 기사에서 일반 목록으로 복귀 실패");
   }
+  await open("news.html?story=unknown-test-story");
+  check((await evaluate(readNews)).view === "recent", "없는 이슈 링크가 새 사고로 돌아오지 않음");
 
   await open(`index.html?q=${encodeURIComponent("팔로알토")}`);
   table = await evaluate(TABLE);
   check(table.count === 1 && table.first === "팔로알토 네트웍스", `종목 검색어 진입 결과 ${table.count} ${table.first}`);
 
   await open("news.html", { width: 390, height: 844, scheme: "light" });
-  page = await evaluate(NEWS);
-  check(!page.overflow, "모바일 뉴스 가로 넘침");
-  check(page.region === "KR" && page.lead.length > 5 && page.leadRegion === "국내", "모바일 뉴스 첫 화면에서 국내 주요 이슈가 선택되지 않음");
-  check(await evaluate("getComputedStyle(document.querySelector('.jump')).display") === "flex", "모바일 바로가기 없음");
-  await click('#region-switch [data-region="ALL"]');
-  await click('#tabs [data-tab="policy"]');
-  page = await evaluate(NEWS);
-  check(page.notes === 3 && await evaluate("document.querySelector('#more-digest') !== null"), `모바일 정리 미리보기 ${page.notes}건`);
-  await shot("news-mobile-dark-policy");
-  await click("#more-digest");
-  check((await evaluate(NEWS)).notes >= 10, "정리 더 보기 실패");
+  for (const view of ["recent", "search", "policy"]) {
+    await click(`#tab-${view}`);
+    newsPage = await evaluate(readNews);
+    check(!newsPage.overflow && newsPage.panels.join() === `view-${view}`, `모바일 ${view} 구역 표시 또는 가로 넘침`);
+    await shot(`news-mobile-${view}`);
+  }
 
   // Browser-level source transition simulation. No live market prices are fabricated on the site.
   const fixture=JSON.parse(await readFile(join(root,'data','snapshot.json'),'utf8'));
