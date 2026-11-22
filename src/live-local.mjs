@@ -6,6 +6,7 @@
 import { fetchRealtime, fetchIndexRealtime } from "./naver.mjs";
 import { round } from "../public/lib/calc.js";
 import { krxDate } from "../public/lib/sector-index.js";
+import { quoteMarket } from "../public/lib/quote-status.js";
 
 // 네이버 기준 시세(base)에 키움 체결(tick)을 덧씌운다. 체결이 더 새로울 때만 쓰고,
 // 등락률은 네이버 값에서 되짚은 전일 종가 대비로 다시 계산한다. 거래대금과 장 상태는 네이버 값을 유지한다.
@@ -42,6 +43,7 @@ export class LocalLive {
     this.idx = {};
     this.rev = 0;
     this.naver = { at: null, error: null };
+    this.marketSuccessAt = {};
     this.feed = { status: "disconnected", connectedAt: null, lastAt: null, count: 0 };
   }
 
@@ -59,17 +61,26 @@ export class LocalLive {
   }
 
   async poll() {
+    if (this.polling) return;
+    this.polling = true;
+    const absorb = (stocks, quotes) => {
+      const collectedAt = new Date().toISOString();
+      for (const stock of stocks) {
+        const quote = quotes[stock.code];
+        if (!quote || !(quote.p > 0) || !Number.isFinite(Date.parse(quote.at))) continue;
+        this.base[stock.id] = quote;
+        this.marketSuccessAt[quoteMarket(stock)] = collectedAt;
+      }
+      this.rev += 1;
+    };
     const jobs = [
-      fetchRealtime("KR", this.domestic.map((stock) => stock.code)).then((quotes) => {
-        for (const stock of this.domestic) if (quotes[stock.code]) this.base[stock.id] = quotes[stock.code];
-      }),
-      fetchRealtime("GL", this.overseas.map((stock) => stock.code)).then((quotes) => {
-        for (const stock of this.overseas) if (quotes[stock.code]) this.base[stock.id] = quotes[stock.code];
-      }),
+      fetchRealtime("KR", this.domestic.map((stock) => stock.code)).then((quotes) => absorb(this.domestic, quotes)),
+      fetchRealtime("GL", this.overseas.map((stock) => stock.code)).then((quotes) => absorb(this.overseas, quotes)),
       fetchIndexRealtime("KR", ["KOSPI", "KOSDAQ"]).then((quotes) => { Object.assign(this.idx, quotes); }),
       fetchIndexRealtime("GL", [".IXIC"]).then((quotes) => { if (quotes[".IXIC"]) this.idx.IXIC = quotes[".IXIC"]; }),
     ];
     const results = await Promise.allSettled(jobs);
+    this.polling = false;
     const failed = results.filter((result) => result.status === "rejected");
     this.naver.error = failed.length ? failed[0].reason.message : null;
     if (failed.length === 0) {
@@ -156,17 +167,22 @@ export class LocalLive {
   // 화면이 읽는 live.json. 배포본의 live 브랜치 파일과 같은 모양이다.
   snapshot() {
     const q = {};
+    const marketSuccessAt = { ...this.marketSuccessAt };
     const now = Date.now();
     let fromKiwoom = 0;
     for (const stock of this.stocks) {
       const quote = stock.kind === "KR" ? this.domesticQuote(stock.id, now) : this.base[stock.id];
       if (!quote) continue;
-      if (quote.src === "kiwoom") fromKiwoom += 1;
+      if (quote.src === "kiwoom") {
+        fromKiwoom += 1;
+        if (!marketSuccessAt.KR || Date.parse(quote.at) > Date.parse(marketSuccessAt.KR)) marketSuccessAt.KR = quote.at;
+      }
       q[stock.id] = [quote.p, quote.chg, quote.cap, quote.capKrw, quote.tv, quote.at, quote.st, quote.src || "naver"];
     }
     const seconds = Math.round(this.pollMs / 1000);
     return {
       asOf: new Date().toISOString(),
+      marketSuccessAt,
       rev: this.rev,
       source: this.feedActive() && fromKiwoom > 0 ? `국내 키움 실시간, 해외 네이버 ${seconds}초` : `네이버 금융 ${seconds}초 갱신`,
       feed: { ...this.feed, active: this.feedActive(), stocks: fromKiwoom },

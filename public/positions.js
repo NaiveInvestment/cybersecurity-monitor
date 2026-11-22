@@ -1,5 +1,6 @@
 import { esc, fmtKst, initTheme, loadJson, signClass } from "./common.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
+import { filingTtmWon } from "./lib/financials.js";
 
 const byId = (id) => document.getElementById("position-" + id);
 const search = byId("search");
@@ -40,11 +41,6 @@ let sectors;
 let sectorReports;
 let stocks;
 let pendingQuotes = false;
-
-function ttm({ priorYear, currentYtd, priorYtd } = {}) {
-  return [priorYear, currentYtd, priorYtd].every(Number.isSafeInteger)
-    ? priorYear + currentYtd - priorYtd : null;
-}
 
 function quarterOf(period) {
   const matched = /^(\d{4})-(03|06|09|12)$/.exec(period ?? "");
@@ -156,9 +152,9 @@ function stockRow(stock, sector) {
     <td class="position-number position-cap" data-cap-krw="${quote?.cap ?? ""}">
       <span class="position-mobile-label">시가총액</span><span title="${esc(quoteLabel(quote))}">${amount(quote?.cap)}</span>
     </td>
-    ${financialCell("revenue", "매출", ttm(finance.rev))}
-    ${financialCell("profit", "영업이익", ttm(finance.op))}
-    ${financialCell("net", "순이익", ttm(finance.ni), basis + " " + netBasis)}
+    ${financialCell("revenue", "매출", filingTtmWon(finance.rev))}
+    ${financialCell("profit", "영업이익", filingTtmWon(finance.op))}
+    ${financialCell("net", "순이익", filingTtmWon(finance.ni), basis + " " + netBasis)}
   </tr>
   <tr class="position-details-row" id="position-details-${id}"${isOpen ? "" : " hidden"}><td colspan="6">
     <div class="position-details">

@@ -53,6 +53,9 @@ jobs:
           if git ls-remote --exit-code --heads origin data >/dev/null; then
             git fetch --depth=1 origin data
             git show FETCH_HEAD:news.json > state/news.json
+            if git cat-file -e FETCH_HEAD:news-archive 2>/dev/null; then
+              git archive FETCH_HEAD news-archive | tar -x -C state
+            fi
             git show FETCH_HEAD:snapshot.json > state/snapshot.json || rm -f state/snapshot.json
             git show FETCH_HEAD:incident-log.json > state/incident-log.json || rm -f state/incident-log.json
             git show FETCH_HEAD:ransomware-days.json > state/ransomware-days.json || rm -f state/ransomware-days.json

@@ -6,6 +6,7 @@ import { loadUniverse, ROOT } from "../src/universe.mjs";
 import { parseFeed, decodeBody, canonicalUrl, splitPublisher, classify, buildStockMatcher, itemId, mergeItems, assignGroups } from "../src/news.mjs";
 import { updateIncidentLog, publicIncidentLog, compileEntities } from "../src/incident-log.mjs";
 import { translateHeadlines } from "../src/headline-translations.mjs";
+import { archiveArticles, publishSearchableNews } from "../src/news-archive.mjs";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -67,13 +68,16 @@ async function main() {
   const okFeeds = report.filter((row) => row.ok).length;
   if (okFeeds === 0) throw new Error("모든 피드 수집 실패. 직전 보관분을 유지한다.");
 
-  const { items, added } = mergeItems(previous.items || [], incoming);
+  const { items: retained, added } = mergeItems(previous.items || [], incoming);
+  const items = retained.slice(0, 3000);
   const groupCount = assignGroups(items);
-  const { english, translated } = await translateHeadlines(items, { previous: previous.items });
+  const { english, translated } = await translateHeadlines(retained, { previous: previous.items });
   console.log(`한국어 제목 ${translated}/${english}건`);
   const output = { updatedAt: new Date().toISOString(), feeds: report, items };
+  const archiveDir = join(dirname(statePath), "news-archive");
+  archiveArticles(archiveDir, retained);
   mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "news.json"), JSON.stringify(output));
+  publishSearchableNews(archiveDir, outDir, output);
   mkdirSync(join(statePath, ".."), { recursive: true });
   writeFileSync(statePath, JSON.stringify(output));
 

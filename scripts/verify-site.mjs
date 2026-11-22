@@ -99,7 +99,8 @@ if (!failures.length) {
     const text = readFileSync(file, "utf8");
     const name = relative(dir, file);
     // 수집한 기사 제목은 원문 그대로 두므로 news.json과 사건 기록 incidents.json은 금지 문자 검사에서 뺀다.
-    if (!name.endsWith("news.json") && !name.endsWith("issue-banner.json") && !name.endsWith("incidents.json") && !name.endsWith("incident-events.json")) {
+    const archiveHeadlines = /^data[\\/]news-archive[\\/]\d{4}-\d{2}-\d{2}\.json$/.test(name);
+    if (!archiveHeadlines && !name.endsWith("news.json") && !name.endsWith("issue-banner.json") && !name.endsWith("incidents.json") && !name.endsWith("incident-events.json")) {
       check(!/[·‧・]/.test(text), `${name}: 가운뎃점`);
       check(!/[①-⑳]/.test(text), `${name}: 원문자 숫자`);
     }

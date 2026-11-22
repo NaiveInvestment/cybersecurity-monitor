@@ -141,3 +141,14 @@ test("uses prior reports for the same incident, and keeps a new incident at the 
     ["boundary", false, undefined],
   ]);
 });
+
+test("피해 기관 별칭과 사건 정황으로 교육청의 같은 보도만 묶는다", () => {
+  const items = [
+    article("a", "경기교육청, 개인정보 유출…교원 158명 정보"),
+    article("b", "사교육업체 계약 비위 내용까지…경기도교육청, 교원 158명 개인정보 유출"),
+    article("c", "경기도교육청, 교원 158명 개인정보 유출…재발 방지 약속"),
+    article("other", "경기도교육청, 학생 정보 유출", { g: "a" }),
+  ];
+  const stories = recentIncidentStories(items, now);
+  assert.deepEqual(stories.map(s => [s.count, s.sources]).sort(), [[1, 1], [3, 3]]);
+});

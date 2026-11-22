@@ -172,6 +172,22 @@ try {
   check(['매출','영업이익','지배순이익','P/E','P/B','ROE'].every(m=>timeline.groups.includes(m))&&timeline.values===30,'실적과 밸류 전체 동시 표시 실패');
   const summary=await evaluate("({keys:[...document.querySelectorAll('.grid tbody tr:first-child .ttm-value')].map(e=>e.dataset.summary),headers:[...document.querySelectorAll('.grid .cols th')].map(e=>e.textContent),right:document.querySelector('.grid .cols th.ttm-summary:last-of-type')?.getBoundingClientRect().right})");
   check(JSON.stringify(summary.keys)===JSON.stringify(['revTtm','opTtm','niTtm','psr','per']),'TTM 요약 다섯 지표 순서 오류');
+  const filings = JSON.parse(await readFile(join(root, 'data', 'positions.json'), 'utf8'));
+  const stockRows = await evaluate(`Object.fromEntries([...document.querySelectorAll('.grid tbody tr')].map(row => [
+    row.querySelector('.stock').textContent,
+    [...row.querySelectorAll('.ttm-value')].map(cell => ({ text: cell.textContent, title: cell.title }))
+  ]))`);
+  for (const { name, finance } of filings.stocks) {
+    for (const [i, key] of ['rev', 'op', 'ni'].entries()) {
+      const line = finance[key];
+      const complete = [line?.priorYear, line?.currentYtd, line?.priorYtd].every(Number.isSafeInteger);
+      const expected = complete
+        ? ((line.priorYear + line.currentYtd - line.priorYtd) / 1e8).toLocaleString('ko-KR', { maximumFractionDigits: 1 })
+        : '-';
+      const cell = stockRows[name]?.[i];
+      check(cell?.text === expected && cell.title.includes(filings.period), `${name} ${key} 공시 TTM 불일치`);
+    }
+  }
   check(await evaluate("[...document.querySelectorAll('.grid .ttm-summary')].every(e=>getComputedStyle(e).textAlign==='center')"),'TTM 제목과 수치 가운데 정렬 실패');
   check(await evaluate("[...document.querySelectorAll('.grid tbody .ttm-value:not(.ttm-missing)')].every(e=>getComputedStyle(e).textAlign==='right')"),'TTM 숫자 자릿수 정렬 실패');
   check(await evaluate("[...document.querySelectorAll('.grid tbody .ttm-ratio:not(.ttm-missing)')].every(e=>/\\.\\d$/.test(e.textContent))"),'PSR/PER 소수점 정렬 실패');

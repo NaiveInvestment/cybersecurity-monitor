@@ -4,11 +4,14 @@ import { groupStories, topIssues } from "./lib/issues.js";
 import { recentIncidentStories, incidentUpdate } from "./lib/recent-incidents.js";
 import { majorIncidents } from "./lib/major-incidents.js";
 import { fmtCount, fmtKrw } from "./lib/incident-metrics.js";
+import { searchArchive } from "./lib/news-search.js";
 
 const PAGE = 40;
 const state = { view: "search", category: "all", region: "KR", period: 30, query: "", shown: PAGE, focus: null, topic: "policy" };
 let cards = [];
 let news = { items: [], updatedAt: null };
+let searchResult = null;
+const archiveCache = new Map();
 let names = {};
 let segments = {};
 
@@ -36,9 +39,20 @@ function filteredBriefs() {
       stockNames(card.tickers || [])].join(" ")));
 }
 
+function prepareSearch() {
+  if (searchResult?.file === news && searchResult.period === state.period) return searchResult.ready;
+  const result = { file: news, period: state.period, items: news.items, pending: true, failed: 0 };
+  searchResult = result;
+  result.ready = searchArchive(news, state.period, loadJson, archiveCache).then(data => {
+    Object.assign(result, data, { pending: false });
+    if (searchResult === result && state.view === "search") renderFeed();
+  });
+  return result.ready;
+}
+
 function filteredItems() {
   const cutoff = state.period ? Date.now() - state.period * 86400000 : 0;
-  return news.items.filter((item) => (state.category === "all" || item.c === state.category)
+  return searchResult.items.filter((item) => (state.category === "all" || item.c === state.category)
     && inRegion(item.r) && Date.parse(item.d) >= cutoff
     && matches(`${item.t} ${item.tKo || ""} ${item.s} ${stockNames(item.k || [])}`));
 }
@@ -132,6 +146,7 @@ function watchIncidentStreams(file, events) {
       news = file;
       $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
       paint();
+      if (state.view === "search") renderFeed();
     } catch {
       // 수집본이 잠시 응답하지 않으면 마지막 수집본에서도 지난 기사는 계속 만료한다.
     } finally {
@@ -152,10 +167,15 @@ function renderFeed() {
     $("#feed").innerHTML = briefList(briefs);
     return;
   }
+  if (!focus) prepareSearch();
   const items = focus?.items ?? filteredItems();
   const visible = focus ? items : items.slice(0, state.shown);
   $("#feed-title").textContent = focus ? "관련 기사" : "기사 목록";
   $("#feed-sub").textContent = `${items.length.toLocaleString("ko-KR")}건`;
+  if (!focus) {
+    $("#feed-sub").textContent += searchResult.pending ? ", 보관 기사 조회 중" : `, ${searchResult.coverage}`;
+    if (searchResult.failed) $("#feed-sub").textContent += `, ${searchResult.failed}일분 조회 실패`;
+  }
   let day = "";
   const links = visible.map((item) => {
     const date = kstDate(item.d);
@@ -169,7 +189,8 @@ function renderFeed() {
   const back = focus ? '<p class="focus-bar"><button type="button" id="focus-clear">기사 목록으로 돌아가기</button></p>' : "";
   const more = items.length > visible.length
     ? `<button type="button" class="more" id="more">기사 ${items.length - visible.length}건 더 보기</button>` : "";
-  $("#feed").innerHTML = back + (links || '<p class="empty">조건에 맞는 기사가 없습니다.</p>') + more;
+  const retry = !focus && searchResult.failed ? '<button type="button" class="more" id="archive-retry">보관 기사 다시 조회</button>' : "";
+  $("#feed").innerHTML = back + (links || '<p class="empty">조건에 맞는 기사가 없습니다.</p>') + more + retry;
 }
 
 function briefList(list) {
@@ -275,6 +296,7 @@ function bind() {
     $("#search").focus();
   });
   $("#feed").addEventListener("click", (event) => {
+    if (event.target.id === "archive-retry") { searchResult = null; renderFeed(); }
     if (event.target.id === "more") { state.shown += PAGE; renderFeed(); }
     if (event.target.id === "focus-clear") {
       state.focus = null;
@@ -315,6 +337,7 @@ async function main() {
     Object.assign(state, { view: "search", region: linkedStory.r, category: linkedStory.c, focus: linkedStory });
   } else if (query) {
     Object.assign(state, { view: "search", query, region: "ALL", period: 0 });
+    await prepareSearch();
     if (!filteredItems().length && filteredBriefs().length) state.category = "briefs";
   }
   selectSearchFilters();

@@ -1,8 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import { filingSummary, filingTtmWon } from '../public/lib/financials.js';
+import { valuation } from '../public/lib/calc.js';
 import {timelinePeriods,timelineValues,trendSvg,timelineNumber} from '../public/lib/financial-timeline.js';
 const data=JSON.parse(readFileSync(new URL('../data/financials.json',import.meta.url)));
+test('domestic TTM and multiples use the same filing, including an incomplete or loss-making period', () => {
+  const line = { priorYear: 100e8, currentYtd: 27e8, priorYtd: 30e8 };
+  const filing = { basis: 'CFS', rev: line, ni: { priorYear: 2e8, currentYtd: -3e8, priorYtd: 0, scope: 'parent' } };
+  const metrics = filingSummary(filing);
+  assert.equal(filingTtmWon(line), 97e8);
+  assert.deepEqual(metrics, { revTtm: 97, opTtm: null, niTtm: -1, opm: null, netBasis: '연결 지배주주 순이익' });
+  assert.deepEqual(valuation(194, metrics), { psr: 2, per: 'N/M' });
+  assert.equal(filingSummary(null), null);
+  assert.equal(filingTtmWon({ ...line, priorYtd: null }), null);
+});
 test('financial timeline: actual and estimate periods chronologically, no 2028 gap-heavy default',()=>{
  const periods=timelinePeriods(data.stocks);
  assert.deepEqual(periods.map(p=>p.label),['2023A','2024A','2025A','2026E','2027E']);

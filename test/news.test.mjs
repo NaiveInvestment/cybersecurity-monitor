@@ -169,3 +169,44 @@ test("assignGroups: 틀만 같은 영문 제목은 다른 회사 사건이면 �
 test("anchorTokens: 약칭은 본 이름으로", () => {
   assert.ok(anchorTokens("금보원, 해킹으로 정보 유출").has("금융보안원"));
 });
+
+test("주요 이슈는 자금 이동 경유지가 별개 피해 기관 사건을 연결하지 않는다", () => {
+  const headlines = [
+    "Binance secures Abu Dhabi court order to recover frozen tokens after hack",
+    "Binance hackers launder stolen funds through crypto wallets",
+    "Binance hacker moves funds through Chainflip following Binance hack",
+    "Chainflip loses $4.86M in Ethereum vault hack",
+    "Chainflip disables swaps after vault exploit",
+    "Amazon reports AI agents exploited medical software",
+  ];
+  const items = headlines.map((t, i) => ({
+    id: String(i), t, r: "GL", c: "incident", d: "2026-11-21T01:00:00Z", g: "old-mixed",
+  }));
+  assignGroups(items);
+  assert.equal(items[0].g, items[1].g);
+  assert.equal(items[3].g, items[4].g);
+  assert.equal(new Set([items[0].g, items[3].g, items[5].g]).size, 3);
+  assert.notEqual(items[2].g, items[3].g);
+  const original = items.map(i => i.g);
+  assignGroups([...items].reverse());
+  assert.deepEqual(items.map(i => i.g), original);
+});
+
+test("인수 당사자와 거래 내용이 맞는 기사만 묶고 실적 보도는 분리한다", () => {
+  const titles = [
+    "Palo Alto Networks, Applied Compute를 45억 달러에 인수하는 계약 체결",
+    "팔로알토, AI 투자를 확대... 어플라이드 컴퓨트 인수",
+    "크라우드스트라이크, 지스케일러 인수 추진… 사이버보안 초대형 빅딜",
+    "크라우드스트라이크, ‘지스케일러’ 인수 추진… 팔로알토 바짝 쫓는다",
+    "팔로알토 실적 호조에 사이버보안주 투자심리 개선… 지스케일러 상승",
+  ];
+  const items = titles.map((t, i) => ({ id: String(i), t, r: "KR", c: "spending", d: "2026-11-22" }));
+  assert.equal(assignGroups(items), 3);
+  assert.deepEqual(items.map(item => item.g), ["0", "0", "2", "2", "4"]);
+});
+
+test("같은 금융기관의 다른 사고는 분리하고 모호한 단신은 어느 쪽에도 붙이지 않는다", () => {
+  const titles = ["금융보안원 금융사 보안평가 정보 유출", "금융보안원 홈페이지 디도스 공격", "금보원도 뚫렸다"];
+  const items = titles.map((t, i) => ({ id: String(i), t, r: "KR", c: "incident", d: "2026-11-22" }));
+  assert.equal(assignGroups(items), 3);
+});

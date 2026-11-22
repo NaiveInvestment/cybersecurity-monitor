@@ -1,4 +1,5 @@
 import { isDeniedIncidentTitle } from "./incident-trend.js";
+import { incidentIdentity } from "./incident-identity.js";
 import { similarity } from "./text.js";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -42,21 +43,10 @@ function reportsIncident(title) {
 // 기존 기사 묶음에도 서로 다른 피해 기관이 섞일 수 있어, 제목에서 같은 이름을 식별한 경우에만 합친다.
 const commonName = /^(?:a|an|the|how|why|what|who|when|did|at|as|in|on|of|after|new|major|nearly|external|ransomware|cyberattack|cyber|data|hack(?:er|ers|ed|ing)?|breach|security|bank|firm|vendor|employee|company|customer|system|victim|attack|service|provider|report|reportedly|incident|leaks?|exposes?|warns?|affects?|confirms?|thousands|hundreds|million|records?|personal|hackathon|ai|해킹|랜섬웨어|사이버공격|사이버|정부|올해|최근|경찰|국내|해외|전국|고객정보|개인정보|직원|고객|기관|기업|금융사|위탁|거래|단독|속보|회계법인)$/i;
 const leadingTags = /^(?:\s*\[[^\]]+\]\s*)+/;
-// 금융기관, EU 기관처럼 한국어와 영어권 기사에서 서로 다른 이름으로 불리는 경우.
-const aliases = [
-  ["jpmorgan", /(?:\bJ\.?\s?P\.?\s?Morgan\b|\bChase(?: Bank)?\b|(?:JP|제이피)모[건간]|체이스)/i],
-  ["eu-commission", /EU\s*(?:집행위|집행위원회)|유럽\s?연합\s?집행위|(?:European|EU) (?:Commission|executive(?: branch)?)\b/i],
-  ["kpmg", /\bKPMG\b/i], ["binance", /\bBinance\b|바이낸스/i],
-  ["tfl", /Transport for London|\bTfL\b/i],
-  ["uber", /\bUber\b|우버/i],
-  ["jeonju-university", /전주대/],
-  ["savings-bank-training", /KG\s?에듀원|저축(?:은행|銀).{0,20}(?:직원|교육사이트)/i],
-  ["busan-research", /부산.{0,22}(?:산학협력단|연구비\s?시스템)/],
-];
 function subject(title) {
   const clean = title.replace(leadingTags, "").trim();
-  const alias = aliases.find(([, pattern]) => pattern.test(clean));
-  if (alias) return alias[0];
+  const alias = incidentIdentity(clean);
+  if (alias) return alias.name;
   const candidates = clean.match(/[\p{L}\d&-]+/gu) || [];
   for (const word of candidates) {
     if (/^[\d-]/.test(word) || word.length < 2 || commonName.test(word)) continue;
@@ -66,32 +56,12 @@ function subject(title) {
   return null;
 }
 
-// 기업명과 기사 묶음이 같은 보도는 함께 보여준다. 해당 묶음에서 사건 정황까지
-// 일치하면 별도 피드가 다르게 붙인 묶음 번호도 연결할 수 있다.
-const facets = [
-  /vendors?|third[ -]party|service providers?|협력업체|협력사|공급업체|서비스\s?업체|partner/i,
-  /customer|cardholder|client|marketing data|고객|회원/i,
-  /\b(?:HR|staff|employee|payroll)\b|직원|임직원/i,
-];
-
-// 회사가 같다는 이유로 과거의 별개 사고를 연결하지 않는다.
-// 서로 다른 언어의 기사에는 피해 대상이나 유출 자료로 확인되는 공통 정황을 쓴다.
-const incidentDetails = {
-  kpmg: /client (?:tax )?(?:documents|files|data)|고객.{0,12}(?:세금|문서|자료)|^회계법인 KPMG 해킹 피해$/i,
-  uber: /drivers?|운전자|운전면허|fireworks|파이어웍스|\b(?:149,346|150,000)\b|15만/i,
-  tfl: /oyster|오이스터/i,
-  jpmorgan: /vendors?|third[ -]party|협력업체|외부\s?업체|서비스\s?업체/i,
-  binance: /192 (?:types|cryptocurrencies)|\$6\.(?:3|43) ?(?:billion|b\b)|6[34]억.{0,10}달러/i,
-  "eu-commission": /AI|인공지능/i,
-  "jeonju-university": /18만|온라인\s?교육|학습\s?관리/,
-  "savings-bank-training": /교육\s?사이트|교육\s?업체|에듀원|직원.{0,10}(?:정보|실명)/,
-  "busan-research": /산학협력단|연구비\s?시스템/,
-};
 const followUpTitle = /(?:피해|유출).{0,22}(?:늘어|확대|추가 확인)|피해\s?규모.{0,12}(?:정정|재산정)|\b(?:full|final) report on .{0,30}(?:attack|breach|hack)|\b(?:reopens?|still down|restores? services?)\b.{0,50}\b(?:following|after)\b.{0,24}\b(?:hack|cyberattack|breach)|\b(?:breach|attack) toll (?:rises|grows)\b/i;
 
 function samePastIncident(item, earlier, name) {
-  const details = Object.hasOwn(incidentDetails, name) ? incidentDetails[name] : null;
-  if (details?.test(item.t) && details.test(earlier.t)
+  const details = incidentIdentity(item.t);
+  const previous = incidentIdentity(earlier.t);
+  if (details?.name === name && details.detail && previous?.name === name && previous.detail
       && Date.parse(item.d) - Date.parse(earlier.d) <= 14 * DAY) return true;
   const score = similarity(item.t, earlier.t);
   return score >= 0.6 || (item.g && item.g === earlier.g && score >= 0.4);
@@ -126,23 +96,12 @@ export function recentIncidentStories(items, now = Date.now()) {
       historical.get(name).push(item);
       continue;
     }
-    const keys = [name + "/group/" + (item.g || item.id)];
-    const details = Object.hasOwn(incidentDetails, name) ? incidentDetails[name] : null;
-    if (details?.test(item.t)) keys.push(name + "/detail");
-    if (aliases.some(([id]) => id === name)) {
-      for (const [i, facet] of facets.entries()) if (facet.test(item.t)) keys.push(name + "/facet/" + i);
-    }
-    const [existing, ...matching] = new Set(keys.map((key) => groups.get(key)).filter(Boolean));
-    const merged = existing || { name, items: [], keys: new Set() };
-    merged.items.push(item);
-    for (const key of keys) merged.keys.add(key);
-    for (const group of matching) {
-      merged.items.push(...group.items);
-      for (const key of group.keys) merged.keys.add(key);
-    }
-    for (const key of merged.keys) groups.set(key, merged);
+    const identity = incidentIdentity(item.t);
+    const key = identity?.detail ? name + "/detail" : name + "/group/" + (item.g || item.id);
+    if (!groups.has(key)) groups.set(key, { name, items: [] });
+    groups.get(key).items.push(item);
   }
-  return [...new Set(groups.values())].map(({ name, items }) => {
+  return [...groups.values()].map(({ name, items }) => {
     const members = items.sort((a, b) => Date.parse(b.d) - Date.parse(a.d));
     const lead = members[0];
     const earlier = (historical.get(name) || []).findLast((old) =>

@@ -1,16 +1,19 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { pct, valuation, mean } from "./lib/calc.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
-import { financialRow, annualValuation } from "./lib/financials.js";
+import { quoteStatus } from "./lib/quote-status.js";
+import { financialRow, annualValuation, filingSummary } from "./lib/financials.js";
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 
-const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, liveAsOf: null, liveRev: null, liveSource: null };
+const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, livePayload: null, liveRev: null, liveSource: null };
 // 방금 값이 바뀐 종목. 현재가 칸을 한 번 반짝이게 한다.
 const flash = new Map();
 let snapshot = null;
 let meta = null;
 let financials = null;
+let filingPeriod = null;
+let filings = new Map();
 let horizon = "threeMonth";
 let baseQuotes = {};
 
@@ -23,19 +26,20 @@ function derive(stock) {
   const q = stock.q || {};
   const b = stock.b || {};
   const f = stock.f || null;
+  const ttm = stock.kind === "KR" ? filings.get(stock.id) : f;
   const fx = snapshot.fx[stock.cur];
   const toEok = (value) => (value == null ? null : stock.kind === "KR" ? value : fx ? (value * fx) / 100 : null);
-  const value = valuation(q.cap, f);
+  const value = valuation(q.cap, ttm);
   return {
     price: q.p ?? null, chg: q.chg ?? null, tv: q.tv ?? null,
     cap: q.capKrw ?? toEok(q.cap), capLocal: q.cap ?? null,
     w1: pct(q.p, b.w1), m1: pct(q.p, b.m1), m3: pct(q.p, b.m3), ytd: pct(q.p, b.ytd), y1: pct(q.p, b.y1),
     dd: b.hi52 != null && q.p != null ? pct(q.p, Math.max(b.hi52, q.p)) : null,
-    ym: f?.ym ?? null, yoy: f?.yoy ?? null, opm: f?.opm ?? null,
+    ym: f?.ym ?? null, yoy: f?.yoy ?? null, opm: ttm?.opm ?? null,
     rev: toEok(f?.rev), revLocal: f?.rev ?? null,
-    revTtm: toEok(f?.revTtm), revTtmLocal: f?.revTtm ?? null,
-    opTtm: toEok(f?.opTtm), opTtmLocal: f?.opTtm ?? null,
-    niTtm: toEok(f?.niTtm), niTtmLocal: f?.niTtm ?? null,
+    revTtm: toEok(ttm?.revTtm), revTtmLocal: ttm?.revTtm ?? null,
+    opTtm: toEok(ttm?.opTtm), opTtmLocal: ttm?.opTtm ?? null,
+    niTtm: toEok(ttm?.niTtm), niTtmLocal: ttm?.niTtm ?? null,
     psr: value.psr, per: value.per,
   };
 }
@@ -99,7 +103,13 @@ const BASE_GROUPS = GROUPS.map(g=>({...g}));
 function financialColumns() {
   const active=!!financials&&state.view==='KR';
   $('#financial-horizon').closest('label').hidden=!active;
-  $('#financial-date').textContent=active?`TTM 네이버, 연간 확정 OpenDART, 추정 ConsenDB ${financials.workbookBaseDate}`:'해외 실적은 최근 확정 분기와 TTM';
+  const domesticBasis = filingPeriod ? `국내 TTM OpenDART ${filingPeriod}` : '국내 TTM 공시 자료 없음';
+  const baseNote = state.view === 'GL' ? '해외 실적은 최근 확정 분기와 TTM'
+    : state.view === 'ALL' ? `${domesticBasis}, 해외 TTM 및 분기 자료 네이버`
+    : domesticBasis;
+  $('#financial-date').textContent = active
+    ? `${baseNote}, 연간 확정 OpenDART, 추정 ConsenDB ${financials.workbookBaseDate}`
+    : baseNote;
   if(!active){COLUMNS=BASE_COLUMNS;GROUPS=BASE_GROUPS.map(g=>({...g}));if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};return;}
   const byId=new Map(financials.stocks.map(s=>[s.id,s]));
   const periods=timelinePeriods(financials.stocks).filter(p=>Number(p.period.slice(0,4))<=2027);
@@ -109,11 +119,12 @@ function financialColumns() {
   COLUMNS=BASE_COLUMNS.filter(c=>!['fin','val'].includes(c.group));
   const summary=[{key:'revTtm',label:'매출'},{key:'opTtm',label:'영업이익'},{key:'niTtm',label:'순이익'},{key:'psr',label:'PSR'},{key:'per',label:'PER'}];
   for(const metric of summary)COLUMNS.push({key:metric.key,group:'ttm',label:metric.label,cls:'ttm-summary',sort:(s,d)=>typeof d[metric.key]==='number'?d[metric.key]:null,cell:(s,d)=>{
-    const v=d[metric.key],period=d.ym?`${d.ym}까지 최근 4개 확정 분기`: '확정 분기 자료 없음';
-    const note=metric.key==='niTtm'?'국내 지배주주순이익 우선, 없으면 당기순이익':metric.key==='psr'?'현재 시총 / TTM 매출':metric.key==='per'?'현재 시총 / TTM 순이익':'최근 4개 확정 분기 합계';
+    const filing = filings.get(s.id);
+    const v=d[metric.key],period=filing ? `${filingPeriod}까지 최근 4개 확정 분기` : '확정 분기 자료 없음';
+    const note=metric.key==='niTtm'?(filing?.netBasis ?? '순이익'):metric.key==='psr'?'현재 시총 / TTM 매출':metric.key==='per'?`현재 시총 / TTM ${filing?.netBasis ?? '순이익'}`:'최근 4개 확정 분기 합계';
     const ratio=['psr','per'].includes(metric.key);
     const display=ratio&&typeof v==='number'?v.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}):timelineNumber(v);
-    return {html:`<span class="ttm-value${ratio?' ttm-ratio':''}${typeof v!=='number'?' ttm-missing':''}" data-summary="${metric.key}" title="네이버 금융, ${esc(period)}, ${note}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${display}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
+    return {html:`<span class="ttm-value${ratio?' ttm-ratio':''}${typeof v!=='number'?' ttm-missing':''}" data-summary="${metric.key}" title="OpenDART, ${esc(period)}, ${esc(note)}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${display}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
   }});
   const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
   for(const m of metrics){
@@ -251,23 +262,12 @@ function renderKpis() {
 
 function renderStatus() {
   const scope = snapshot.stocks.filter((stock) => state.view === "ALL" || stock.kind === state.view);
-  const times = scope.map((stock) => Date.parse(stock.q?.at)).filter((time) => !Number.isNaN(time));
-  const latest = times.length ? new Date(Math.max(...times)).toISOString() : null;
-  const open = scope.some((stock) => stock.q?.st === "OPEN");
-  const liveFresh = state.liveAsOf && Date.now() - Date.parse(state.liveAsOf) < 3 * 60000;
+  const { label, tone, time } = quoteStatus(scope, state.livePayload);
   const badge = $("#status-badge");
-  let label = "장마감";
-  let tone = "closed";
-  if (open && liveFresh) { label = "LIVE"; tone = "live"; }
-  else if (open) {
-    const minutes = Math.max(1, Math.round((Date.now() - Date.parse(latest)) / 60000));
-    label = `지연 ${minutes}분`;
-    tone = "delayed";
-  }
   badge.textContent = label;
   badge.dataset.state = tone;
   badge.hidden = false;
-  $("#status-text").textContent = `시세 ${fmtKst(latest)} KST, ${state.liveSource || "네이버 금융"}`;
+  $("#status-text").textContent = `시세 ${fmtKst(time)} KST, ${state.liveSource || "네이버 금융"}`;
 }
 
 // 가장 많이 보도된 사건 하나를 종목 표 위에 한 줄로 보여 준다. 세 매체 이상이 다룬 사건이 없으면 숨긴다.
@@ -293,7 +293,7 @@ function renderAll() {
 
 function applyLive(live, force = false) {
   if (!live?.q) return;
-  state.liveAsOf = live.asOf;
+  state.livePayload = live;
   state.liveSource = live.source || null;
   // 로컬 실시간은 2초마다 읽는다. 바뀐 것이 없으면(rev 동일) 표를 다시 그리지 않는다.
   if (live.rev != null && live.rev === state.liveRev) { renderStatus(); return; }
@@ -317,7 +317,7 @@ function applyLive(live, force = false) {
 function restoreCloudQuotes(cloud) {
   for (const stock of snapshot.stocks) stock.q = structuredClone(baseQuotes[stock.id]);
   state.liveRev = null;
-  state.liveAsOf = null;
+  state.livePayload = null;
   state.liveSource = null;
   if (cloud) applyLive(cloud, true);
   else renderAll();
@@ -404,8 +404,15 @@ async function main() {
     return;
   }
   baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
-  try { financials=await loadJson("data/financials.json"); } catch {}
-  $("#financial-date").textContent=financials?`실적 OpenDART, 추정 ${financials.workbookBaseDate}`:"";
+  const [annual, positions] = await Promise.all([
+    loadJson("data/financials.json").catch(() => null),
+    loadJson("data/positions.json").catch(() => null),
+  ]);
+  financials = annual;
+  if (positions?.period && Array.isArray(positions.stocks)) {
+    filingPeriod = positions.period;
+    filings = new Map(positions.stocks.map((stock) => [stock.id, filingSummary(stock.finance)]));
+  }
   restoreStockSelection();
   bind();
   renderAll();

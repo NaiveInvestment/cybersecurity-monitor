@@ -1,4 +1,5 @@
 // 헤드라인 수집용 순수 함수: RSS/Atom 파싱, 분류, 중복 제거, 종목 연결. 요약문은 만들지 않는다.
+import { incidentIdentity } from "../public/lib/incident-identity.js";
 import { createHash } from "node:crypto";
 import { titleKey, similarity } from "../public/lib/text.js";
 import { isDeniedIncidentTitle } from "../public/lib/incident-trend.js";
@@ -132,20 +133,21 @@ export function buildStockMatcher(stocks) {
 
 export const itemId = (url) => createHash("sha1").update(url).digest("hex").slice(0, 12);
 
-// 새 항목을 기존 보관분에 합친다. URL이 같거나, 같은 지역에서 4일 안에 제목이 거의 같은 기사는 버린다.
-export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 180, maxItems = 3000, threshold = 0.5 } = {}) {
+// URL과 같은 매체의 유사 제목은 중복으로 처리하고, 다른 매체 보도는 남긴다.
+export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 180, threshold = 0.5 } = {}) {
   const cutoff = now - keepDays * 86400000;
   const kept = existing.filter((item) => Date.parse(item.d) >= cutoff && (item.c !== "incident" || !isDeniedIncidentTitle(item.t)));
   const urls = new Set(kept.map((item) => item.u));
-  const keys = new Set(kept.map((item) => `${item.r}|${titleKey(item.t)}`));
+  const titleId = (item) => `${item.r}|${item.s}|${titleKey(item.t)}`;
+  const keys = new Set(kept.map(titleId));
   let added = 0;
   const sorted = [...incoming].sort((a, b) => a.d.localeCompare(b.d));
   for (const item of sorted) {
     const time = Date.parse(item.d);
     if (Number.isNaN(time) || time < cutoff || time > now + 86400000) continue;
-    const key = `${item.r}|${titleKey(item.t)}`;
+    const key = titleId(item);
     if (urls.has(item.u) || keys.has(key)) continue;
-    const near = kept.some((other) => other.r === item.r && Math.abs(Date.parse(other.d) - time) < 4 * 86400000
+    const near = kept.some((other) => other.r === item.r && other.s === item.s && Math.abs(Date.parse(other.d) - time) < 4 * 86400000
       && similarity(other.t, item.t) >= threshold);
     if (near) continue;
     kept.push(item);
@@ -154,47 +156,92 @@ export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 18
     added += 1;
   }
   kept.sort((a, b) => b.d.localeCompare(a.d));
-  return { items: kept.slice(0, maxItems), added };
+  return { items: kept, added };
 }
 
-// 같은 사건을 다룬 기사끼리 묶음 번호(g)를 준다. 같은 지역과 범주에서 며칠 안에 제목이 비슷하면 한 묶음이고,
-// 묶음 안의 어느 기사와 비슷해도 합류한다(단일 연결). 기사를 버리지 않고 화면에서 접어 보여 주기 위한 값이다.
+// 약칭, 통화, 보도 언어가 달라도 인수 주체와 대상을 비교할 수 있게 한다.
+const transactionNames = [
+  [/팔로\s*알토(?:\s*네트웍스)?|Palo Alto(?: Networks)?|\bPANW\b/gi, "paloalto"],
+  [/어플라이드\s*컴퓨트|Applied Compute/gi, "appliedcompute"],
+  [/크라우드스트라이크|CrowdStrike|\bCRWD\b/gi, "crowdstrike"],
+  [/지스케일러|Zscaler|\bZS\b/gi, "zscaler"],
+];
+
+function businessContext(item) {
+  // 뒤 문장의 경쟁사 주가, 비교 설명은 거래 당사자로 세지 않는다.
+  const clauses = item.t.split(/…|[.\u00b7]{2,}|\s[-–—]\s/);
+  const acquisition = clauses.findIndex(part => /인수|\b(?:acquir(?:es?|ing|ed)|acquisition|buy(?:s|ing)?)\b/i.test(part));
+  if (acquisition >= 0) {
+    let normalized = clauses.slice(0, acquisition + 1).join(" ");
+    for (const [pattern, name] of transactionNames) normalized = normalized.replace(pattern, " " + name + " ");
+    const parties = [...new Set(normalized.match(/paloalto|appliedcompute|crowdstrike|zscaler/g) || [])];
+    // 인수 주체와 대상 모두 식별될 때만 제목이 다른 보도를 직접 연결한다.
+    const pair = parties.length === 2 ? parties.join("/") : null;
+    return { topic: "acquisition", pair, title: normalized };
+  }
+  const clause = clauses[0];
+  const topic = /목표(?:주가|가)|투자의견|price target|rating/i.test(clause) ? "rating"
+    : /실적|영업이익|순이익|\b(?:earnings|results|profit)\b/i.test(clause) ? "earnings" : item.c;
+  return { topic, title: clause };
+}
+
+// 확인된 사건 정황 또는 첫 기사를 기준으로 묶는다. 보도가 늘어도 기준 기사를
+// 바꾸지 않으므로 서로 다른 두 기사가 중간 제목 하나를 통해 연결되지 않는다.
 export function assignGroups(items, { threshold = 0.4, windowDays = 3 } = {}) {
   const windowMs = windowDays * 86400000;
   const groups = [];
-  const sorted = [...items].sort((a, b) => a.d.localeCompare(b.d));
+  const briefs = [];
+  const sorted = [...items].sort((a, b) => a.d.localeCompare(b.d) || a.id.localeCompare(b.id));
   for (const item of sorted) {
     const time = Date.parse(item.d);
+    const incident = item.c === "incident";
+    const identity = incident ? incidentIdentity(item.t) : null;
+    if (identity?.brief) {
+      briefs.push({ item, identity, time });
+      continue;
+    }
+    const business = incident ? null : businessContext(item);
+    const title = business?.title ?? item.t;
+    const tokens = anchorTokens(title);
     let home = null;
-    for (let index = groups.length - 1; index >= 0 && !home; index -= 1) {
+    for (let index = groups.length - 1; index >= 0; index -= 1) {
       const group = groups[index];
       if (group.r !== item.r || group.c !== item.c || time - group.last > windowMs) continue;
-      if (group.members.some((other) => time - Date.parse(other.d) <= windowMs && similarity(other.t, item.t) >= threshold && sameSubject(other.t, item.t))) home = group;
+      if (identity?.name !== group.identity?.name || identity?.detail !== group.identity?.detail) continue;
+      if (identity?.detail && time - group.first <= 14 * 86400000) {
+        home = group;
+        break;
+      }
+      if (time - group.first > windowMs || business?.topic !== group.business?.topic) continue;
+      if (business?.pair || group.business?.pair) {
+        if (business?.pair !== group.business?.pair) continue;
+        home = group;
+        break;
+      }
+      const sameAnchor = [...tokens].some((token) => group.tokens.has(token));
+      if (!sameAnchor && tokens.size && group.tokens.size) continue;
+      const required = identity ? Math.max(0.85, threshold)
+        : !sameAnchor ? Math.max(0.8, threshold)
+        : business ? Math.max(0.62, threshold) : threshold;
+      if (similarity(group.title, title) < required) continue;
+      home = group;
+      break;
     }
     if (home) {
-      home.members.push(item);
       home.last = time;
+      item.g = home.id;
     } else {
-      groups.push({ r: item.r, c: item.c, last: time, members: [item] });
+      item.g = item.id;
+      groups.push({ id: item.id, r: item.r, c: item.c, first: time, last: time, identity, business, tokens, title });
     }
   }
-  const merged = mergeByAnchor(groups, windowMs);
-  for (const group of merged) {
-    group.members.sort((a, b) => a.d.localeCompare(b.d));
-    for (const member of group.members) member.g = group.members[0].id;
+  // 기관과 해킹 사실만 쓴 단신은 하루 안에 같은 기관의 사건 후보가 하나일 때만 연결한다.
+  for (const { item, identity, time } of briefs) {
+    const candidates = groups.filter(group => group.c === item.c && group.r === item.r
+      && group.identity?.name === identity.name && time >= group.first - 86400000 && time <= group.last + 86400000);
+    item.g = candidates.length === 1 && candidates[0].identity.detail ? candidates[0].id : item.id;
   }
-  return merged.length;
-}
-
-// 영문 제목은 "X Data Breach Exposes Sensitive Information"처럼 틀이 같아 글자 유사도만으로는 다른 회사 사건이 붙는다.
-// 두 제목 모두 주체 낱말이 있는데 하나도 겹치지 않으면 다른 사건으로 본다. 한글 제목은 표기가 다양해 이 조건을 걸지 않는다.
-function sameSubject(a, b) {
-  if (/[가-힣]/.test(a) || /[가-힣]/.test(b)) return true;
-  const left = anchorTokens(a);
-  const right = anchorTokens(b);
-  if (!left.size || !right.size) return true;
-  for (const token of left) if (right.has(token)) return true;
-  return false;
+  return new Set(items.map(item => item.g)).size;
 }
 
 // 제목에서 사건의 주체가 될 만한 낱말을 뽑는다. 한글은 조사 하나를 떼고 4자 이상, 영문은 6자 이상.
@@ -255,45 +302,4 @@ export function anchorTokens(title) {
     previousShort = short;
   }
   return tokens;
-}
-
-// 제목이 서로 달라 갈라진 묶음을 주체 낱말로 다시 합친다.
-// 기준이 되는 것은 기사 3건 이상인 묶음이고, 그 묶음 제목의 절반 이상에 나오는 낱말이 주체 낱말이다.
-// 기준 묶음끼리는 주체 낱말이 같으면 합치고, 작은 묶음은 주체 낱말을 가진 가장 큰 기준 묶음 하나에만 붙인다.
-// 작은 묶음끼리는 합치지 않는다(낱말 하나로 서로 다른 기사가 줄줄이 이어지는 것을 막는다).
-function mergeByAnchor(groups, windowMs) {
-  const signature = groups.map((group) => {
-    const counts = new Map();
-    for (const member of group.members) for (const token of anchorTokens(member.t)) counts.set(token, (counts.get(token) || 0) + 1);
-    return new Set([...counts].filter(([, count]) => count * 2 >= group.members.length).map(([token]) => token));
-  });
-  const first = groups.map((group) => Date.parse(group.members[0].d));
-  const near = (a, b) => groups[a].r === groups[b].r && groups[a].c === groups[b].c
-    && Math.max(first[a], first[b]) - Math.min(groups[a].last, groups[b].last) <= windowMs;
-  const shares = (a, b) => [...signature[a]].some((token) => signature[b].has(token));
-  const parent = groups.map((_, index) => index);
-  const find = (index) => (parent[index] === index ? index : (parent[index] = find(parent[index])));
-  const seeds = groups.map((_, index) => index).filter((index) => groups[index].members.length >= 3 && signature[index].size > 0);
-  for (let at = 0; at < seeds.length; at += 1) {
-    for (let other = at + 1; other < seeds.length; other += 1) {
-      if (near(seeds[at], seeds[other]) && shares(seeds[at], seeds[other])) parent[find(seeds[other])] = find(seeds[at]);
-    }
-  }
-  const seedSet = new Set(seeds);
-  groups.forEach((group, index) => {
-    if (seedSet.has(index) || !signature[index].size) return;
-    const matches = seeds.filter((seed) => near(seed, index) && shares(seed, index));
-    if (!matches.length) return;
-    const best = matches.reduce((a, b) => (groups[b].members.length > groups[a].members.length ? b : a));
-    parent[find(index)] = find(best);
-  });
-  const merged = new Map();
-  groups.forEach((group, index) => {
-    const root = find(index);
-    if (!merged.has(root)) merged.set(root, { r: group.r, c: group.c, last: group.last, members: [] });
-    const target = merged.get(root);
-    target.members.push(...group.members);
-    target.last = Math.max(target.last, group.last);
-  });
-  return [...merged.values()];
 }
