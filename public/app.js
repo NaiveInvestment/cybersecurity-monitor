@@ -1,7 +1,7 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { pct, valuation, mean } from "./lib/calc.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
-import { quoteStatus } from "./lib/quote-status.js";
+import { isNxtPremarket, quoteStatus } from "./lib/quote-status.js";
 import { financialRow, annualValuation, filingSummary } from "./lib/financials.js";
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
@@ -77,8 +77,8 @@ let COLUMNS = [
   { key: "name", group: "id", label: "종목", cls: "name", sort: (s) => s.name,
     cell: (s) => ({ html: `<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}" aria-label="${esc(s.name)} 관련 뉴스" title="${esc(s.market)}, ${esc(s.desc)} (관련 뉴스 보기)">${esc(s.name)}</a>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
-  { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
-  { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
+  { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="${d.nxt ? 'NXT 프리마켓, ' : ''}네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
+  { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: d.nxt ? `<span title="NXT 프리마켓, 전일 종가 대비">${fmtPct(d.chg, 2)}</span>` : fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
   { key: "cap", group: "quote", label: "시가총액", sort: (s, d) => d.cap, cell: (s, d) => ({ html: money(s, d, "cap") }) },
   { key: "tv", group: "quote", label: "거래대금", title: "국내 기준: KRX + NXT 당일 누적", sort: (s, d) => d.tv, cell: (s, d) => ({ html: fmtEok(d.tv) }) },
   { key: "w1", group: "ret", label: "1W", sort: (s, d) => d.w1, cell: (s, d) => pctCell(d.w1) },
@@ -165,7 +165,13 @@ function renderTable() {
   financialColumns();
   // 좁은 화면에서는 분야, 시장 열을 빼고 종목명 옆에 바로 시세가 오게 한다.
   const COLS = COLUMNS.filter((column) => !(narrow.matches && column.narrow === false));
-  const rows = visibleStocks().map((stock) => ({ stock, d: derive(stock) })).sort(compare);
+  const nxtPre = isNxtPremarket(Date.now()) ? state.livePayload?.nxtPre : null;
+  const rows = visibleStocks().map((stock) => {
+    const d = derive(stock);
+    const pre = nxtPre?.[stock.id];
+    if (pre) return { stock, d: { ...d, price: pre.p, chg: pre.chg, nxt: true } };
+    return { stock, d };
+  }).sort(compare);
   $("#count").textContent = `${rows.length}종목`;
   if (!rows.length) {
     const otherView = state.view === "KR" ? "GL" : "KR";
@@ -262,9 +268,16 @@ function renderKpis() {
 
 function renderStatus() {
   const scope = snapshot.stocks.filter((stock) => state.view === "ALL" || stock.kind === state.view);
-  const { label, tone, time } = quoteStatus(scope, state.livePayload);
+  const now = Date.now();
+  const payload = state.livePayload;
+  const nxtPre = isNxtPremarket(now) ? payload?.nxtPre : null;
+  const preStocks = scope.filter(stock => nxtPre?.[stock.id])
+    .map(stock => ({ ...stock, q: { at: nxtPre[stock.id].at, st: "OPEN" } }));
+  const { label, tone, time } = preStocks.length
+    ? quoteStatus(preStocks, { marketSuccessAt: payload.marketSuccessAt }, now)
+    : quoteStatus(scope, payload, now);
   const badge = $("#status-badge");
-  badge.textContent = label;
+  badge.textContent = preStocks.length ? (tone === "live" ? "NXT 프리마켓" : `NXT ${label}`) : label;
   badge.dataset.state = tone;
   badge.hidden = false;
   $("#status-text").textContent = `시세 ${fmtKst(time)} KST, ${state.liveSource || "네이버 금융"}`;
@@ -293,10 +306,11 @@ function renderAll() {
 
 function applyLive(live, force = false) {
   if (!live?.q) return;
+  const sessionChanged = Boolean(state.livePayload?.nxtPre) !== Boolean(live.nxtPre);
   state.livePayload = live;
   state.liveSource = live.source || null;
   // 로컬 실시간은 2초마다 읽는다. 바뀐 것이 없으면(rev 동일) 표를 다시 그리지 않는다.
-  if (live.rev != null && live.rev === state.liveRev) { renderStatus(); return; }
+  if (!sessionChanged && live.rev != null && live.rev === state.liveRev) { renderStatus(); return; }
   state.liveRev = live.rev ?? null;
   for (const stock of snapshot.stocks) {
     const row = live.q[stock.id];
@@ -312,6 +326,14 @@ function applyLive(live, force = false) {
   }
   renderAll();
   flash.clear();
+}
+
+function refreshStatus() {
+  if (state.livePayload?.nxtPre && !isNxtPremarket(Date.now())) {
+    state.livePayload = { ...state.livePayload, nxtPre: null };
+    renderTable();
+  }
+  renderStatus();
 }
 
 function restoreCloudQuotes(cloud) {
@@ -420,11 +442,11 @@ async function main() {
   startQuoteFeed(meta.live, {
     onQuotes: (payload, feed) => applyLive(payload, feed === "relay" && state.liveSource !== payload.source),
     onRelayLost: restoreCloudQuotes,
-    onUnavailable: renderStatus,
+    onUnavailable: refreshStatus,
   });
 
   narrow.addEventListener("change", renderTable);
-  setInterval(renderStatus, 60000);
+  setInterval(refreshStatus, 60000);
 }
 
 main();

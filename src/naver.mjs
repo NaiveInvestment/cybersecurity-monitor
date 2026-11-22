@@ -1,6 +1,6 @@
 // 네이버 금융 공개 엔드포인트 수집기. 키가 필요 없어 GitHub Actions에서 그대로 돈다.
 // 구조는 홍대현 Universe의 src/providers/naver.mjs를 따르되, 일괄 시세와 해외 종목, 분기 재무를 더했다.
-import { toNum, normalizeQuote } from "../public/lib/calc.js";
+import { normalizeQuote, round, toNum } from "../public/lib/calc.js";
 
 const HEADERS = {
   accept: "application/json, text/plain, */*",
@@ -32,6 +32,20 @@ function withPreviousClose(quote, row) {
   return diff != null && quote.p - diff > 0 ? { ...quote, previousClose: quote.p - diff } : quote;
 }
 
+function parseNxtPreMarket(row) {
+  const pre = row.overMarketPriceInfo;
+  if (pre?.tradingSessionType !== "PRE_MARKET" || pre.overMarketStatus !== "OPEN") return null;
+  if (pre.tradeStopType?.name && pre.tradeStopType.name !== "TRADING") return null;
+  if (pre.tradableStatus && pre.tradableStatus !== "tradable") return null;
+  const volume = toNum(pre.accumulatedTradingVolumeRaw ?? pre.accumulatedTradingVolume);
+  if (volume != null && volume <= 0) return null;
+  const p = toNum(pre.overPrice);
+  const diff = toNum(pre.compareToPreviousClosePrice);
+  const at = pre.localTradedAt;
+  if (!(p > 0) || diff == null || p <= diff || !Number.isFinite(Date.parse(at))) return null;
+  return { p, chg: round(100 * diff / (p - diff), 2), at };
+}
+
 // kind: "KR"(국내) | "GL"(해외). 반환: { 코드: 정규화 시세 }
 export async function fetchRealtime(kind, codes, options = {}) {
   const path = kind === "KR" ? "domestic" : "worldstock";
@@ -41,7 +55,14 @@ export async function fetchRealtime(kind, codes, options = {}) {
     for (const row of json?.datas || []) {
       const code = kind === "KR" ? row.itemCode : row.reutersCode;
       const quote = normalizeQuote(kind, row);
-      if (code && quote) output[code] = kind === "KR" ? withPreviousClose(quote, row) : quote;
+      if (!code || !quote) continue;
+      if (kind !== "KR") {
+        output[code] = quote;
+        continue;
+      }
+      const krx = withPreviousClose(quote, row);
+      const pre = options.includeNxtPreMarket ? parseNxtPreMarket(row) : null;
+      output[code] = pre ? { ...krx, nxtPre: pre } : krx;
     }
   }
   return output;

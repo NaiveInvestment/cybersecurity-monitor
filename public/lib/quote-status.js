@@ -3,6 +3,12 @@ export function quoteMarket(stock) {
   return stock.market === "TSE" ? "JP" : "US";
 }
 
+export function isNxtPremarket(timestamp) {
+  const kst = new Date(timestamp + 9 * 3600000);
+  const weekday = kst.getUTCDay() >= 1 && kst.getUTCDay() <= 5;
+  return weekday && kst.getUTCHours() === 8 && kst.getUTCMinutes() < 50;
+}
+
 const names = { KR: "국내", JP: "일본", US: "미국" };
 
 export function quoteStatus(stocks, payload, now = Date.now()) {
