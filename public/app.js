@@ -1,7 +1,7 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { capWeightedReturn, pct, valuation, mean } from "./lib/calc.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
-import { isNxtPremarket, quoteStatus } from "./lib/quote-status.js";
+import { isNxtPremarket, quoteStatus, selectNxtPremarket } from "./lib/quote-status.js";
 import { financialRow, annualValuation, filingSummary } from "./lib/financials.js";
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
@@ -276,7 +276,7 @@ function renderStatus() {
   const preStocks = scope.filter(stock => nxtPre?.[stock.id])
     .map(stock => ({ ...stock, q: { at: nxtPre[stock.id].at, st: "OPEN" } }));
   const { label, tone, time } = preStocks.length
-    ? quoteStatus(preStocks, { marketSuccessAt: payload.marketSuccessAt }, now)
+    ? quoteStatus(preStocks, { marketSuccessAt: payload.marketSuccessAt, asOf: payload.asOf }, now)
     : quoteStatus(scope, payload, now);
   const badge = $("#status-badge");
   badge.textContent = preStocks.length ? (tone === "live" ? "NXT 프리마켓" : `NXT ${label}`) : label;
@@ -308,8 +308,10 @@ function renderAll() {
 
 function applyLive(live, force = false) {
   if (!live?.q) return;
-  const sessionChanged = Boolean(state.livePayload?.nxtPre) !== Boolean(live.nxtPre);
-  state.livePayload = live;
+  const ids = Object.keys(live.nxtPre ?? {}).filter(id => live.q[id] && live.q[id][6] !== "OPEN");
+  const nxtPre = selectNxtPremarket(live.nxtPre, ids);
+  const sessionChanged = Boolean(state.livePayload?.nxtPre) !== Boolean(nxtPre);
+  state.livePayload = { ...live, nxtPre };
   state.liveSource = live.source || null;
   // 로컬 실시간은 2초마다 읽는다. 바뀐 것이 없으면(rev 동일) 표를 다시 그리지 않는다.
   if (!sessionChanged && live.rev != null && live.rev === state.liveRev) { renderStatus(); return; }

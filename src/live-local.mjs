@@ -6,7 +6,7 @@
 import { fetchRealtime, fetchIndexRealtime } from "./naver.mjs";
 import { round } from "../public/lib/calc.js";
 import { krxDate } from "../public/lib/sector-index.js";
-import { isNxtPremarket, quoteMarket } from "../public/lib/quote-status.js";
+import { quoteMarket, selectNxtPremarket } from "../public/lib/quote-status.js";
 
 // 네이버 기준 시세(base)에 키움 체결(tick)을 덧씌운다. 체결이 더 새로울 때만 쓰고,
 // 등락률은 네이버 값에서 되짚은 전일 종가 대비로 다시 계산한다. 거래대금과 장 상태는 네이버 값을 유지한다.
@@ -172,10 +172,9 @@ export class LocalLive {
   // 화면이 읽는 live.json. 배포본의 live 브랜치 파일과 같은 모양이다.
   snapshot() {
     const q = {};
-    const nxtPre = {};
     const marketSuccessAt = { ...this.marketSuccessAt };
     const now = Date.now();
-    const showNxt = isNxtPremarket(now);
+    const preIds = [];
     let fromKiwoom = 0;
     for (const stock of this.stocks) {
       const quote = stock.kind === "KR" ? this.domesticQuote(stock.id, now) : this.base[stock.id];
@@ -185,12 +184,9 @@ export class LocalLive {
         if (!marketSuccessAt.KR || Date.parse(quote.at) > Date.parse(marketSuccessAt.KR)) marketSuccessAt.KR = quote.at;
       }
       q[stock.id] = [quote.p, quote.chg, quote.cap, quote.capKrw, quote.tv, quote.at, quote.st, quote.src || "naver"];
-      const pre = showNxt && quote.st !== "OPEN" ? this.nxtPre[stock.id] : null;
-      const at = Date.parse(pre?.at);
-      if (isNxtPremarket(at) && at > now - 50 * 60000 && at <= now + 5000) {
-        nxtPre[stock.id] = pre;
-      }
+      if (quote.st !== "OPEN" && this.nxtPre[stock.id]) preIds.push(stock.id);
     }
+    const nxtPre = selectNxtPremarket(this.nxtPre, preIds, now);
     const seconds = Math.round(this.pollMs / 1000);
     return {
       asOf: new Date().toISOString(),
@@ -200,7 +196,7 @@ export class LocalLive {
       feed: { ...this.feed, active: this.feedActive(), stocks: fromKiwoom },
       naver: this.naver,
       q, idx: this.idx,
-      ...(Object.keys(nxtPre).length ? { nxtPre } : {}),
+      ...(nxtPre ? { nxtPre } : {}),
     };
   }
 }

@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import { comparisonSectorCodes, loadUniverse } from "../src/universe.mjs";
 import { fetchRealtime, fetchIndexRealtime } from "../src/naver.mjs";
 import { publicSectorSnapshot } from "../src/public-relay.mjs";
+import { selectNxtPremarket } from "../public/lib/quote-status.js";
 import { activeSessions, minutesToNextSession } from "../src/sessions.mjs";
 import { configureBot, pushOrphan } from "../src/git-orphan.mjs";
 
@@ -27,6 +28,7 @@ const krSet = new Set(krCodes);
 const comparisonCodes = comparisonSectorCodes().filter((code) => !krSet.has(code));
 const publicCodes = [...krCodes, ...comparisonCodes];
 const state = { q: {}, idx: {}, sector: null };
+let premarket = {};
 
 async function remoteState() {
   if (!process.env.GITHUB_REPOSITORY) return null;
@@ -49,8 +51,13 @@ function absorb(stocks, quotes) {
 
 async function tick(sessions) {
   const jobs = [];
-  const kr = sessions.kr ? fetchRealtime("KR", krCodes) : null;
-  if (kr) jobs.push(kr.then((quotes) => absorb(groups.kr, quotes)));
+  const kr = sessions.kr ? fetchRealtime("KR", krCodes, { includeNxtPreMarket: true }) : null;
+  if (kr) jobs.push(kr.then((quotes) => {
+    absorb(groups.kr, quotes);
+    premarket = Object.fromEntries(groups.kr
+      .filter(stock => quotes[stock.code]?.nxtPre && quotes[stock.code].st !== "OPEN")
+      .map(stock => [stock.id, quotes[stock.code].nxtPre]));
+  }));
   if (sessions.asia) {
     const indices = fetchIndexRealtime("KR", ["KOSPI", "KOSDAQ"]);
     const comparison = fetchRealtime("KR", comparisonCodes, { attempts: 1 });
@@ -68,7 +75,8 @@ async function tick(sessions) {
   const results = await Promise.allSettled(jobs);
   const failed = results.filter((result) => result.status === "rejected");
   if (failed.length === results.length) throw new Error(failed[0].reason.message);
-  writeFileSync("live.json", JSON.stringify({ asOf: new Date().toISOString(), sessions, ...state }));
+  const nxtPre = selectNxtPremarket(premarket, Object.keys(premarket));
+  writeFileSync("live.json", JSON.stringify({ asOf: new Date().toISOString(), sessions, ...state, ...(nxtPre ? { nxtPre } : {}) }));
   return Object.keys(state.q).length;
 }
 

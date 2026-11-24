@@ -28,7 +28,7 @@ for (const file of ["positions.html", "positions.css", "positions.js", "data/pos
 }
 
 if (args.includes("--public")) {
-  for (const path of ["reports", "report-view.html", "report-view.js", "report-view.css", "data/position-library.json"]) {
+  for (const path of ["reports", "report-view.html", "report-view.js", "report-view.css", "data/position-library.json", "data/stock-scores.json"]) {
     check(!existsSync(join(dir, path)), `공개 폴더에 로컬 자료 경로가 있음: ${path}`);
   }
   check(!existsSync(join(dir, "positions.html")) || !read("positions.html").includes("data-report-library"),

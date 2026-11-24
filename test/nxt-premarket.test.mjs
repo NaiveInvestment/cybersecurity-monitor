@@ -11,7 +11,7 @@ const pre = { tradingSessionType: "PRE_MARKET", overMarketStatus: "OPEN", overPr
   compareToPreviousClosePrice: "-3,400", localTradedAt: time(15), accumulatedTradingVolumeRaw: "101604" };
 const stocks = ["053800", "263860"].map(code => ({ id: code, code, kind: "KR" }));
 
-test("the live table receives NXT premarket trade separately from KRX and public quotes", async t => {
+test("the local and public live tables receive NXT premarket separately from KRX", async t => {
   const now = Date.parse(time(16));
   t.mock.method(Date, "now", () => now);
   t.mock.method(globalThis, "fetch", async url => ({
@@ -34,7 +34,7 @@ test("the live table receives NXT premarket trade separately from KRX and public
   // Match the simulated clock in the public relay's freshness test.
   const publicPacket = publicQuotes({ ...snap, asOf: time(15), naver: {at:time(15)} }, ["053800"], Date.parse(time(15)));
   assert.equal(publicPacket.q["053800"][0], 111100);
-  assert.equal(publicPacket.nxtPre, undefined);
+  assert.deepEqual(publicPacket.nxtPre, snap.nxtPre);
 });
 
 test("NXT is ignored outside premarket, during a KRX open or when the trade date is stale", t => {
@@ -71,4 +71,24 @@ test("zero-volume, halted, malformed, and non-premarket quotes cannot replace th
   const parsed = await fetchRealtime("KR", codes, { includeNxtPreMarket: true, fetchImpl });
   assert.equal(Object.keys(parsed).length, cases.length);
   assert.ok(Object.values(parsed).every(row => row.p === 111100 && !row.nxtPre));
+});
+
+test("relay limits NXT to approved Korean listings and publishes only price, return and timestamp", () => {
+  const now = Date.parse(time(15));
+  const expired = "2026-11-20T08:15:00+09:00";
+  const regular = [111100, 0, null, null, null, time(15), "PREOPEN"];
+  const packet = {
+    asOf: time(15), naver: { at: time(15) }, stockScores: { "053800": 8.5 },
+    q: { "053800": regular, "263860": regular, "042510": regular, "ZS": regular },
+    nxtPre: {
+      "053800": { p: 107700, chg: -3.06, at: time(15), extra: true },
+      "263860": { p: 107700, chg: -3.06, at: expired },
+      "042510": { p: 107700, chg: -3.06, at: time(15) },
+      ZS: { p: 107700, chg: -3.06, at: time(15) },
+    },
+  };
+  const published = publicQuotes(packet, ["053800", "263860", "ZS"], now);
+  assert.deepEqual(published.nxtPre, { "053800": { p: 107700, chg: -3.06, at: time(15) } });
+  assert.equal(published.stockScores, undefined);
+  assert.equal(published.q["042510"], undefined);
 });

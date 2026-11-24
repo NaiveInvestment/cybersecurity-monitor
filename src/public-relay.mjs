@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { selectNxtPremarket } from "../public/lib/quote-status.js";
 
 // Only public quote fields cross this boundary. No local health, files or credentials.
 export function publicQuotes(payload, ids, now = Date.now()) {
@@ -19,7 +20,10 @@ export function publicQuotes(payload, ids, now = Date.now()) {
     const value=payload.idx?.[id];
     if(value?.p>0&&Number.isFinite(value.p)&&Number.isFinite(Date.parse(value.at))) idx[id]=Object.fromEntries(['p','chg','at','st'].filter(k=>value[k]!=null).map(k=>[k,value[k]]));
   }
-  return { asOf: payload.asOf, q, idx, source: kiwoom ? "국내 키움 실시간, 해외 네이버 10초" : "네이버 금융 10초 갱신" };
+  const preIds = Object.keys(q).filter(id => /^\d{6}$/.test(id) && q[id][6] !== "OPEN");
+  const nxtPre = selectNxtPremarket(payload.nxtPre, preIds, now);
+  return { asOf: payload.asOf, q, idx, ...(nxtPre ? { nxtPre } : {}),
+    source: kiwoom ? "국내 키움 실시간, 해외 네이버 10초" : "네이버 금융 10초 갱신" };
 }
 
 function sectorQuote(value) {

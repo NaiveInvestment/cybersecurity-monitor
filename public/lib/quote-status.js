@@ -9,6 +9,19 @@ export function isNxtPremarket(timestamp) {
   return weekday && kst.getUTCHours() === 8 && kst.getUTCMinutes() < 50;
 }
 
+export function selectNxtPremarket(quotes, ids, now = Date.now()) {
+  if (!quotes || !isNxtPremarket(now)) return null;
+  const selected = {};
+  for (const id of ids) {
+    const quote = quotes[id];
+    const at = Date.parse(quote?.at);
+    if (!Number.isFinite(quote?.p) || quote.p <= 0 || !Number.isFinite(quote.chg) || quote.chg <= -100) continue;
+    if (!isNxtPremarket(at) || at <= now - 50 * 60000 || at > now + 5000) continue;
+    selected[id] = { p: quote.p, chg: quote.chg, at: quote.at };
+  }
+  return Object.keys(selected).length ? selected : null;
+}
+
 const names = { KR: "국내", JP: "일본", US: "미국" };
 
 export function quoteStatus(stocks, payload, now = Date.now()) {
