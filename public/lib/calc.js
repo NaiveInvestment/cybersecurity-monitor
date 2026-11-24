@@ -134,6 +134,20 @@ export function valuation(cap, fin) {
   };
 }
 
+// Cap at the start of each return period, estimated from today's implied shares.
+export function capWeightedReturn(rows, key) {
+  let weights = 0;
+  let total = 0;
+  for (const row of rows) {
+    const rate = row[key];
+    if (!Number.isFinite(rate) || rate <= -100 || !Number.isFinite(row.cap) || row.cap <= 0) continue;
+    const weight = row.cap / (1 + rate / 100);
+    weights += weight;
+    total += weight * rate;
+  }
+  return weights > 0 ? total / weights : null;
+}
+
 export function mean(values) {
   const valid = values.filter((value) => value != null && Number.isFinite(value));
   return valid.length ? valid.reduce((total, value) => total + value, 0) / valid.length : null;

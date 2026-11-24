@@ -1,7 +1,19 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { composeQuote } from "../src/live-local.mjs";
-import { toNum, pct, shiftDate, baseClose, returnBases, normalizeQuote, financeMetrics, valuation, mean } from "../public/lib/calc.js";
+import { toNum, pct, shiftDate, baseClose, returnBases, normalizeQuote, financeMetrics, valuation, mean, capWeightedReturn } from "../public/lib/calc.js";
+
+test("cap-weighted returns use start-of-period rather than end-of-period caps", () => {
+  const stocks = [
+    { cap: 180, chg: 20, w1: -10 },
+    { cap: 60, chg: -40, w1: -40 },
+    { cap: 1000, chg: null, w1: -100 },
+    { cap: 0, chg: 100, w1: 100 },
+  ];
+  assert.equal(capWeightedReturn(stocks, "chg"), -4);
+  assert.equal(capWeightedReturn(stocks, "w1"), -20);
+  assert.equal(capWeightedReturn(stocks, "m1"), null);
+});
 
 test("toNum: 쉼표, 결측 표기", () => {
   assert.equal(toNum("1,234.5"), 1234.5);

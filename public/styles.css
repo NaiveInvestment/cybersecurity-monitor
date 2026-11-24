@@ -71,6 +71,7 @@ main { padding: 12px 18px 28px; }
 
 /* ---- 요약 띠 ---- */
 .kpis { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-bottom: 12px; }
+.kpi-controls { display: flex; justify-content: flex-end; margin-bottom: 6px; }
 .kpi { min-width: 0; display: grid; grid-template-columns: minmax(150px, auto) 1fr; gap: 4px 24px; align-items: center; padding: 11px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
 .kpi h2 { font-size: 12px; font-weight: 700; color: var(--muted); }
 .kpi .cap { font-size: 24px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }

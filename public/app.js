@@ -1,5 +1,5 @@
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
-import { pct, valuation, mean } from "./lib/calc.js";
+import { capWeightedReturn, pct, valuation, mean } from "./lib/calc.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
 import { isNxtPremarket, quoteStatus } from "./lib/quote-status.js";
 import { financialRow, annualValuation, filingSummary } from "./lib/financials.js";
@@ -12,6 +12,7 @@ const flash = new Map();
 let snapshot = null;
 let meta = null;
 let financials = null;
+let kpiWeight = "equal";
 let filingPeriod = null;
 let filings = new Map();
 let horizon = "threeMonth";
@@ -242,6 +243,7 @@ function updateTablePan() {
 }
 
 function renderKpis() {
+  const capWeighted = kpiWeight === "cap";
   const blocks = [
     { kind: "KR", title: "국내 보안주", index: snapshot.indices.KOSDAQ },
     { kind: "GL", title: "해외 보안주", index: snapshot.indices.IXIC },
@@ -250,7 +252,7 @@ function renderKpis() {
     const rows = snapshot.stocks.filter((stock) => stock.kind === kind).map(derive);
     const capSum = rows.reduce((total, d) => total + (d.cap || 0), 0);
     const keys = [["chg", "오늘"], ["w1", "1W"], ["m1", "1M"], ["ytd", "YTD"]];
-    const basket = keys.map(([key]) => mean(rows.map((d) => d[key])));
+    const basket = keys.map(([key]) => capWeighted ? capWeightedReturn(rows, key) : mean(rows.map((d) => d[key])));
     const iq = index?.q || {};
     const ib = index?.b || {};
     const bench = [iq.chg ?? null, pct(iq.p, ib.w1), pct(iq.p, ib.m1), pct(iq.p, ib.ytd)];
@@ -259,7 +261,7 @@ function renderKpis() {
     return `<article class="kpi">
       <div><h2>${title} ${rows.length}종목 합산 시가총액</h2><p class="cap">${fmtEok(capSum)}</p></div>
       <table><thead><tr><td></td>${keys.map(([, label]) => `<th scope="col">${label}</th>`).join("")}</tr></thead>
-      <tbody><tr><th scope="row">동일가중 평균</th>${cells(basket)}</tr>
+      <tbody><tr><th scope="row">${capWeighted ? "시총가중 평균" : "동일가중 평균"}</th>${cells(basket)}</tr>
       <tr><th scope="row">${esc(index?.name || "지수")}</th>${cells(bench)}</tr>
       <tr><th scope="row">차이(%p)</th>${gap.map((value) => `<td class="${signClass(Math.abs(value ?? 1) < 0.05 ? 0 : value)}">${value == null ? "-" : Math.abs(value) < 0.05 ? "0.0" : `${value > 0 ? "+" : ""}${value.toFixed(1)}`}</td>`).join("")}</tr></tbody></table>
     </article>`;
@@ -375,6 +377,14 @@ function restoreStockSelection() {
 }
 
 function bind() {
+  const weights = $("#kpi-weight-switch");
+  weights.addEventListener("click", (event) => {
+    const weight = event.target.closest("button")?.dataset.weight;
+    if (!weight || weight === kpiWeight) return;
+    kpiWeight = weight;
+    press(weights, "weight", weight);
+    renderKpis();
+  });
   window.addEventListener("pagehide", saveStockSelection);
   $('#table-pan').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(w.scrollLeft!==p.scrollLeft)w.scrollLeft=p.scrollLeft;});
   $('#table-wrap').addEventListener('scroll',()=>{const w=$('#table-wrap'),p=$('#table-pan');if(p.scrollLeft!==w.scrollLeft)p.scrollLeft=w.scrollLeft;});
