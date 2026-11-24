@@ -1,3 +1,4 @@
+import { stockScore, bindScores } from "./lib/stock-scores.js";
 // 종목 페이지: 스냅샷을 그리고, 배포본에서는 live 브랜치의 시세를 덧씌운다.
 import { capWeightedReturn, pct, valuation, mean } from "./lib/calc.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
@@ -76,7 +77,9 @@ let GROUPS = [
 
 let COLUMNS = [
   { key: "name", group: "id", label: "종목", cls: "name", sort: (s) => s.name,
-    cell: (s) => ({ html: `<a class="stock" href="news.html?q=${encodeURIComponent(s.name)}" aria-label="${esc(s.name)} 관련 뉴스" title="${esc(s.market)}, ${esc(s.desc)} (관련 뉴스 보기)">${esc(s.name)}</a>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
+    cell: (s) => ({ html: `<span class="stock" title="${esc(s.market)}, ${esc(s.desc)}">${esc(s.name)}</span>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
+  { key: "score", group: "id", label: "점수", cls: "stock-score", sort: s => stockScore(s.id),
+    cell: s => ({ html: `<button type="button" class="score-entry" data-edit-score="${esc(s.id)}" aria-label="${esc(s.name)} 점수">${stockScore(s.id) ?? "–"}</button>` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
   { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="${d.nxt ? 'NXT 프리마켓, ' : ''}네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
   { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: d.nxt ? `<span title="NXT 프리마켓, 전일 종가 대비">${fmtPct(d.chg, 2)}</span>` : fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
@@ -442,6 +445,7 @@ async function main() {
     loadJson("data/financials.json").catch(() => null),
     loadJson("data/positions.json").catch(() => null),
   ]);
+  bindScores(snapshot.stocks, null, renderTable);
   financials = annual;
   if (positions?.period && Array.isArray(positions.stocks)) {
     filingPeriod = positions.period;

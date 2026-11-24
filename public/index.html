@@ -62,6 +62,16 @@
     <div class="table-wrap" id="table-wrap"></div>
   </section>
 </main>
+<dialog id="score-dialog" aria-labelledby="score-title">
+  <form>
+    <h2 id="score-title">종목 점수</h2>
+    <label for="stock-score-input">내 점수</label>
+    <input id="stock-score-input" name="score" type="number" step="any" inputmode="decimal" aria-describedby="score-help">
+    <p id="score-help">이 브라우저에 저장됩니다. 점수를 지우려면 칸을 비우고 저장하세요.</p>
+    <p role="alert"></p>
+    <div class="score-actions"><button type="button" data-cancel>취소</button><button type="submit">저장</button></div>
+  </form>
+</dialog>
 <script type="module" src="app.js"></script>
 <script type="module" src="sectors.js"></script>
 </body>

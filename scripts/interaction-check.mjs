@@ -268,15 +268,14 @@ try {
   check(await evaluate("localStorage.getItem('csm-theme')") === before, "테마 선택이 저장되지 않음");
   await evaluate("localStorage.removeItem('csm-theme')");
 
-  const link = await evaluate("document.querySelector('.grid tbody tr .stock').getAttribute('href')");
-  check(/^news\.html\?q=/.test(link), `종목명 링크 ${link}`);
+  check(await evaluate("!document.querySelector('.grid .name a, .grid .stock[role=link]')"), "종목명이 링크로 표시됨");
 
   // ---- 종목 페이지, 모바일 ----
   await open("index.html", { width: 390, height: 844, scheme: "dark" });
   table = await evaluate(TABLE);
   check(table.theme === "dark", "시스템 다크 설정을 따르지 않음");
   check(!table.overflow, "모바일 페이지 가로 넘침");
-  check(!table.heads.includes("분야") && table.heads[1] === "현재가", `모바일 기본 열 구성 ${table.heads.slice(0, 4).join(",")}`);
+  check(!table.heads.includes("분야") && table.heads[1] === "점수" && table.heads[2] === "현재가", `모바일 기본 열 구성 ${table.heads.slice(0, 4).join(",")}`);
   check(await evaluate("document.querySelector('#table-wrap').scrollHeight<=document.querySelector('#table-wrap').clientHeight+1"),'모바일 표 안 세로 스크롤이 남음');
   await evaluate("const w=document.querySelector('#table-wrap');w.scrollLeft=1600;w.dispatchEvent(new Event('scroll'))");await sleep(100);
   await shot('financial-mobile-right');
