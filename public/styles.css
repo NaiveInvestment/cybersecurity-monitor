@@ -308,6 +308,9 @@ body.app .table-wrap { max-height:none; height:auto; }
 .wide-financials .ttm-value { display:inline-block; width:6ch; text-align:right; font-variant-numeric:tabular-nums lining-nums; }
 .wide-financials .ttm-ratio { width:5ch; }
 .wide-financials .ttm-missing { text-align:center; }
+.grid .treasury { min-width:57px; }
+.treasury-value { display:inline-block; min-width:6ch; text-align:right; }
+.treasury-value:hover, .treasury-value:focus-visible { color:var(--brand); text-decoration:underline; }
 .wide-financials .drawdown { text-align:center; }
 .wide-financials .ttm-summary .sort, .wide-financials .drawdown .sort, .grid .stock-score .sort { position:relative; display:inline-block; }
 .wide-financials .ttm-summary .sort::after, .wide-financials .drawdown .sort::after, .grid .stock-score .sort::after { position:absolute; left:100%; bottom:0; margin-left:3px; }

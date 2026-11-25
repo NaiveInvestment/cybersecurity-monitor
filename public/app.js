@@ -17,6 +17,7 @@ let financials = null;
 let kpiWeight = "cap";
 let filingPeriod = null;
 let filings = new Map();
+let treasuryShares = null;
 let horizon = "threeMonth";
 let baseQuotes = {};
 
@@ -111,6 +112,30 @@ let COLUMNS = [
 ];
 const BASE_COLUMNS = COLUMNS;
 const BASE_GROUPS = GROUPS.map(g=>({...g}));
+
+function treasuryColumn(group) {
+  const shareCounts = (stock) => treasuryShares?.stocks?.[stock.id];
+  return {
+    key: "treasury", group, label: "자사주", cls: "ttm-summary treasury",
+    title: "분기 말 자기주식 수 ÷ 발행주식 수, 비율을 누르면 공시 원문 열기",
+    sort: (stock) => {
+      const row = shareCounts(stock);
+      return row?.issued > 0 && Number.isInteger(row.treasury) ? row.treasury / row.issued : null;
+    },
+    cell: (stock) => {
+      const row = shareCounts(stock);
+      if (!(row?.issued > 0) || !Number.isInteger(row.treasury)) {
+        return { html: '<span class="financial-missing" title="분기 말 공시 확인 자료 없음">–</span>' };
+      }
+      const ratio = (row.treasury / row.issued).toLocaleString("ko-KR", {
+        style: "percent", minimumFractionDigits: 2, maximumFractionDigits: 2,
+      });
+      const title = `${treasuryShares.asOf} 기준, 발행주식 ${row.issued.toLocaleString("ko-KR")}주 중 자사주 ${row.treasury.toLocaleString("ko-KR")}주`;
+      return { html: `<a class="treasury-value" href="https://dart.fss.or.kr/dsaf001/main.do?rcpNo=${esc(row.receipt)}" target="_blank" rel="noopener noreferrer" title="${esc(title)}" aria-label="${esc(stock.name)} 자사주 ${ratio}. ${esc(title)}. DART 공시">${ratio}</a>` };
+    },
+  };
+}
+
 function financialColumns() {
   const active=!!financials&&state.view==='KR';
   $('#financial-horizon').closest('label').hidden=!active;
@@ -118,15 +143,22 @@ function financialColumns() {
   const baseNote = state.view === 'GL' ? '해외 실적은 최근 확정 분기와 TTM'
     : state.view === 'ALL' ? `${domesticBasis}, 해외 TTM 및 분기 자료 네이버`
     : domesticBasis;
-  $('#financial-date').textContent = active
+  const financeNote = active
     ? `${baseNote}, 연간 확정 OpenDART, 추정 ConsenDB ${financials.workbookBaseDate}`
     : baseNote;
-  if(!active){COLUMNS=BASE_COLUMNS;GROUPS=BASE_GROUPS.map(g=>({...g}));if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};return;}
+  const treasuryNote = treasuryShares ? `자사주 ${treasuryShares.asOf} DART` : '자사주 자료 없음';
+  $('#financial-date').textContent = state.view === 'KR' ? `${financeNote} / ${treasuryNote}` : financeNote;
+  if(!active){
+    COLUMNS=state.view==='KR'?[...BASE_COLUMNS,treasuryColumn('val')]:BASE_COLUMNS;
+    GROUPS=BASE_GROUPS.map(g=>({...g}));
+    if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
+    return;
+  }
   const byId=new Map(financials.stocks.map(s=>[s.id,s]));
   const periods=timelinePeriods(financials.stocks).filter(p=>Number(p.period.slice(0,4))<=2027);
   const basis={threeMonth:'3M 평균',oneMonth:'1M 평균',highest:'3M 최고'}[horizon];
   const metrics=[{id:'revenue',label:`매출 (억원, ${basis})`,field:'revenue'},{id:'operatingIncome',label:`영업이익 (억원, ${basis})`,field:'operatingIncome'},{id:'parentNetIncome',label:`지배순이익 (억원, ${basis})`,field:'parentNetIncome'},{id:'pe',label:'P/E (배, 현재 시총)',valuation:'pe'},{id:'pb',label:'P/B (배, 현재 시총)',valuation:'pb'},{id:'roe',label:'ROE (%)',valuation:'roe'}];
-  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),{id:'ttm',label:'TTM 요약 (억원, 배)'},...metrics.map(m=>({id:m.id,label:m.label}))];
+  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),{id:'ttm',label:'TTM 요약 (억원, 배), 자사주 (%)'},...metrics.map(m=>({id:m.id,label:m.label}))];
   COLUMNS=BASE_COLUMNS.filter(c=>!['fin','val'].includes(c.group));
   const summary=[{key:'revTtm',label:'매출'},{key:'opTtm',label:'영업이익'},{key:'niTtm',label:'순이익'},{key:'psr',label:'PSR'},{key:'per',label:'PER'}];
   for(const metric of summary)COLUMNS.push({key:metric.key,group:'ttm',label:metric.label,cls:'ttm-summary',sort:(s,d)=>typeof d[metric.key]==='number'?d[metric.key]:null,cell:(s,d)=>{
@@ -137,6 +169,7 @@ function financialColumns() {
     const display=ratio&&typeof v==='number'?v.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}):timelineNumber(v);
     return {html:`<span class="ttm-value${ratio?' ttm-ratio':''}${typeof v!=='number'?' ttm-missing':''}" data-summary="${metric.key}" title="OpenDART, ${esc(period)}, ${esc(note)}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${display}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
   }});
+  COLUMNS.push(treasuryColumn('ttm'));
   const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
   for(const m of metrics){
     for(const p of periods)COLUMNS.push({key:`${m.id}-${p.period}`,group:m.id,label:p.label,cls:'financial-year',sort:(s,d)=>{const v=value(s,d,p,m);return typeof v==='number'?v:null;},cell:(s,d)=>{const v=value(s,d,p,m);return {html:`<span class="financial-value ${v==null?'financial-missing':''}" data-metric="${m.id}" data-period="${p.period}" title="${esc(m.label)}, ${p.label}${v==null?', 자료 없음':v==='N/M'?', 이익 또는 자기자본이 0 이하라 계산 제외':''}">${timelineNumber(v)}</span>`,cls:(byId.get(s.id)?.annual?.[p.period]?.kind==='actual'?'actual-cell':'estimate-cell')+(typeof v==='number'&&v<0?' neg':'')};}});
@@ -229,7 +262,7 @@ function fitOverviewColumns() {
   const scroll=wrap.scrollLeft;
   table.querySelector('colgroup')?.remove();
   const heads=[...table.querySelectorAll('.cols th')];
-  const last=heads.findIndex(th=>th.querySelector('[data-sort="per"]'));
+  const last=heads.findIndex(th=>th.querySelector('[data-sort="treasury"]'));
   if(last<0)return;
   const widths=heads.map(th=>th.getBoundingClientRect().width);
   const compact=heads.findIndex(th=>th.classList.contains('drawdown'));
@@ -453,13 +486,15 @@ async function main() {
     return;
   }
   baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
-  const [annual, positions, scores] = await Promise.all([
+  const [annual, positions, scores, treasury] = await Promise.all([
     loadJson("data/financials.json").catch(() => null),
     loadJson("data/positions.json").catch(() => null),
     meta.stockScores ? loadJson(meta.stockScores).catch(() => null) : null,
+    loadJson("data/treasury-shares.json").catch(() => null),
   ]);
   bindScores(snapshot.stocks, scores, renderTable);
   financials = annual;
+  treasuryShares = treasury;
   if (positions?.period && Array.isArray(positions.stocks)) {
     filingPeriod = positions.period;
     filings = new Map(positions.stocks.map((stock) => [stock.id, filingSummary(stock.finance)]));
