@@ -2,24 +2,35 @@ import { initTheme } from "./common.js";
 initTheme();
 
 const overview = document.getElementById("overview");
-const grid = overview.querySelector(".overview-grid");
+const table = overview.querySelector("table");
 for (const period of document.querySelectorAll(".period")) {
-  const group = document.createElement("section");
-  const heading = document.createElement("h4");
+  const group = table.createTBody();
+  const heading = document.createElement("th");
+  heading.scope = "rowgroup";
+  heading.colSpan = 5;
   heading.textContent = period.querySelector("h3").textContent;
-  const list = document.createElement("ul");
+  group.insertRow().append(heading);
+
   for (const event of period.querySelectorAll("li")) {
+    const row = group.insertRow();
+    row.className = "calendar-row";
+    row.insertCell().textContent = event.querySelector(".when").textContent;
+    row.insertCell().append(event.querySelector(".event-rating").cloneNode(true));
+
     const link = document.createElement("a");
     link.href = "#" + event.id;
     link.id = "summary-" + event.id;
-    const date = event.querySelector(".when").cloneNode(true);
-    const title = document.createElement("span");
-    title.textContent = event.querySelector("h4").textContent;
-    const rating = event.querySelector(".event-rating").cloneNode(true);
-    link.append(date, title, rating);
-    const item = document.createElement("li");
-    item.append(link);
-    list.append(item);
+    link.textContent = event.querySelector("h4").textContent;
+    row.insertCell().append(link);
+
+    const sector = document.createElement("span");
+    sector.className = "sector-label";
+    sector.textContent = event.dataset.sector || "기타";
+    row.insertCell().append(sector);
+    row.insertCell().textContent = event.dataset.impact || "수혜 대상 미정";
+    row.addEventListener("click", (e) => {
+      if (!e.target.closest("a") && !window.getSelection()?.toString()) link.click();
+    });
 
     const back = document.createElement("a");
     back.className = "back-to-overview";
@@ -27,10 +38,8 @@ for (const period of document.querySelectorAll(".period")) {
     back.textContent = "목록으로";
     event.querySelector(".sources").append(back);
   }
-  group.append(heading, list);
-  grid.append(group);
 }
-overview.hidden = !grid.childElementCount;
+overview.hidden = !table.tBodies.length;
 
 function showCategory() {
   const company = window.location.hash === "#company";

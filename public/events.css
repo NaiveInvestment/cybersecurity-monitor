@@ -31,23 +31,47 @@
 .rating-note::before { content:"선정 이유　"; font-weight:650; }
 @media(max-width:640px){ .rating-guide { column-gap:10px; } .rating-guide strong { width:100%; } }
 
-#overview { margin:20px 0 6px; }
+#overview { margin:22px 0 6px; }
 #overview > h3, .detail-heading { font-size:19px; margin:0 0 12px; }
-.overview-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:16px 32px; }
-.overview-grid h4 { color:var(--brand); font-size:14px; margin:0; padding:0 0 5px; border-bottom:1px solid var(--line-strong); }
-.overview-grid ul { list-style:none; margin:0; padding:0; }
-.overview-grid li { border-bottom:1px solid var(--line); }
-.overview-grid a { display:grid; grid-template-columns:75px minmax(0,1fr) 39px; align-items:baseline; gap:7px; padding:5px 2px; color:var(--ink); font-size:14px; line-height:1.45; }
-.overview-grid a:hover, .overview-grid a:target { background:var(--surface-2); color:var(--brand); }
-.overview-grid .when { font-size:13px; color:var(--muted); padding:0; }
-.overview-grid .event-rating { text-align:right; font-size:12px; margin:0; }
+.calendar { width:100%; table-layout:fixed; border-collapse:collapse; background:var(--surface); font-size:14px; }
+.calendar th, .calendar td { text-align:left; vertical-align:middle; padding:7px 10px; }
+.calendar thead { color:var(--muted); background:var(--surface-2); border-block:1px solid var(--line-strong); }
+.calendar th:nth-child(1) { width:10%; }
+.calendar th:nth-child(2) { width:8%; }
+.calendar th:nth-child(3) { width:35%; }
+.calendar th:nth-child(4) { width:14%; }
+.calendar th[scope="rowgroup"] { color:var(--brand); background:var(--surface-3); font-size:13px; border-top:1px solid var(--line-strong); padding-block:5px; }
+.calendar-row { cursor:pointer; border-bottom:1px solid var(--line); }
+.calendar-row:hover, .calendar-row:focus-within { background:var(--surface-2); }
+.calendar-row td { overflow-wrap:anywhere; word-break:keep-all; }
+.calendar-row td:first-child { font-variant-numeric:tabular-nums; color:var(--muted); }
+.calendar-row a { font-weight:650; scroll-margin-top:30px; }
+.calendar-row a:hover { color:var(--brand); }
+.calendar-row .event-rating { margin:0; }
+.sector-label { display:inline-block; padding:2px 6px; border-radius:3px; font-size:12.5px; color:var(--brand); background:color-mix(in srgb,var(--brand) 10%,var(--surface)); }
+.calendar-row td:last-child { font-size:13px; }
+@media (max-width:700px) {
+  .calendar, .calendar tbody { display:block; }
+  .calendar thead { display:block; }
+  .calendar thead tr { display:grid; grid-template-columns:66px auto auto 1fr; gap:2px 8px; padding:6px 8px; }
+  .calendar thead th { width:auto; padding:0; white-space:nowrap; font-size:12px; }
+  .calendar thead th:first-child { grid-area:1 / 1; }
+  .calendar thead th:nth-child(2) { grid-area:2 / 1; }
+  .calendar thead th:nth-child(3) { grid-area:1 / 2 / 2 / 5; }
+  .calendar thead th:nth-child(4) { grid-area:2 / 2; }
+  .calendar thead th:nth-child(5) { grid-area:2 / 3 / 3 / 5; }
+  .calendar tbody > tr:first-child, .calendar th[scope="rowgroup"] { display:block; width:auto; }
+  .calendar .calendar-row { display:grid; grid-template-columns:66px minmax(0,1fr); align-items:start; gap:3px 8px; padding:8px; }
+  .calendar-row td { padding:0; }
+  .calendar-row td:first-child { grid-area:1 / 1; font-size:13px; }
+  .calendar-row td:nth-child(2) { grid-area:2 / 1; }
+  .calendar-row td:nth-child(3) { grid-area:1 / 2; }
+  .calendar-row td:nth-child(4) { grid-area:2 / 2; }
+  .calendar-row td:last-child { grid-area:3 / 2; color:var(--muted); }
+  .calendar-row td:last-child::before { content:"관련 수혜　"; font-weight:650; }
+}
 .detail-heading { margin:25px 0 0; }
 .detail-heading + .period { margin-top:10px; }
 .period li:target { background:var(--surface-2); box-shadow:inset 3px 0 var(--accent); padding-left:10px; }
-.period li[id], .overview-grid a { scroll-margin-top:12px; }
+.period li[id] { scroll-margin-top:12px; }
 .period .back-to-overview { display:inline-block; margin-left:14px; color:var(--brand); }
-@media(max-width:700px){
-  .overview-grid { grid-template-columns:minmax(0,1fr); gap:13px; }
-  .overview-grid a { grid-template-columns:72px minmax(0,1fr) 35px; min-height:32px; }
-}
-
