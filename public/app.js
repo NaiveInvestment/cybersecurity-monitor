@@ -207,12 +207,15 @@ function renderTable() {
   const body = rows.map(({ stock, d }) => `<tr>${COLS.map((column) => {
     const cell = column.cell(stock, d);
     const classes = [column.cls || "", cell.cls || "", firstOfGroup.has(column.key) && column.group !== "id" ? "g-start" : ""].filter(Boolean).join(" ");
-    const fill = cell.returnStrength ? ` style="--return-strength:${cell.returnStrength}%"` : "";
+    const fill = cell.returnStrength ? ` data-return-strength="${cell.returnStrength}"` : "";
     return column.key === "name" || column.rowHeader ? `<th scope="row" class="${classes}">${cell.html}</th>` : `<td class="${classes}"${fill}>${cell.html}</td>`;
   }).join("")}</tr>`).join("");
   const wrap = $("#table-wrap");
   const scroll = { left: wrap.scrollLeft, top: wrap.scrollTop };
   wrap.innerHTML = `<table class="grid${financials&&state.view==='KR'?' wide-financials':''}"><thead><tr class="groups">${groupRow}</tr><tr class="cols">${headRow}</tr></thead><tbody>${body}</tbody></table>`;
+  for (const cell of wrap.querySelectorAll("[data-return-strength]")) {
+    cell.style.setProperty("--return-strength", `${cell.dataset.returnStrength}%`);
+  }
   fitOverviewColumns();
   wrap.scrollLeft = scroll.left;
   wrap.scrollTop = scroll.top;
