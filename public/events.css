@@ -12,7 +12,7 @@
 .when { font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; }
 .event-status { font-size:13px; font-weight:650; color:var(--brand); }
 .period h4 { font-size:18px; margin:4px 0 6px; line-height:1.42; word-break:keep-all; }
-.period p, .event-analysis dd { font-size:15px; line-height:1.58; margin:0; word-break:keep-all; overflow-wrap:anywhere; }
+.period p, .event-analysis dd { max-inline-size:92ch; font-size:15px; line-height:1.58; margin:0; word-break:keep-all; overflow-wrap:anywhere; }
 .period li > div:last-child { min-width:0; }
 .event-analysis { display:grid; gap:7px; margin:12px 0 10px; }
 .event-analysis > div, .consortia dl > div { display:grid; grid-template-columns:102px minmax(0,1fr); gap:12px; }
@@ -65,6 +65,10 @@
 .calendar-row .event-rating { margin:0; }
 .sector-label { display:inline-block; padding:2px 6px; border-radius:3px; font-size:12.5px; color:var(--brand); background:color-mix(in srgb,var(--brand) 10%,var(--surface)); }
 .calendar-row td:last-child { font-size:13px; }
+@media (min-width:701px) and (max-width:900px) {
+  .calendar th, .calendar td { padding-inline:6px; }
+  .calendar thead th { white-space:nowrap; }
+}
 @media (max-width:700px) {
   .calendar, .calendar tbody { display:block; }
   .calendar thead { display:block; }
