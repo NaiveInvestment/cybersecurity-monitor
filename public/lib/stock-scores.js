@@ -1,4 +1,4 @@
-// 점수는 종목마다 이 브라우저에 저장한다. 로컬 서버에서만 초기 점수를 제공한다.
+// 제공된 기본 점수는 브라우저에서 개인 설정으로 덮어쓸 수 있다.
 const prefix = "csm.stock-score.";
 const scores = new Map();
 const initial = new Map();

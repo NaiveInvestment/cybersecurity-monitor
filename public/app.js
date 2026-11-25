@@ -48,11 +48,18 @@ function derive(stock) {
 
 const money = (stock, d, key) => (state.cur === "krw" || stock.kind === "KR" ? fmtEok(d[key]) : fmtLocalMillion(d[`${key}Local`], stock.cur));
 
-function heat(value) {
-  if (value == null || Math.abs(value) < 2) return "";
-  const abs = Math.abs(value);
-  const level = abs >= 40 ? 5 : abs >= 20 ? 4 : abs >= 10 ? 3 : abs >= 5 ? 2 : 1;
-  return `h-${value > 0 ? "p" : "n"}${level}`;
+const returnHeatCaps = {
+  w1: [20, 10], m1: [50, 25], m3: [100, 50],
+  ytd: [200, 100], y1: [200, 100], dd: [40, 40],
+};
+
+function heat(value, key) {
+  if (!Number.isFinite(value)) return "na";
+  if (Number(value.toFixed(1)) === 0) return "";
+  const [up, down] = returnHeatCaps[key];
+  const positive = value > 0;
+  const level = Math.ceil(Math.min(Math.abs(value) / (positive ? up : down), 1) * 5);
+  return `return-cell h-${positive ? "p" : "n"}${level}`;
 }
 
 function spark(stock) {
@@ -68,7 +75,7 @@ function spark(stock) {
   return `<svg class="spark" width="${points.length * 9 - 2}" height="16" viewBox="0 0 ${points.length * 9 - 2} 16" role="img" aria-label="분기 매출 ${esc(label)}"><title>분기 매출(${esc(stock.f.unit === "억원" ? "억원" : `${stock.f.unit} 백만`)}): ${esc(label)}</title>${bars}</svg>`;
 }
 
-const pctCell = (value, withHeat = true) => ({ html: fmtPct(value), cls: withHeat ? heat(value) : signClass(value) });
+const pctCell = (value, key) => ({ html: fmtPct(value), cls: key ? heat(value, key) : signClass(value) });
 
 let GROUPS = [
   { id: "id", label: "종목" }, { id: "quote", label: "시세" }, { id: "ret", label: "수익률" },
@@ -82,18 +89,18 @@ let COLUMNS = [
     cell: s => ({ html: `<button type="button" class="score-entry" data-edit-score="${esc(s.id)}" aria-label="${esc(s.name)} 점수">${stockScore(s.id) ?? "–"}</button>` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
   { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="${d.nxt ? 'NXT 프리마켓, ' : ''}네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
-  { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: d.nxt ? `<span title="NXT 프리마켓, 전일 종가 대비">${fmtPct(d.chg, 2)}</span>` : fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
+  { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: d.nxt ? `<span title="NXT 프리마켓, 전일 종가 대비">${fmtPct(d.chg, 2)}</span>` : fmtPct(d.chg, 2), cls: Number.isFinite(d.chg) ? "" : "na" }) },
   { key: "cap", group: "quote", label: "시가총액", sort: (s, d) => d.cap, cell: (s, d) => ({ html: money(s, d, "cap") }) },
   { key: "tv", group: "quote", label: "거래대금", title: "국내 기준: KRX + NXT 당일 누적", sort: (s, d) => d.tv, cell: (s, d) => ({ html: fmtEok(d.tv) }) },
-  { key: "w1", group: "ret", label: "1W", sort: (s, d) => d.w1, cell: (s, d) => pctCell(d.w1) },
-  { key: "m1", group: "ret", label: "1M", sort: (s, d) => d.m1, cell: (s, d) => pctCell(d.m1) },
-  { key: "m3", group: "ret", label: "3M", sort: (s, d) => d.m3, cell: (s, d) => pctCell(d.m3) },
-  { key: "ytd", group: "ret", label: "YTD", sort: (s, d) => d.ytd, cell: (s, d) => pctCell(d.ytd) },
-  { key: "y1", group: "ret", label: "1Y", sort: (s, d) => d.y1, cell: (s, d) => pctCell(d.y1) },
-  { key: "dd", group: "ret", label: "52주<br>고점 대비", cls:"drawdown", sort: (s, d) => d.dd, cell: (s, d) => ({ html: fmtPct(d.dd), cls: signClass(d.dd) }) },
+  { key: "w1", group: "ret", label: "1W", sort: (s, d) => d.w1, cell: (s, d) => pctCell(d.w1, "w1") },
+  { key: "m1", group: "ret", label: "1M", sort: (s, d) => d.m1, cell: (s, d) => pctCell(d.m1, "m1") },
+  { key: "m3", group: "ret", label: "3M", sort: (s, d) => d.m3, cell: (s, d) => pctCell(d.m3, "m3") },
+  { key: "ytd", group: "ret", label: "YTD", sort: (s, d) => d.ytd, cell: (s, d) => pctCell(d.ytd, "ytd") },
+  { key: "y1", group: "ret", label: "1Y", sort: (s, d) => d.y1, cell: (s, d) => pctCell(d.y1, "y1") },
+  { key: "dd", group: "ret", label: "52주<br>고점 대비", cls:"drawdown", sort: (s, d) => d.dd, cell: (s, d) => pctCell(d.dd, "dd") },
   { key: "ym", group: "fin", label: "분기", sort: (s, d) => d.ym, cell: (s, d) => ({ html: d.ym ? d.ym.slice(2).replace("-", ".") : "-", cls: "per" }) },
   { key: "rev", group: "fin", label: "분기<br>매출", sort: (s, d) => d.rev, cell: (s, d) => ({ html: money(s, d, "rev") }) },
-  { key: "yoy", group: "fin", label: "매출<br>YoY", sort: (s, d) => d.yoy, cell: (s, d) => pctCell(d.yoy, false) },
+  { key: "yoy", group: "fin", label: "매출<br>YoY", sort: (s, d) => d.yoy, cell: (s, d) => pctCell(d.yoy) },
   { key: "revTtm", group: "fin", label: "매출<br>TTM", sort: (s, d) => d.revTtm, cell: (s, d) => ({ html: money(s, d, "revTtm") }) },
   { key: "opTtm", group: "fin", label: "영업이익<br>TTM", sort: (s, d) => d.opTtm, cell: (s, d) => ({ html: money(s, d, "opTtm"), cls: d.opTtm < 0 ? "neg" : "" }) },
   { key: "opm", group: "fin", label: "영업이익률", sort: (s, d) => d.opm, cell: (s, d) => ({ html: d.opm == null ? "-" : `${d.opm.toFixed(1)}%`, cls: d.opm < 0 ? "neg" : "" }) },
@@ -441,11 +448,12 @@ async function main() {
     return;
   }
   baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
-  const [annual, positions] = await Promise.all([
+  const [annual, positions, scores] = await Promise.all([
     loadJson("data/financials.json").catch(() => null),
     loadJson("data/positions.json").catch(() => null),
+    meta.stockScores ? loadJson(meta.stockScores).catch(() => null) : null,
   ]);
-  bindScores(snapshot.stocks, null, renderTable);
+  bindScores(snapshot.stocks, scores, renderTable);
   financials = annual;
   if (positions?.period && Array.isArray(positions.stocks)) {
     filingPeriod = positions.period;

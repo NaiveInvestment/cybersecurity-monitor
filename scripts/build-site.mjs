@@ -81,6 +81,7 @@ const bannerIssues = topIssues(stories, { limit: stories.length })
 writeFileSync(join(outDir, "data", "issue-banner.json"), JSON.stringify(bannerIssues));
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
   builtAt: new Date().toISOString(),
+  stockScores: "data/stock-scores.json",
   live: liveRepo ? { repo: liveRepo, branch: "live", file: "live.json", sector: true, relayConfig: `https://raw.githubusercontent.com/${liveRepo}/relay/relay.json` } : null,
 }));
 writeFileSync(join(outDir, "robots.txt"), "User-agent: *\nDisallow: /\n");

@@ -28,7 +28,7 @@ for (const file of ["positions.html", "positions.css", "positions.js", "data/pos
 }
 
 if (args.includes("--public")) {
-  for (const path of ["reports", "report-view.html", "report-view.js", "report-view.css", "data/position-library.json", "data/stock-scores.json"]) {
+  for (const path of ["reports", "report-view.html", "report-view.js", "report-view.css", "data/position-library.json"]) {
     check(!existsSync(join(dir, path)), `공개 폴더에 로컬 자료 경로가 있음: ${path}`);
   }
   check(!existsSync(join(dir, "positions.html")) || !read("positions.html").includes("data-report-library"),
@@ -37,6 +37,16 @@ if (args.includes("--public")) {
 
 if (!failures.length) {
   const snapshot = JSON.parse(read("data/snapshot.json"));
+  if (args.includes("--public")) {
+    const meta = JSON.parse(read("data/meta.json"));
+    check(meta.stockScores === "data/stock-scores.json", "공개 점수 경로 불일치");
+    check(existsSync(join(dir, "data", "stock-scores.json")), "공개 점수 파일 없음");
+    if (existsSync(join(dir, "data", "stock-scores.json"))) {
+      const scores = JSON.parse(read("data/stock-scores.json"));
+      const ids = new Set(snapshot.stocks.map(({ id }) => id));
+      check(Object.entries(scores).every(([id, value]) => ids.has(id) && Number.isFinite(value)), "공개 종목 점수 형식 오류");
+    }
+  }
   const kr = snapshot.stocks.filter((stock) => stock.kind === "KR");
   const gl = snapshot.stocks.filter((stock) => stock.kind === "GL");
   check(kr.length === 35, `국내 종목 수 ${kr.length}, 기대 35`);

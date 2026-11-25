@@ -7,7 +7,8 @@
   --line: #273039; --line-strong: #36424e; --line-group: #4a5a68;
   --brand: #8fb7e0; --accent: #f2b84b;
   --up: #ff6b7a; --down: #5aa2ff; --good: #4fd19a;
-  --h-p1: #2a222a; --h-p2: #3d2931; --h-p3: #523039; --h-p4: #673741; --h-p5: #7e3f4a; --h-n1: #1b2736; --h-n2: #213248; --h-n3: #273e5b; --h-n4: #2d4a6f; --h-n5: #345885;
+  --h-p1: #32212a; --h-p2: #4d2734; --h-p3: #692a39; --h-p4: #85273a; --h-p5: #a52237;
+  --h-n1: #1c2b41; --h-n2: #203759; --h-n3: #254477; --h-n4: #284f8d; --h-n5: #2d59a1;
   --heat-1: #26313c; --heat-2: #3a4652; --heat-3: #6e5a2c; --heat-4: #b08630; --heat-5: #f2b84b; --heat-ink-3: #f3e6c8; --heat-ink-4: #14100a; --heat-ink-5: #14100a;
   --comp-c: #9aa7b4; --comp-r: #4fd19a; --comp-m: #c08cff;
   --radius: 6px;
@@ -24,7 +25,8 @@
   --brand: #1f4e7f; --accent: #8a6408;
   --up: #c5223d; --down: #155fa8; --good: #1a7a55;
   --heat-1: #eef1f4; --heat-2: #dfe4ea; --heat-3: #f1d9a3; --heat-4: #d9a63b; --heat-5: #8a6408; --heat-ink-3: #3d2c05; --heat-ink-4: #1b1405; --heat-ink-5: #ffffff;
-  --h-p1: #faebee; --h-p2: #f5d9de; --h-p3: #f0c6cd; --h-p4: #ebb2bb; --h-p5: #e59ca8; --h-n1: #eaf1f7; --h-n2: #d7e4f0; --h-n3: #c2d5e8; --h-n4: #adc7e1; --h-n5: #96b7d8;
+  --h-p1: #fff0f2; --h-p2: #fbdbdf; --h-p3: #f7c5cd; --h-p4: #f1a7b3; --h-p5: #eb8798;
+  --h-n1: #edf5ff; --h-n2: #d9eaff; --h-n3: #c0daff; --h-n4: #a0c7fc; --h-n5: #81b3f5;
 }
 
 * { box-sizing: border-box; }
@@ -136,18 +138,21 @@ th[aria-sort="ascending"] .sort::after { border-bottom: 5px solid var(--accent);
 .unit { margin-left: 1px; font-size: 10.5px; color: var(--muted); }
 .per { color: var(--muted); }
 
-/* 수익률 히트: 세기 5단계. 0 근처는 무채색. 색은 바탕색에 상승, 하락색을 9~45% 섞어 미리 계산한 값. */
-.h-p1 { background: var(--h-p1); }
-.h-p2 { background: var(--h-p2); }
-.h-p3 { background: var(--h-p3); }
-.h-p4 { background: var(--h-p4); }
-.h-p5 { background: var(--h-p5); }
-.h-n1 { background: var(--h-n1); }
-.h-n2 { background: var(--h-n2); }
-.h-n3 { background: var(--h-n3); }
-.h-n4 { background: var(--h-n4); }
-.h-n5 { background: var(--h-n5); }
-.grid tbody tr:hover td[class*="h-"] { filter: brightness(1.08); }
+.h-p1 { --return-fill: var(--h-p1); --return-ink: var(--up); }
+.h-p2 { --return-fill: var(--h-p2); }
+.h-p3 { --return-fill: var(--h-p3); }
+.h-p4 { --return-fill: var(--h-p4); }
+.h-p5 { --return-fill: var(--h-p5); }
+.h-n1 { --return-fill: var(--h-n1); --return-ink: var(--down); }
+.h-n2 { --return-fill: var(--h-n2); }
+.h-n3 { --return-fill: var(--h-n3); }
+.h-n4 { --return-fill: var(--h-n4); }
+.h-n5 { --return-fill: var(--h-n5); }
+.grid tbody td.return-cell, .grid tbody tr:hover td.return-cell {
+  background-color: var(--return-fill);
+  color: var(--return-ink, var(--ink));
+  font-weight: 700;
+}
 
 /* 실시간 체결로 현재가가 바뀌면 한 번 반짝인다. */
 @keyframes flash-up { from { background: var(--h-p4); } to { background: transparent; } }
