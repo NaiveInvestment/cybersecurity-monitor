@@ -7,6 +7,8 @@
 .composition-chart-panel { padding:20px 24px 15px; }
 .composition-toolbar, .composition-breakdown header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 16px; }
 .composition-toolbar h2, .composition-breakdown h2 { font-size:17px; letter-spacing:-.015em; }
+.composition-compare { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; color:var(--muted); font-size:12px; font-weight:600; }
+.composition-compare .seg-switch button:disabled { opacity:.4; cursor:default; }
 .composition-summary { display:grid; grid-template-columns:minmax(140px,auto) minmax(180px,1fr) auto; gap:14px 27px; align-items:end; padding:18px 0 14px; }
 .composition-summary > div:not(.composition-dates) { display:grid; align-content:start; }
 .composition-summary span { color:var(--muted); font-size:12px; font-weight:600; }
@@ -21,7 +23,6 @@
 .composition-figure figcaption { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 14px; min-height:20px; padding:0 0 6px 2px; color:var(--ink); font-size:12.5px; font-weight:700; }
 .composition-figure figcaption small, .composition-hint { color:var(--muted); font-size:11.5px; font-weight:400; }
 .composition-chart { display:block; width:100%; height:auto; touch-action:pan-y; cursor:crosshair; user-select:none; -webkit-user-select:none; }
-.grabbable .composition-chart, .dragging .composition-chart, .composition-chart [data-composition-base-tag] { cursor:ew-resize; }
 .composition-chart:focus-visible { outline:2px solid var(--accent); outline-offset:1px; border-radius:4px; }
 .composition-chart text { fill:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; }
 .composition-chart .composition-year { opacity:.75; }
@@ -33,6 +34,7 @@
 .composition-base-dot { fill:var(--surface); stroke:var(--brand); stroke-width:2; }
 .composition-dot { fill:var(--brand); stroke:var(--surface); stroke-width:2; }
 .composition-chart [data-composition-cursor] { stroke:var(--ink); pointer-events:none; }
+.composition-chart [data-composition-tag], .composition-chart [data-composition-base-tag] { pointer-events:none; }
 .composition-chart [data-composition-base-tag] rect { fill:var(--surface); stroke:var(--muted); }
 .composition-chart [data-composition-base-tag] text { fill:var(--ink); font-weight:700; }
 .composition-chart [data-composition-tag] rect { fill:var(--ink); }
@@ -104,7 +106,7 @@
   .composition-intro { margin:5px 0 15px; }
   .composition-chart-panel, .composition-breakdown { padding:12px 9px; border-radius:8px; }
   .composition-toolbar h2, .composition-breakdown h2 { font-size:15px; }
-  .composition-toolbar .seg-switch button { padding:4px 7px; }
+  .composition-toolbar .seg-switch button { padding:4px 6px; }
   .composition-summary { gap:10px 8px; }
   .composition-summary strong .composition-pct { margin-left:4px; }
   .composition-delta { gap:4px; }

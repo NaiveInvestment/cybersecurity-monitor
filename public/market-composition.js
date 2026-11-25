@@ -1,7 +1,7 @@
 import { esc, initTheme, loadJson, signClass } from "./common.js";
 import { marketComposition } from "./lib/market-composition.js";
 import { treemap } from "./lib/treemap.js";
-import { currentMarketActivity, marketMonthRanges, marketRangeStart } from "./lib/market-activity.js";
+import { currentMarketActivity, marketRangeStart } from "./lib/market-activity.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
 
 const number = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
@@ -11,9 +11,19 @@ const signed = value => value == null ? "–" : Math.abs(value) < .05 ? "0" : (v
 const TREND = { height: 200, top: 32, left: 46, right: 16, bottom: 40 };
 const TREND_COMPACT = { height: 170, top: 32, left: 38, right: 12, bottom: 40 };
 const MAP = { height: 400, compactHeight: 440 };
-const STEPS = [.1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
+const STEPS = [.01, .02, .05, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 // 증감률 색 단계의 경계(%). 범례 문구와 CSS의 composition-heat 단계가 이 값을 따른다.
 const HEAT = [2, 10, 30];
+// 화면은 늘 최근 1년을 보여 준다. 비교일 빠른 선택은 조회일에서 이만큼 앞선 날짜다(전일은 직전 거래일, 1주는 7일 전).
+const RANGE = "1Y";
+const PRESETS = { day: null, week: null, month: "1M", quarter: "3M", half: "6M", year: "1Y" };
+const PERIOD_PRESETS = { "1M": "month", "3M": "quarter", "6M": "half", "1Y": "year" };
+function presetDate(preset, date) {
+  if (PRESETS[preset]) return marketRangeStart(date, PRESETS[preset]);
+  const day = new Date(`${date}T00:00:00Z`);
+  day.setUTCDate(day.getUTCDate() - 7);
+  return day.toISOString().slice(0, 10);
+}
 
 function textMeasure(fontFamily) {
   const context = document.createElement("canvas").getContext("2d");
@@ -49,19 +59,25 @@ function timeTicks(points, x, compact) {
 function drawTrend(points, values, width, measure, name) {
   const compact = width < 550;
   const { height, top, right, bottom, ...layout } = compact ? TREND_COMPACT : TREND;
-  const peak = Math.max(0, ...values.filter(value => value != null));
+  const present = values.filter(value => value != null);
+  const peak = Math.max(0, ...present), trough = present.length ? Math.min(...present) : 0;
   const divisor = peak >= 10000 ? 10000 : 1, unit = divisor > 1 ? "조원" : "억원";
-  const step = STEPS.find(size => peak / divisor / size <= 3) ?? STEPS.at(-1);
-  const high = Math.max(1, Math.ceil(peak / divisor / step - 1e-9)) * step;
+  // 세로축은 0부터가 아니라 값이 움직인 범위에 위아래 여유를 조금 둔 구간이다. 눈금은 그 안의 딱 떨어지는 값에 여섯 개(좁은 화면 다섯 개) 이하로 둔다.
+  const pad = Math.max((peak - trough) * .08, peak * .005, 1e-6);
+  const low = Math.max(0, trough - pad) / divisor, high = (peak + pad) / divisor;
+  const inside = size => [Math.ceil(low / size - 1e-9), Math.floor(high / size + 1e-9)];
+  const step = STEPS.find(size => inside(size)[1] - inside(size)[0] < (compact ? 5 : 6)) ?? STEPS.at(-1);
+  const marks = Array.from({ length: Math.max(0, inside(step)[1] - inside(step)[0] + 1) }, (_, i) => (inside(step)[0] + i) * step)
+    .map(value => ({ value, text: trillions(value) }));
   // 세로축 숫자가 길어지면 왼쪽 여백을 그만큼 넓힌다.
-  const left = Math.max(layout.left, Math.ceil(measure(number(high), 11, 400)) + 11);
+  const left = Math.max(layout.left, Math.ceil(Math.max(0, ...marks.map(mark => measure(mark.text, 11, 400)))) + 11);
   const plotWidth = width - left - right, base = height - bottom;
   const x = index => points.length > 1 ? left + index * plotWidth / (points.length - 1) : left + plotWidth / 2;
-  const y = value => base - value / (high * divisor) * (base - top);
-  const axis = Array.from({ length: Math.round(high / step) + 1 }, (_, i) => {
-    const py = y(i * step * divisor).toFixed(2);
-    return `<line class="${i ? "chart-grid" : "composition-baseline"}" x1="${left}" x2="${left + plotWidth}" y1="${py}" y2="${py}"/>
-      <text class="composition-tick" x="${left - 7}" y="${py}" text-anchor="end" dominant-baseline="central">${number(i * step)}</text>`;
+  const y = value => base - (value / divisor - low) / (high - low) * (base - top);
+  const axis = `<line class="composition-baseline" x1="${left}" x2="${left + plotWidth}" y1="${base}" y2="${base}"/>` + marks.map(mark => {
+    const py = y(mark.value * divisor).toFixed(2);
+    return `<line class="chart-grid" x1="${left}" x2="${left + plotWidth}" y1="${py}" y2="${py}"/>
+      <text class="composition-tick" x="${left - 7}" y="${py}" text-anchor="end" dominant-baseline="central">${mark.text}</text>`;
   }).join("");
   const dates = timeTicks(points, x, compact).map(({ index, year, label }) => {
     const half = Math.max(measure(label, 11, 400), measure(year, 11, 400)) / 2;
@@ -87,7 +103,7 @@ function drawTrend(points, values, width, measure, name) {
       <text y="${top - 17.5}" text-anchor="middle" dominant-baseline="central"></text>
     </g>`;
   const html = `<svg class="composition-chart${compact ? " compact" : ""}" viewBox="0 0 ${width} ${height}" tabindex="0" role="img"
-    aria-label="${esc(name)} 시가총액 추이, ${unit}. 방향키로 조회일, Shift와 방향키로 비교일 이동"
+    aria-label="${esc(name)} 시가총액 추이, ${unit}. 방향키로 조회일 이동"
     data-plot-start="${left}" data-plot-width="${plotWidth}" data-view-width="${width}">
     ${axis}${dates}
     <defs><clipPath id="composition-window"><rect data-composition-window x="0" y="0" width="0" height="${height}"/></clipPath></defs>
@@ -157,7 +173,7 @@ function drawMap(tiles, width, measure) {
   return `<svg class="composition-map" viewBox="0 0 ${width} ${height}" role="group" aria-label="조회일 종목별 시가총액 지도. 넓이는 시총, 색은 비교일 대비 증감률">${body}</svg>`;
 }
 
-function createMarketComposition(root, onSelection) {
+function createMarketComposition(root, onSelection, firstMode) {
   const chart = root.querySelector("[data-compose-chart]");
   const map = root.querySelector("[data-compose-map]");
   const title = root.querySelector("[data-compose-trend-title]");
@@ -170,6 +186,9 @@ function createMarketComposition(root, onSelection) {
   const change = root.querySelector("[data-compose-change]");
   const baseInput = root.querySelector("[data-compose-base]");
   const dateInput = root.querySelector("[data-compose-date]");
+  const presets = [...root.querySelectorAll("[data-compose-preset]")];
+  // mode는 비교일을 정하는 방식이다. 빠른 선택이면 조회일을 옮길 때 비교일도 따라 움직이고, custom이면 날짜 칸에서 고른 날짜(순번 custom)에 머문다.
+  let mode = firstMode, custom = 0, windowStart = "";
   // selected는 화면에 보이는 날짜, committed는 고정된 조회일이다. 마우스를 올린 동안만 둘이 달라진다.
   let points, members, names, selected, committed, model, baseline, highlighted, hovered, trend, measure, top;
   let details = new Map();
@@ -198,9 +217,29 @@ function createMarketComposition(root, onSelection) {
       ${item.delta == null ? "" : `<span class="${signClass(item.delta)}">비교일 대비 ${signed(item.delta)}억원${item.percent == null ? "" : ` (${signed(item.percent)}%)`}</span>`}`;
   }
 
+  // 조회일(순번)에서 본 비교일의 순번. 시총 자료가 있는 날 가운데 목표 날짜 이후 첫 거래일이다.
+  function baseOf(index) {
+    const first = model.amounts.findIndex(Boolean);
+    if (mode === "custom") return custom;
+    if (mode === "day") return Math.max(first, model.amounts.findLastIndex((amounts, i) => amounts && i < index));
+    const target = presetDate(mode, points[index].date);
+    const found = points.findIndex((point, i) => model.amounts[i] && point.date >= target);
+    return found < 0 || found > index ? first : found;
+  }
+
+  function markPresets() {
+    for (const button of presets) {
+      const preset = button.dataset.composePreset;
+      button.setAttribute("aria-pressed", String(preset === mode));
+      // 보이는 1년보다 앞선 날짜가 필요한 비교는 고를 수 없다.
+      button.disabled = Boolean(model) && preset !== mode && preset !== "day" && presetDate(preset, points[committed].date) < windowStart;
+    }
+  }
+
   function show(index) {
     selected = Math.max(0, Math.min(index, points.length - 1));
     if (root.hidden || !model) return;
+    baseline = baseOf(selected);
     const point = points[selected];
     const svg = chart.querySelector("svg");
     const part = name => svg.querySelector(`[data-composition-${name}]`);
@@ -235,6 +274,7 @@ function createMarketComposition(root, onSelection) {
     span.setAttribute("x", Math.min(spot.x, origin.x));
     span.setAttribute("width", Math.abs(spot.x - origin.x));
     if (document.activeElement !== dateInput) dateInput.value = point.date;
+    if (document.activeElement !== baseInput) baseInput.value = points[baseline].date;
     const amounts = model.amounts[selected];
     headline.textContent = point.live ? "당일 합산 시총 (잠정)" : "조회일 합산 시총 (추정)";
     details = new Map();
@@ -289,15 +329,10 @@ function createMarketComposition(root, onSelection) {
   function commit(index) {
     show(index);
     committed = selected;
-    if (!root.hidden && model) onSelection(points[selected].date);
-  }
-
-  // 비교일을 옮긴다. 시총 자료가 없는 날이면 그 앞의 자료 있는 날로 맞춘다.
-  function rebase(index) {
-    const limit = Math.max(0, Math.min(index, points.length - 1));
-    const found = model.amounts.findLastIndex((amounts, i) => amounts && i <= limit);
-    baseline = found < 0 ? model.amounts.findIndex(Boolean) : found;
-    baseInput.value = points[baseline].date;
+    if (!root.hidden && model) {
+      markPresets();
+      onSelection(points[selected].date);
+    }
   }
 
   function paintTrend() {
@@ -327,14 +362,18 @@ function createMarketComposition(root, onSelection) {
       input.min = points[0].date;
       input.max = points.at(-1).date;
     }
-    baseline = points.findLastIndex((point, i) => model.amounts[i] && point.date <= baseInput.value);
-    if (baseline < 0) baseline = model.amounts.findIndex(Boolean);
-    if (applyBase || document.activeElement !== baseInput) baseInput.value = points[baseline].date;
+    if (mode === "custom") {
+      // 날짜 칸에서 고른 비교일은 그 날짜 이전의 마지막 자료 있는 날로 맞춘다.
+      custom = points.findLastIndex((point, i) => model.amounts[i] && point.date <= baseInput.value);
+      if (custom < 0) custom = model.amounts.findIndex(Boolean);
+      if (applyBase) baseInput.value = points[custom].date;
+    }
     top = new Set(model.groups);
     if (highlighted && highlighted !== "other" && !members.includes(highlighted)) highlighted = null;
     measure ??= textMeasure(getComputedStyle(chart).fontFamily);
     paintTrend();
     show(selected);
+    markPresets();
   }
 
   function toggle(code) {
@@ -370,98 +409,46 @@ function createMarketComposition(root, onSelection) {
     commit(points.findLastIndex(point => point.date <= dateInput.value));
     dateInput.value = points[selected].date;
   });
-  baseInput.addEventListener("change", () => render(true));
-  // 그래프 안의 가로 위치(viewBox 단위)와 그 자리의 날짜 순번
-  function locate(event) {
+  baseInput.addEventListener("change", () => {
+    mode = "custom";
+    render(true);
+  });
+  for (const button of presets) {
+    button.addEventListener("click", () => {
+      if (!model) return;
+      mode = button.dataset.composePreset;
+      show(committed);
+      markPresets();
+    });
+  }
+  function indexAt(event) {
     const svg = chart.querySelector("svg");
     if (!svg || !model) return null;
-    const bounds = svg.getBoundingClientRect(), scale = Number(svg.dataset.viewWidth) / bounds.width;
-    const x = (event.clientX - bounds.left) * scale;
-    const index = offset => Math.max(0, Math.min(points.length - 1,
-      Math.round((x + offset - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (points.length - 1))));
-    return { x, scale, index };
+    const bounds = svg.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) * Number(svg.dataset.viewWidth) / bounds.width;
+    return Math.round((x - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (points.length - 1));
   }
-  // 누른 자리가 표식(선이나 날짜 표)이면 그 표식을, 아니면 구간을 끈다.
-  function grip(event, at) {
-    const reach = (event.pointerType === "mouse" ? 9 : 20) * at.scale;
-    const lines = { base: trend.spot(baseline).x, date: trend.spot(committed).x };
-    // 미리 보는 동안의 조회일 표는 마우스를 따라다니므로 손잡이로 치지 않는다.
-    const hit = name => event.target.closest?.("[data-composition-" + name + "]");
-    const tagged = hit("base-tag") ? "base" : hit("tag") && selected === committed ? "date" : null;
-    if (tagged) return { kind: tagged, offset: lines[tagged] - at.x };
-    const near = Object.entries(lines).map(([kind, x]) => ({ kind, distance: Math.abs(x - at.x), offset: x - at.x }))
-      .filter(item => item.distance <= reach).sort((a, b) => a.distance - b.distance);
-    // 두 표식이 같은 날짜에 겹쳐 있으면 끄는 방향으로 정한다(왼쪽이면 비교일, 오른쪽이면 조회일).
-    if (near.length === 2 && near[0].distance === near[1].distance) return { kind: "either", offset: near[0].offset };
-    return near[0] ?? { kind: "range", offset: 0 };
-  }
-  // 마우스를 올리면 그 날짜를 미리 보고, 누르면 조회일로 고정한다. 끌면 누른 날짜부터 놓은 날짜까지가 비교일과 조회일이 되고,
-  // 비교일이나 조회일 표식을 잡고 끌면 그 날짜만 옮긴다. 그래프를 벗어나면 고정한 날짜로 돌아간다.
-  let drag = null;
-  chart.addEventListener("pointerdown", event => {
-    const at = locate(event);
-    if (!at || !event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
-    drag = { ...grip(event, at), id: event.pointerId, start: at.index(0), down: event.clientX, moved: false, undo: { baseline, committed } };
-    chart.setPointerCapture?.(event.pointerId);
-  });
+  // 마우스를 올리면 그 날짜를 미리 보고, 누르거나 끌면 조회일로 고정한다. 그래프를 벗어나면 고정한 날짜로 돌아간다.
   chart.addEventListener("pointermove", event => {
-    const at = locate(event);
-    if (!at) return;
-    if (!drag || drag.id !== event.pointerId) {
-      if (event.pointerType !== "mouse" || event.buttons) return;
-      chart.classList.toggle("grabbable", grip(event, at).kind !== "range");
-      show(at.index(0));
-      return;
-    }
-    if (!drag.moved && Math.abs(event.clientX - drag.down) < (event.pointerType === "mouse" ? 4 : 8)) return;
-    drag.moved = true;
-    chart.classList.add("dragging");
-    if (drag.kind === "either") drag.kind = event.clientX < drag.down ? "base" : "date";
-    const index = at.index(drag.offset);
-    if (drag.kind === "base") {
-      rebase(index);
-      show(committed);
-    } else if (drag.kind === "date") {
-      commit(index);
-    } else {
-      rebase(Math.min(drag.start, index));
-      commit(Math.max(drag.start, index));
-    }
+    const index = indexAt(event);
+    if (index == null) return;
+    if (event.pointerType === "mouse" && !event.buttons) show(index);
+    else commit(index);
   });
-  function release(event, cancelled) {
-    if (!drag || drag.id !== event.pointerId) return;
-    const { moved, undo, start } = drag;
-    drag = null;
-    chart.classList.remove("dragging");
-    if (cancelled) {
-      // 세로로 넘기는 손짓으로 바뀐 경우 등: 끌기 전으로 되돌린다.
-      if (moved && model) {
-        rebase(undo.baseline);
-        commit(Math.min(undo.committed, points.length - 1));
-      }
-    } else if (!moved && model) commit(start);
-  }
-  chart.addEventListener("pointerup", event => release(event, false));
-  chart.addEventListener("pointercancel", event => release(event, true));
-  chart.addEventListener("pointerleave", () => {
-    chart.classList.remove("grabbable");
-    if (model && !drag && selected !== committed) show(committed);
+  chart.addEventListener("pointerleave", () => { if (model && selected !== committed) show(committed); });
+  chart.addEventListener("click", event => {
+    const index = indexAt(event);
+    if (index != null) commit(index);
   });
   chart.addEventListener("keydown", event => {
     if (!["ArrowLeft", "ArrowRight"].includes(event.key) || !model) return;
     event.preventDefault();
-    const step = event.key === "ArrowRight" ? 1 : -1;
-    if (!event.shiftKey) return commit(committed + step);
-    // 비교일은 시총 자료가 있는 다음 날짜로 옮긴다.
-    let next = baseline + step;
-    while (next >= 0 && next < points.length && !model.amounts[next]) next += step;
-    if (next < 0 || next >= points.length) return;
-    rebase(next);
-    show(committed);
+    commit(committed + (event.key === "ArrowRight" ? 1 : -1));
   });
 
   return {
-    update(nextPoints, nextMembers, nextNames, nextSelected) {
+    update(nextPoints, nextMembers, nextNames, nextSelected, nextStart) {
+      windowStart = nextStart;
       points = nextPoints;
       members = nextMembers;
       names = nextNames;
@@ -476,7 +463,6 @@ async function main() {
   const root = document.querySelector("#market-composition");
   const status = document.querySelector("#composition-status");
   const params = new URLSearchParams(location.search);
-  let range = Object.hasOwn(marketMonthRanges, params.get("period")) ? params.get("period") : "3M";
   let selection = params.get("date"), endDate, current, history, stocks, meta;
   try {
     const [config, snapshot] = await Promise.all([loadJson("data/meta.json"), loadJson("data/snapshot.json")]);
@@ -489,18 +475,17 @@ async function main() {
     return;
   }
   const names = new Map(stocks.filter(stock => stock.kind === "KR").map(stock => [stock.code ?? stock.id, stock.name]));
-  const composition = createMarketComposition(root, date => { selection = date; });
+  const composition = createMarketComposition(root, date => { selection = date; }, PERIOD_PRESETS[params.get("period")] ?? "quarter");
 
   function draw() {
     const last = history.bars.at(-1);
     const points = current?.date > last.date ? [...history.bars, current] : history.bars;
     const end = points.at(-1).date;
-    const start = marketRangeStart(end, range);
+    const start = marketRangeStart(end, RANGE);
     const visible = points.filter(point => point.date >= start);
     const index = selection && selection !== endDate ? visible.findIndex(point => point.date === selection) : -1;
     endDate = end;
-    root.querySelectorAll("[data-compose-range]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.composeRange === range)));
-    composition.update(visible, history.members, names, index < 0 ? visible.length - 1 : index);
+    composition.update(visible, history.members, names, index < 0 ? visible.length - 1 : index, start);
   }
 
   function update(quotes) {
@@ -520,14 +505,6 @@ async function main() {
   status.hidden = true;
   root.hidden = false;
   draw();
-  root.addEventListener("click", event => {
-    const button = event.target.closest("[data-compose-range]");
-    if (!button) return;
-    range = button.dataset.composeRange;
-    selection = null;
-    root.querySelector("[data-compose-base]").value = "";
-    draw();
-  });
   let frame;
   window.addEventListener("resize", () => {
     cancelAnimationFrame(frame);

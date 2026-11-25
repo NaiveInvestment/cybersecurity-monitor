@@ -37,11 +37,16 @@
     <section class="composition-chart-panel" aria-labelledby="composition-trend">
       <div class="composition-toolbar">
         <h2 id="composition-trend">시가총액 추이와 구성</h2>
-        <div class="seg-switch" role="group" aria-label="시총 조회 기간">
-          <button type="button" data-compose-range="1M">1M</button>
-          <button type="button" data-compose-range="3M">3M</button>
-          <button type="button" data-compose-range="6M">6M</button>
-          <button type="button" data-compose-range="1Y">1Y</button>
+        <div class="composition-compare">
+          <span id="composition-compare">비교</span>
+          <div class="seg-switch" role="group" aria-labelledby="composition-compare">
+            <button type="button" data-compose-preset="day">전일</button>
+            <button type="button" data-compose-preset="week">1주</button>
+            <button type="button" data-compose-preset="month">1개월</button>
+            <button type="button" data-compose-preset="quarter">3개월</button>
+            <button type="button" data-compose-preset="half">6개월</button>
+            <button type="button" data-compose-preset="year">1년</button>
+          </div>
         </div>
       </div>
       <div class="composition-summary">
@@ -53,7 +58,7 @@
         </div>
       </div>
       <figure class="composition-figure">
-        <figcaption><span data-compose-trend-title>합계 시가총액 (조원)</span><small>끌면 구간 선택, 누르면 조회일</small></figcaption>
+        <figcaption><span data-compose-trend-title>합계 시가총액 (조원)</span><small>최근 1년, 그래프를 누르면 조회일 고정</small></figcaption>
         <div data-compose-chart></div>
       </figure>
       <figure class="composition-figure">
@@ -73,7 +78,7 @@
         <thead><tr><th scope="col">종목</th><th scope="col">시총 (억원)</th><th scope="col">비중</th><th scope="col">증감 (억원)</th></tr></thead>
         <tbody></tbody>
       </table>
-      <p class="composition-source">조회 기간 중 마감일 평균 시총으로 상위 10개사를 선정합니다. 과거 시총은 수정 종가와 환산 주식수로 추정하고, 당일은 시세로 계산한 잠정값입니다.</p>
+      <p class="composition-source">최근 1년 마감일 평균 시총으로 상위 10개사를 선정합니다. 과거 시총은 수정 종가와 환산 주식수로 추정하고, 당일은 시세로 계산한 잠정값입니다.</p>
     </section>
   </div>
 </main>
