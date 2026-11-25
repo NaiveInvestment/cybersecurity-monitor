@@ -1,8 +1,7 @@
 import { fmtKst, loadJson } from "./common.js";
-import { currentMarketActivity } from "./lib/market-activity.js";
+import { currentMarketActivity, marketMonthRanges, marketRangeStart } from "./lib/market-activity.js";
 
 const panel = document.querySelector("#domestic-market");
-const monthRanges = { "1M": 1, "3M": 3, "6M": 6, "1Y": 12 };
 let data, range = "3M", points = [], selected, current;
 
 const figures = [
@@ -12,16 +11,6 @@ const figures = [
 const number = (n, digits) => n.toLocaleString("ko-KR", { maximumFractionDigits: digits });
 const fmt = value => value == null ? "-" : value >= 10000
   ? `${number(value / 10000, 2)}조원` : `${number(value, 2)}억원`;
-
-function rangeStart(end, period) {
-  const date = new Date(`${end}T00:00:00Z`);
-  const day = date.getUTCDate();
-  date.setUTCDate(1);
-  date.setUTCMonth(date.getUTCMonth() - monthRanges[period]);
-  const days = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
-  date.setUTCDate(Math.min(day, days));
-  return date.toISOString().slice(0, 10);
-}
 
 function drawChart({ key, unit, scale }, width) {
   const bars = key === "turnover";
@@ -81,6 +70,7 @@ function showPoint(index) {
     cursor.setAttribute("x1", x);
     cursor.setAttribute("x2", x);
   }
+  panel.querySelector(".activity-composition-link").href = `market-composition.html?period=${range}&date=${point.date}`;
 }
 
 function showCurrent() {
@@ -104,7 +94,7 @@ function draw(resetSelection = false) {
   const activeMetric = document.activeElement?.closest("figure.activity-figure")?.dataset.metric;
   const priorDate = selected < points.length - 1 ? points[selected]?.date : null;
   const days = current?.date > data.bars.at(-1).date ? [...data.bars, current] : data.bars;
-  const from = rangeStart(days.at(-1).date, range);
+  const from = marketRangeStart(days.at(-1).date, range);
   points = days.filter(point => point.date >= from);
   panel.querySelector(".activity-figures").innerHTML = figures.map(figure => drawChart(figure, panel.clientWidth - 28)).join("");
   for (const button of panel.querySelectorAll("[data-activity-range]")) {
@@ -141,10 +131,11 @@ export function startMarketActivity(url) {
     if (!result.bars?.length) return;
     data = result;
     panel.innerHTML = `<header class="activity-head"><h2>국내 보안주 추이</h2>
-      <div class="seg-switch" role="group" aria-label="일봉 조회 기간">${Object.keys(monthRanges).map(period => `<button type="button" data-activity-range="${period}">${period}</button>`).join("")}</div>
+      <div class="seg-switch" role="group" aria-label="일봉 조회 기간">${Object.keys(marketMonthRanges).map(period => `<button type="button" data-activity-range="${period}">${period}</button>`).join("")}</div>
       </header>
       <div class="activity-meta"><span data-activity-date></span><span data-activity-live></span></div>
       <div class="activity-figures"></div>
+      <a class="activity-composition-link" href="market-composition.html" ${result.bars.some(point => point.constituents) ? "" : "hidden"}>시총 구성 페이지 <span aria-hidden="true">↗</span></a>
       <details class="activity-method"><summary>자료와 계산 기준</summary>
       <p>과거 시총은 현재 시총과 현재가로 역산한 주식수에 키움 KRX 수정 종가를 곱한 추정치입니다. 과거 거래대금은 키움 KRX와 NXT의 통합 실측치입니다. 오늘은 위 카드와 같은 시세의 시총과 네이버 통합 누적 거래대금을 잠정값으로 표시합니다. 거래대금이 빠진 날은 합계를 비웁니다.</p></details>`;
     panel.hidden = false;

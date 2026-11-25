@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko" data-default-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>국내 보안주 시총 구성 | 사이버보안 모니터</title>
+<link rel="icon" href="data:,">
+<script src="theme.js"></script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="market-composition.css">
+</head>
+<body class="reading composition-page">
+<header class="top">
+  <a class="brand" href="index.html" aria-label="사이버보안 모니터 첫 화면">
+    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path d="M10 1 2 4v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m6.5 11 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>사이버보안 모니터</span>
+  </a>
+  <nav aria-label="페이지">
+    <a href="index.html">종목</a>
+    <a href="positions.html">밸류체인</a>
+    <a href="news.html">뉴스</a>
+    <a href="incidents.html">보안 사고</a>
+    <a href="events.html">주요 이벤트</a>
+    <a href="market-composition.html" aria-current="page">시총 구성</a>
+  </nav>
+  <div class="status"><button type="button" class="theme-btn" data-theme-toggle>라이트 모드</button></div>
+  <span class="company-name" lang="en">Capital Research &amp; Foem Invest</span>
+</header>
+<main>
+  <header class="composition-intro">
+    <h1>국내 보안주 시총 구성</h1>
+    <p>시총 상위 종목의 비중과 전체 시총 변화에 대한 기여도를 비교합니다.</p>
+  </header>
+  <p id="composition-status" role="status">시총 이력을 불러오는 중입니다.</p>
+  <div id="market-composition" hidden>
+    <section class="composition-chart-panel" aria-labelledby="composition-trend">
+      <div class="composition-toolbar">
+        <h2 id="composition-trend">시가총액 추이와 구성</h2>
+        <div class="seg-switch" role="group" aria-label="시총 조회 기간">
+          <button type="button" data-compose-range="1M">1M</button>
+          <button type="button" data-compose-range="3M">3M</button>
+          <button type="button" data-compose-range="6M">6M</button>
+          <button type="button" data-compose-range="1Y">1Y</button>
+        </div>
+      </div>
+      <div class="composition-summary">
+        <div><span data-compose-status>조회일 합산 시총</span><strong data-compose-total class="num"></strong></div>
+        <div><span>비교일 대비 증감</span><strong data-compose-change class="num"></strong></div>
+        <div class="composition-dates">
+          <label>비교일 <input type="date" data-compose-base></label>
+          <label>조회일 <input type="date" data-compose-date></label>
+        </div>
+      </div>
+      <figure class="composition-figure">
+        <figcaption><span data-compose-trend-title>합계 시가총액 (조원)</span><small>끌면 구간 선택, 누르면 조회일</small></figcaption>
+        <div data-compose-chart></div>
+      </figure>
+      <figure class="composition-figure">
+        <figcaption>
+          <span>조회일 시총 지도 <small>넓이는 시총, 색은 비교일 대비 증감률</small></span>
+          <span class="composition-scale" aria-hidden="true">-30% 이하
+            <span><i class="composition-heat-down3"></i><i class="composition-heat-down2"></i><i class="composition-heat-down1"></i><i class="composition-heat-flat"></i><i class="composition-heat-up1"></i><i class="composition-heat-up2"></i><i class="composition-heat-up3"></i></span>
+            +30% 이상</span>
+        </figcaption>
+        <div data-compose-map></div>
+        <p class="composition-readout"><span data-compose-readout></span><button type="button" data-compose-clear hidden>전체 보기</button></p>
+      </figure>
+    </section>
+    <section class="composition-breakdown" aria-labelledby="composition-detail">
+      <header><h2 id="composition-detail">종목별 시총과 증감</h2><p data-compose-result></p></header>
+      <table class="composition-table">
+        <thead><tr><th scope="col">종목</th><th scope="col">시총 (억원)</th><th scope="col">비중</th><th scope="col">증감 (억원)</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <p class="composition-source">조회 기간 중 마감일 평균 시총으로 상위 10개사를 선정합니다. 과거 시총은 수정 종가와 환산 주식수로 추정하고, 당일은 시세로 계산한 잠정값입니다.</p>
+    </section>
+  </div>
+</main>
+<script type="module" src="market-composition.js"></script>
+</body>
+</html>

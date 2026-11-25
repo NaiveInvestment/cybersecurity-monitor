@@ -23,6 +23,9 @@ const walk = (root) => readdirSync(root).flatMap((name) => {
 for (const file of ["index.html", "news.html", "styles.css", "theme.js", "common.js", "app.js", "news.js", "lib/calc.js", "lib/status.js", "lib/text.js", "lib/issues.js", "lib/recent-incidents.js", "lib/incident-trend.js", "lib/incident-metrics.js", "incidents.html", "incidents.js", "data/incident-events.json", "data/snapshot.json", "data/news.json", "data/incidents.json", "data/cards.json", "data/meta.json", "robots.txt"]) {
   check(existsSync(join(dir, file)), `파일 없음: ${file}`);
 }
+for (const file of ["market-composition.html", "market-composition.css", "market-composition.js", "lib/market-composition.js", "lib/treemap.js"]) {
+  check(existsSync(join(dir, file)), `시총 구성 파일 없음: ${file}`);
+}
 for (const file of ["positions.html", "positions.css", "positions.js", "data/positions.json", "data/position-sectors.json", "data/position-exposure.json", "data/position-mix.json"]) {
   check(existsSync(join(dir, file)), `밸류체인 파일 없음: ${file}`);
 }
