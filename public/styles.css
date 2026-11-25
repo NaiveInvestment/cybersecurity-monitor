@@ -7,8 +7,8 @@
   --line: #273039; --line-strong: #36424e; --line-group: #4a5a68;
   --brand: #8fb7e0; --accent: #f2b84b;
   --up: #ff6b7a; --down: #5aa2ff; --good: #4fd19a;
-  --h-p1: #32212a; --h-p2: #4d2734; --h-p3: #692a39; --h-p4: #85273a; --h-p5: #a52237;
-  --h-n1: #1c2b41; --h-n2: #203759; --h-n3: #254477; --h-n4: #284f8d; --h-n5: #2d59a1;
+  --return-up: #d43d53; --return-down: #3b75c5; --return-ink: #ffffff;
+  --flash-up: #673741; --flash-down: #2d4a6f;
   --heat-1: #26313c; --heat-2: #3a4652; --heat-3: #6e5a2c; --heat-4: #b08630; --heat-5: #f2b84b; --heat-ink-3: #f3e6c8; --heat-ink-4: #14100a; --heat-ink-5: #14100a;
   --comp-c: #9aa7b4; --comp-r: #4fd19a; --comp-m: #c08cff;
   --radius: 6px;
@@ -25,8 +25,8 @@
   --brand: #1f4e7f; --accent: #8a6408;
   --up: #c5223d; --down: #155fa8; --good: #1a7a55;
   --heat-1: #eef1f4; --heat-2: #dfe4ea; --heat-3: #f1d9a3; --heat-4: #d9a63b; --heat-5: #8a6408; --heat-ink-3: #3d2c05; --heat-ink-4: #1b1405; --heat-ink-5: #ffffff;
-  --h-p1: #fff0f2; --h-p2: #fbdbdf; --h-p3: #f7c5cd; --h-p4: #f1a7b3; --h-p5: #eb8798;
-  --h-n1: #edf5ff; --h-n2: #d9eaff; --h-n3: #c0daff; --h-n4: #a0c7fc; --h-n5: #81b3f5;
+  --return-up: #ef8495; --return-down: #81b3f5; --return-ink: var(--ink);
+  --flash-up: #ebb2bb; --flash-down: #adc7e1;
 }
 
 * { box-sizing: border-box; }
@@ -59,6 +59,7 @@ ul, ol { padding: 0; list-style: none; }
 .badge[data-state="delayed"] { border-color: var(--accent); color: var(--accent); }
 .theme-btn { padding: 5px 10px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--muted); font-size: 12px; }
 .theme-btn:hover { color: var(--ink); border-color: var(--line-group); }
+.company-name { color: var(--brand); font-size: 12px; font-weight: 700; white-space: nowrap; }
 
 /* 종목 페이지 위쪽의 한 줄 이슈: 가장 많이 보도된 사건을 종목을 보는 중에도 놓치지 않게 한다. */
 .issue-bar { display: flex; align-items: baseline; gap: 12px; padding: 7px 18px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 12.5px; }
@@ -138,25 +139,17 @@ th[aria-sort="ascending"] .sort::after { border-bottom: 5px solid var(--accent);
 .unit { margin-left: 1px; font-size: 10.5px; color: var(--muted); }
 .per { color: var(--muted); }
 
-.h-p1 { --return-fill: var(--h-p1); --return-ink: var(--up); }
-.h-p2 { --return-fill: var(--h-p2); }
-.h-p3 { --return-fill: var(--h-p3); }
-.h-p4 { --return-fill: var(--h-p4); }
-.h-p5 { --return-fill: var(--h-p5); }
-.h-n1 { --return-fill: var(--h-n1); --return-ink: var(--down); }
-.h-n2 { --return-fill: var(--h-n2); }
-.h-n3 { --return-fill: var(--h-n3); }
-.h-n4 { --return-fill: var(--h-n4); }
-.h-n5 { --return-fill: var(--h-n5); }
+.return-positive { --return-color: var(--return-up); }
+.return-negative { --return-color: var(--return-down); }
 .grid tbody td.return-cell, .grid tbody tr:hover td.return-cell {
-  background-color: var(--return-fill);
-  color: var(--return-ink, var(--ink));
+  background-color: color-mix(in srgb, var(--surface), var(--return-color) var(--return-strength));
+  color: var(--return-ink);
   font-weight: 700;
 }
 
 /* 실시간 체결로 현재가가 바뀌면 한 번 반짝인다. */
-@keyframes flash-up { from { background: var(--h-p4); } to { background: transparent; } }
-@keyframes flash-down { from { background: var(--h-n4); } to { background: transparent; } }
+@keyframes flash-up { from { background: var(--flash-up); } to { background: transparent; } }
+@keyframes flash-down { from { background: var(--flash-down); } to { background: transparent; } }
 .grid td.flash-up { animation: flash-up 1.2s ease-out; }
 .grid td.flash-down { animation: flash-down 1.2s ease-out; }
 @media (prefers-reduced-motion: reduce) { .grid td.flash-up, .grid td.flash-down { animation: none; } }
@@ -404,7 +397,8 @@ body.app .table-wrap::-webkit-scrollbar { display:none; }
 }
 @media (max-width: 640px) {
   .top { padding: 8px 12px; gap: 4px 12px; }
-  .top nav { flex-basis: 100%; flex-wrap: wrap; margin: 0; align-self: auto; }
+  .top nav { flex-basis: 100%; flex-wrap: wrap; margin: 0; align-self: auto; order: 2; }
+  .top .company-name { margin-left: auto; }
   .top nav a { padding: 6px 8px; border-top: 0; white-space: nowrap; }
   .status { width: 100%; margin-left: 0; order: 3; }
   .issue-bar { padding: 7px 12px; gap: 8px; }
