@@ -6,6 +6,7 @@ import { isNxtPremarket, quoteStatus, selectNxtPremarket } from "./lib/quote-sta
 import { financialRow, annualValuation, filingSummary } from "./lib/financials.js";
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
+import { startMarketActivity, updateMarketActivity } from "./market-activity.js";
 
 const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, livePayload: null, liveRev: null, liveSource: null };
 // 방금 값이 바뀐 종목. 현재가 칸을 한 번 반짝이게 한다.
@@ -256,6 +257,7 @@ function updateTablePan() {
 }
 
 function renderKpis() {
+  updateMarketActivity(snapshot.stocks);
   const capWeighted = kpiWeight === "cap";
   const blocks = [
     { kind: "KR", title: "국내 보안주", index: snapshot.indices.KOSDAQ },
@@ -465,6 +467,7 @@ async function main() {
   restoreStockSelection();
   bind();
   renderAll();
+  startMarketActivity(meta.domesticMarket);
   renderIssueBar();
   startQuoteFeed(meta.live, {
     onQuotes: (payload, feed) => applyLive(payload, feed === "relay" && state.liveSource !== payload.source),

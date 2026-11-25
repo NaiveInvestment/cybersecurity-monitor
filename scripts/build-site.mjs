@@ -82,6 +82,9 @@ writeFileSync(join(outDir, "data", "issue-banner.json"), JSON.stringify(bannerIs
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
   builtAt: new Date().toISOString(),
   stockScores: "data/stock-scores.json",
+  domesticMarket: existsSync(join(outDir, "data", "domestic-market.json"))
+    ? "data/domestic-market.json" : liveRepo
+      ? `https://raw.githubusercontent.com/${liveRepo}/market-activity/domestic-market.json` : undefined,
   live: liveRepo ? { repo: liveRepo, branch: "live", file: "live.json", sector: true, relayConfig: `https://raw.githubusercontent.com/${liveRepo}/relay/relay.json` } : null,
 }));
 writeFileSync(join(outDir, "robots.txt"), "User-agent: *\nDisallow: /\n");

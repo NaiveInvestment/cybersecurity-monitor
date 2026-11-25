@@ -2,7 +2,7 @@ import {basketSeries,liveSectorComparison} from "./lib/sector-index.js";
 import {esc,fmtKst,fmtPct,signClass,loadJson} from "./common.js";
 import {startQuoteFeed} from "./lib/quote-feed.js";
 const root=document.querySelector('#sector-panel');
-let data,period="YTD",mode="equal",hidden=new Set();
+let data,period="YTD",mode="cap",hidden=new Set();
 let localFeed,refreshFeed,liveSnapshot,feedSource,polling=false;
 const ranges=["1D","1W","1M","3M","6M","YTD","1Y"];
 const focusable='button,summary,a[href]';
