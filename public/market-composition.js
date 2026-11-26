@@ -1,4 +1,5 @@
 import { esc, initTheme, loadJson } from "./common.js";
+import { marketComposition } from "./lib/market-composition.js";
 import { treemap } from "./lib/treemap.js";
 import { currentMarketActivity, marketRangeStart } from "./lib/market-activity.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
@@ -6,13 +7,13 @@ import { startQuoteFeed } from "./lib/quote-feed.js";
 const number = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
 const trillions = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
 
-const TREND = { height: 200, top: 32, left: 46, right: 16, bottom: 40 };
-const TREND_COMPACT = { height: 170, top: 32, left: 38, right: 12, bottom: 40 };
+const TREND = { height: 420, top: 32, left: 46, right: 16, bottom: 40 };
+const TREND_COMPACT = { height: 320, top: 32, left: 38, right: 12, bottom: 40 };
 const MAP = { height: 400, compactHeight: 440 };
 const SPARK = { width: 120, height: 26, points: 64 };
 const STEPS = [.01, .02, .05, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
-// 비중 색 단계의 경계(%). 범례 문구와 CSS의 composition-share 단계가 이 값을 따른다.
-const SHARE = [2, 5, 15];
+// 누적 그래프에서 따로 색을 주는 기업 수(1년 마감일 평균 시총 순). 나머지는 기타로 묶는다. CSS의 composition-color-0..6이 이 수를 따른다.
+const TOP = 7;
 // 화면은 늘 최근 1년을 보여 준다.
 const RANGE = "1Y";
 
@@ -46,18 +47,20 @@ function timeTicks(points, x, compact) {
   });
 }
 
-// 한 계열(합계 또는 고른 종목)의 시총 추이. 값이 없는 날은 선을 끊는다.
-function drawTrend(points, values, width, measure, name) {
+// 시총 추이. stack이 있으면 합계선 아래를 기업별 띠로 쌓아 칠하고(0부터 시작), 없으면 한 계열(고른 종목)의 선을 값 범위에 맞춰 그린다.
+// 값이 없는 날은 선과 띠를 끊는다.
+function drawTrend(points, values, width, measure, name, { stack = null, tone = "" } = {}) {
   const compact = width < 550;
   const { height, top, right, bottom, ...layout } = compact ? TREND_COMPACT : TREND;
   const present = values.filter(value => value != null);
   const peak = Math.max(0, ...present), trough = present.length ? Math.min(...present) : 0;
   const divisor = peak >= 10000 ? 10000 : 1, unit = divisor > 1 ? "조원" : "억원";
-  // 세로축은 0부터가 아니라 값이 움직인 범위에 위아래 여유를 조금 둔 구간이다. 눈금은 그 안의 딱 떨어지는 값에 여섯 개(좁은 화면 다섯 개) 이하로 둔다.
+  // 쌓은 띠는 넓이가 곧 값이라 세로축이 0부터여야 한다. 한 계열일 때는 값이 움직인 범위에 위아래 여유를 조금 둔다.
+  // 눈금은 그 안의 딱 떨어지는 값에 여섯 개 이하로 둔다.
   const pad = Math.max((peak - trough) * .08, peak * .005, 1e-6);
-  const low = Math.max(0, trough - pad) / divisor, high = (peak + pad) / divisor;
+  const low = stack ? 0 : Math.max(0, trough - pad) / divisor, high = (stack ? peak * 1.05 : peak + pad) / divisor;
   const inside = size => [Math.ceil(low / size - 1e-9), Math.floor(high / size + 1e-9)];
-  const step = STEPS.find(size => inside(size)[1] - inside(size)[0] < (compact ? 5 : 6)) ?? STEPS.at(-1);
+  const step = STEPS.find(size => inside(size)[1] - inside(size)[0] < 6) ?? STEPS.at(-1);
   const marks = Array.from({ length: Math.max(0, inside(step)[1] - inside(step)[0] + 1) }, (_, i) => (inside(step)[0] + i) * step)
     .map(value => ({ value, text: trillions(value) }));
   // 세로축 숫자가 길어지면 왼쪽 여백을 그만큼 넓힌다.
@@ -86,13 +89,29 @@ function drawTrend(points, values, width, measure, name) {
   const line = spans.map(span => "M" + span.map(pair => pair.join(",")).join("L")).join("");
   const area = spans.map(span => `M${span[0][0]},${base}L${span.map(pair => pair.join(",")).join("L")}L${span.at(-1)[0]},${base}Z`).join("");
   const spot = index => ({ x: x(index), y: values[index] == null ? null : y(values[index]) });
+  let bands = "";
+  if (stack) {
+    const floor = values.map(() => 0);
+    for (const layer of stack) {
+      const runs = [];
+      layer.values.forEach((value, index) => {
+        if (value == null) return;
+        if (layer.values[index - 1] == null) runs.push([]);
+        runs.at(-1).push([x(index).toFixed(2), y(floor[index]).toFixed(2), y(floor[index] + value).toFixed(2)]);
+        floor[index] += value;
+      });
+      const d = runs.map(run => "M" + run.map(([px, , upper]) => `${px},${upper}`).join("L") + "L" + [...run].reverse().map(([px, lower]) => `${px},${lower}`).join("L") + "Z").join("");
+      bands += `<path class="composition-band composition-color-${layer.slot}" data-compose-band="${esc(layer.code)}" d="${d}"/>`;
+    }
+  }
   const tag = Math.ceil(measure("2026-00-00", 11, 700)) / 2 + 7;
   const html = `<svg class="composition-chart${compact ? " compact" : ""}" viewBox="0 0 ${width} ${height}" tabindex="0" role="img"
-    aria-label="${esc(name)} 시가총액 추이, ${unit}. 방향키로 조회일 이동"
-    data-plot-start="${left}" data-plot-width="${plotWidth}" data-view-width="${width}">
+    aria-label="${esc(name)} 시가총액 추이${stack ? "와 기업별 구성" : ""}, ${unit}. 방향키로 조회일 이동"
+    data-plot-start="${left}" data-plot-width="${plotWidth}" data-view-width="${width}"
+    data-plot-top="${top}" data-plot-base="${base}" data-axis-low="${low * divisor}" data-axis-high="${high * divisor}">
     ${axis}${dates}
-    <path class="composition-area" d="${area}"/>
-    <path class="composition-line" d="${line}"/>
+    ${stack ? bands : `<path class="composition-area${tone}" d="${area}"/>`}
+    <path class="composition-line${stack ? " total" : tone}" d="${line}"/>
     <line data-composition-cursor x1="0" x2="0" y1="${top - 8}" y2="${base}"/>
     <circle class="composition-dot" data-composition-dot r="4"/>
     <g data-composition-tag data-half="${tag}" aria-hidden="true">
@@ -116,9 +135,7 @@ const WRAPS = [
   { kind: "tiny", size: 10, pad: 3, name: 11, gap: 14, min: 29 },
 ];
 
-const shareClass = weight => SHARE.filter(limit => weight >= limit).length;
-
-// 조회일의 구성: 넓이와 색이 모두 그날의 시총(비중)이다. 이름은 칸에 들어갈 때만 적는다.
+// 조회일의 구성: 넓이는 그날의 시총이고 색은 누적 그래프와 같은 기업 색이다. 이름은 칸에 들어갈 때만 적는다.
 function drawMap(tiles, width, measure) {
   const height = width < 550 ? MAP.compactHeight : MAP.height;
   const rects = treemap(tiles.map(tile => tile.cap), width, height);
@@ -146,11 +163,11 @@ function drawMap(tiles, width, measure) {
       if (wrap) labels = parts.map((part, line) => text(`name ${wrap.kind}`, wrap.pad, wrap.name + line * wrap.gap, part)).join("");
     }
     const spoken = `${tile.name}, 시총 ${detail}, 비중 ${percent}`;
-    return `<g class="composition-tile composition-share-${shareClass(tile.weight)}" data-compose-tile="${esc(tile.code)}" data-named="${labels ? 1 : 0}"
+    return `<g class="composition-tile composition-color-${tile.slot}" data-compose-tile="${esc(tile.code)}" data-named="${labels ? 1 : 0}"
       tabindex="0" role="button" aria-pressed="false" aria-label="${esc(spoken)}">
       <rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${w.toFixed(2)}" height="${h.toFixed(2)}" rx="3"/>${labels}</g>`;
   }).join("");
-  return `<svg class="composition-map" viewBox="0 0 ${width} ${height}" role="group" aria-label="조회일 종목별 시가총액 구성. 넓이와 색은 시총">${body}</svg>`;
+  return `<svg class="composition-map" viewBox="0 0 ${width} ${height}" role="group" aria-label="조회일 종목별 시가총액 구성. 넓이는 시총">${body}</svg>`;
 }
 
 // 종목 하나의 1년 시총 추이를 표 칸에 넣을 작은 선으로 만든다. 세로는 그 종목의 최저와 최고에 맞춘다.
@@ -183,17 +200,25 @@ function createMarketComposition(root, onSelection) {
   const highest = root.querySelector("[data-compose-high]");
   const lowest = root.querySelector("[data-compose-low]");
   const dateInput = root.querySelector("[data-compose-date]");
+  const keys = root.querySelector("[data-compose-keys]");
   // selected는 화면에 보이는 날짜, committed는 고정된 조회일이다. 마우스를 올린 동안만 둘이 달라진다.
-  let points, members, names, selected, committed, ready = false, highlighted, hovered, trend, measure;
-  let details = new Map(), sparks = new Map();
-  const label = code => names.get(code) ?? code;
+  // model은 따로 색을 주는 상위 기업과 기타의 날짜별 시총, slots는 상위 기업의 색 번호다.
+  let points, members, names, selected, committed, ready = false, highlighted, hovered, trend, measure, model;
+  let details = new Map(), sparks = new Map(), slots = new Map();
+  const label = code => code === "other" ? "기타" : names.get(code) ?? code;
+  const slotOf = code => slots.get(code) ?? "other";
+  // 범례의 기타와 상위 기업이 아닌 종목은 서로 짝이다.
+  const paired = (code, target) => code === target || (target === "other" && !slots.has(code)) || (code === "other" && !slots.has(target));
 
   function mark() {
-    for (const node of root.querySelectorAll("[data-compose-tile], tr[data-compose-group]")) {
-      const code = node.dataset.composeTile ?? node.dataset.composeGroup;
-      node.classList.toggle("dimmed", Boolean(highlighted && code !== highlighted));
-      node.classList.toggle("hot", code === hovered);
-      if (node.dataset.composeTile) node.setAttribute("aria-pressed", String(code === highlighted));
+    for (const node of root.querySelectorAll("[data-compose-tile], tr[data-compose-group], [data-compose-key], [data-compose-band]")) {
+      const band = node.dataset.composeBand;
+      const code = node.dataset.composeTile ?? node.dataset.composeGroup ?? node.dataset.composeKey ?? band;
+      // 띠는 마우스를 올린 기업만 남기고 흐리게, 칸과 행과 범례는 고정한 기업만 남기고 흐리게 한다.
+      const focus = band ? hovered : highlighted;
+      node.classList.toggle("dimmed", Boolean(focus && !paired(code, focus)));
+      if (!band) node.classList.toggle("hot", Boolean(hovered && paired(code, hovered)));
+      if (node.dataset.composeTile || node.dataset.composeKey) node.setAttribute("aria-pressed", String(code === highlighted));
     }
   }
 
@@ -229,7 +254,8 @@ function createMarketComposition(root, onSelection) {
     if (document.activeElement !== dateInput) dateInput.value = point.date;
     headline.textContent = point.live ? "당일 합산 시총 (잠정)" : "조회일 합산 시총 (추정)";
     details = new Map();
-    if (!point.constituents) {
+    const amounts = model.amounts[selected];
+    if (!amounts) {
       total.textContent = "–";
       result.textContent = `${point.date} 시총 자료 없음`;
       body.innerHTML = "<tr><td colspan='4'>집계 가능한 시총이 없습니다.</td></tr>";
@@ -237,12 +263,16 @@ function createMarketComposition(root, onSelection) {
       describe();
       return;
     }
+    const weight = cap => point.cap > 0 ? cap / point.cap * 100 : 0;
     // 시총이 큰 순서로 놓아야 칸이 정사각형에 가까워져 이름이 들어갈 자리가 생긴다.
     const tiles = members.map(code => {
       const cap = point.constituents[code] ?? 0;
-      return { code, name: label(code), cap, weight: point.cap > 0 ? cap / point.cap * 100 : 0 };
+      return { code, name: label(code), cap, weight: weight(cap), slot: slotOf(code) };
     }).filter(tile => tile.cap > 0).sort((a, b) => b.cap - a.cap || a.code.localeCompare(b.code));
     for (const tile of tiles) details.set(tile.code, tile);
+    details.set("other", { name: label("other"), cap: amounts.at(-1), weight: weight(amounts.at(-1)) });
+    // 범례에는 그날의 비중을 적는다.
+    keys.querySelectorAll("[data-compose-key]").forEach((node, i) => { node.querySelector("b").textContent = `${number(weight(amounts[i]))}%`; });
     const activeTile = map.contains(document.activeElement) ? document.activeElement.dataset.composeTile : null;
     map.innerHTML = drawMap(tiles, Math.max(260, map.clientWidth), measure);
     if (activeTile) [...map.querySelectorAll("[data-compose-tile]")].find(node => node.dataset.composeTile === activeTile)?.focus({ preventScroll: true });
@@ -250,7 +280,7 @@ function createMarketComposition(root, onSelection) {
     result.textContent = `${point.date} 기준 ${tiles.length}개 종목`;
     const widest = tiles[0]?.weight || 1;
     body.innerHTML = tiles.map(({ code, name, cap, weight }) => `<tr data-compose-group="${esc(code)}" data-cap="${cap}" data-weight="${weight}">
-        <th scope="row">${esc(name)}</th>
+        <th scope="row"><i class="composition-chip composition-color-${slotOf(code)}"></i>${esc(name)}</th>
         <td>${number(cap)}</td>
         <td><span class="composition-share"><svg viewBox="0 0 100 8" class="composition-meter" aria-hidden="true"><rect x="0" y="1" width="${(weight / widest * 100).toFixed(1)}" height="6" rx="2"/></svg><b>${number(weight)}%</b></span></td>
         <td class="composition-spark-cell">${spark(code)}</td>
@@ -267,19 +297,26 @@ function createMarketComposition(root, onSelection) {
 
   function paintTrend() {
     const hadFocus = chart.contains(document.activeElement);
-    const values = points.map(point => !point.constituents ? null : !highlighted ? point.cap ?? null : point.constituents[highlighted] ?? null);
+    const pick = group => model.amounts.map(amounts => amounts ? amounts[group] : null);
+    const values = points.map((point, i) => !model.amounts[i] ? null
+      : !highlighted ? point.cap : highlighted === "other" ? model.amounts[i].at(-1) : point.constituents[highlighted] ?? null);
     const name = highlighted ? label(highlighted) : "합계";
-    trend = drawTrend(points, values, Math.max(260, chart.clientWidth), measure, name);
+    // 고른 종목이 없으면 합계선 아래에 상위 기업을 큰 순서로 아래부터 쌓고 기타를 맨 위에 둔다.
+    const stack = highlighted ? null : model.groups.map((code, group) => ({ code, slot: slotOf(code), values: pick(group) }));
+    const tone = highlighted && (highlighted === "other" || slots.has(highlighted)) ? ` composition-color-${slotOf(highlighted)}` : "";
+    trend = drawTrend(points, values, Math.max(260, chart.clientWidth), measure, name, { stack, tone });
     chart.innerHTML = trend.html;
-    title.textContent = `${name} 시가총액 (${trend.unit})`;
+    title.textContent = highlighted ? `${name} 시가총액 (${trend.unit})` : `합계 시가총액과 기업별 구성 (${trend.unit})`;
     if (hadFocus) chart.querySelector("svg").focus({ preventScroll: true });
   }
 
   function render() {
     if (root.hidden || !points?.length) return;
-    const days = points.filter(point => point.constituents && point.cap != null);
-    ready = days.length > 0;
+    model = marketComposition(points, members, TOP);
+    ready = Boolean(model);
+    const days = points.filter((point, i) => model?.amounts[i]);
     if (!ready) {
+      keys.innerHTML = "";
       chart.innerHTML = "";
       map.innerHTML = "";
       body.innerHTML = "";
@@ -294,7 +331,14 @@ function createMarketComposition(root, onSelection) {
     const stat = (node, day) => { node.innerHTML = `${trillions(day.cap / 10000)}<small>조원</small><small class="composition-when">${day.date}</small>`; };
     stat(highest, days.reduce((best, day) => day.cap > best.cap ? day : best));
     stat(lowest, days.reduce((best, day) => day.cap < best.cap ? day : best));
-    if (highlighted && !members.includes(highlighted)) highlighted = null;
+    if (highlighted && highlighted !== "other" && !members.includes(highlighted)) highlighted = null;
+    slots = new Map(model.groups.slice(0, -1).map((code, slot) => [code, slot]));
+    // 범례는 다시 그리지 않고 값만 바꾼다(누르는 도중에 단추가 사라지지 않게). 기업 구성이 바뀔 때만 새로 만든다.
+    if (keys.dataset.groups !== model.groups.join()) {
+      keys.dataset.groups = model.groups.join();
+      keys.innerHTML = model.groups.map(code => `<button type="button" class="composition-key composition-color-${slotOf(code)}" data-compose-key="${esc(code)}" aria-pressed="false">
+        <i></i><span>${esc(label(code))}</span><b class="num"></b></button>`).join("");
+    }
     measure ??= textMeasure(getComputedStyle(chart).fontFamily);
     sparks = new Map();
     paintTrend();
@@ -328,6 +372,12 @@ function createMarketComposition(root, onSelection) {
   body.addEventListener("click", event => toggle(rowOf(event)));
   body.addEventListener("pointerover", event => hover(rowOf(event)));
   body.addEventListener("pointerleave", () => hover(null));
+  const keyOf = event => event.target.closest?.("[data-compose-key]")?.dataset.composeKey ?? null;
+  keys.addEventListener("click", event => toggle(keyOf(event)));
+  keys.addEventListener("pointerover", event => hover(keyOf(event)));
+  keys.addEventListener("pointerleave", () => hover(null));
+  keys.addEventListener("focusin", event => hover(keyOf(event)));
+  keys.addEventListener("focusout", () => hover(null));
   clear.addEventListener("click", () => toggle(highlighted));
 
   dateInput.addEventListener("change", () => {

@@ -30,7 +30,7 @@
 <main>
   <header class="composition-intro">
     <h1>국내 보안주 시총 구성</h1>
-    <p>최근 1년의 합산 시총과, 날짜마다 어느 기업이 얼마를 차지했는지 봅니다.</p>
+    <p>최근 1년의 합산 시총과, 그 안에서 어느 기업이 얼마를 차지했는지 봅니다.</p>
   </header>
   <p id="composition-status" role="status">시총 이력을 불러오는 중입니다.</p>
   <div id="market-composition" hidden>
@@ -49,15 +49,13 @@
         </div>
       </div>
       <figure class="composition-figure">
-        <figcaption><span data-compose-trend-title>합계 시가총액 (조원)</span><small>최근 1년, 그래프에 올리면 그 날짜의 구성, 누르면 고정</small></figcaption>
+        <figcaption><span data-compose-trend-title>합계 시가총액과 기업별 구성 (조원)</span><small>최근 1년, 그래프에 올리면 그 날짜의 구성, 누르면 고정</small></figcaption>
+        <div class="composition-keys" data-compose-keys aria-label="기업별 색과 조회일 비중"></div>
         <div data-compose-chart></div>
       </figure>
       <figure class="composition-figure">
         <figcaption>
-          <span>조회일 구성 <small>넓이와 색은 그날의 시총</small></span>
-          <span class="composition-scale" aria-hidden="true">비중 2% 미만
-            <span><i class="composition-share-0"></i><i class="composition-share-1"></i><i class="composition-share-2"></i><i class="composition-share-3"></i></span>
-            15% 이상</span>
+          <span>조회일 구성 <small>넓이는 그날의 시총, 색은 위 그래프와 같은 기업</small></span>
         </figcaption>
         <div data-compose-map></div>
         <p class="composition-readout"><span data-compose-readout></span><button type="button" data-compose-clear hidden>전체 보기</button></p>
@@ -69,7 +67,7 @@
         <thead><tr><th scope="col">종목</th><th scope="col">시총 (억원)</th><th scope="col">비중</th><th scope="col">1년 추이</th></tr></thead>
         <tbody></tbody>
       </table>
-      <p class="composition-source">1년 추이의 세로 눈금은 종목마다 그 종목의 최저와 최고에 맞춥니다. 과거 시총은 수정 종가와 환산 주식수로 추정하고, 당일은 시세로 계산한 잠정값입니다.</p>
+      <p class="composition-source">색을 따로 주는 기업은 최근 1년 마감일 평균 시총 상위 7개사이고 나머지는 기타로 묶습니다. 표의 1년 추이는 종목마다 그 종목의 최저와 최고에 맞춥니다. 과거 시총은 수정 종가와 환산 주식수로 추정하고, 당일은 시세로 계산한 잠정값입니다.</p>
     </section>
   </div>
 </main>

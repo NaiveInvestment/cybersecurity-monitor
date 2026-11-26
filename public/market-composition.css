@@ -29,20 +29,28 @@
 .composition-chart text { fill:var(--muted); font-size:11px; font-variant-numeric:tabular-nums; }
 .composition-chart .composition-year { opacity:.75; }
 .composition-baseline { stroke:var(--line-group); stroke-width:1; }
-.composition-area { fill:var(--brand); fill-opacity:.1; }
-.composition-line { fill:none; stroke:var(--brand); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
-.composition-dot { fill:var(--brand); stroke:var(--surface); stroke-width:2; }
+.composition-area { fill:var(--series, var(--brand)); fill-opacity:.16; }
+.composition-line { fill:none; stroke:var(--series, var(--brand)); stroke-width:2; stroke-linejoin:round; stroke-linecap:round; }
+.composition-line.total { stroke:var(--ink); }
+.composition-band { fill:var(--series); stroke:var(--surface); stroke-width:1; stroke-linejoin:round; transition:opacity .13s ease; }
+.composition-band.dimmed { opacity:.3; }
+.composition-keys { display:flex; flex-wrap:wrap; gap:4px 6px; padding:0 0 8px 1px; }
+.composition-key { display:inline-flex; align-items:center; gap:5px; padding:2px 8px 2px 6px; border:1px solid var(--line); border-radius:4px; color:var(--ink); font-size:12px; font-weight:600; transition:opacity .13s ease; }
+.composition-key i, .composition-chip { flex:none; width:10px; height:10px; border-radius:2px; background:var(--series); }
+.composition-key b { color:var(--muted); font-weight:600; }
+.composition-key:hover, .composition-key.hot { background:var(--surface-2); }
+.composition-key[aria-pressed="true"] { border-color:var(--ink); }
+.composition-key.dimmed { opacity:.5; }
+.composition-chip { display:inline-block; margin-right:7px; }
+.composition-dot { fill:var(--ink); stroke:var(--surface); stroke-width:2; }
 .composition-chart [data-composition-cursor] { stroke:var(--ink); pointer-events:none; }
 .composition-chart [data-composition-tag] { pointer-events:none; }
 .composition-chart [data-composition-tag] rect { fill:var(--ink); }
 .composition-chart [data-composition-tag] text { fill:var(--surface); font-weight:700; }
-.composition-scale { display:inline-flex; align-items:center; gap:6px; color:var(--muted); font-size:11.5px; font-weight:400; font-variant-numeric:tabular-nums; }
-.composition-scale span { display:inline-flex; gap:2px; }
-.composition-scale i { width:17px; height:10px; border-radius:2px; background:var(--tile); }
 .composition-map { display:block; width:100%; height:auto; }
 .composition-tile { cursor:pointer; outline:none; transition:opacity .13s ease; }
-.composition-tile rect { fill:var(--tile); stroke:transparent; stroke-width:2; }
-.composition-tile text { fill:var(--tile-ink); pointer-events:none; font-variant-numeric:tabular-nums; }
+.composition-tile rect { fill:var(--series); stroke:transparent; stroke-width:2; }
+.composition-tile text { fill:var(--series-ink); pointer-events:none; font-variant-numeric:tabular-nums; }
 .composition-tile-name { font-size:12px; font-weight:700; }
 .composition-tile-name.large { font-size:15px; letter-spacing:-.01em; }
 .composition-tile-name.huge { font-size:21px; font-weight:800; letter-spacing:-.02em; }
@@ -81,15 +89,23 @@
 .composition-spark path { fill:none; stroke:var(--brand); stroke-width:1.4; stroke-linejoin:round; stroke-linecap:round; }
 .composition-spark circle { fill:var(--ink); }
 .composition-source { margin-top:10px; }
-/* 비중 색 단계: 2, 5, 15%에서 한 단계씩 짙어진다(다크에서는 밝아진다). 칸 글자와의 명도 대비는 모두 4.5 이상이다. */
-.composition-share-0 { --tile:#2f3944; --tile-ink:#e7edf3; }
-.composition-share-1 { --tile:#26436b; --tile-ink:#fff; }
-.composition-share-2 { --tile:#2a5fa6; --tile-ink:#fff; }
-.composition-share-3 { --tile:#2f74d6; --tile-ink:#fff; }
-:root[data-theme="light"] .composition-share-0 { --tile:#e3e8ee; --tile-ink:#141c25; }
-:root[data-theme="light"] .composition-share-1 { --tile:#d2e2f6; --tile-ink:#141c25; }
-:root[data-theme="light"] .composition-share-2 { --tile:#86b3ea; --tile-ink:#141c25; }
-:root[data-theme="light"] .composition-share-3 { --tile:#155fa8; --tile-ink:#fff; }
+/* 기업 색: 1년 평균 시총 순서대로 0..6, 나머지와 기타는 회색이다. 이웃한 띠끼리 색각 이상에서도 구별되는 순서이며 칸 글자와의 명도 대비는 모두 4.5 이상이다. */
+.composition-color-0 { --series:#3987e5; --series-ink:#10161d; }
+.composition-color-1 { --series:#d95926; --series-ink:#10161d; }
+.composition-color-2 { --series:#199e70; --series-ink:#10161d; }
+.composition-color-3 { --series:#c98500; --series-ink:#10161d; }
+.composition-color-4 { --series:#d55181; --series-ink:#10161d; }
+.composition-color-5 { --series:#0ca30c; --series-ink:#10161d; }
+.composition-color-6 { --series:#9085e9; --series-ink:#10161d; }
+.composition-color-other { --series:#4f5c69; --series-ink:#fff; }
+:root[data-theme="light"] .composition-color-0 { --series:#2671cc; --series-ink:#fff; }
+:root[data-theme="light"] .composition-color-1 { --series:#eb6834; --series-ink:#10161d; }
+:root[data-theme="light"] .composition-color-2 { --series:#1baf7a; --series-ink:#10161d; }
+:root[data-theme="light"] .composition-color-3 { --series:#eda100; --series-ink:#10161d; }
+:root[data-theme="light"] .composition-color-4 { --series:#e87ba4; --series-ink:#10161d; }
+:root[data-theme="light"] .composition-color-5 { --series:#008300; --series-ink:#fff; }
+:root[data-theme="light"] .composition-color-6 { --series:#6250d6; --series-ink:#fff; }
+:root[data-theme="light"] .composition-color-other { --series:#b4bec9; --series-ink:#10161d; }
 #composition-status { color:var(--muted); }
 @media (max-width:840px) {
   .composition-summary { grid-template-columns:1fr 1fr; }
@@ -103,6 +119,8 @@
   .composition-extremes dd { font-size:16px; }
   .composition-share { gap:4px; }
   .composition-meter { display:none; }
+  .composition-key { padding:2px 6px 2px 5px; font-size:11.5px; }
+  .composition-chip { margin-right:5px; }
   .composition-spark-cell { width:78px; }
   .composition-spark { width:72px; }
   .composition-table th, .composition-table td { padding:7px 4px; }
