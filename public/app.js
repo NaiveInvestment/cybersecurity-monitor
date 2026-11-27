@@ -20,6 +20,8 @@ let filingPeriod = null;
 let filings = new Map();
 let treasuryShares = null;
 let marketWarnings = null;
+let shortHeat = null;
+let shortHeatRequest = null;
 let horizon = "threeMonth";
 let baseQuotes = {};
 
@@ -369,7 +371,26 @@ function refreshOpenWarning(officialChanged = false) {
   const stock = snapshot.stocks.find(row => row.id === dialog.dataset.stockId);
   if (!stock) return;
   const render = officialChanged ? showMarketWarnings : updateMarketWarningPrices;
-  render(dialog, marketWarnings, stock, displayedStockQuote(stock, currentPremarket()), snapshot.indices[stock.market]?.q);
+  render(dialog, marketWarnings, stock, displayedStockQuote(stock, currentPremarket()),
+    snapshot.indices[stock.market]?.q, shortHeatEntry(stock.id));
+}
+
+function shortHeatEntry(id) {
+  return shortHeat?.stocks?.[id] ? { ...shortHeat.stocks[id], checkedAt: shortHeat.checkedAt } : null;
+}
+
+function refreshShortHeat() {
+  if (shortHeatRequest || document.hidden || !$("#market-warning-dialog").open) return;
+  const repo = meta.live?.repo;
+  const path = repo ? `https://raw.githubusercontent.com/${repo}/short-heat/short-heat.json` : "data/short-heat.json";
+  shortHeatRequest = fetch(`${path}?minute=${Math.floor(Date.now() / 60000)}`,
+    { cache: "no-store", signal: AbortSignal.timeout(5000) })
+    .then(response => response.ok ? response.json() : null).then(next => {
+      if (next?.checkedAt && next?.stocks && (!shortHeat || next.checkedAt > shortHeat.checkedAt)) {
+        shortHeat = next;
+        refreshOpenWarning();
+      }
+    }).catch(() => {}).finally(() => { shortHeatRequest = null; });
 }
 
 function renderAll() {
@@ -499,7 +520,8 @@ function bind() {
     if (warningId) {
       const stock = snapshot.stocks.find(row => row.id === warningId);
       if (stock) showMarketWarnings($("#market-warning-dialog"), marketWarnings, stock,
-        displayedStockQuote(stock, currentPremarket()), snapshot.indices[stock.market]?.q);
+        displayedStockQuote(stock, currentPremarket()), snapshot.indices[stock.market]?.q, shortHeatEntry(stock.id));
+      refreshShortHeat();
       return;
     }
     const alternative = event.target.closest("[data-stock-view]")?.dataset.stockView;
@@ -555,6 +577,7 @@ async function main() {
 
   narrow.addEventListener("change", renderTable);
   setInterval(refreshStatus, 60000);
+  setInterval(refreshShortHeat, 60000);
   setInterval(async () => {
     const next = await loadJson("data/market-warnings.json").catch(() => null);
     if (next?.checkedAt && next.checkedAt !== marketWarnings?.checkedAt) {

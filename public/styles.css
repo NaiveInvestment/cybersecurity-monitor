@@ -177,6 +177,20 @@ main { padding: 12px 18px 28px; }
 .warning-action-price span { color:var(--brand); font-size:12px; font-weight:700; }
 .warning-action-note { grid-column:1 / -1; color:var(--muted); font-size:12px; line-height:1.5; }
 .warning-action-note span { display:block; color:var(--ink); }
+.short-heat { align-items:baseline; }
+.short-heat-as-of { color:var(--muted); font-size:11px; text-align:right; }
+.short-heat table {
+  grid-column:1 / -1; width:100%; table-layout:auto; border-collapse:collapse;
+  font-size:12px; font-variant-numeric:tabular-nums;
+}
+.short-heat :is(th,td) { padding:6px 4px; text-align:right; white-space:nowrap; border-bottom:1px solid var(--line); }
+.short-heat :is(th,td):first-child { padding-left:0; text-align:left; }
+.short-heat :is(th,td):last-child { padding-right:0; }
+.short-heat thead th { font-size:11px; font-weight:500; color:var(--muted); }
+.short-heat tbody td:nth-child(3) { color:var(--muted); }
+.short-heat-result { font-weight:700; color:var(--muted); }
+.short-heat-result.is-pass { color:var(--accent); }
+.short-heat-result.is-miss { color:var(--brand); }
 .warning-breakdown { border-top:1px solid var(--line); padding:9px 2px 2px; }
 .warning-breakdown summary { cursor:pointer; font-weight:700; }
 .warning-breakdown[open] summary { margin-bottom:9px; }
@@ -198,6 +212,7 @@ main { padding: 12px 18px 28px; }
   .warning-quote, .warning-basis, .warning-action { padding-inline:10px; }
   .warning-action-price strong { font-size:17px; }
   .warning-action { column-gap:8px; }
+  .short-heat :is(th,td) { padding-inline:3px; }
   .warning-rules :is(th,td) { min-width:0; padding:5px 4px; }
   .warning-rules th[scope=row] { min-width:86px; }
 }

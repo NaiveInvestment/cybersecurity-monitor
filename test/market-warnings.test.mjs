@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { addDays, intradayPriceBases, lastClosedDate, officialForStock, parseKindWarningPage, priceChecks } from "../src/market-warnings.mjs";
-import { kosdaqPriceLevel, marketWarningBadge, warningPriceView } from "../public/lib/market-warnings.js";
+import { kosdaqPriceLevel, marketWarningBadge, shortHeatView, warningPriceView } from "../public/lib/market-warnings.js";
+import { parseRegularBars, shortHeatMetrics } from "../src/short-heat.mjs";
 
 const today = "2026-11-27";
 const now = Date.parse(today + "T14:00:00+09:00");
@@ -102,4 +103,39 @@ test("quote preview updates with the regular quote and excludes NXT, stale data 
   assert.equal(warningPriceView({ ...row, intraday: { ...intraday, date: cutoff } }, quote, null, now).prices, prices);
   assert.deepEqual([1999, 2001, 4999, 5001, 175520, 199999, 200001, 500001]
     .map(kosdaqPriceLevel), [1999, 2005, 5000, 5010, 175600, 200000, 200500, 501000]);
+});
+
+test("short-heat metrics compare two sessions against the forty before the test date", () => {
+  const codes = Array.from({ length: 41 }, (_, index) => addDays(today, index - 40).replaceAll("-", ""));
+  const prices = parseRegularBars(codes.map((dt, index) => ({
+    dt, cur_prc: index === 40 ? "-130" : "100", high_pric: index === 40 ? "150" : "110",
+    low_pric: index === 40 ? "100" : "90", trde_qty: "10", trde_prica: "1",
+  })));
+  const integrated = prices.map((row, index) => ({ ...row,
+    value: index === 40 ? 14_300_000 : 1_000_000,
+  }));
+  const shares = new Map(prices.map(row => [row.date, 1000]));
+  const adjusted = prices.map((row, index) => ({ ...row, close: index === 40 ? 130 : 50 }));
+  const result = shortHeatMetrics(prices, prices, integrated, shares, today);
+  assert.equal(result.averageClose, 100);
+  assert.equal(result.close, 130);
+  assert.equal(result.volatility > 1.49 && result.volatility < 1.51, true);
+  assert.equal(result.turnover > 5.99 && result.turnover < 6.01, true);
+  assert.equal(shortHeatMetrics(prices, adjusted, integrated, shares, today).averageClose, 50);
+  adjusted.at(-1).close = 131;
+  assert.equal(shortHeatMetrics(prices, adjusted, integrated, shares, today, { intraday: true }).averageClose, 50);
+  assert.equal(shortHeatMetrics(prices, [], integrated, shares, today).averageClose, null);
+  assert.equal(shortHeatMetrics(prices, prices, integrated.slice(1), shares, today).turnover, null);
+  assert.equal(shortHeatMetrics(prices.slice(1), prices, integrated, shares, today), null);
+});
+
+test("short-heat price follows the live KRX quote and late or missing metrics are dated", () => {
+  const closed = { date: "2026-11-26", close: 110 };
+  const feed = { live: { date: today, close: 125, turnover: 4.5, volatility: 1.3 },
+    closed, checkedAt: new Date(now - 300000).toISOString() };
+  const quote = { p: 127, at: new Date(now).toISOString(), st: "OPEN" };
+  assert.equal(shortHeatView({}, quote, feed, now).close, 127);
+  assert.equal(shortHeatView({}, { ...quote, nxt: true }, feed, now), closed);
+  assert.equal(shortHeatView({}, quote, { ...feed, checkedAt: new Date(now - 721000).toISOString() }, now), closed);
+  assert.equal(shortHeatView({ prices: { date: today, close: 123, overheat: { average: 100 } } }, quote, null, now).averageClose, 100);
 });

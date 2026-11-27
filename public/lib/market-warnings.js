@@ -138,7 +138,57 @@ function actionRow(title, text, cutoff, price, condition, passed = price >= cuto
   </li>`;
 }
 
-function renderPriceOverview(view, quote, market) {
+export function shortHeatView(view, quote, snapshot, now = Date.now()) {
+  const today = localDay(now);
+  const age = now - Date.parse(snapshot?.checkedAt);
+  if (freshRegular(quote, now) && snapshot?.live?.date === today && age >= -60000 && age <= 12 * 60000) {
+    return { ...snapshot.live, close: quote.p, at: snapshot.checkedAt, live: true };
+  }
+  const closed = snapshot?.closed;
+  const daysAgo = Date.parse(today) - Date.parse(closed?.date);
+  if (daysAgo >= 0 && daysAgo <= 7 * referenceDayMs) return closed;
+  const overheat = view.prices?.overheat;
+  return { date: view.prices?.date, close: view.prices?.close, averageClose: overheat?.average,
+    live: view.intraday };
+}
+
+function shortHeatRow(label, value, threshold, current, minimum) {
+  const status = !Number.isFinite(value) ? ["unknown", "자료 없음"] :
+    value >= threshold ? ["pass", "충족"] : ["miss", "미충족"];
+  return `<tr><th scope="row">${label}</th><td>${current}</td><td>${minimum}</td>
+    <td><span class="short-heat-result is-${status[0]}">${status[1]}</span></td></tr>`;
+}
+
+function multiple(value, threshold) {
+  if (!Number.isFinite(value)) return "—";
+  if (value < threshold && Number(value.toFixed(2)) >= threshold) return `&lt; ${threshold}배`;
+  return `${value.toFixed(2)}배`;
+}
+
+function renderShortHeat(view, quote, market, snapshot) {
+  const data = shortHeatView(view, quote, snapshot);
+  const cutoff = usablePrice(data.averageClose) ? Math.ceil(data.averageClose * 13 / 10) : null;
+  const level = market === "KOSDAQ" ? kosdaqPriceLevel(cutoff) : cutoff;
+  const at = Date.parse(data.at);
+  const asOf = Number.isFinite(at) ? `장중 추정, 지표 ${timeLabel.format(at)}` :
+    data.date ? `${dateLabel(data.date)} ${data.live ? "장중 추정" : "정규장 추정"}` : "조회 대기";
+  const price = usablePrice(data.close) && level ? data.close : null;
+  return `<li class="warning-action short-heat">
+    <div><h3>단기과열 / 30분 단일가</h3></div>
+    <span class="short-heat-as-of">${asOf}</span>
+    <table aria-label="단기과열 세 가지 요건">
+      <thead><tr><th scope="col">요건</th><th scope="col">현재</th><th scope="col">기준</th><th scope="col">판정</th></tr></thead>
+      <tbody>
+        ${shortHeatRow("주가", price, level, usablePrice(data.close) ? won(data.close) : "—", level ? won(level) + " 이상" : "—")}
+        ${shortHeatRow("거래회전율", data.turnover, 6, multiple(data.turnover, 6), "6.00배 이상")}
+        ${shortHeatRow("일중 변동성", data.volatility, 1.5, multiple(data.volatility, 1.5), "1.50배 이상")}
+      </tbody>
+    </table>
+    <p class="warning-action-note">주가는 직전 40거래일 평균 종가의 130%, 나머지는 최근 2거래일 평균을 직전 40거래일 평균과 비교합니다. 실제 지정에는 세 요건 충족과 함께 예고 이력과 종가 상승 요건도 적용됩니다.</p>
+  </li>`;
+}
+
+function renderPriceOverview(view, quote, market, shortHeat) {
   const { prices, intraday, liveQuote } = view;
   const { closest: reference, crossed } = warningActions(prices, market);
   const source = quote?.nxt ? "NXT 프리마켓" : quote?.src === "kiwoom" ? "키움" :
@@ -152,20 +202,17 @@ function renderPriceOverview(view, quote, market) {
     prices ? `${dateLabel(prices.date)} 정규장 종가 ${won(prices.close)} 기준` : "비교 기준 자료 없음";
   const attentionCondition = reference?.accounts ? "계좌 매매 조건도 확인해야 합니다." :
     "경고 지정 여부는 예고와 최고 종가, 지수 요건 등도 봅니다.";
-  const overheat = prices?.overheat;
-  const hotPrice = market === "KOSDAQ" ? kosdaqPriceLevel(overheat?.cutoffPrice) : overheat?.cutoffPrice;
   return `<section class="warning-quote" aria-label="현재가">
     <div><span>현재가</span><strong>${won(quote?.p)}</strong></div>
     <p>${quoteInfo}</p>
   </section>
-  <section class="warning-comparison" aria-label="시장경보 가격 기준">
+  <section class="warning-comparison" aria-label="시장경보와 단기과열 요건">
     <p class="warning-basis">${basis}</p>
     <ul>
       ${actionRow("투자주의 / 경고 예고", reference?.text || "급등 가격 기준", reference?.cutoffPrice,
         prices?.close, attentionCondition + (crossed.length
           ? `<span>이미 도달한 가격 요건: ${crossed.map(rule => rule.text).join(", ")}</span>` : ""), reference?.passed)}
-      ${actionRow("단기과열 / 30분 단일가", "직전 40거래일 평균 종가의 130%", hotPrice,
-        prices?.close, "일반 3거래일 유형은 거래회전율, 변동성, 지정예고와 종가 상승도 확인합니다.")}
+      ${renderShortHeat(view, quote, market, shortHeat)}
     </ul>
   </section>`;
 }
@@ -202,11 +249,11 @@ export function bindMarketWarnings(dialog) {
   dialog.querySelector("[data-warning-close]").addEventListener("click", () => dialog.close());
 }
 
-export function updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote) {
+export function updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote, shortHeat) {
   const row = feed?.stocks?.[stock.id];
   const view = warningPriceView(row, quote, indexQuote);
   for (const [selector, content] of [
-    [".warning-overview", renderPriceOverview(view, quote, stock.market)],
+    [".warning-overview", renderPriceOverview(view, quote, stock.market, shortHeat)],
     [".warning-rule-data", priceTable(view.prices, view.intraday)],
   ]) {
     const container = dialog.querySelector(selector);
@@ -217,7 +264,7 @@ export function updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote
   }
 }
 
-export function showMarketWarnings(dialog, feed, stock, quote, indexQuote) {
+export function showMarketWarnings(dialog, feed, stock, quote, indexQuote, shortHeat) {
   const openSections = [...dialog.querySelectorAll(".warning-breakdown")].map(section => section.open);
   const row = feed?.stocks?.[stock.id];
   const official = row?.official;
@@ -242,6 +289,7 @@ export function showMarketWarnings(dialog, feed, stock, quote, indexQuote) {
     <details class="warning-breakdown"><summary>가격 요건 전체 보기</summary>
       <div class="warning-rule-data"></div>
       <p class="warning-muted">네이버 금융 정규장 수정종가 기준. 장중에는 종목표 시세와 당일 지수로 비교합니다. 요약의 기준가는 코스닥 호가단위로 올림했습니다.</p>
+      <p class="warning-muted">단기과열 추정은 키움 정규장 일봉과 다음 금융의 일별 상장주식수를 사용합니다. 거래회전율은 KRX와 NXT의 정규장 합산 거래대금, 일중 변동성은 KRX 고가와 저가 기준입니다. 가격 기준에는 수정주가를 반영합니다.</p>
       <a href="${overheatLink}" target="_blank" rel="noopener noreferrer">KRX 단기과열 공시 예시 ↗</a>
     </details>
     <details class="warning-breakdown"><summary>공시 및 투자주의 이력</summary>
@@ -254,6 +302,6 @@ export function showMarketWarnings(dialog, feed, stock, quote, indexQuote) {
   if (dialog.open) {
     dialog.querySelectorAll(".warning-breakdown").forEach((section, index) => { section.open = Boolean(openSections[index]); });
   }
-  updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote);
+  updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote, shortHeat);
   if (!dialog.open) dialog.showModal();
 }

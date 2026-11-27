@@ -48,4 +48,18 @@ function refreshFinancials() {
   job.on('error',()=>{financialBusy=false;});job.on('exit',()=>{financialBusy=false;});
 }
 setTimeout(refreshFinancials,15000);setInterval(refreshFinancials,300000).unref();
+let heatBusy = false;
+function refreshShortHeat() {
+  if (heatBusy) return;
+  heatBusy = true;
+  const launcher = join(process.env.LOCALAPPDATA, "AIWorkspace", "bin", "workspace_launcher.py");
+  const job = spawn("python", ["-B", "-X", "utf8", launcher, "run", "hongdaehyun-universe", "--",
+    process.execPath, join(ROOT, "scripts", "publish-short-heat.mjs"), "--publish"], {
+    cwd: ROOT, windowsHide: true, stdio: "inherit",
+  });
+  job.on("error", () => { heatBusy = false; log("단기과열 수집기 시작 실패"); });
+  job.on("exit", (code) => { heatBusy = false; if (code) log("단기과열 수집기 갱신 실패"); });
+}
+setTimeout(refreshShortHeat, 30000);
+setInterval(refreshShortHeat, 300000).unref();
 for (const event of ["SIGINT", "SIGTERM"]) process.on(event, () => { stopped = true; child?.kill(); server.close(); process.exit(0); });
