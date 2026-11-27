@@ -189,15 +189,20 @@ export function indexChart(series, weeks, { width = 800, components = null, boun
   for (const v of [0, 25, 50, 75, 100]) p.push(`<line class="ic-grid" x1="${left}" x2="${left + plotW}" y1="${y(v)}" y2="${y(v)}"/><text class="ic-tick" x="${left - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`);
   const step = Math.max(1, Math.ceil(46 / (plotW / weeks.length)));
   weeks.forEach((w, i) => { if ((weeks.length - 1 - i) % step === 0) p.push(`<text class="ic-tick" x="${r1(x(i))}" y="${H - 8}" text-anchor="middle">${weekLabel(w)}</text>`); });
-  const path = (pts, key) => pts.map((pt, i) => `${i ? "L" : "M"}${r1(x(i))} ${r1(y(pt[key]))}`).join("");
+  const path = (pts, key) => pts.map((pt, i) => pt.missing ? "" :
+    `${i && !pts[i - 1].missing ? "L" : "M"}${r1(x(i))} ${r1(y(pt[key]))}`).join("");
   p.push(boundaryLine(weeks, boundary, (i) => x(i) - plotW / weeks.length / 2, top, top + plotH));
   if (components) {
     for (const [key, cls] of [["r", "comp-r"], ["m", "comp-m"]]) p.push(`<path class="ic-comp ${cls}" d="${path(components, key)}"/>`);
   }
   for (const s of series) {
     p.push(`<path class="ic-line ${s.key}" d="${path(s.points, "index")}"/>`);
-    s.points.forEach((pt, i) => p.push(`<circle class="ic-pt ${s.key}${pt.partial ? " partial" : ""}" cx="${r1(x(i))}" cy="${r1(y(pt.index))}" r="4"><title>${esc(`${s.label} ${weekLabel(pt)} 주${pt.partial ? "(집계 중)" : ""}: 강도 ${Math.round(pt.index)} (유출 ${Math.round(pt.r)}, 금액 ${Math.round(pt.m)}) / ${pt.count}건, 유출 ${pt.recKnown ? fmtCount(pt.rec) + "건" : "발표 없음"}, 금전 피해 ${pt.usdKnown ? fmtUsd(pt.usd) : "발표 없음"}`)}</title></circle>`));
+    s.points.forEach((pt, i) => {
+      if (pt.missing) return;
+      p.push(`<circle class="ic-pt ${s.key}${pt.partial ? " partial" : ""}" cx="${r1(x(i))}" cy="${r1(y(pt.index))}" r="4"><title>${esc(`${s.label} ${weekLabel(pt)} 주${pt.partial ? "(집계 중)" : ""}: 강도 ${Math.round(pt.index)} (유출 ${Math.round(pt.r)}, 금액 ${Math.round(pt.m)}) / ${pt.count}건, 유출 ${pt.recKnown ? fmtCount(pt.rec) + "건" : "발표 없음"}, 금전 피해 ${pt.usdKnown ? fmtUsd(pt.usd) : "발표 없음"}`)}</title></circle>`);
+    });
     const last = s.points.at(-1);
+    if (!last || last.missing) continue;
     p.push(`<text class="ic-end ${s.key}" x="${r1(x(s.points.length - 1) + 9)}" y="${r1(y(last.index) + 4)}">${s.label} ${Math.round(last.index)}${last.partial ? "*" : ""}</text>`);
   }
   return `<svg class="ic" width="${width}" height="${H}" viewBox="0 0 ${width} ${H}" role="img" aria-label="주별 강도 지수">${p.join("")}</svg>`;

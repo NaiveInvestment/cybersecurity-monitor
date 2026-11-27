@@ -86,14 +86,17 @@ function renderTop() {
 
 function renderIndex() {
   const index = compositeIndex(confirmed, weeks);
+  const withCoverage = points => points.map(point =>
+    point.end > data.researchUntil && !point.recKnown && !point.usdKnown ? { ...point, missing: true } : point);
   const el = $("#idx-chart");
   if (state.region === "ALL") {
     $("#idx-legend").innerHTML = legend(["KR", "GL"]);
-    el.innerHTML = indexChart([{ key: "KR", label: "국내", points: index.KR }, { key: "GL", label: "해외", points: index.GL }], weeks, { width: width(el), plotH: 170 });
+    el.innerHTML = indexChart([{ key: "KR", label: "국내", points: withCoverage(index.KR) }, { key: "GL", label: "해외", points: withCoverage(index.GL) }], weeks, { width: width(el), plotH: 170 });
   } else {
     const r = state.region;
     $("#idx-legend").innerHTML = `${legend([r])}<span class="comp-r"><i></i>유출 요소</span><span class="comp-m"><i></i>금액 요소</span>`;
-    el.innerHTML = indexChart([{ key: r, label: REGION_LABEL[r], points: index[r] }], weeks, { width: width(el), components: index[r], plotH: 170 });
+    const points = withCoverage(index[r]);
+    el.innerHTML = indexChart([{ key: r, label: REGION_LABEL[r], points }], weeks, { width: width(el), components: points, plotH: 170 });
   }
 }
 

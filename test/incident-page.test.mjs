@@ -98,6 +98,10 @@ test("차트 SVG: 지정 폭, 라벨, 빈 자료", () => {
   const weeks = weeksEnding("2026-11-17", 13);
   const idx = compositeIndex(events, weeks);
   assert.match(indexChart([{ key: "KR", label: "국내", points: idx.KR }], weeks, { width: 600, components: idx.KR }), /width="600"[\s\S]*ic-comp comp-m/);
+  const incomplete = idx.KR.map((point, i) => i === idx.KR.length - 1 ? { ...point, missing: true } : point);
+  const incompleteChart = indexChart([{ key: "KR", label: "국내", points: incomplete }], weeks);
+  assert.equal((incompleteChart.match(/<circle /g) || []).length, idx.KR.length - 1);
+  assert.doesNotMatch(incompleteChart, /class="ic-end KR"/);
   assert.match(countChart([{ key: "KR", label: "국내", stats: weeklyStats(events, weeks, "KR") }], weeks, { width: 500 }), /ic-bar KR/);
   const usd = sizeChart(events, weeks, "usd", { width: 700 });
   assert.match(usd, /Binance \$6\.34B/);
