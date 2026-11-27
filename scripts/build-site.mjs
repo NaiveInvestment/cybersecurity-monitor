@@ -104,7 +104,7 @@ const versions = { css: hashOf(readdirSync(outDir).filter((name) => name.endsWit
 // 모든 스크립트(lib 폴더 포함)의 import 경로에도 같은 해시를 붙여 새 파일과 옛 캐시가 섞이지 않게 한다.
 for (const path of scripts) {
   const source = readFileSync(path, "utf8");
-  const rewritten = source.replace(/(from "\.\/[\w./-]+\.js)(")/g, `$1?v=${versions.js}$2`);
+  const rewritten = source.replace(/(from "\.\.?\/[\w./-]+\.js)(")/g, `$1?v=${versions.js}$2`);
   if (rewritten !== source) writeFileSync(path, rewritten);
 }
 for (const name of readdirSync(outDir).filter((file) => file.endsWith(".html"))) {
