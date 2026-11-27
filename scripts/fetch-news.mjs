@@ -7,7 +7,7 @@ import { canonicalUrl, splitPublisher, classify, buildStockMatcher, itemId, merg
 import { updateIncidentLog, publicIncidentLog, compileEntities } from "../src/incident-log.mjs";
 import { translateHeadlines } from "../src/headline-translations.mjs";
 import { archiveArticles, publishSearchableNews } from "../src/news-archive.mjs";
-import { fetchNewsFeed } from "../src/news-feeds.mjs";
+import { fallbackSourceIds, fetchNewsFeed, fetchNewsText } from "../src/news-feeds.mjs";
 import { reportsActualIncident } from "../src/incident-auto.mjs";
 
 const args = process.argv.slice(2);
@@ -44,6 +44,23 @@ async function main() {
     await sleep(1500);
   }
   await others;
+  const repo = process.env.GITHUB_REPOSITORY || "";
+  if (/^[\w.-]+\/[\w.-]+$/.test(repo) &&
+      feeds.some((feed, index) => fallbackSourceIds.has(feed.id) && results[index].status === "rejected")) {
+    try {
+      const url = `https://raw.githubusercontent.com/${repo}/security-alerts/news-sources.json?slot=${Math.floor(Date.now() / 60000)}`;
+      const fallback = JSON.parse(await fetchNewsText(url, "application/json"));
+      const cutoff = Date.now() - 3 * 86400000;
+      feeds.forEach((feed, index) => {
+        if (!fallbackSourceIds.has(feed.id) || results[index].status !== "rejected") return;
+        const rows = Array.isArray(fallback[feed.id]) ? fallback[feed.id] : [];
+        const value = rows.filter(row => Date.parse(row.date) >= cutoff).slice(0, 60);
+        if (value.length) results[index] = { status: "fulfilled", value, fallback: "direct-mirror" };
+      });
+    } catch (error) {
+      console.warn("원문 피드 보완 실패:", error.message);
+    }
+  }
   results.forEach((result, index) => {
     const feed = feeds[index];
     if (result.status === "rejected") {
@@ -67,7 +84,9 @@ async function main() {
       incoming.push(item);
       used += 1;
     }
-    report.push({ id: feed.id, ok: true, fetched: result.value.length, used, ...(feed.aggregator && result.value.length >= 100 ? { saturated: true } : {}) });
+    report.push({ id: feed.id, ok: true, fetched: result.value.length, used,
+      ...(result.fallback ? { fallback: result.fallback } : {}),
+      ...(feed.aggregator && result.value.length >= 100 ? { saturated: true } : {}) });
   });
 
   const okFeeds = report.filter((row) => row.ok).length;

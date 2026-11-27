@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import test from "node:test";
-import { fetchNewsText } from "../src/news-feeds.mjs";
+import { fetchNewsText, mirroredSourceNews } from "../src/news-feeds.mjs";
 import { publicSecurityAlerts } from "../scripts/publish-security-alerts.mjs";
 
 test("feed fetch retries a short rate limit and honors longer Retry-After", async () => {
@@ -34,4 +34,17 @@ test("public live alerts expose only fresh production article fields", () => {
     { ...actual, detectedAt: "2026-11-27T01:30:00Z" }, actual, actual];
   assert.deepEqual(publicSecurityAlerts({ alerts: rows }, now).alerts,
     [{ id, url, title, source, detectedAt: "2026-11-27T02:20:00.000Z" }]);
+});
+
+test("failed publisher feeds can recover only recent attributable direct articles", () => {
+  const now = Date.parse("2026-11-27T02:30:00Z");
+  const row = { s: "전자신문", u: "https://etnews.com/20261127000149?tracking=1",
+    d: "2026-11-27T01:59:59Z", t: "Sh수협은행, 해킹 공격에 고객 54명 정보 유출" };
+  const mirror = mirroredSourceNews([row, { ...row, d: "2026-11-19T01:59:59Z" },
+    { ...row, u: "https://news.google.com/rss/articles/arc" },
+    { ...row, t: "전자신문, 고객정보 유출 방지 안내" }], now);
+  assert.deepEqual(mirror["etnews-breaking"], [{
+    title: row.t, link: "https://etnews.com/20261127000149", date: "2026-11-27T01:59:59.000Z",
+  }]);
+  assert.deepEqual(mirror["sedaily-signal"], []);
 });

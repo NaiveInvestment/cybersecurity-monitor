@@ -6,6 +6,23 @@ const retryable = new Set([429, 503]);
 const newsAccept = "application/rss+xml, application/xml, text/xml, */*";
 const host = url => new URL(url).hostname;
 const google = url => host(url) === "news.google.com";
+export const fallbackSourceIds = new Set(["etnews-breaking", "sedaily-signal"]);
+const sourceRules = [
+  { id: "etnews-breaking", publisher: "전자신문", hostname: /^(?:(?:www|m)\.)?etnews\.com$/, pathname: /^\/\d+$/ },
+  { id: "sedaily-signal", publisher: "서울경제 시그널", hostname: /^signal\.sedaily\.com$/, pathname: /^\/article\/\d+$/ },
+];
+
+export function mirroredSourceNews(items, now = Date.now()) {
+  return Object.fromEntries(sourceRules.map(({ id, publisher, hostname, pathname }) => [id,
+    (Array.isArray(items) ? items : []).flatMap(item => {
+      if (item?.s !== publisher || !reportsActualIncident(item.t)) return [];
+      const time = Date.parse(item.d);
+      if (!(now - 3 * 86400000 <= time && time <= now + 60_000)) return [];
+      const url = URL.parse(item.u);
+      if (!url || url.protocol !== "https:" || !hostname.test(url.hostname) || !pathname.test(url.pathname)) return [];
+      return [{ title: item.t, link: url.origin + url.pathname, date: new Date(time).toISOString() }];
+    }).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60)]));
+}
 
 export async function fetchNewsText(url, accept, { request = fetch, wait = sleep } = {}) {
   const options = { headers: { "user-agent": "cybersecurity-monitor/1.0 (RSS reader)", accept } };
