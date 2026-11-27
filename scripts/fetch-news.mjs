@@ -3,10 +3,12 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { loadUniverse, ROOT } from "../src/universe.mjs";
-import { parseFeed, decodeBody, canonicalUrl, splitPublisher, classify, buildStockMatcher, itemId, mergeItems, assignGroups } from "../src/news.mjs";
+import { canonicalUrl, splitPublisher, classify, buildStockMatcher, itemId, mergeItems, assignGroups } from "../src/news.mjs";
 import { updateIncidentLog, publicIncidentLog, compileEntities } from "../src/incident-log.mjs";
 import { translateHeadlines } from "../src/headline-translations.mjs";
 import { archiveArticles, publishSearchableNews } from "../src/news-archive.mjs";
+import { fetchNewsFeed } from "../src/news-feeds.mjs";
+import { reportsActualIncident } from "../src/incident-auto.mjs";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -15,21 +17,18 @@ const option = (name, fallback) => {
 };
 const outDir = option("--out", join(ROOT, "_site", "data"));
 const statePath = option("--state", join(ROOT, "state", "news.json"));
+const alertsPoll = args.includes("--alerts-poll");
+if (alertsPoll && !args.includes("--state")) throw new Error("알림 수집에는 별도의 --state 경로가 필요합니다.");
+const alertFeeds = new Set(["gn-kr-incident", "gn-kr-leak", "gn-kr-ransom", "dailysecu",
+  "gn-gl-incident", "gn-gl-crypto", "bleeping", "therecord", "securityweek"]);
 // 사건 기록은 헤드라인 보관분 옆에 둔다(Actions에서는 data 브랜치에 함께 저장).
 const logPath = option("--incident-log", join(dirname(statePath), "incident-log.json"));
 
-async function fetchFeed(feed) {
-  const response = await fetch(feed.url, {
-    headers: { "user-agent": "Mozilla/5.0 (compatible; cybersecurity-monitor/1.0; RSS reader)", accept: "application/rss+xml, application/xml, text/xml, */*" },
-    signal: AbortSignal.timeout(25000),
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  const body = decodeBody(Buffer.from(await response.arrayBuffer()), response.headers.get("content-type") || "");
-  return parseFeed(body);
-}
-
 async function main() {
-  const { feeds, trendStart } = JSON.parse(readFileSync(join(ROOT, "data", "sources.json"), "utf8"));
+  const { feeds: configuredFeeds, trendStart } = JSON.parse(readFileSync(join(ROOT, "data", "sources.json"), "utf8"));
+  const feeds = configuredFeeds.filter(feed => alertsPoll
+    ? feed.alertsOnly || feed.incidentOnly || alertFeeds.has(feed.id)
+    : !feed.alertsOnly);
   const matchStocks = buildStockMatcher(loadUniverse().stocks);
   const previous = existsSync(statePath) ? JSON.parse(readFileSync(statePath, "utf8")) : { items: [] };
 
@@ -39,9 +38,9 @@ async function main() {
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const google = feeds.map((feed, index) => ({ feed, index })).filter(({ feed }) => feed.url.includes("news.google.com"));
   const results = new Array(feeds.length);
-  const others = Promise.allSettled(feeds.map((feed, index) => (feed.url.includes("news.google.com") ? null : fetchFeed(feed).then((value) => { results[index] = { status: "fulfilled", value }; }, (reason) => { results[index] = { status: "rejected", reason }; }))));
+  const others = Promise.allSettled(feeds.map((feed, index) => (feed.url.includes("news.google.com") ? null : fetchNewsFeed(feed).then((value) => { results[index] = { status: "fulfilled", value }; }, (reason) => { results[index] = { status: "rejected", reason }; }))));
   for (const { feed, index } of google) {
-    try { results[index] = { status: "fulfilled", value: await fetchFeed(feed) }; } catch (reason) { results[index] = { status: "rejected", reason }; }
+    try { results[index] = { status: "fulfilled", value: await fetchNewsFeed(feed) }; } catch (reason) { results[index] = { status: "rejected", reason }; }
     await sleep(1500);
   }
   await others;
@@ -56,21 +55,32 @@ async function main() {
       if (!entry.date) continue;
       const split = feed.aggregator ? splitPublisher(entry.title, entry.source) : { title: entry.title, publisher: "" };
       const source = feed.aggregator ? (entry.source || split.publisher || feed.name) : feed.name;
-      const category = classify(split.title, feed.aggregator ? "" : entry.summary, feed.hint || null);
+      const reported = reportsActualIncident(split.title);
+      if (feed.incidentOnly && !alertsPoll && !reported) continue;
+      const category = reported ? "incident"
+        : classify(split.title, feed.aggregator ? "" : entry.summary, feed.hint || null);
       if (category === "other") continue;
+      if (alertsPoll && category !== "incident") continue;
       const url = canonicalUrl(entry.link);
-      incoming.push({ id: itemId(url), t: split.title, u: url, s: source, d: entry.date, r: feed.region, c: category, k: matchStocks(split.title) });
+      const item = { id: itemId(url), t: split.title, u: url, s: source, d: entry.date, r: feed.region, c: category, k: matchStocks(split.title) };
+      if (alertsPoll && !feed.aggregator && entry.summary) item.alertSummary = entry.summary;
+      incoming.push(item);
       used += 1;
     }
-    report.push({ id: feed.id, ok: true, fetched: result.value.length, used });
+    report.push({ id: feed.id, ok: true, fetched: result.value.length, used, ...(feed.aggregator && result.value.length >= 100 ? { saturated: true } : {}) });
   });
 
   const okFeeds = report.filter((row) => row.ok).length;
   if (okFeeds === 0) throw new Error("모든 피드 수집 실패. 직전 보관분을 유지한다.");
 
-  const { items: retained, added } = mergeItems(previous.items || [], incoming);
+  const { items: retained, added } = mergeItems(previous.items || [], incoming, { keepDirectLinks: alertsPoll });
   const items = retained.slice(0, 3000);
   const groupCount = assignGroups(items);
+  if (alertsPoll) {
+    mkdirSync(dirname(statePath), { recursive: true });
+    writeFileSync(statePath, JSON.stringify({ updatedAt: new Date().toISOString(), feeds: report, items }));
+    return;
+  }
   const { english, translated } = await translateHeadlines(retained, { previous: previous.items });
   console.log(`한국어 제목 ${translated}/${english}건`);
   const output = { updatedAt: new Date().toISOString(), feeds: report, items };

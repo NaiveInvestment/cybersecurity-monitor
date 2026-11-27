@@ -76,6 +76,22 @@ test("prevention, retrospectives and uncertain claims do not inflate weekly case
   assert.equal(events.find(event => event.n === "올리브영").rec, 790);
 });
 
+test("weekly candidates keep the first evidenced report after archive rollover", () => {
+  const cutoff = "2026-11-17";
+  const first = "2026-11-23T00:30:00Z";
+  const earlier = "2026-11-20T01:00:00Z";
+  const confirmed = { ...item("a", "올리브영 고객정보 790명 유출 확인", "가"), d: first };
+  const prevention = { ...item("b", "올리브영, 고객정보 유출 방지 교육 실시", "나"), d: earlier };
+  const recap = { ...item("c", "올리브영 유출 사고 1년, 피해 예방 방안 논의", "다"), d: earlier };
+  const clustered = { ...story("mixed", "KR", earlier, 3, ["a", "b", "c"], prevention.t),
+    evidence: [confirmed] };
+  const options = { after: cutoff, sameName, kstDay };
+  for (const rows of [[confirmed, prevention, recap], [prevention, recap], []]) {
+    const [found] = autoDetect([clustered], new Map(rows.map(row => [row.id, row])), options);
+    assert.deepEqual([found.name, found.day, found.media, found.lead.u], ["올리브영", "2026-11-23", 1, confirmed.u]);
+  }
+});
+
 test("후속 보도와 국내외 제목의 기관 별칭을 사건 한 건으로 모은다", () => {
   const rows = [
     ["KR", "[기업보안성적표] 10대 기업 외부 해킹 철벽...한전 정보유출 결과 주목"],

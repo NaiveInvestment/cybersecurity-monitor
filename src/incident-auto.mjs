@@ -57,8 +57,17 @@ const NON_PARTY = new Set(["범죄자", "치명적", "상장", "다크웹", "뚫
 const matchingParties = text => INCIDENT_PARTIES.filter(([, , pattern]) => pattern.test(text));
 const marketOrRetrospective = /\[특징주\]|보안주.{0,18}(?:강세|급등|상한가)|(?:유출|해킹|침해)\s*(?:(?:사태|사고)\s*)?\d+\s*(?:년|주년)(?:\s|[,.…]|$)|해킹 피해액.{0,24}전액 복구/;
 const assertedKoreanBreach = /^(?:\[[^\]]+\]\s*)?[가-힣A-Za-z0-9]{2,25}[,\s]+(?:해킹|랜섬웨어 공격)(?:\s*사고)?\s*[…⋯]/;
-const reportsActualIncident = title => !marketOrRetrospective.test(title) && !COMMENTARY.test(title) &&
+export const reportsActualIncident = title => !marketOrRetrospective.test(title) && !COMMENTARY.test(title) &&
   (reportsIncident(title) || assertedKoreanBreach.test(title) || /^FBI\s+hacked (?:after|in|by)\b/i.test(title));
+
+export function incidentEvidence(story, itemsById) {
+  const current = (story.m || []).map(id => itemsById.get(id)).filter(Boolean);
+  const available = [...(story.evidence || []), ...current];
+  const titles = available.length ? available : [{ t: story.t, d: story.f,
+    s: Object.values(story.ds || {}).flat()[0] || "보도", u: story.u }];
+  return [...new Map(titles.filter(item => item.t && item.s && item.u && reportsActualIncident(item.t))
+    .map(item => [item.u, item])).values()];
+}
 
 export function incidentParty(text, matches = matchingParties(text)) {
   if (matches.length !== 1) return null;
@@ -117,14 +126,10 @@ function titleParty(title, region) {
 export function autoDetect(stories, itemsById, { after, known = [], sameName, kstDay, minMedia = 1 }) {
   const out = [];
   for (const s of [...stories].sort((a, b) => Date.parse(a.f) - Date.parse(b.f) || b.s - a.s)) {
-    if (s.e || s.s < minMedia) continue;
-    const day = kstDay(Date.parse(s.f));
-    if (day <= after) continue;
+    if (s.s < minMedia) continue;
     const items = (s.m || []).map((id) => itemsById.get(id)).filter(Boolean);
-    const titles = items.length ? items : [{ t: s.t, s: Object.values(s.ds || {}).flat()[0] || "보도", u: s.u }];
-    if (titles.some((i) => isDeniedIncidentTitle(i.t))) continue;
-    const qualified = titles.filter(item => reportsActualIncident(item.t));
-    if (qualified.length * 2 < titles.length) continue;
+    if (items.some((i) => isDeniedIncidentTitle(i.t))) continue;
+    const qualified = incidentEvidence(s, itemsById);
     const votes = new Map();
     for (const item of qualified) {
       const party = titleParty(item.t, s.r);
@@ -136,10 +141,14 @@ export function autoDetect(stories, itemsById, { after, known = [], sameName, ks
       vote.items.push(item);
     }
     // 매체가 2곳 이상이면 2곳 이상이 같은 이름을 써야 하고, 1곳뿐이면 그 제목의 이름을 쓴다.
-    const need = Math.min(2, new Set(titles.map((i) => i.s)).size);
+    const need = Math.min(2, new Set(qualified.map((i) => i.s)).size);
     const best = [...votes.values()].filter(vote => vote.sources.size >= need).sort((a, b) => b.sources.size - a.sources.size)[0];
     if (!best) continue;
     const { name, region } = best;
+    const first = Math.min(...best.items.map(item => Date.parse(item.d || s.f)));
+    if (!Number.isFinite(first)) continue;
+    const day = kstDay(first);
+    if (day <= after) continue;
     if (known.some((k) => {
       const alias = incidentParty(k.n);
       return (alias?.region ?? k.r) === region && sameName(alias?.name ?? k.n, name) &&
@@ -147,7 +156,7 @@ export function autoDetect(stories, itemsById, { after, known = [], sameName, ks
     })) continue;
     if (out.some((o) => o.region === region && sameName(o.name, name) && Math.abs(Date.parse(o.day) - Date.parse(day)) <= 14 * 86400000)) continue;
     // 대표 기사는 그 이름을 주어로 쓴 제목(묶음에 다른 사건 기사가 섞여도 내용 칸이 어긋나지 않게).
-    const lead = best.items.find(item => item.u);
+    const lead = [...best.items].sort((a, b) => (a.d || s.f).localeCompare(b.d || s.f))[0];
     if (!lead) continue;
     out.push({ story: s, name, region, day, items: best.items, lead, media: best.sources.size });
   }

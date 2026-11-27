@@ -3,7 +3,7 @@
 // 2. 보도 수집 사건 기록(state/incident-log.json의 피해 주체 사전 사건): 리서치 이후 새 사건을 자동으로 잡는다. 규모는 비어 있다.
 // 3. DeFiLlama 가상자산 해킹: 탈취 금액. 리서치에 같은 이름이 7일 안에 있으면 뺀다.
 
-import { autoDetect, incidentParty } from "./incident-auto.mjs";
+import { autoDetect, incidentEvidence, incidentParty } from "./incident-auto.mjs";
 
 const DAY = 86400000;
 export const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
@@ -88,14 +88,22 @@ export function fromNewsLog(stories, entities, research, { since, newsItems = []
   const itemById = new Map(newsItems.map((item) => [item.id, item]));
   return stories.filter((s) => s.e && s.s >= minMedia && kstDay(Date.parse(s.f)) >= since).flatMap((s) => {
     const entity = byId.get(s.e);
-    const day = kstDay(Date.parse(s.f));
     const alias = incidentParty(s.name) ?? incidentParty(s.t);
     const n = alias?.name ?? s.name;
     const region = alias?.region ?? s.r;
+    const evidence = incidentEvidence(s, itemById).filter(item => {
+      const named = incidentParty(item.t);
+      return named ? named.region === region && sameName(named.name, n)
+        : entity?.regex.some(pattern => pattern.test(item.t));
+    }).sort((a, b) => (a.d || s.f).localeCompare(b.d || s.f));
+    const media = new Set(evidence.map(item => item.s)).size;
+    if (media < minMedia) return [];
+    const [lead] = evidence;
+    const day = kstDay(Date.parse(lead.d || s.f));
     const dup = research.some((r) => r.r === region && (sameName(incidentParty(r.n)?.name ?? r.n, n) || (entity && entity.regex.some((re) => re.test(r.n)))) && Math.abs(Date.parse(r.d) - Date.parse(day)) <= 14 * DAY);
     if (dup) return [];
-    const rec = headlineCount((s.m || []).map((id) => itemById.get(id)).filter(Boolean));
-    return [{ id: `n-${s.id}`, d: day, n, r: region, org: ORG_OVERRIDE[s.e] || SECTOR_ORG[s.sector] || "일반 기업", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: "", src: [{ o: `보도 ${s.s}개 매체`, u: s.u, t: s.t, d: day }], media: s.s, via: "보도 수집" }];
+    const rec = headlineCount(evidence);
+    return [{ id: `n-${s.id}`, d: day, n, r: region, org: ORG_OVERRIDE[s.e] || SECTOR_ORG[s.sector] || "일반 기업", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: "", src: [{ o: `보도 ${media}개 매체`, u: lead.u, t: lead.t, d: day }], media, via: "보도 수집" }];
   });
 }
 

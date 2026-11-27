@@ -6,11 +6,19 @@
 // 2. 사전에 없는 기사는 화면과 같은 사건 묶음(g) 단위다.
 // 요약문은 만들지 않는다.
 import { groupStories } from "../public/lib/issues.js";
+import { reportsActualIncident } from "./incident-auto.mjs";
 
 const DAY = 86400000;
 const kstDay = (iso) => new Date(Date.parse(iso) + 9 * 3600000).toISOString().slice(0, 10);
 // 날짜별 보도 매체(ds: { "YYYY-MM-DD": [매체] })를 쌓는다. 히트맵 칸 값이 된다.
 function addDaySource(entry, item) {
+  if (reportsActualIncident(item.t)) {
+    const evidence = entry.evidence ?? (entry.evidence = []);
+    if (evidence.length < 16 && !evidence.some(row => row.s === item.s)) {
+      const { t, d, s, u } = item;
+      evidence.push({ t, d, s, u });
+    }
+  }
   entry.ds = entry.ds || {};
   const day = kstDay(item.d);
   const list = entry.ds[day] || (entry.ds[day] = []);
@@ -34,7 +42,8 @@ function leadOf(items) {
 export function updateIncidentLog(previous, items, { entities = [], now = Date.now(), keepDays = 400 } = {}) {
   const cutoff = now - keepDays * DAY;
   const entries = (previous?.stories || []).filter((entry) => Date.parse(entry.f) >= cutoff)
-    .map((entry) => ({ ...entry, m: [...entry.m], src: entry.src ? [...entry.src] : undefined, ds: Object.fromEntries(Object.entries(entry.ds || {}).map(([day, list]) => [day, [...list]])) }));
+    .map((entry) => ({ ...entry, m: [...entry.m], src: entry.src ? [...entry.src] : undefined,
+      evidence: [...(entry.evidence || [])], ds: Object.fromEntries(Object.entries(entry.ds || {}).map(([day, list]) => [day, [...list]])) }));
   const byMember = new Map();
   for (const entry of entries) for (const id of entry.m) byMember.set(id, entry);
   let added = 0;
@@ -109,4 +118,4 @@ export function updateIncidentLog(previous, items, { entities = [], now = Date.n
 }
 
 // 화면용: 기사 id와 매체 목록을 빼고, 날짜별 매체는 수(dd)로만 싣는다.
-export const publicIncidentLog = (log, meta = {}) => ({ ...meta, stories: log.stories.map(({ m, src, ds, ...entry }) => ({ ...entry, dd: Object.fromEntries(Object.entries(ds || {}).map(([day, list]) => [day, list.length])) })) });
+export const publicIncidentLog = (log, meta = {}) => ({ ...meta, stories: log.stories.map(({ m, src, ds, evidence, ...entry }) => ({ ...entry, dd: Object.fromEntries(Object.entries(ds || {}).map(([day, list]) => [day, list.length])) })) });

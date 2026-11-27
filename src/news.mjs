@@ -16,6 +16,25 @@ export function decodeEntities(text) {
 
 export const stripTags = (text) => decodeEntities(decodeEntities(text).replace(/<[^>]*>/g, " ")).replace(/\s+/g, " ").trim();
 
+export function signalHeadlines(html) {
+  const rows = new Map();
+  const links = /<a\b[^>]*\bhref=["'](?:(?:https:)?\/\/signal\.sedaily\.com)?(\/article\/\d+)["'][^>]*>([\s\S]*?)<\/a>/gi;
+  for (const [, path, content] of html.matchAll(links)) {
+    const title = stripTags(content);
+    if (title && !rows.has(path)) rows.set(path, { title, link: "https://signal.sedaily.com" + path });
+  }
+  return [...rows.values()];
+}
+
+export function articlePublishedAt(html) {
+  for (const [meta] of html.matchAll(/<meta\b[^>]*>/gi)) {
+    if (!/\bproperty\s*=\s*["']article:published_time["']/i.test(meta)) continue;
+    const time = Date.parse(/\bcontent\s*=\s*["']([^"']+)["']/i.exec(meta)?.[1]);
+    if (Number.isFinite(time)) return new Date(time).toISOString();
+  }
+  return null;
+}
+
 function tag(block, name) {
   const match = new RegExp(`<${name}(?:\\s[^>]*)?>([\\s\\S]*?)</${name}>`, "i").exec(block);
   return match ? match[1] : "";
@@ -134,11 +153,12 @@ export function buildStockMatcher(stocks) {
 export const itemId = (url) => createHash("sha1").update(url).digest("hex").slice(0, 12);
 
 // URL과 같은 매체의 유사 제목은 중복으로 처리하고, 다른 매체 보도는 남긴다.
-export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 180, threshold = 0.5 } = {}) {
+export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 180, threshold = 0.5, keepDirectLinks = false } = {}) {
   const cutoff = now - keepDays * 86400000;
   const kept = existing.filter((item) => Date.parse(item.d) >= cutoff && (item.c !== "incident" || !isDeniedIncidentTitle(item.t)));
   const urls = new Set(kept.map((item) => item.u));
-  const titleId = (item) => `${item.r}|${item.s}|${titleKey(item.t)}`;
+  const sourceKey = (item) => keepDirectLinks && item.u?.startsWith("https://news.google.com/") ? `google|${item.s}` : item.s;
+  const titleId = (item) => `${item.r}|${sourceKey(item)}|${titleKey(item.t)}`;
   const keys = new Set(kept.map(titleId));
   let added = 0;
   const sorted = [...incoming].sort((a, b) => a.d.localeCompare(b.d));
@@ -147,7 +167,7 @@ export function mergeItems(existing, incoming, { now = Date.now(), keepDays = 18
     if (Number.isNaN(time) || time < cutoff || time > now + 86400000) continue;
     const key = titleId(item);
     if (urls.has(item.u) || keys.has(key)) continue;
-    const near = kept.some((other) => other.r === item.r && other.s === item.s && Math.abs(Date.parse(other.d) - time) < 4 * 86400000
+    const near = kept.some((other) => other.r === item.r && sourceKey(other) === sourceKey(item) && Math.abs(Date.parse(other.d) - time) < 4 * 86400000
       && similarity(other.t, item.t) >= threshold);
     if (near) continue;
     kept.push(item);

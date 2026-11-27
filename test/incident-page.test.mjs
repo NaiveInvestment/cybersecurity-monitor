@@ -32,10 +32,14 @@ const entities = compileEntities({ entities: [
 ] });
 const newsLog = [
   { id: "a", e: "fsi", name: "금융보안원", sector: "금융", r: "KR", f: "2026-11-09T06:00:00Z", s: 109, t: "t", u: "https://x", m: [] },
-  { id: "b", e: "kbcapital", name: "KB캐피탈", sector: "금융", r: "KR", f: "2026-11-13T01:00:00Z", s: 22, t: "t", u: "https://y", m: ["k1", "k2"] },
+  { id: "b", e: "kbcapital", name: "KB캐피탈", sector: "금융", r: "KR", f: "2026-11-13T01:00:00Z", s: 22, t: "t", u: "https://y", m: ["k1", "k2", "k3"] },
   { id: "c", e: "hana", name: "하나은행", sector: "금융", r: "KR", f: "2026-11-12T01:00:00Z", s: 1, t: "해설", u: "https://z", m: [] },
 ];
-const newsItems = [{ id: "k1", t: "KB캐피탈 1,811명 유출", s: "가" }, { id: "k2", t: "KB캐피탈 해킹 1811명", s: "나" }];
+const newsItems = [
+  { id: "k1", t: "KB캐피탈 1,811명 개인정보 유출", s: "가", u: "https://a.example/kb" },
+  { id: "k2", t: "KB캐피탈 해킹으로 1811명 정보 유출", s: "나", u: "https://b.example/kb" },
+  { id: "k3", t: "KB캐피탈 고객정보 유출 확인", s: "다", u: "https://c.example/kb" },
+];
 const hacks = [{ date: Date.parse("2026-10-29T12:00:00Z") / 1000, name: "Binance CEX", amount: 6.36e9 }, { date: Date.parse("2026-11-02T00:00:00Z") / 1000, name: "Mercado Bitcoin", amount: 4e7 }, { date: Date.parse("2026-11-03T00:00:00Z") / 1000, name: "Tiny", amount: 2e6 }];
 
 test("mergeEvents: 리서치 우선, 보도 수집은 3개 매체 이상, DeFiLlama 중복 제거", () => {
@@ -47,6 +51,9 @@ test("mergeEvents: 리서치 우선, 보도 수집은 3개 매체 이상, DeFiLl
   assert.ok(!names.includes("Binance CEX") && names.includes("Binance"), "DeFiLlama 중복은 리서치로");
   assert.ok(names.includes("Mercado Bitcoin") && !names.includes("Tiny"), "$1천만 미만 제외");
   assert.equal(events.find((e) => e.n === "KB캐피탈").rec, 1811);
+  assert.equal(events.find((e) => e.n === "KB캐피탈").media, 3);
+  assert.ok(!mergeEvents({ research, newsLog, entities, hacks, newsItems: newsItems.slice(0, 2),
+    since: "2026-08-18" }).some(event => event.n === "KB캐피탈"), "원문 단서 없는 매체는 수에 넣지 않는다");
   assert.equal(events.find((e) => e.n === "Vanderbilt").claim, true);
 });
 

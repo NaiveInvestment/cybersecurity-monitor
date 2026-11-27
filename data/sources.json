@@ -66,6 +66,42 @@
       "url": "https://www.dailysecu.com/rss/allArticle.xml"
     },
     {
+      "id": "etnews-breaking",
+      "name": "전자신문",
+      "region": "KR",
+      "incidentOnly": true,
+      "url": "https://rss.etnews.com/Section902.xml"
+    },
+    {
+      "id": "sedaily-signal",
+      "name": "서울경제 시그널",
+      "region": "KR",
+      "incidentOnly": true,
+      "format": "signal-homepage",
+      "url": "https://signal.sedaily.com/"
+    },
+    {
+      "id": "yna-latest",
+      "name": "연합뉴스",
+      "region": "KR",
+      "incidentOnly": true,
+      "url": "https://www.yna.co.kr/rss/news.xml"
+    },
+    {
+      "id": "yna-industry",
+      "name": "연합뉴스",
+      "region": "KR",
+      "incidentOnly": true,
+      "url": "https://www.yna.co.kr/rss/industry.xml"
+    },
+    {
+      "id": "newsis-breaking",
+      "name": "뉴시스",
+      "region": "KR",
+      "incidentOnly": true,
+      "url": "https://www.newsis.com/RSS/sokbo.xml"
+    },
+    {
       "id": "gn-gl-incident",
       "name": "Google News",
       "region": "GL",

@@ -82,6 +82,7 @@ writeFileSync(join(outDir, "data", "issue-banner.json"), JSON.stringify(bannerIs
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
   builtAt: new Date().toISOString(),
   stockScores: "data/stock-scores.json",
+  securityAlerts: liveRepo ? `https://raw.githubusercontent.com/${liveRepo}/security-alerts/security-alerts.json` : undefined,
   domesticMarket: existsSync(join(outDir, "data", "domestic-market.json"))
     ? "data/domestic-market.json" : liveRepo
       ? `https://raw.githubusercontent.com/${liveRepo}/market-activity/domestic-market.json` : undefined,
