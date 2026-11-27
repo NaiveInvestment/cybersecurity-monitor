@@ -80,6 +80,8 @@ test('public relay: allowlist and seven public fields, stale upstream is rejecte
  const input={asOf:iso,naver:{at:iso},feed:{active:false},secret:'secret',q:{a:[100,1,5,5,2,iso,'OPEN','naver','secret'],private:[1,2,3]}};
  const safe=publicQuotes(input,['a'],now);
  assert.deepEqual(Object.keys(safe.q),['a']);assert.equal(safe.q.a.length,7);assert.equal(safe.secret,undefined);
+ assert.deepEqual(safe.quoteSources,{a:'naver'});
+ assert.deepEqual(publicQuotes({...input,q:{a:[...input.q.a.slice(0,7),'private']}},['a'],now).quoteSources,{});
  assert.equal(publicQuotes({...input,asOf:new Date(now-31000).toISOString()},['a'],now),null);
  assert.equal(publicQuotes({...input,naver:{at:new Date(now-60000).toISOString()}},['a'],now),null);
  assert.equal(relayUrl('https://evil.example/live.json'),null);assert.ok(relayUrl('https://test.trycloudflare.com/live.json'));

@@ -7,7 +7,7 @@ import { financialRow, annualValuation, filingSummary } from "./lib/financials.j
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 import { startMarketActivity, updateMarketActivity } from "./market-activity.js";
-import { bindMarketWarnings, marketWarningBadge, showMarketWarnings } from "./lib/market-warnings.js";
+import { bindMarketWarnings, marketWarningBadge, showMarketWarnings, updateMarketWarningPrices } from "./lib/market-warnings.js";
 
 const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, livePayload: null, liveRev: null, liveSource: null };
 // 방금 값이 바뀐 종목. 현재가 칸을 한 번 반짝이게 한다.
@@ -215,16 +215,20 @@ function compare(a, b) {
   return state.sort.dir === "asc" ? order : -order;
 }
 
+const displayedStockQuote = (stock, premarket) => premarket?.[stock.id]
+  ? { ...premarket[stock.id], nxt: true } : stock.q;
+const currentPremarket = () => isNxtPremarket(Date.now()) ? state.livePayload?.nxtPre : null;
+
 function renderTable() {
   financialColumns();
   // 좁은 화면에서는 분야, 시장 열을 빼고 종목명 옆에 바로 시세가 오게 한다.
   const COLS = COLUMNS.filter((column) => !(narrow.matches && column.narrow === false) &&
     !(state.view === "GL" && column.key === "marketWarning"));
-  const nxtPre = isNxtPremarket(Date.now()) ? state.livePayload?.nxtPre : null;
+  const nxtPre = currentPremarket();
   const rows = visibleStocks().map((stock) => {
     const d = derive(stock);
-    const pre = nxtPre?.[stock.id];
-    if (pre) return { stock, d: { ...d, price: pre.p, chg: pre.chg, nxt: true } };
+    const quote = displayedStockQuote(stock, nxtPre);
+    if (quote?.nxt) return { stock, d: { ...d, price: quote.p, chg: quote.chg, nxt: true } };
     return { stock, d };
   }).sort(compare);
   $("#count").textContent = `${rows.length}종목`;
@@ -359,35 +363,52 @@ async function renderIssueBar() {
   } catch { /* 뉴스를 못 읽어도 종목 표는 그대로 둔다 */ }
 }
 
+function refreshOpenWarning(officialChanged = false) {
+  const dialog = $("#market-warning-dialog");
+  if (!dialog.open) return;
+  const stock = snapshot.stocks.find(row => row.id === dialog.dataset.stockId);
+  if (!stock) return;
+  const render = officialChanged ? showMarketWarnings : updateMarketWarningPrices;
+  render(dialog, marketWarnings, stock, displayedStockQuote(stock, currentPremarket()), snapshot.indices[stock.market]?.q);
+}
+
 function renderAll() {
   renderKpis();
   renderTable();
   renderStatus();
+  refreshOpenWarning();
 }
 
 function applyLive(live, force = false) {
   if (!live?.q) return;
   const ids = Object.keys(live.nxtPre ?? {}).filter(id => live.q[id] && live.q[id][6] !== "OPEN");
   const nxtPre = selectNxtPremarket(live.nxtPre, ids);
-  const sessionChanged = Boolean(state.livePayload?.nxtPre) !== Boolean(nxtPre);
+  const previousPre = state.livePayload?.nxtPre || {};
+  const premarketChanged = Object.keys(previousPre).length !== Object.keys(nxtPre || {}).length ||
+    Object.entries(nxtPre || {}).some(([id, quote]) => quote.p !== previousPre[id]?.p || quote.chg !== previousPre[id]?.chg);
+  const sourceChanged = (live.source || null) !== state.liveSource;
   state.livePayload = { ...live, nxtPre };
   state.liveSource = live.source || null;
-  // 로컬 실시간은 2초마다 읽는다. 바뀐 것이 없으면(rev 동일) 표를 다시 그리지 않는다.
-  if (!sessionChanged && live.rev != null && live.rev === state.liveRev) { renderStatus(); return; }
+  const sameRevision = !premarketChanged && !sourceChanged && live.rev != null && live.rev === state.liveRev;
   state.liveRev = live.rev ?? null;
   for (const stock of snapshot.stocks) {
     const row = live.q[stock.id];
     if (!row) continue;
-    const [p, chg, cap, capKrw, tv, at, st] = row;
+    const [p, chg, cap, capKrw, tv, at, st, localSource] = row;
     if (!force && stock.q?.at && Date.parse(at) < Date.parse(stock.q.at)) continue;
     if (stock.q?.p != null && p !== stock.q.p) flash.set(stock.id, p > stock.q.p ? "up" : "down");
-    stock.q = { p, chg, cap, capKrw, tv, at, st };
+    const src = live.quoteSources?.[stock.id] || localSource || (!live.source ? "naver" : null);
+    stock.q = { p, chg, cap, capKrw, tv, at, st, src };
   }
   for (const [id, quote] of Object.entries(live.idx || {})) {
     const index = snapshot.indices[id];
     if (index && (!index.q?.at || Date.parse(quote.at) >= Date.parse(index.q.at))) index.q = quote;
   }
-  renderAll();
+  // 거래 시각과 출처는 가격이 그대로여도 갱신한다.
+  if (sameRevision && !flash.size) {
+    renderStatus();
+    refreshOpenWarning();
+  } else renderAll();
   flash.clear();
 }
 
@@ -397,6 +418,7 @@ function refreshStatus() {
     renderTable();
   }
   renderStatus();
+  refreshOpenWarning();
 }
 
 function restoreCloudQuotes(cloud) {
@@ -476,7 +498,8 @@ function bind() {
     const warningId = event.target.closest("[data-market-warning]")?.dataset.marketWarning;
     if (warningId) {
       const stock = snapshot.stocks.find(row => row.id === warningId);
-      if (stock) showMarketWarnings($("#market-warning-dialog"), marketWarnings, stock);
+      if (stock) showMarketWarnings($("#market-warning-dialog"), marketWarnings, stock,
+        displayedStockQuote(stock, currentPremarket()), snapshot.indices[stock.market]?.q);
       return;
     }
     const alternative = event.target.closest("[data-stock-view]")?.dataset.stockView;
@@ -537,6 +560,7 @@ async function main() {
     if (next?.checkedAt && next.checkedAt !== marketWarnings?.checkedAt) {
       marketWarnings = next;
       renderTable();
+      refreshOpenWarning(true);
     }
   }, 60000);
 }

@@ -112,6 +112,48 @@ const windows = [
   { id: "mediumAccounts", days: 15, threshold: 75 },
 ];
 
+function priorYearDate(target) {
+  const day = new Date(target + "T00:00:00Z");
+  const month = day.getUTCMonth();
+  day.setUTCFullYear(day.getUTCFullYear() - 1);
+  if (day.getUTCMonth() !== month) day.setUTCDate(0);
+  return dateKey(day);
+}
+
+function annualBaseOn(prices, calendar, target) {
+  const lookback = priorYearDate(target);
+  const index = calendar.findLast(row => row.date <= lookback);
+  const close = prices.get(index?.date);
+  if (!index || !valid(close) || (Date.parse(lookback) - Date.parse(index.date)) > 7 * dayMs) return null;
+  return { baseDate: index.date, baseClose: close, baseIndex: index.close };
+}
+
+function overheatBase(prices, preceding) {
+  const sample = preceding.slice(-40);
+  if (sample.length < 40 || !sample.every(row => valid(prices.get(row.date)))) return null;
+  const total = sample.reduce((sum, row) => sum + prices.get(row.date), 0);
+  return { average: total / sample.length, cutoffPrice: Math.ceil(total * 13 / (sample.length * 10)) };
+}
+
+export function intradayPriceBases(history, benchmark, target, cutoff) {
+  const calendar = benchmark.filter(row => row.date <= cutoff && row.date < target);
+  const last = calendar.at(-1);
+  if (!last || cutoff >= target || Date.parse(target) - Date.parse(last.date) > 7 * dayMs) return null;
+  const prices = new Map(history.map(({ date, close }) => [date, close]));
+  if (!valid(prices.get(last.date))) return null;
+  const checks = windows.map(rule => {
+    const sample = calendar.slice(-rule.days);
+    if (sample.length !== rule.days || !sample.every(row => valid(prices.get(row.date)))) return { ...rule };
+    const [base] = sample;
+    return { ...rule, baseDate: base.date, prior: prices.get(base.date), baseIndex: base.close };
+  });
+  const recent = calendar.slice(-14);
+  const high14 = recent.length === 14 && recent.every(row => valid(prices.get(row.date))) ?
+    Math.max(...recent.map(row => prices.get(row.date))) : null;
+  return { date: target, previousDate: last.date, previousClose: prices.get(last.date), high14, checks,
+    annual: annualBaseOn(prices, calendar, target), overheat: overheatBase(prices, calendar) };
+}
+
 export function priceChecks(history, benchmark, cutoff) {
   const calendar = benchmark.filter(row => row.date <= cutoff);
   const session = calendar.at(-1);
@@ -135,18 +177,12 @@ export function priceChecks(history, benchmark, cutoff) {
       pricePass: close * 100 >= prior * (100 + rule.threshold),
       cutoffPrice: Math.ceil(prior * (100 + rule.threshold) / 100) };
   });
-  const anniversary = new Date(session.date + "T00:00:00Z");
-  const month = anniversary.getUTCMonth();
-  anniversary.setUTCFullYear(anniversary.getUTCFullYear() - 1);
-  if (anniversary.getUTCMonth() !== month) anniversary.setUTCDate(0);
-  const lookback = dateKey(anniversary);
-  const annualBase = calendar.findLast(row => row.date <= lookback);
-  const annualPrice = prices.get(annualBase?.date);
-  const annual = annualBase && valid(annualPrice) && (Date.parse(lookback) - Date.parse(annualBase.date)) <= 7 * dayMs ?
-    { baseDate: annualBase.date, stockReturn: percent(close, annualPrice), indexReturn: percent(session.close, annualBase.close) } : null;
+  const annualBase = annualBaseOn(prices, calendar, session.date);
+  const annual = annualBase ? { baseDate: annualBase.baseDate,
+    stockReturn: percent(close, annualBase.baseClose), indexReturn: percent(session.close, annualBase.baseIndex) } : null;
   if (annual) {
     annual.excess = annual.stockReturn - annual.indexReturn;
-    annual.cutoffPrice = Math.ceil(annualPrice * (300 + annual.indexReturn) / 100);
+    annual.cutoffPrice = Math.ceil(annualBase.baseClose * (300 + annual.indexReturn) / 100);
   }
-  return { date: session.date, close, high15, checks, annual };
+  return { date: session.date, close, high15, checks, annual, overheat: overheatBase(prices, calendar.slice(0, -1)) };
 }

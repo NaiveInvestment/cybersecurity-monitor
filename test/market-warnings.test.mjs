@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addDays, lastClosedDate, officialForStock, parseKindWarningPage, priceChecks } from "../src/market-warnings.mjs";
-import { marketWarningBadge } from "../public/lib/market-warnings.js";
+import { addDays, intradayPriceBases, lastClosedDate, officialForStock, parseKindWarningPage, priceChecks } from "../src/market-warnings.mjs";
+import { kosdaqPriceLevel, marketWarningBadge, warningPriceView } from "../public/lib/market-warnings.js";
 
 const today = "2026-11-27";
 const now = Date.parse(today + "T14:00:00+09:00");
@@ -70,4 +70,36 @@ test("annual excess subtracts the same-date market return", () => {
   assert.equal(result.baseDate, earlier.date);
   assert.equal(result.excess, 210);
   assert.equal(result.cutoffPrice, 290);
+});
+
+test("intraday bases use T-3/T-5/T-15 and exactly 40 completed sessions", () => {
+  const history = Array.from({ length: 42 }, (_, i) => ({ date: addDays(today, i - 41), close: i === 41 ? 9999 : 100 + i }));
+  const benchmark = history.map(row => ({ ...row, close: 100 }));
+  const intraday = intradayPriceBases(history, benchmark, today, addDays(today, -1));
+  assert.equal(intraday.previousClose, 140);
+  assert.deepEqual(intraday.checks.slice(0, 3).map(({ prior }) => prior), [138, 136, 126]);
+  assert.deepEqual(intraday.overheat, { average: 120.5, cutoffPrice: 157 });
+  assert.equal(intraday.high14, 140);
+  const missing = intradayPriceBases(history.filter(row => row.date !== addDays(today, -16)), benchmark, today, addDays(today, -1));
+  assert.equal(missing.overheat, null);
+  assert.equal(intradayPriceBases(history, benchmark, today, today), null);
+});
+
+test("quote preview updates with the regular quote and excludes NXT, stale data and after-hours", () => {
+  const cutoff = addDays(today, -1);
+  const history = Array.from({ length: 41 }, (_, i) => ({ date: addDays(today, i - 41), close: 100 }));
+  const intraday = intradayPriceBases(history, history, today, cutoff);
+  const prices = priceChecks(history, history, cutoff);
+  const row = { intraday, prices };
+  const quote = { p: 159, st: "OPEN", at: new Date(now).toISOString() };
+  const first = warningPriceView(row, quote, null, now);
+  assert.equal(first.prices.checks[1].pricePass, false);
+  assert.equal(warningPriceView(row, { ...quote, p: 160 }, null, now).prices.checks[1].pricePass, true);
+  assert.equal(warningPriceView(row, { ...quote, nxt: true }, null, now).prices, prices);
+  assert.equal(warningPriceView(row, quote, null, now + 180001).prices, prices);
+  const after = Date.parse(today + "T16:00:00+09:00");
+  assert.equal(warningPriceView(row, { ...quote, at: new Date(after).toISOString() }, null, after).prices, prices);
+  assert.equal(warningPriceView({ ...row, intraday: { ...intraday, date: cutoff } }, quote, null, now).prices, prices);
+  assert.deepEqual([1999, 2001, 4999, 5001, 175520, 199999, 200001, 500001]
+    .map(kosdaqPriceLevel), [1999, 2005, 5000, 5010, 175600, 200000, 200500, 501000]);
 });

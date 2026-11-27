@@ -5,6 +5,7 @@ import { selectNxtPremarket } from "../public/lib/quote-status.js";
 export function publicQuotes(payload, ids, now = Date.now()) {
   if (!payload?.q || !Number.isFinite(Date.parse(payload.asOf)) || Math.abs(now - Date.parse(payload.asOf)) > 30000) return null;
   const q = {};
+  const quoteSources = {};
   const kiwoom = payload.feed?.active === true && payload.feed?.stocks > 0;
   const naverFresh = Number.isFinite(Date.parse(payload.naver?.at)) && now - Date.parse(payload.naver.at) < 45000;
   if(!naverFresh) return null;
@@ -13,6 +14,7 @@ export function publicQuotes(payload, ids, now = Date.now()) {
     if (!naverFresh && !(kiwoom && row?.[7] === "kiwoom" && now-Date.parse(row[5])<120000)) continue;
     if (!Array.isArray(row) || !(row[0] > 0) || !Number.isFinite(row[0]) || !Number.isFinite(Date.parse(row[5]))) continue;
     q[id] = row.slice(0, 7).map((v, i) => i < 5 ? (Number.isFinite(v) ? v : null) : i === 5 ? new Date(v).toISOString() : v === "OPEN" ? "OPEN" : "CLOSE");
+    if (row[7] === "kiwoom" || row[7] === "naver") quoteSources[id] = row[7];
   }
   if (!kiwoom && !naverFresh) return null;
   const idx={};
@@ -22,7 +24,7 @@ export function publicQuotes(payload, ids, now = Date.now()) {
   }
   const preIds = Object.keys(q).filter(id => /^\d{6}$/.test(id) && q[id][6] !== "OPEN");
   const nxtPre = selectNxtPremarket(payload.nxtPre, preIds, now);
-  return { asOf: payload.asOf, q, idx, ...(nxtPre ? { nxtPre } : {}),
+  return { asOf: payload.asOf, q, idx, quoteSources, ...(nxtPre ? { nxtPre } : {}),
     source: kiwoom ? "국내 키움 실시간, 해외 네이버 10초" : "네이버 금융 10초 갱신" };
 }
 

@@ -1,7 +1,7 @@
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fetchDaily, fetchIndexRealtime, mapLimit } from "../src/naver.mjs";
-import { addDays, fetchKindWarnings, KIND_WARNINGS, lastClosedDate, marketDay,
+import { addDays, fetchKindWarnings, intradayPriceBases, KIND_WARNINGS, lastClosedDate, marketDay,
   officialForStock, priceChecks } from "../src/market-warnings.mjs";
 import { loadUniverse, ROOT } from "../src/universe.mjs";
 
@@ -52,8 +52,10 @@ const rows = Object.fromEntries(stocks.map((stock, index) => {
   // A notice may take effect today before today’s price row is final.
   const calendar = [...new Set([...permittedDates, ...benchmark
     .filter(point => point.date === today).map(point => point.date)])];
+  const history = histories[index].value || [];
   return [stock.id, { official: officialForStock(stock, official, today, calendar),
-    prices: priceChecks(histories[index].value || [], benchmark, cutoff) }];
+    prices: priceChecks(history, benchmark, cutoff),
+    intraday: intradayPriceBases(history, benchmark, today, cutoff) }];
 }));
 const payload = { checkedAt: new Date(now).toISOString(), officialDate: today, source: KIND_WARNINGS, errors, stocks: rows };
 save(join(outDir, "market-warnings.json"), payload);
