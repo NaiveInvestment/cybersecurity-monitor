@@ -82,7 +82,7 @@ function priceTable(prices) {
     <div class="warning-table-wrap"><table class="warning-rules">
       <thead><tr><th scope="col">요건 유형</th><th scope="col">종목 상승률</th><th scope="col">가격 계산값</th><th scope="col">지수 / 계좌</th></tr></thead>
       <tbody>${lines}
-        <tr><th scope="row">초장기상승<span>1년 초과 +200%p</span></th><td title="${annualHint}">${annualPrice}</td><td>${target(annual?.cutoffPrice)}</td><td>계좌 자료 필요</td></tr>
+        <tr><th scope="row">초장기상승<span>1년 초과수익 +200%p</span></th><td title="${annualHint}">${annualPrice}</td><td>${target(annual?.cutoffPrice)}</td><td>계좌 자료 필요</td></tr>
       </tbody>
     </table></div>`;
 }
