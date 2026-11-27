@@ -7,6 +7,7 @@ import { financialRow, annualValuation, filingSummary } from "./lib/financials.j
 import {timelinePeriods,timelineValues,timelineNumber,trendSvg} from "./lib/financial-timeline.js";
 import { esc, fmtEok, fmtLocalMillion, fmtPrice, fmtPct, signClass, fmtKst, loadJson, initTheme } from "./common.js";
 import { startMarketActivity, updateMarketActivity } from "./market-activity.js";
+import { bindMarketWarnings, marketWarningBadge, showMarketWarnings } from "./lib/market-warnings.js";
 
 const state = { view: "KR", cur: "krw", query: "", segs: new Set(), sort: { key: "cap", dir: "desc" }, livePayload: null, liveRev: null, liveSource: null };
 // 방금 값이 바뀐 종목. 현재가 칸을 한 번 반짝이게 한다.
@@ -18,6 +19,7 @@ let kpiWeight = "cap";
 let filingPeriod = null;
 let filings = new Map();
 let treasuryShares = null;
+let marketWarnings = null;
 let horizon = "threeMonth";
 let baseQuotes = {};
 
@@ -89,6 +91,14 @@ let COLUMNS = [
   { key: "score", group: "id", label: "점수", cls: "stock-score", sort: s => stockScore(s.id),
     cell: s => ({ html: `<button type="button" class="score-entry" data-edit-score="${esc(s.id)}" aria-label="${esc(s.name)} 점수">${stockScore(s.id) ?? "–"}</button>` }) },
   { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
+  { key: "marketWarning", group: "id", label: "시장경보", cls: "market-warning-cell",
+    title: "KRX 공시와 종가 기준 가격 요건", sort: (s) => s.kind === "KR" ? marketWarningBadge(marketWarnings, s.id).rank : null,
+    cell: (s) => {
+      if (s.kind !== "KR") return { html: "" };
+      const badge = marketWarningBadge(marketWarnings, s.id);
+      return { html: `<button type="button" class="market-warning-chip is-${badge.tone}" data-market-warning="${esc(s.id)}"
+        aria-label="${esc(s.name)} 시장경보 상세${badge.label === "—" ? "" : `, ${badge.label}`}">${badge.label}</button>` };
+    } },
   { key: "price", group: "quote", label: "현재가", sort: (s, d) => d.price, cell: (s, d) => ({ html: `<a class="quote" href="${esc(s.url)}" target="_blank" rel="noopener" title="${d.nxt ? 'NXT 프리마켓, ' : ''}네이버 금융에서 열기">${fmtPrice(d.price, s.cur)}</a>`, cls: flash.has(s.id) ? `flash-${flash.get(s.id)}` : "" }) },
   { key: "chg", group: "quote", label: "등락률", sort: (s, d) => d.chg, cell: (s, d) => ({ html: d.nxt ? `<span title="NXT 프리마켓, 전일 종가 대비">${fmtPct(d.chg, 2)}</span>` : fmtPct(d.chg, 2), cls: signClass(d.chg) }) },
   { key: "cap", group: "quote", label: "시가총액", sort: (s, d) => d.cap, cell: (s, d) => ({ html: money(s, d, "cap") }) },
@@ -208,7 +218,8 @@ function compare(a, b) {
 function renderTable() {
   financialColumns();
   // 좁은 화면에서는 분야, 시장 열을 빼고 종목명 옆에 바로 시세가 오게 한다.
-  const COLS = COLUMNS.filter((column) => !(narrow.matches && column.narrow === false));
+  const COLS = COLUMNS.filter((column) => !(narrow.matches && column.narrow === false) &&
+    !(state.view === "GL" && column.key === "marketWarning"));
   const nxtPre = isNxtPremarket(Date.now()) ? state.livePayload?.nxtPre : null;
   const rows = visibleStocks().map((stock) => {
     const d = derive(stock);
@@ -462,6 +473,12 @@ function bind() {
     renderTable();
   });
   $("#table-wrap").addEventListener("click", (event) => {
+    const warningId = event.target.closest("[data-market-warning]")?.dataset.marketWarning;
+    if (warningId) {
+      const stock = snapshot.stocks.find(row => row.id === warningId);
+      if (stock) showMarketWarnings($("#market-warning-dialog"), marketWarnings, stock);
+      return;
+    }
     const alternative = event.target.closest("[data-stock-view]")?.dataset.stockView;
     if (alternative) {
       selectView(alternative);
@@ -486,15 +503,18 @@ async function main() {
     return;
   }
   baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
-  const [annual, positions, scores, treasury] = await Promise.all([
+  const [annual, positions, scores, treasury, warnings] = await Promise.all([
     loadJson("data/financials.json").catch(() => null),
     loadJson("data/positions.json").catch(() => null),
     meta.stockScores ? loadJson(meta.stockScores).catch(() => null) : null,
     loadJson("data/treasury-shares.json").catch(() => null),
+    loadJson("data/market-warnings.json").catch(() => null),
   ]);
   bindScores(snapshot.stocks, scores, renderTable);
   financials = annual;
   treasuryShares = treasury;
+  marketWarnings = warnings;
+  bindMarketWarnings($("#market-warning-dialog"));
   if (positions?.period && Array.isArray(positions.stocks)) {
     filingPeriod = positions.period;
     filings = new Map(positions.stocks.map((stock) => [stock.id, filingSummary(stock.finance)]));
@@ -512,6 +532,13 @@ async function main() {
 
   narrow.addEventListener("change", renderTable);
   setInterval(refreshStatus, 60000);
+  setInterval(async () => {
+    const next = await loadJson("data/market-warnings.json").catch(() => null);
+    if (next?.checkedAt && next.checkedAt !== marketWarnings?.checkedAt) {
+      marketWarnings = next;
+      renderTable();
+    }
+  }, 60000);
 }
 
 main();

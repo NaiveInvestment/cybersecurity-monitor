@@ -38,6 +38,7 @@ function buildSteps(full) {
   } else if (!existsSync(join(root, "data", "incident-events.json"))) {
     steps.push([script("build-incidents.mjs"), "--out", join(root, "data"), "--offline"]);
   }
+  if (full) steps.push([script("build-market-warnings.mjs"), "--out", join(root, "data")]);
   if(full || !existsSync(join(root,"data","sectors.json"))) steps.push([script("build-sectors.mjs"), "--out", join(root, "data")]);
   steps.push([script("build-site.mjs"), "--out", root]);
   return steps;
@@ -66,7 +67,7 @@ function rebuildInBackground() {
   const next = () => {
     const step = steps.shift();
     if (!step) { building = false; lastBuildAt = new Date().toISOString(); log("주기 재조립 완료"); return; }
-    const child = spawn(process.execPath, step, { cwd: ROOT, stdio: "ignore" });
+    const child = spawn(process.execPath, step, { cwd: ROOT, stdio: "ignore", windowsHide: true });
     child.on("exit", (code) => { if (code === 0) next(); else { building = false; log(`주기 재조립 실패: ${step[0]}`); } });
   };
   next();

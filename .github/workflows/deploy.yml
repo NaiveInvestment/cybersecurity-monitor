@@ -65,6 +65,8 @@ jobs:
           fi
       - name: Build snapshot
         run: node scripts/build-data.mjs --prev state/snapshot.json
+      - name: Refresh KRX market warning data
+        run: node scripts/build-market-warnings.mjs
       - name: Restore domestic financials
         run: |
           if git ls-remote --exit-code --heads origin financials >/dev/null; then
