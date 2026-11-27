@@ -49,7 +49,14 @@
     <p class="inc-legend" id="idx-legend"></p>
     <h3 class="inc-sub" id="idx-title">피해 규모(강도 지수, 0~100)</h3>
     <div class="inc-chart" id="idx-chart"></div>
-    <h3 class="inc-sub" id="cnt-title">사고 건수<span>점선 뒤는 자동 감지라 앞 구간보다 많이 잡힐 수 있음</span></h3>
+    <div class="inc-count-tools">
+      <h3 class="inc-sub" id="cnt-title">사고 건수</h3>
+      <div class="seg-switch" id="inc-count-mode" role="group" aria-label="사고 건수 범위">
+        <button type="button" data-count-mode="confirmed" aria-pressed="true">확인 집계</button>
+        <button type="button" data-count-mode="candidates" aria-pressed="false">보도 후보</button>
+      </div>
+    </div>
+    <p class="inc-count-note" id="cnt-note"></p>
     <div class="inc-chart" id="cnt-chart"></div>
     <details class="inc-method">
       <summary>계산 방법</summary>
@@ -58,7 +65,7 @@
         <li>금액 = log10(1 + 그 주 발표된 금전 피해액 합 / 100만 달러) / 기간 최댓값 x 100</li>
         <li>강도 = 두 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
         <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 지수에 들어가지 않음</li>
-        <li>건수는 리서치 마감 뒤 자동 감지로 집계 방식이 바뀌어 지수에서 빼고 아래 건수 차트로 따로 봄</li>
+        <li>확인 집계와 피해 규모에는 원문을 검토한 사고와 DeFiLlama 집계만 사용. 기사에서 찾은 후보는 별도 건수로 표시</li>
       </ul>
     </details>
   </section>

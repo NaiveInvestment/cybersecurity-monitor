@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { koSubject, enSubject, autoDetect } from "../src/incident-auto.mjs";
 import { sameName, kstDay, mergeEvents } from "../src/incident-events.mjs";
+import { isIncidentCandidate } from "../public/lib/incident-metrics.js";
 
 test("koSubject: 제목 첫머리 기관명, 일반명사와 부사형은 뺀다", () => {
   assert.equal(koSubject("[단독] 메가MGC커피 고객정보 유출…수탁사 해킹"), "메가MGC커피");
@@ -53,6 +54,58 @@ test("mergeEvents: 한 매체뿐인 자동 감지는 그 제목 숫자, 확정 �
 
 const story = (id, r, f, s, m, t) => ({ id, r, f, s, m, t, u: `https://x/${id}` });
 const item = (id, t, s) => ({ id, t, s, u: `https://x/${id}` });
+
+test("prevention, retrospectives and uncertain claims do not inflate weekly cases", () => {
+  const headlines = [
+    ["KR", "세종시, 폐하드디스크 무료 파기…개인정보 유출 방지"],
+    ["KR", "지란지교소프트, AI로 이미지 속 개인정보 유출 막는다"],
+    ["KR", "쿠팡 개인정보 유출 사태 1년…경찰 수사는 답보"],
+    ["GL", "Possible data breach at Dublin crèche software provider"],
+    ["KR", "올리브영 사내 시스템에 외부인 무단 접근…790명 개인정보 유출"],
+    ["GL", "Olive Young reports data breach affecting 790 people"],
+    ["KR", "다나와, 보안 사고로 서비스 이용 중단…개인정보 유출 여부 확인 중"],
+    ["KR", "과기공제회, 해킹으로 주민번호 등 개인정보 유출"],
+  ];
+  const items = headlines.map(([, title], i) => item(String(i), title, `매체${i}`));
+  const newsLog = items.map((row, i) => story(`case${i}`, headlines[i][0],
+    "2026-11-27T01:00:00Z", 1, [row.id], row.t));
+  const events = mergeEvents({ research: [], newsLog, newsItems: items, since: "2026-11-01",
+    researchUntil: "2026-11-17" });
+  assert.deepEqual(events.map(event => event.n).sort(), ["과학기술인공제회", "다나와", "올리브영"]);
+  assert.ok(events.every(event => event.r === "KR" && isIncidentCandidate(event)));
+  assert.equal(events.find(event => event.n === "올리브영").rec, 790);
+});
+
+test("후속 보도와 국내외 제목의 기관 별칭을 사건 한 건으로 모은다", () => {
+  const rows = [
+    ["KR", "[기업보안성적표] 10대 기업 외부 해킹 철벽...한전 정보유출 결과 주목"],
+    ["KR", "한전도 해킹당했다…65만명 개인정보 유출"],
+    ["GL", "KEPCO discloses customer data breach"],
+    ["KR", "김동철 한국전력 사장, 고객정보 유출 사과"],
+    ["KR", "한전ON 고객 65만명 개인정보 유출"],
+    ["KR", "한전·삼성증권 해킹사고…개인정보 153만건 유출"],
+    ["KR", "예별손보, 외부 수탁업체 통해 고객 66명 개인정보 유출"],
+    ["KR", "예별손해보험 고객정보 유출 확인"],
+    ["KR", "라리가, 사이버공격으로 고객정보 유출"],
+    ["GL", "La Liga hit by cyberattack exposing data"],
+    ["KR", "송기헌, 개인정보 유출 사태에 '국회 청문회' 예고"],
+    ["GL", "FBI links SEO Poisoning Campaign to $28 Million in Ransomware Payments"],
+    ["GL", "Ukraine, FBI arrest ransomware gang members tied to $40M in ransoms"],
+    ["GL", "To Catch a Ransomware Scammer, FBI Posed as Both Victim and Attacker"],
+    ["GL", "FBI hacked after ransomware group breaches its network"],
+    ["KR", "[속보] 비자·마스터카드·체이스 고객정보 유출…서비스 업체 해킹"],
+    ["KR", "[단독] 가사 돕는 홈서비스 앱도 뚫렸다…2만 8천 명 개인정보 유출"],
+  ];
+  const items = rows.map(([, title], i) => item(`a${i}`, title, `매체${i}`));
+  const newsLog = items.map((it, i) => story(`s${i}`, rows[i][0], `2026-11-${i < 2 ? 18 : 19}T${String(i).padStart(2, "0")}:00:00Z`, 1, [it.id], it.t));
+  const events = mergeEvents({ research: [], newsLog, newsItems: items, since: "2026-08-18", researchUntil: "2026-11-17" });
+  assert.deepEqual(events.map(({ n, r }) => [n, r]).sort(), [["FBI", "GL"], ["LaLiga", "GL"], ["예별손해보험", "KR"], ["한국전력", "KR"]]);
+  assert.match(events.find(event => event.n === "FBI").src[0].t, /^FBI hacked /);
+  assert.ok(events.every(isIncidentCandidate));
+  assert.equal(isIncidentCandidate({ via: "보도 수집" }), true);
+  assert.equal(isIncidentCandidate({ via: "리서치" }), false);
+  assert.equal(isIncidentCandidate({ via: "DeFiLlama" }), false);
+});
 
 test("autoDetect: 마감 뒤, 사건 낱말, 해설과 해킹 아님 제외, 같은 이름 중복 제거", () => {
   const items = [

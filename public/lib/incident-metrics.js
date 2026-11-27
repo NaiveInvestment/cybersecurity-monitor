@@ -22,6 +22,7 @@ export function weeksEnding(until, n = 13) {
 }
 
 export const inRegion = (region) => (e) => region === "ALL" || e.r === region;
+export const isIncidentCandidate = (event) => !["리서치", "DeFiLlama"].includes(event.via);
 export const hasRec = (e) => Number.isFinite(e.rec) && e.rec >= 0 && !e.claim;
 export const hasUsd = (e) => Number.isFinite(e.usd) && e.usd >= 0;
 export const knownRec = (e) => (e.rec && !e.claim ? e.rec : 0);

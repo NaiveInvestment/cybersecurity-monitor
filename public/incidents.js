@@ -2,15 +2,16 @@
 import { esc, fmtKst, headlineLink, loadJson, initTheme } from "./common.js";
 import { groupStories } from "./lib/issues.js";
 import { isDeniedIncidentTitle } from "./lib/incident-trend.js";
-import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, brief, briefTitle, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw } from "./lib/incident-metrics.js";
+import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, brief, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw, isIncidentCandidate } from "./lib/incident-metrics.js";
 
 const $ = (s) => document.querySelector(s);
 const PAGE = 15;
-const state = { region: "ALL", query: "", sort: "d", shown: PAGE };
+const state = { region: "ALL", query: "", sort: "d", shown: PAGE, countMode: "confirmed" };
 let data = null;
 let news = { items: [] };
 let weeks = [];
 let widths = "";
+let confirmed = [], candidates = [];
 
 const fmt1 = (v) => v == null ? "-" : v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 // 화면 기간은 13주 칸의 첫날부터. 그 앞 자료는 쓰지 않는다.
@@ -43,6 +44,7 @@ function sparkline(b, key) {
 // 판정 한 줄: 이름, 단계, 순위, 13구간 막대
 const verdict = (b, key) => {
   const isSize = key === "size";
+  if (!b.count) return `<div class="vd"><span class="vd-name">${isSize ? "피해 규모" : "사고 수"}</span><span class="na">확인 자료 없음</span></div>`;
   const level = isSize ? b.level : b.countLevel, label = isSize ? b.label : b.countLabel, rank = isSize ? b.rank : b.countRank;
   return `<div class="vd"><span class="vd-name">${isSize ? "피해 규모" : "사고 수"}</span><b class="lv ${level}">${label}</b><span class="rank">13구간 중 <b class="num">${rank}</b>위</span>${sparkline(b, key)}</div>`;
 };
@@ -55,7 +57,7 @@ function moneyText(b) {
 }
 
 function briefCard(b) {
-  const today = b.today.length ? `오늘(${md(data.until)}) 새로 보도 ${b.today.length}건: ${b.today.slice(0, 4).map(eventLink).join(", ")}${b.today.length > 4 ? ` 외 ${b.today.length - 4}건` : ""}` : `오늘(${md(data.until)}) 새로 보도된 사고 없음`;
+  const today = b.today.length ? `오늘(${md(data.until)}) 확인 집계 ${b.today.length}건: ${b.today.slice(0, 4).map(eventLink).join(", ")}${b.today.length > 4 ? ` 외 ${b.today.length - 4}건` : ""}` : `오늘(${md(data.until)}) 확인 자료 없음`;
   return `<article class="brief-card ${b.region}">
     <header><span class="rg ${b.region}">${REGION_LABEL[b.region]}</span><span class="win num">${md(b.start)}~${md(b.end)}</span></header>
     <div class="vds">${verdict(b, "count")}${verdict(b, "size")}</div>
@@ -72,33 +74,37 @@ function briefCard(b) {
 }
 
 function renderTop() {
-  const b = brief(data.events.filter(inView), data.until);
+  const b = brief(confirmed.filter(inView), data.until);
   const list = regionList();
   $("#inc-range").textContent = `${state.region === "ALL" ? "국내외" : REGION_LABEL[state.region]} 보안 사고, 최근 7일 ${md(b.KR.start)}~${md(b.KR.end)}`;
-  $("#inc-title").textContent = briefTitle(b, state.region);
+  $("#inc-title").textContent = `최근 7일 확인 집계, ${list.map(region => b[region].count ? `${REGION_LABEL[region]} ${b[region].count}건` : `${REGION_LABEL[region]} 확인 자료 없음`).join(", ")}`;
   const brief1 = $("#inc-brief");
   brief1.classList.toggle("single", list.length === 1);
   brief1.innerHTML = list.map((r) => briefCard(b[r])).join("");
-  $("#inc-rule").textContent = `최근 7일을 그 앞 12개 7일 구간과 비교한 순위. 1~3위 많은 편, 큰 편, 11~13위 적은 편, 작은 편. 피해 규모는 발표된 유출 건수와 금전 피해액(로그 눈금). 사고 수는 ${md(autoFrom() || data.until)}부터 기사 자동 감지로 집계해 앞 구간보다 많게 잡힐 수 있음.`;
+  $("#inc-rule").textContent = `리서치 확인은 ${data.researchUntil}까지. DeFiLlama 집계 포함. 순위는 최근 7일을 앞선 12개 구간과 비교합니다.`;
 }
 
 function renderIndex() {
-  const index = compositeIndex(data.events, weeks);
+  const index = compositeIndex(confirmed, weeks);
   const el = $("#idx-chart");
   if (state.region === "ALL") {
     $("#idx-legend").innerHTML = legend(["KR", "GL"]);
-    el.innerHTML = indexChart([{ key: "KR", label: "국내", points: index.KR }, { key: "GL", label: "해외", points: index.GL }], weeks, { width: width(el), boundary: autoFrom(), plotH: 170 });
+    el.innerHTML = indexChart([{ key: "KR", label: "국내", points: index.KR }, { key: "GL", label: "해외", points: index.GL }], weeks, { width: width(el), plotH: 170 });
   } else {
     const r = state.region;
     $("#idx-legend").innerHTML = `${legend([r])}<span class="comp-r"><i></i>유출 요소</span><span class="comp-m"><i></i>금액 요소</span>`;
-    el.innerHTML = indexChart([{ key: r, label: REGION_LABEL[r], points: index[r] }], weeks, { width: width(el), components: index[r], boundary: autoFrom(), plotH: 170 });
+    el.innerHTML = indexChart([{ key: r, label: REGION_LABEL[r], points: index[r] }], weeks, { width: width(el), components: index[r], plotH: 170 });
   }
 }
 
 function renderCounts() {
   const el = $("#cnt-chart");
-  const groups = regionList().map((r) => ({ key: r, label: REGION_LABEL[r], stats: weeklyStats(data.events, weeks, r) }));
-  el.innerHTML = countChart(groups, weeks, { width: width(el), boundary: autoFrom(), left: 40, right: 64, plotH: 140 });
+  const screening = state.countMode === "candidates";
+  const groups = regionList().map((r) => ({ key: r, label: REGION_LABEL[r], stats: weeklyStats(screening ? candidates : confirmed, weeks, r) }));
+  $("#cnt-title").textContent = screening ? "보도 후보 건수" : "확인 집계 건수";
+  $("#cnt-note").textContent = screening ? "실제 사고 보도를 골라 같은 사고의 여러 기사를 한 건으로 셉니다."
+    : `리서치 확인은 ${data.researchUntil}까지입니다. 이후 막대는 DeFiLlama 자료만 반영합니다. 최근 사고 보도는 ‘보도 후보’에서 볼 수 있습니다.`;
+  el.innerHTML = countChart(groups, weeks, { width: width(el), boundary: screening ? autoFrom() : null, left: 40, right: 64, plotH: 140 });
   // 랜섬웨어 피해 공개: 국내는 국내, 해외는 전 세계에서 국내를 뺀 것, 통합은 전 세계
   const pick = (v) => (state.region === "KR" ? v.KR : state.region === "GL" ? v.total - v.KR : v.total);
   const rwStats = weeks.map((w) => {
@@ -110,14 +116,14 @@ function renderCounts() {
 }
 
 function renderOrgs() {
-  const rows = orgBreakdown(data.events, weeks, state.region, data);
+  const rows = orgBreakdown(confirmed, weeks, state.region, data);
   const max = Math.max(0.1, ...rows.flatMap((r) => [r.recent, r.before]));
   const bar = (v, cls) => `<svg class="org-bar" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect class="track" width="100" height="10"></rect><rect class="${cls}" width="${Math.max(0, (v / max) * 100).toFixed(1)}" height="10"></rect></svg>`;
   $("#org-table").innerHTML = `<table class="org-table"><thead><tr><th>업권</th><th>그 전 9주</th><th>최근 4주</th><th class="n">전체</th></tr></thead><tbody>${rows.map((r) => `<tr><th scope="row">${esc(r.label)}</th><td>${bar(r.before, "before")}<b class="num">${fmt1(r.before)}</b></td><td>${bar(r.recent, `recent${/금융|가상자산|감독/.test(r.org) ? " fin" : ""}`)}<b class="num">${fmt1(r.recent)}</b></td><td class="n num">${r.total}</td></tr>`).join("")}</tbody></table><p class="inc-foot">노랑은 금융권(금융회사, 가상자산 거래소, 감독과 보안 기관)</p>`;
 }
 
 function renderSizes() {
-  const list = data.events.filter(inView).filter((e) => regionList().includes(e.r));
+  const list = confirmed.filter(inView).filter((e) => regionList().includes(e.r));
   const recN = list.filter(hasRec).length, usdN = list.filter(hasUsd).length;
   $("#rec-sub").textContent = `점 하나가 사고 하나, 높을수록 유출이 큼(한 칸이 10배). 규모가 발표된 ${recN}건만`;
   $("#usd-sub").textContent = `가상자산 탈취, 무단 사용 등 금액이 발표된 ${usdN}건. 높을수록 큼(한 칸이 10배). 원화 발표액은 ${data.fx ? `${Math.round(data.fx).toLocaleString("ko-KR")}원` : "사이트 환율"}으로 달러 환산`;
@@ -131,10 +137,11 @@ function renderTable() {
   const key = { d: (e) => e.d, rec: knownRec, usd: knownUsd }[state.sort];
   rows.sort((a, b) => (state.sort === "d" ? b.d.localeCompare(a.d) : key(b) - key(a)) || b.d.localeCompare(a.d));
   const shown = rows.slice(0, state.shown);
-  $("#list-sub").textContent = `${rows.length}건. 이름을 누르면 첫 출처, 숫자 옆은 근거 성격`;
+  const count = rows.filter(isIncidentCandidate).length;
+  $("#list-sub").textContent = `확인 집계 ${rows.length - count}건, 보도 후보 ${count}건. 이름을 누르면 출처를 엽니다.`;
   $("#inc-table").innerHTML = `<thead><tr><th>날짜</th><th>피해 기관</th><th>업권</th><th class="n">유출</th><th class="n">금액</th><th>내용</th><th>출처</th></tr></thead><tbody>${shown.map((e) => `<tr>
       <td class="num nowrap">${e.d.slice(2).replace(/-/g, ".")}</td>
-      <th scope="row"><span class="rg ${e.r}">${e.r === "KR" ? "국내" : "해외"}</span>${e.via === "자동 감지" ? '<span class="auto" title="리서치 이후 기사 제목에서 자동으로 찾은 사건">자동 감지</span>' : ""}${e.src[0] ? `<a href="${esc(e.src[0].u)}" target="_blank" rel="noopener">${esc(e.n)}</a>` : esc(e.n)}</th>
+      <th scope="row"><span class="rg ${e.r}">${e.r === "KR" ? "국내" : "해외"}</span>${isIncidentCandidate(e) ? '<span class="auto" title="기사 보도에서 찾은 후보">보도 후보</span>' : ""}${e.src[0] ? `<a href="${esc(e.src[0].u)}" target="_blank" rel="noopener">${esc(e.n)}</a>` : esc(e.n)}</th>
       <td class="nowrap">${esc(e.org || "-")}</td>
       <td class="n num nowrap">${hasRec(e) ? `${fmtCount(e.rec)}${esc(e.recUnit || "건")}` : e.claim && e.rec ? `<span class="claim" title="해커 주장, 집계 제외">${fmtCount(e.rec)}?</span>` : "-"}${e.basis && (hasRec(e) || hasUsd(e)) ? `<small>${esc(e.basis)}</small>` : ""}</td>
       <td class="n num nowrap">${e.krw ? `${fmtKrw(e.krw)}<small>원화 발표, ${fmtUsd(e.usd)} 환산</small>` : hasUsd(e) ? fmtUsd(e.usd) : "-"}</td>
@@ -189,6 +196,13 @@ function bind() {
     press($("#inc-sort"), "sort", sort);
     renderTable();
   });
+  $("#inc-count-mode").addEventListener("click", (event) => {
+    const mode = event.target.closest("button")?.dataset.countMode;
+    if (!mode) return;
+    state.countMode = mode;
+    press($("#inc-count-mode"), "countMode", mode);
+    renderCounts();
+  });
   $("#inc-search").addEventListener("input", (event) => { state.query = event.target.value; state.shown = PAGE; renderTable(); });
   $("#inc-more").addEventListener("click", () => { state.shown += PAGE * 2; renderTable(); });
   let frame = 0;
@@ -211,13 +225,15 @@ async function main() {
     return;
   }
   weeks = weeksEnding(data.until, 13);
+  confirmed = data.events.filter(event => !isIncidentCandidate(event));
+  candidates = data.events.filter(isIncidentCandidate);
   const r = new URLSearchParams(location.search).get("r");
   if (r === "KR" || r === "GL") {
     state.region = r;
     document.querySelectorAll("#inc-region button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.region === r)));
   }
   $("#status-text").textContent = `사건 자료 ${fmtKst(data.updatedAt)} KST`;
-  $("#inc-notes").textContent = `자료 범위: 사건 리서치는 ${data.researchUntil}까지. 그 뒤는 기사 제목에서 피해 기관을 자동으로 찾은 사건(표의 "자동 감지", 차트의 점선 이후)이라 리서치 구간과 집계 방식이 다름. ` + "출처: 원문 링크를 확인한 사건 리서치, 보도 수집(피해 주체 사전에 걸리고 3개 매체 이상이 다룬 사건, 규모는 매체 2곳 이상 제목에 같은 숫자가 나올 때만), DeFiLlama 가상자산 해킹($1천만 이상), ransomware.live(유출 사이트 공개일 기준). 공개 보도 기준이라 보도되지 않은 사건은 빠짐. 마지막 주는 집계 중.";
+  $("#inc-notes").textContent = `리서치 확인은 ${data.researchUntil}까지입니다. 보도 수집과 제목 자동 감지는 보도 후보로 표시합니다. 출처는 사고 리서치 원문, 공개 보도, DeFiLlama(1천만 달러 이상 가상자산 해킹), ransomware.live(유출 사이트 공개일 기준)입니다.`;
   bind();
   render();
 }

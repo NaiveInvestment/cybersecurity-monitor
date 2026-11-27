@@ -3,7 +3,7 @@
 // 2. 보도 수집 사건 기록(state/incident-log.json의 피해 주체 사전 사건): 리서치 이후 새 사건을 자동으로 잡는다. 규모는 비어 있다.
 // 3. DeFiLlama 가상자산 해킹: 탈취 금액. 리서치에 같은 이름이 7일 안에 있으면 뺀다.
 
-import { autoDetect } from "./incident-auto.mjs";
+import { autoDetect, incidentParty } from "./incident-auto.mjs";
 
 const DAY = 86400000;
 export const kstDay = (ms) => new Date(ms + 9 * 3600000).toISOString().slice(0, 10);
@@ -89,10 +89,13 @@ export function fromNewsLog(stories, entities, research, { since, newsItems = []
   return stories.filter((s) => s.e && s.s >= minMedia && kstDay(Date.parse(s.f)) >= since).flatMap((s) => {
     const entity = byId.get(s.e);
     const day = kstDay(Date.parse(s.f));
-    const dup = research.some((r) => r.r === s.r && (sameName(r.n, s.name) || (entity && entity.regex.some((re) => re.test(r.n)))) && Math.abs(Date.parse(r.d) - Date.parse(day)) <= 14 * DAY);
+    const alias = incidentParty(s.name) ?? incidentParty(s.t);
+    const n = alias?.name ?? s.name;
+    const region = alias?.region ?? s.r;
+    const dup = research.some((r) => r.r === region && (sameName(incidentParty(r.n)?.name ?? r.n, n) || (entity && entity.regex.some((re) => re.test(r.n)))) && Math.abs(Date.parse(r.d) - Date.parse(day)) <= 14 * DAY);
     if (dup) return [];
     const rec = headlineCount((s.m || []).map((id) => itemById.get(id)).filter(Boolean));
-    return [{ id: `n-${s.id}`, d: day, n: s.name, r: s.r, org: ORG_OVERRIDE[s.e] || SECTOR_ORG[s.sector] || "일반 기업", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: "", src: [{ o: `보도 ${s.s}개 매체`, u: s.u, t: s.t, d: day }], media: s.s, via: "보도 수집" }];
+    return [{ id: `n-${s.id}`, d: day, n, r: region, org: ORG_OVERRIDE[s.e] || SECTOR_ORG[s.sector] || "일반 기업", rec, recUnit: null, basis: rec ? "보도(제목 숫자)" : null, claim: false, usd: null, amt: null, atk: "", src: [{ o: `보도 ${s.s}개 매체`, u: s.u, t: s.t, d: day }], media: s.s, via: "보도 수집" }];
   });
 }
 
@@ -108,15 +111,14 @@ export function fromDefiLlama(hacks, research, { since, minUsd = 1e7 }) {
 // 리서치 마감(researchUntil) 다음 날부터는 사전 밖 사건도 기사 제목에서 자동 감지한다("자동 감지"로 표시).
 export function fromAuto(stories, { newsItems = [], known = [], after }) {
   const itemsById = new Map(newsItems.map((item) => [item.id, item]));
-  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay }).map(({ story, name, day, items, lead: named }) => {
-    const lead = named || items.find((item) => item.u) || { t: story.t, u: story.u, s: "" };
+  return autoDetect(stories, itemsById, { after, known: known.map((e) => ({ n: e.n, r: e.r, d: e.d })), sameName, kstDay }).map(({ story, name, region, day, items, lead, media }) => {
     // 규모: 매체 2곳 이상이 같은 숫자를 쓰면 그 숫자. 기사가 한 매체뿐이면 그 제목의 숫자(1개 매체로 표시).
     // "우려", "가능성", "주장", "alleged"가 붙은 숫자는 확정이 아니라 집계에서 뺀다(해커 주장과 같은 취급).
     const agreed = headlineCount(items);
     const single = !agreed && new Set(items.map((item) => item.s)).size <= 1 ? parseCount(lead.t) : null;
     const rec = agreed ?? single;
     const unsure = Boolean(rec) && UNSURE.test(lead.t);
-    return { id: `a-${story.id}`, d: day, n: name, r: story.r, org: "기타", rec, recUnit: null, basis: rec ? (unsure ? "보도(확정 전)" : agreed ? "보도(제목 숫자)" : "보도(1개 매체 제목)") : null, claim: unsure, usd: null, amt: null, atk: lead.t, src: [{ o: story.s > 1 ? `보도 ${story.s}개 매체` : lead.s || "보도", u: lead.u || story.u, t: lead.t, d: day }], media: story.s, via: "자동 감지" };
+    return { id: `a-${story.id}`, d: day, n: name, r: region, org: "기타", rec, recUnit: null, basis: rec ? (unsure ? "보도(확정 전)" : agreed ? "보도(제목 숫자)" : "보도(1개 매체 제목)") : null, claim: unsure, usd: null, amt: null, atk: lead.t, src: [{ o: media > 1 ? `보도 ${media}개 매체` : lead.s || "보도", u: lead.u, t: lead.t, d: day }], media, via: "자동 감지" };
   });
 }
 
@@ -125,8 +127,17 @@ export function mergeEvents({ research, newsLog = [], entities = [], hacks = [],
   const n = fromNewsLog(newsLog, entities, r, { since, newsItems });
   const d = fromDefiLlama(hacks, r, { since });
   const a = researchUntil ? fromAuto(newsLog, { newsItems, known: [...r, ...n, ...d], after: researchUntil > since ? researchUntil : since }) : [];
+  // 피해 규모가 일치하고 보상이나 사과를 다루는 후속 보도는 원래 사건에 귀속한다.
+  const candidates = [...n, ...a].filter(event => {
+    if (!event.rec || !/보상|사과|compensation|apolog/i.test(event.src[0]?.t)) return true;
+    return !r.some(prior => {
+      const days = (Date.parse(event.d) - Date.parse(prior.d)) / DAY;
+      return days >= 0 && days <= 45 && prior.r === event.r && prior.rec === event.rec &&
+        sameName(incidentParty(prior.n)?.name ?? prior.n, event.n);
+    });
+  });
   const ids = new Set();
-  return [...r, ...n, ...d, ...a].filter((e) => (ids.has(e.id) ? false : ids.add(e.id))).sort((a, b) => b.d.localeCompare(a.d) || a.n.localeCompare(b.n));
+  return [...r, ...d, ...candidates].filter((e) => (ids.has(e.id) ? false : ids.add(e.id))).sort((a, b) => b.d.localeCompare(a.d) || a.n.localeCompare(b.n));
 }
 
 // ransomware.live 월 목록을 일별 건수로 바꾼다(공개일 KST 기준).

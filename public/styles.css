@@ -501,6 +501,8 @@ main.inc { max-width: 1340px; margin: 0 auto; padding: 18px 22px 44px; }
 .inc-grid.even { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
 .inc-grid.even > .inc-panel { display: flex; flex-direction: column; }
 .inc-grid.wide-left { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+.inc-count-tools { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; padding-right:16px; gap:4px 12px; }
+.inc-count-note { margin:4px 16px 0; color:var(--muted); font-size:12px; }
 .inc-chart { padding: 4px 12px 6px; min-width: 0; }
 .inc-chart .ic { display: block; }
 .inc-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 16px 0; color: var(--muted); font-size: 12px; }
