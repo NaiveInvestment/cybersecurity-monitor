@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { addDays, intradayPriceBases, lastClosedDate, officialForStock, parseKindWarningPage, priceChecks } from "../src/market-warnings.mjs";
-import { kosdaqPriceLevel, marketWarningBadge, shortHeatView, warningActions, warningPriceView } from "../public/lib/market-warnings.js";
+import { kosdaqPriceLevel, marketWarningBadge, nextWarningPrice, shortHeatView, warningActions, warningPriceView } from "../public/lib/market-warnings.js";
 import { parseRegularBars, shortHeatMetrics } from "../src/short-heat.mjs";
 
 const today = "2026-11-27";
@@ -119,6 +119,8 @@ test("short-heat metrics compare two sessions against the forty before the test 
   const result = shortHeatMetrics(prices, prices, integrated, shares, today);
   assert.equal(result.averageClose, 100);
   assert.equal(result.close, 130);
+  assert.equal(result.nextAlertBases[5].date, addDays(today, -4));
+  assert.equal(result.alertBases[5].date, addDays(today, -5));
   assert.equal(result.volatility > 1.49 && result.volatility < 1.51, true);
   assert.equal(result.turnover > 5.99 && result.turnover < 6.01, true);
   assert.equal(shortHeatMetrics(prices, adjusted, integrated, shares, today).averageClose, 50);
@@ -167,4 +169,6 @@ test("a same-date finalized Kiwoom comparison supersedes yesterday and uses its 
   assert.equal(check(withoutIndexBasis.prices, "short").cutoffPrice, 177760);
   assert.equal(check(withoutIndexBasis.prices, "short").indexReturn, null);
   assert.equal(withoutIndexBasis.prices.annual, null);
+  assert.equal(nextWarningPrice(check(view.prices, "short"), { date: "2026-11-23", close: 115300 }, "KOSDAQ"), 184500);
+  assert.equal(nextWarningPrice(check(view.prices, "shortAccounts"), { date: "2026-11-23", close: 115300 }, "KOSDAQ"), 167200);
 });

@@ -20,6 +20,7 @@ let filingPeriod = null;
 let filings = new Map();
 let treasuryShares = null;
 let marketWarnings = null;
+let shortBalance = null;
 let shortHeat = null;
 let shortHeatRequest = null;
 let horizon = "threeMonth";
@@ -81,6 +82,25 @@ function spark(stock) {
 }
 
 const pctCell = (value) => ({ html: fmtPct(value), cls: signClass(value) });
+const balanceRatio = row => Number.isFinite(row?.ratio) ? row.ratio : null;
+const balanceLabel = ratio => ratio > 0 && ratio < 0.005 ? "&lt;0.01%" : `${ratio.toFixed(2)}%`;
+const balanceWon = amount => `${(amount / 100000000).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}억원`;
+
+function showShortBalance(stock) {
+  const row = shortBalance?.stocks?.[stock.id];
+  if (balanceRatio(row) === null) return;
+  const dialog = $("#short-balance-dialog");
+  dialog.querySelector("h2").textContent = `${stock.name} 공매도 순보유잔고`;
+  dialog.querySelector("[data-short-balance-detail]").innerHTML = `
+    <p class="short-balance-date">KRX ${esc(shortBalance.asOf)} 기준</p>
+    <dl>
+      <div><dt>시가총액 대비</dt><dd>${balanceLabel(row.ratio)}</dd></div>
+      <div><dt>잔고 금액</dt><dd>${balanceWon(row.amount)}</dd></div>
+      <div><dt>같은 날 시가총액</dt><dd>${balanceWon(row.cap)}</dd></div>
+      <div><dt>잔고 수량</dt><dd>${row.shares.toLocaleString("ko-KR")}주</dd></div>
+    </dl>`;
+  dialog.showModal();
+}
 
 let GROUPS = [
   { id: "id", label: "종목" }, { id: "quote", label: "시세" }, { id: "ret", label: "수익률" },
@@ -92,7 +112,17 @@ let COLUMNS = [
     cell: (s) => ({ html: `<span class="stock" title="${esc(s.market)}, ${esc(s.desc)}">${esc(s.name)}</span>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
   { key: "score", group: "id", label: "점수", cls: "stock-score", sort: s => stockScore(s.id),
     cell: s => ({ html: `<button type="button" class="score-entry" data-edit-score="${esc(s.id)}" aria-label="${esc(s.name)} 점수">${stockScore(s.id) ?? "–"}</button>` }) },
-  { key: "seg", group: "id", label: "분야", cls: "tag left", narrow: false, sort: (s) => segLabel(s.seg), cell: (s) => ({ html: esc(segLabel(s.seg)) }) },
+  { key: "shortBalance", group: "id", label: "공매도<br>잔고율", cls: "stock-short-balance",
+    title: "KRX 공매도 순보유잔고 금액 ÷ 같은 기준일 시가총액",
+    sort: stock => balanceRatio(shortBalance?.stocks?.[stock.id]),
+    cell: stock => {
+      if (stock.kind !== "KR") return { html: "" };
+      const ratio = balanceRatio(shortBalance?.stocks?.[stock.id]);
+      if (ratio === null) return { html: `<span class="na" title="${esc(shortBalance?.asOf ? shortBalance.asOf + " KRX 공개 잔고 없음" : "KRX 자료 수신 대기")}">–</span>` };
+      return { html: `<button type="button" class="short-balance-value" data-short-balance="${esc(stock.id)}"
+        title="${esc(shortBalance.asOf)} 기준 잔고 금액 보기" aria-label="${esc(stock.name)} 공매도 잔고율 ${balanceLabel(ratio)}, 상세 보기">${balanceLabel(ratio)}</button>` };
+    },
+  },
   { key: "marketWarning", group: "id", label: "시장경보", cls: "market-warning-cell",
     title: "KRX 공시와 종가 기준 가격 요건", sort: (s) => s.kind === "KR" ? marketWarningBadge(marketWarnings, s.id).rank : null,
     cell: (s) => {
@@ -161,7 +191,8 @@ function financialColumns() {
   const treasuryNote = treasuryShares ? `자사주 ${treasuryShares.asOf} DART` : '자사주 자료 없음';
   $('#financial-date').textContent = state.view === 'KR' ? `${financeNote} / ${treasuryNote}` : financeNote;
   if(!active){
-    COLUMNS=state.view==='KR'?[...BASE_COLUMNS,treasuryColumn('val')]:BASE_COLUMNS;
+    COLUMNS=state.view==='KR'?[...BASE_COLUMNS,treasuryColumn('val')]:
+      state.view==='GL'?BASE_COLUMNS.filter(c=>c.key!=='shortBalance'):BASE_COLUMNS;
     GROUPS=BASE_GROUPS.map(g=>({...g}));
     if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
     return;
@@ -190,7 +221,6 @@ function financialColumns() {
   if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
 }
 
-const segLabel = (id) => snapshot.segments.find((segment) => segment.id === id)?.label || id;
 
 const normalizeStockQuery = (text) => text.toLowerCase().replace(/\s+/g, "");
 
@@ -223,7 +253,7 @@ const currentPremarket = () => isNxtPremarket(Date.now()) ? state.livePayload?.n
 
 function renderTable() {
   financialColumns();
-  // 좁은 화면에서는 분야, 시장 열을 빼고 종목명 옆에 바로 시세가 오게 한다.
+  // 좁은 화면에서 부가 열은 column.narrow 설정으로 제어한다.
   const COLS = COLUMNS.filter((column) => !(narrow.matches && column.narrow === false) &&
     !(state.view === "GL" && column.key === "marketWarning"));
   const nxtPre = currentPremarket();
@@ -516,6 +546,12 @@ function bind() {
     renderTable();
   });
   $("#table-wrap").addEventListener("click", (event) => {
+    const balanceId = event.target.closest("[data-short-balance]")?.dataset.shortBalance;
+    if (balanceId) {
+      const stock = snapshot.stocks.find(row => row.id === balanceId);
+      if (stock) showShortBalance(stock);
+      return;
+    }
     const warningId = event.target.closest("[data-market-warning]")?.dataset.marketWarning;
     if (warningId) {
       const stock = snapshot.stocks.find(row => row.id === warningId);
@@ -548,17 +584,19 @@ async function main() {
     return;
   }
   baseQuotes=Object.fromEntries(snapshot.stocks.map(s=>[s.id,structuredClone(s.q)]));
-  const [annual, positions, scores, treasury, warnings] = await Promise.all([
+  const [annual, positions, scores, treasury, warnings, balances] = await Promise.all([
     loadJson("data/financials.json").catch(() => null),
     loadJson("data/positions.json").catch(() => null),
     meta.stockScores ? loadJson(meta.stockScores).catch(() => null) : null,
     loadJson("data/treasury-shares.json").catch(() => null),
     loadJson("data/market-warnings.json").catch(() => null),
+    loadJson("data/short-balance.json").catch(() => null),
   ]);
   bindScores(snapshot.stocks, scores, renderTable);
   financials = annual;
   treasuryShares = treasury;
   marketWarnings = warnings;
+  shortBalance = balances;
   bindMarketWarnings($("#market-warning-dialog"));
   if (positions?.period && Array.isArray(positions.stocks)) {
     filingPeriod = positions.period;

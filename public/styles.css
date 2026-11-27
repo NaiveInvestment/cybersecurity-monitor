@@ -119,6 +119,18 @@ main { padding: 12px 18px 28px; }
 .grid .score-entry { min-width:30px; padding:1px 4px; border:1px solid var(--line-strong); border-radius:4px; color:var(--ink); background:var(--surface); font:inherit; }
 .grid .score-entry:hover, .grid .score-entry:focus-visible { border-color:var(--brand); }
 .grid .market-warning-cell { min-width:87px; text-align:center; }
+.grid .stock-short-balance { min-width:65px; text-align:right; }
+.short-balance-value { color:var(--ink); font:inherit; font-variant-numeric:tabular-nums; border:0; background:none; cursor:pointer; padding:1px 2px; }
+.short-balance-value:is(:hover,:focus-visible) { color:var(--brand); text-decoration:underline; }
+#short-balance-dialog { width:min(calc(100% - 28px),390px); border:1px solid var(--line-strong); border-radius:var(--radius); color:var(--ink); background:var(--surface); padding:16px; }
+#short-balance-dialog::backdrop { background:rgb(0 0 0 / 48%); }
+#short-balance-dialog header { display:flex; align-items:center; justify-content:space-between; gap:6px; }
+#short-balance-dialog h2 { font-size:17px; margin:0; }
+#short-balance-dialog header button { min-width:32px; min-height:32px; font-size:17px; }
+#short-balance-dialog dl { display:grid; grid-template-columns:1fr 1fr; gap:12px 8px; padding:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:var(--radius); }
+#short-balance-dialog dt, .short-balance-date, .short-balance-note { font-size:12px; color:var(--muted); }
+#short-balance-dialog dd { font-weight:700; margin:3px 0 0; }
+#short-balance-dialog a { display:inline-block; margin-top:8px; }
 .grid .market-warning-chip {
   border:1px solid transparent; border-radius:4px; padding:2px 5px;
   background:transparent; color:var(--muted); font:inherit; font-weight:700;
@@ -181,11 +193,21 @@ main { padding: 12px 18px 28px; }
 .warning-action .warning-result.is-miss { color:var(--brand); }
 .warning-action .warning-result.is-pending { color:var(--accent); }
 .warning-action .warning-result.is-unknown { color:var(--muted); }
-.warning-additional, .short-heat-overall { grid-column:1 / -1; }
-.warning-additional { margin-top:3px; padding:7px 9px; background:var(--surface-2); border-radius:4px; }
-.warning-additional h4 { margin:0 0 3px; color:var(--muted); font-size:11px; font-weight:600; }
-.warning-additional li { display:flex; flex-wrap:wrap; gap:1px 8px; font-size:12px; line-height:1.55; }
-.warning-additional li span, .short-heat-overall span { color:var(--muted); }
+.warning-estimate-status { text-align:right; }
+.warning-trigger-wrap, .short-heat-overall { grid-column:1 / -1; }
+.warning-trigger-wrap { overflow-x:auto; }
+.warning-triggers {
+  width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; font-variant-numeric:tabular-nums;
+}
+.warning-triggers :is(th,td) { padding:5px 4px; border-bottom:1px solid var(--line); text-align:left; vertical-align:middle; }
+.warning-triggers th:first-child { width:29%; padding-left:0; }
+.warning-triggers th:nth-child(2), .warning-triggers th:nth-child(3) { width:22%; }
+.warning-triggers thead th, .warning-triggers small, .warning-triggers td:last-child,
+.short-heat-overall span { color:var(--muted); }
+.warning-triggers thead th { font-size:11px; font-weight:600; }
+.warning-triggers small, .warning-triggers .warning-result { display:block; }
+.warning-triggers .nearest-trigger { background:var(--surface-2); }
+.warning-triggers .nearest-trigger th:first-child { padding-left:4px; }
 .short-heat { align-items:baseline; }
 .short-heat-as-of { color:var(--muted); font-size:11px; text-align:right; }
 .short-heat-overall { display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 8px; font-size:11px; }
@@ -223,6 +245,8 @@ main { padding: 12px 18px 28px; }
   .warning-action-price strong { font-size:17px; }
   .warning-action { column-gap:8px; }
   .short-heat :is(th,td) { padding-inline:3px; }
+  .warning-triggers, .warning-triggers .warning-result { font-size:11px; }
+  .warning-triggers small { font-size:10px; }
   .warning-rules :is(th,td) { min-width:0; padding:5px 4px; }
   .warning-rules th[scope=row] { min-width:86px; }
 }

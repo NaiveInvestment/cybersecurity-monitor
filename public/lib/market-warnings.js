@@ -163,25 +163,53 @@ export function warningActions(prices, market) {
     additional: available.filter(rule => rule.accounts && rule.passed), complete: direct.length === 3 };
 }
 
-function warningEstimate(prices, market, official) {
-  const { nearest, hit, additional, complete } = warningActions(prices, market);
-  const reference = hit[0] || nearest;
+export function nextWarningPrice(rule, anchor, market) {
+  if (!usablePrice(anchor?.close)) return null;
+  const target = Math.ceil(anchor.close * (100 + rule.threshold) / 100);
+  return market === "KOSDAQ" ? kosdaqPriceLevel(target) : target;
+}
+
+function warningEstimate(prices, intraday, market, official, snapshot) {
+  const { nearest, hit, complete } = warningActions(prices, market);
   const status = hit.length ? ["pending", "급등 예고 가격 도달"] :
     complete ? ["miss", "급등 예고 가격 미달"] : ["unknown", "가격 자료 부족"];
-  const history = official?.attentionHistory;
-  const withoutRepeat = official?.complete && Array.isArray(history) && history.length === 0;
-  const other = additional.map(rule => {
-    const repeat = rule.id === "mediumAccounts" && withoutRepeat
-      ? "반복 지정 0/5일로 미충족, 계좌 집중형은 별도 확인" : "계좌 매매 요건 확인 필요";
-    return `<li><strong>${rule.text}</strong> <span>${repeat}</span></li>`;
+  const calculation = intraday ? snapshot?.live : snapshot?.closed;
+  const next = calculation?.date === prices?.date ? calculation?.nextAlertBases : null;
+  const history = official?.officialDate === prices?.date && official.complete ? official.attentionHistory : null;
+  const repeatDays = Array.isArray(history) ? new Set(history.map(item => item.effective)).size : null;
+  const repeat = repeatDays === null ? "주의 이력 5일 필요" : repeatDays < 5
+    ? `주의 이력 ${repeatDays}/5일 미달` : `주의 이력 ${repeatDays}일, 인정 일수 확인`;
+  const applicable = prices?.checks.map(rule => ({ ...rule, text: `${rule.days}거래일 +${rule.threshold}%`,
+    other: rule.multiple ? "급등 유형" : "계좌 집중 확인 불가" })) || [];
+  const repeatRule = applicable.find(rule => rule.id === "mediumAccounts");
+  if (repeatRule) applicable.push({ ...repeatRule, id: "repeat", other: repeat });
+  applicable.push({ id: "annual", text: "1년 지수 대비 +200%p", cutoffPrice: prices?.annual?.cutoffPrice,
+    pricePass: prices?.annual?.excess >= 200, other: "계좌 집중 확인 불가" });
+  const lines = applicable.map(rule => {
+    const cutoff = market === "KOSDAQ" ? kosdaqPriceLevel(rule.cutoffPrice) : rule.cutoffPrice;
+    const anchor = next?.[rule.days];
+    const nextCutoff = nextWarningPrice(rule, anchor, market);
+    const priceState = !usablePrice(cutoff) ? ["unknown", "자료 대기"] :
+      rule.pricePass ? ["pending", "가격 충족"] : ["miss", "가격 미달"];
+    return `<tr${rule.id === nearest?.id ? ' class="nearest-trigger"' : ""}>
+      <th scope="row">${rule.text}${rule.id === "repeat" ? "<small>반복 지정 유형</small>" : ""}</th>
+      <td>${usablePrice(cutoff) ? `<strong>${won(cutoff)}</strong>` : "–"}
+        <span class="warning-result is-${priceState[0]}">${priceState[1]}</span></td>
+      <td>${nextCutoff ? `<strong>${won(nextCutoff)}</strong><small>${dateLabel(anchor.date)} 비교</small>` :
+        rule.id === "annual" ? "<small>다음 지수 종가 필요</small>" : "–"}</td>
+      <td>${rule.other}</td>
+    </tr>`;
   }).join("");
   return `<li class="warning-action warning-estimate">
-    <div><h3>투자경고 예고 요건 추정</h3>${reference ? `<p>${reference.text}` +
-      `${hit.length ? " 가격 요건" : " 급등 기준"}</p>` : ""}</div>
-    <div class="warning-action-price"><span class="warning-result is-${status[0]}">${status[1]}</span>
-      ${reference ? `<strong>${won(reference.cutoffPrice)}<small> 이상</small></strong>` : ""}</div>
-    ${hit.length ? `<p class="warning-action-note">KRX가 지정예고를 공시하면 다음 거래일에 투자주의가 적용됩니다.</p>` : ""}
-    ${other ? `<div class="warning-additional"><h4>가격만 도달한 추가 요건</h4><ul>${other}</ul></div>` : ""}
+    <div><h3>투자경고 예고 요건 추정</h3></div>
+    <span class="warning-result is-${status[0]} warning-estimate-status">${status[1]}</span>
+    <div class="warning-trigger-wrap"><table class="warning-triggers" aria-label="비교일과 다음 거래일 투자경고 예고 가격 요건">
+      <thead><tr><th scope="col">요건</th><th scope="col">${prices?.date ? dateLabel(prices.date) : "비교일"} 기준가</th>
+        <th scope="col">다음 거래일</th><th scope="col">비교일 추가 조건</th></tr></thead>
+      <tbody>${lines}</tbody>
+    </table></div>
+    <p class="warning-action-note">기준가는 정규장 종가 기준입니다. 다음 거래일에는 비교 종가가 한 거래일 이동합니다.
+      예고가 공시되면 다음 거래일에 투자주의가 적용됩니다.</p>
   </li>`;
 }
 
@@ -264,7 +292,7 @@ function renderPriceOverview(view, quote, market, shortHeat, official) {
   <section class="warning-comparison" aria-label="시장경보와 단기과열 요건">
     <p class="warning-basis">${basis}</p>
     <ul>
-      ${warningEstimate(prices, market, official)}
+      ${warningEstimate(prices, intraday, market, official, shortHeat)}
       ${renderShortHeat(view, quote, market, shortHeat)}
     </ul>
   </section>`;
@@ -306,7 +334,8 @@ export function updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote
   const row = feed?.stocks?.[stock.id];
   const view = warningPriceView(row, quote, indexQuote, Date.now(), shortHeat);
   for (const [selector, content] of [
-    [".warning-overview", renderPriceOverview(view, quote, stock.market, shortHeat, validOfficial(feed) ? row?.official : null)],
+    [".warning-overview", renderPriceOverview(view, quote, stock.market, shortHeat,
+      validOfficial(feed) ? { ...row?.official, officialDate: feed.officialDate } : null)],
     [".warning-rule-data", priceTable(view.prices, view.intraday)],
   ]) {
     const container = dialog.querySelector(selector);

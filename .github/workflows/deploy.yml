@@ -60,6 +60,7 @@ jobs:
             git show FETCH_HEAD:incident-log.json > state/incident-log.json || rm -f state/incident-log.json
             git show FETCH_HEAD:ransomware-days.json > state/ransomware-days.json || rm -f state/ransomware-days.json
             git show FETCH_HEAD:defillama-hacks.json > state/defillama-hacks.json || rm -f state/defillama-hacks.json
+            git show FETCH_HEAD:short-balance.json > state/short-balance.json || rm -f state/short-balance.json
           else
             echo "data 브랜치 없음, 빈 상태로 시작"
           fi
@@ -67,6 +68,8 @@ jobs:
         run: node scripts/build-data.mjs --prev state/snapshot.json
       - name: Refresh KRX market warning data
         run: node scripts/build-market-warnings.mjs
+      - name: Refresh KRX net short balances
+        run: node scripts/build-short-balance.mjs --prev state/short-balance.json
       - name: Restore domestic financials
         run: |
           if git ls-remote --exit-code --heads origin financials >/dev/null; then

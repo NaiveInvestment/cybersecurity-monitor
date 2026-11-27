@@ -38,13 +38,17 @@ export function shortHeatMetrics(krx, adjustedKrx, integrated, listedShares, dat
   const scale = positive(close) && positive(adjustedClose) ? close / adjustedClose : null;
   const averageClose = scale && adjustedHistory.every(positive) ? mean(adjustedHistory) * scale : null;
   const alertBases = {};
+  const nextAlertBases = {};
   for (const days of [3, 5, 15]) {
     const anchor = previous.at(-days).date;
+    const nextAnchor = bars.at(-days).date;
     const adjusted = adjustedByDate.get(anchor);
+    const nextAdjusted = adjustedByDate.get(nextAnchor);
     if (scale && positive(adjusted)) alertBases[days] = { date: anchor, close: Math.round(adjusted * scale) };
+    if (scale && positive(nextAdjusted)) nextAlertBases[days] = { date: nextAnchor, close: Math.round(nextAdjusted * scale) };
   }
   const recentCloses = adjustedHistory.slice(-14);
   const high14 = scale && recentCloses.every(positive) ? Math.round(Math.max(...recentCloses) * scale) : null;
-  return { date, close, averageClose, alertBases, high14,
+  return { date, close, averageClose, alertBases, nextAlertBases, high14,
     turnover: ratio(turnover), volatility: ratio(volatility) };
 }

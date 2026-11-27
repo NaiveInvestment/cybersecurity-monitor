@@ -79,6 +79,13 @@
     <div class="score-actions"><button type="button" data-cancel>취소</button><button type="submit">저장</button></div>
   </form>
 </dialog>
+<dialog id="short-balance-dialog" aria-labelledby="short-balance-title">
+  <header><h2 id="short-balance-title">공매도 순보유잔고</h2>
+    <form method="dialog"><button type="submit" aria-label="공매도 상세 닫기">×</button></form></header>
+  <div data-short-balance-detail></div>
+  <p class="short-balance-note">KRX 보고대상 순보유잔고 합계. 기준일로부터 2거래일 뒤 공개됩니다.</p>
+  <a href="https://data.krx.co.kr/comm/srt/srtLoader/index.cmd?screenId=MDCSTAT305" target="_blank" rel="noopener noreferrer">KRX 순보유잔고 원문 ↗</a>
+</dialog>
 <dialog id="market-warning-dialog" aria-labelledby="market-warning-title">
   <header><h2 id="market-warning-title">시장경보</h2><button type="button" data-warning-close aria-label="시장경보 닫기" autofocus>×</button></header>
   <div class="warning-detail"></div>

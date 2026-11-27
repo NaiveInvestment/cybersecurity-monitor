@@ -39,6 +39,9 @@ function buildSteps(full) {
     steps.push([script("build-incidents.mjs"), "--out", join(root, "data"), "--offline"]);
   }
   if (full) steps.push([script("build-market-warnings.mjs"), "--out", join(root, "data")]);
+  if (full || !existsSync(join(root, "data", "short-balance.json"))) {
+    steps.push([script("build-short-balance.mjs"), "--out", join(root, "data")]);
+  }
   if(full || !existsSync(join(root,"data","sectors.json"))) steps.push([script("build-sectors.mjs"), "--out", join(root, "data")]);
   steps.push([script("build-site.mjs"), "--out", root]);
   return steps;

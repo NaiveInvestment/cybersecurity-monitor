@@ -11,5 +11,6 @@ const commit = pushOrphan("data", [
   { path: "state/ransomware-days.json", name: "ransomware-days.json", optional: true },
   { path: "state/defillama-hacks.json", name: "defillama-hacks.json", optional: true },
   { path: "_site/data/snapshot.json", name: "snapshot.json" },
+  { path: "_site/data/short-balance.json", name: "short-balance.json", optional: true },
 ], "state");
 console.log(`data 브랜치 갱신: ${commit}`);

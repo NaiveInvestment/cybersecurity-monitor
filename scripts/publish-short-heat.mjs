@@ -36,7 +36,7 @@ const tokenManager = new KiwoomTokenManager({
 const provider = new KiwoomRestProvider({ tokenManager, baseUrl, fetchImpl: request });
 process.chdir(ROOT);
 
-async function regularBars(token, code, date, adjusted = false) {
+async function requestRegularBars(token, code, date, adjusted) {
   await provider.waitForRequestSlot();
   const response = await request(`${baseUrl}/api/dostk/chart`, {
     method: "POST", headers: { authorization: `Bearer ${token}`, "content-type": "application/json;charset=UTF-8", "api-id": "ka11081" },
@@ -46,6 +46,11 @@ async function regularBars(token, code, date, adjusted = false) {
   const body = await response.json();
   if (Number(body.return_code) !== 0 || !Array.isArray(body.result_list)) throw new Error("키움 정규장 일봉 확인 필요");
   return parseRegularBars(body.result_list.slice(0, 62));
+}
+
+async function regularBars(token, code, date, adjusted = false) {
+  try { return await requestRegularBars(token, code, date, adjusted); }
+  catch { return requestRegularBars(token, code, date, adjusted); }
 }
 
 function readPrevious() {
@@ -76,7 +81,7 @@ async function refresh() {
   const previous = readPrevious();
   const indices = clock >= "15:40" ? await fetchIndexRealtime("KR", markets, { attempts: 1 }).catch(() => ({})) : {};
   const cutoffs = Object.fromEntries(markets.map(market => [market, lastClosedDate(now, indices[market])]));
-  const onlyPublish = previous?.schema === 2 && !marketHours && (clock >= "15:30" && clock < "15:40" ||
+  const onlyPublish = previous?.schema === 3 && !marketHours && (clock >= "15:30" && clock < "15:40" ||
     previous.date === date && markets.every(market => previous.cutoffs?.[market] >= cutoffs[market]));
   if (!evidencePath && onlyPublish) {
     publishFeed(previous.checkedAt);
@@ -98,14 +103,26 @@ async function refresh() {
       live: marketHours ? shortHeatMetrics(krx, adjusted, combined, shares, date, { intraday: true }) : null,
     };
   });
+  const latest = readPrevious() || previous;
   const rows = Object.fromEntries(stocks.flatMap((stock, index) => {
     const row = results[index].value;
-    return row?.closed || row?.live ? [[stock.id, row]] :
-      previous?.stocks?.[stock.id]?.closed ? [[stock.id, { closed: previous.stocks[stock.id].closed, live: null }]] : [];
+    const cached = latest?.stocks?.[stock.id]?.closed;
+    const closed = row?.closed;
+    if (closed?.date && cached?.date === closed.date && cached.close === closed.close) {
+      if (!Object.keys(closed.nextAlertBases).length && cached.nextAlertBases) {
+        closed.alertBases = cached.alertBases;
+        closed.nextAlertBases = cached.nextAlertBases;
+        closed.averageClose = cached.averageClose;
+        closed.high14 = cached.high14;
+      }
+      closed.turnover ??= cached.turnover;
+      closed.volatility ??= cached.volatility;
+    }
+    return closed || row?.live || cached ? [[stock.id, { closed: closed || cached, live: row?.live || null }]] : [];
   }));
   const updated = results.filter(item => item.value?.closed || item.value?.live).length;
   if (!updated) throw new Error("국내 정규장 일봉을 수신하지 못함");
-  const next = { schema: 2, date, checkedAt: new Date(now).toISOString(), cutoffs, stocks: rows };
+  const next = { schema: 3, date, checkedAt: new Date(now).toISOString(), cutoffs, stocks: rows };
   const pending = output + "." + process.pid + ".tmp";
   mkdirSync(join(ROOT, "_live", "data"), { recursive: true });
   writeFileSync(pending, JSON.stringify(next));
