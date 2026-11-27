@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { addDays, intradayPriceBases, lastClosedDate, officialForStock, parseKindWarningPage, priceChecks } from "../src/market-warnings.mjs";
-import { kosdaqPriceLevel, marketWarningBadge, shortHeatView, warningPriceView } from "../public/lib/market-warnings.js";
+import { kosdaqPriceLevel, marketWarningBadge, shortHeatView, warningActions, warningPriceView } from "../public/lib/market-warnings.js";
 import { parseRegularBars, shortHeatMetrics } from "../src/short-heat.mjs";
 
 const today = "2026-11-27";
@@ -138,4 +138,33 @@ test("short-heat price follows the live KRX quote and late or missing metrics ar
   assert.equal(shortHeatView({}, { ...quote, nxt: true }, feed, now), closed);
   assert.equal(shortHeatView({}, quote, { ...feed, checkedAt: new Date(now - 721000).toISOString() }, now), closed);
   assert.equal(shortHeatView({ prices: { date: today, close: 123, overheat: { average: 100 } } }, quote, null, now).averageClose, 100);
+});
+
+test("a same-date finalized Kiwoom comparison supersedes yesterday and uses its own KRX anchors", () => {
+  const ended = Date.parse("2026-11-27T16:00:00+09:00");
+  const yesterday = "2026-11-26";
+  const history = Array.from({ length: 42 }, (_, index) => ({ date: addDays(today, index - 42), close: 100 }));
+  const row = { prices: priceChecks(history, history, yesterday),
+    intraday: intradayPriceBases(history, history, today, yesterday) };
+  const officialClose = { date: today, close: 174500, high14: 164500,
+    alertBases: { 3: { date: addDays(today, -3), close: 121500 },
+      5: { date: addDays(today, -5), close: 111100 }, 15: { date: addDays(today, -15), close: 99100 } } };
+  const market = { p: 708.99, st: "CLOSE", at: "2026-11-27T15:30:00+09:00" };
+  const top = { p: 180000, nxt: true, at: "2026-11-27T16:00:00+09:00" };
+  const view = warningPriceView(row, top, market, ended, { closed: officialClose });
+  assert.equal(view.prices.date, today);
+  assert.equal(view.prices.close, 174500);
+  assert.equal(check(view.prices, "short").cutoffPrice, 177760);
+  const summary = warningActions(view.prices, "KOSDAQ");
+  assert.equal(summary.nearest.cutoffPrice, 177800);
+  assert.equal(summary.hit.length, 0);
+  assert.deepEqual(summary.additional.map(rule => rule.id).sort(), ["mediumAccounts", "shortAccounts"]);
+  const yes = warningPriceView(row, top, market, ended, { closed: { ...officialClose, close: 177800 } });
+  assert.equal(warningActions(yes.prices, "KOSDAQ").hit[0].id, "short");
+  assert.equal(warningPriceView(row, top, market, ended).prices.date, yesterday);
+  const withoutIndexBasis = warningPriceView({ prices: row.prices }, top, market, ended, { closed: officialClose });
+  assert.equal(withoutIndexBasis.prices.date, today);
+  assert.equal(check(withoutIndexBasis.prices, "short").cutoffPrice, 177760);
+  assert.equal(check(withoutIndexBasis.prices, "short").indexReturn, null);
+  assert.equal(withoutIndexBasis.prices.annual, null);
 });

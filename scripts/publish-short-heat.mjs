@@ -76,7 +76,7 @@ async function refresh() {
   const previous = readPrevious();
   const indices = clock >= "15:40" ? await fetchIndexRealtime("KR", markets, { attempts: 1 }).catch(() => ({})) : {};
   const cutoffs = Object.fromEntries(markets.map(market => [market, lastClosedDate(now, indices[market])]));
-  const onlyPublish = previous && !marketHours && (clock >= "15:30" && clock < "15:40" ||
+  const onlyPublish = previous?.schema === 2 && !marketHours && (clock >= "15:30" && clock < "15:40" ||
     previous.date === date && markets.every(market => previous.cutoffs?.[market] >= cutoffs[market]));
   if (!evidencePath && onlyPublish) {
     publishFeed(previous.checkedAt);
@@ -105,7 +105,7 @@ async function refresh() {
   }));
   const updated = results.filter(item => item.value?.closed || item.value?.live).length;
   if (!updated) throw new Error("국내 정규장 일봉을 수신하지 못함");
-  const next = { date, checkedAt: new Date(now).toISOString(), cutoffs, stocks: rows };
+  const next = { schema: 2, date, checkedAt: new Date(now).toISOString(), cutoffs, stocks: rows };
   const pending = output + "." + process.pid + ".tmp";
   mkdirSync(join(ROOT, "_live", "data"), { recursive: true });
   writeFileSync(pending, JSON.stringify(next));

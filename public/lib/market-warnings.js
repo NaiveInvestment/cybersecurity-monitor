@@ -33,22 +33,55 @@ function freshRegular(quote, now) {
   return time(at) >= "09:00" && time(now) < "15:30";
 }
 
-export function warningPriceView(row, quote, indexQuote, now = Date.now()) {
+function evaluateWarningRule(rule, close, override, index) {
+  const baseDate = override?.date || rule.baseDate;
+  const prior = override?.close || rule.prior;
+  if (!usablePrice(prior)) return { ...rule, result: null };
+  const result = change(close, prior);
+  const indexReturn = rule.multiple && baseDate === rule.baseDate && usablePrice(rule.baseIndex) && index
+    ? change(index, rule.baseIndex) : baseDate === rule.baseDate ? rule.indexReturn ?? null : null;
+  return { ...rule, prior, baseDate, result, indexReturn,
+    indexPass: indexReturn === null ? null : result >= indexReturn * rule.multiple,
+    cutoffPrice: Math.ceil(prior * (100 + rule.threshold) / 100),
+    pricePass: close * 100 >= prior * (100 + rule.threshold) };
+}
+
+export function warningPriceView(row, quote, indexQuote, now = Date.now(), snapshot = null) {
   const liveQuote = freshRegular(quote, now);
   const basis = row?.intraday;
-  if (!basis || basis.date !== localDay(now) || !liveQuote) {
-    return { prices: row?.prices, intraday: false, liveQuote };
+  const today = localDay(now);
+  const intraday = Boolean(liveQuote && basis?.date === today);
+  const closed = snapshot?.closed;
+  const settled = row?.prices;
+  const recentClose = !intraday && usablePrice(closed?.close) && closed.date <= today && closed.date >= (settled?.date || "");
+  const close = intraday ? quote.p : closed?.close;
+  const aggregate = intraday && snapshot?.live?.date === today ? snapshot.live : recentClose ? closed : null;
+  const anchors = aggregate?.alertBases;
+  if (!intraday && !(recentClose && basis?.date === closed.date)) {
+    if (!recentClose || settled?.date !== closed.date) {
+      const definitions = basis?.checks || settled?.checks;
+      if (recentClose && anchors && definitions) {
+        const checks = definitions.map(({ id, days, threshold, multiple }) =>
+          evaluateWarningRule({ id, days, threshold, multiple }, close, anchors[days]));
+        return { prices: { date: closed.date, close, checks, annual: null,
+          high15: closed.high14 == null ? null : Math.max(close, closed.high14) },
+        intraday: false, liveQuote, kiwoomClose: true };
+      }
+      return { prices: settled, intraday: false, liveQuote };
+    }
+    const annual = settled.annual;
+    const stockReturn = annual ? change(close, settled.close / (1 + annual.stockReturn / 100)) : null;
+    return { prices: { ...settled, close,
+      high15: aggregate?.high14 == null ? Math.max(close, settled.high15 || 0) : Math.max(close, aggregate.high14),
+      checks: settled.checks.map(rule => evaluateWarningRule(rule, close, anchors?.[rule.days])),
+      annual: annual ? { ...annual, stockReturn, excess: stockReturn - annual.indexReturn } : null },
+    intraday: false, liveQuote, kiwoomClose: true };
   }
-  const close = quote.p;
-  const index = freshRegular(indexQuote, now) ? indexQuote.p : null;
-  const checks = basis.checks.map(rule => {
-    if (!usablePrice(rule.prior)) return { ...rule, result: null };
-    const result = change(close, rule.prior);
-    const indexReturn = rule.multiple && index ? change(index, rule.baseIndex) : null;
-    return { ...rule, result, indexReturn, indexPass: indexReturn === null ? null : result >= indexReturn * rule.multiple,
-      cutoffPrice: Math.ceil(rule.prior * (100 + rule.threshold) / 100),
-      pricePass: close * 100 >= rule.prior * (100 + rule.threshold) };
-  });
+  const indexAt = Date.parse(indexQuote?.at);
+  const validIndex = intraday ? freshRegular(indexQuote, now) :
+    indexQuote?.st === "CLOSE" && Number.isFinite(indexAt) && localDay(indexAt) === basis.date;
+  const index = validIndex ? indexQuote.p : null;
+  const checks = basis.checks.map(rule => evaluateWarningRule(rule, close, anchors?.[rule.days], index));
   const year = basis.annual;
   let annual = null;
   if (year && index) {
@@ -57,8 +90,10 @@ export function warningPriceView(row, quote, indexQuote, now = Date.now()) {
     annual = { stockReturn, indexReturn, excess: stockReturn - indexReturn,
       cutoffPrice: Math.ceil(year.baseClose * (300 + indexReturn) / 100) };
   }
-  return { prices: { date: basis.date, close, high15: basis.high14 == null ? null : Math.max(close, basis.high14),
-    checks, annual, overheat: basis.overheat }, intraday: true, liveQuote };
+  const high14 = aggregate?.high14 ?? basis.high14;
+  return { prices: { date: basis.date, close, high15: high14 == null ? null : Math.max(close, high14),
+    checks, annual, overheat: basis.overheat }, intraday, liveQuote,
+    kiwoomClose: !intraday };
 }
 
 function noticeLabel(row) {
@@ -113,8 +148,8 @@ function approvalLine(row) {
   return `<li><strong>${esc(levels[row.level])}</strong> ${esc(row.effective)}${until}${why}</li>`;
 }
 
-function warningActions(prices, market) {
-  if (!prices || !usablePrice(prices.close)) return { closest: null, crossed: [] };
+export function warningActions(prices, market) {
+  if (!prices || !usablePrice(prices.close)) return { nearest: null, hit: [], additional: [], complete: false };
   const candidates = prices.checks.map(rule => ({ ...rule, passed: rule.pricePass,
     text: `${rule.days}거래일 +${rule.threshold}%`, accounts: !rule.multiple }));
   if (prices.annual) candidates.push({ ...prices.annual, passed: prices.annual.excess >= 200,
@@ -123,18 +158,30 @@ function warningActions(prices, market) {
     ...rule, cutoffPrice: market === "KOSDAQ" ? kosdaqPriceLevel(rule.cutoffPrice) : rule.cutoffPrice,
   }));
   available.sort((a, b) => Math.abs(a.cutoffPrice - prices.close) - Math.abs(b.cutoffPrice - prices.close));
-  const crossed = available.filter(rule => rule.passed);
-  return { closest: available.find(rule => !rule.passed) || crossed[0] || null, crossed };
+  const direct = available.filter(rule => !rule.accounts);
+  return { nearest: direct[0], hit: direct.filter(rule => rule.passed),
+    additional: available.filter(rule => rule.accounts && rule.passed), complete: direct.length === 3 };
 }
 
-function actionRow(title, text, cutoff, price, condition, passed = price >= cutoff) {
-  const target = usablePrice(cutoff) ? `${won(cutoff)}<small> 이상</small>` : "기준 자료 없음";
-  const distance = !usablePrice(cutoff) ? "" : passed ? "가격 요건 도달" :
-    `가격 기준까지 ${fmtPct(gap(price, cutoff), 2)}`;
-  return `<li class="warning-action">
-    <div><h3>${title}</h3><p>${text}</p></div>
-    <div class="warning-action-price"><strong>${target}</strong><span>${distance}</span></div>
-    <p class="warning-action-note">${condition}</p>
+function warningEstimate(prices, market, official) {
+  const { nearest, hit, additional, complete } = warningActions(prices, market);
+  const reference = hit[0] || nearest;
+  const status = hit.length ? ["pending", "급등 예고 가격 도달"] :
+    complete ? ["miss", "급등 예고 가격 미달"] : ["unknown", "가격 자료 부족"];
+  const history = official?.attentionHistory;
+  const withoutRepeat = official?.complete && Array.isArray(history) && history.length === 0;
+  const other = additional.map(rule => {
+    const repeat = rule.id === "mediumAccounts" && withoutRepeat
+      ? "반복 지정 0/5일로 미충족, 계좌 집중형은 별도 확인" : "계좌 매매 요건 확인 필요";
+    return `<li><strong>${rule.text}</strong> <span>${repeat}</span></li>`;
+  }).join("");
+  return `<li class="warning-action warning-estimate">
+    <div><h3>투자경고 예고 요건 추정</h3>${reference ? `<p>${reference.text}` +
+      `${hit.length ? " 가격 요건" : " 급등 기준"}</p>` : ""}</div>
+    <div class="warning-action-price"><span class="warning-result is-${status[0]}">${status[1]}</span>
+      ${reference ? `<strong>${won(reference.cutoffPrice)}<small> 이상</small></strong>` : ""}</div>
+    ${hit.length ? `<p class="warning-action-note">KRX가 지정예고를 공시하면 다음 거래일에 투자주의가 적용됩니다.</p>` : ""}
+    ${other ? `<div class="warning-additional"><h4>가격만 도달한 추가 요건</h4><ul>${other}</ul></div>` : ""}
   </li>`;
 }
 
@@ -171,13 +218,20 @@ function renderShortHeat(view, quote, market, snapshot) {
   const level = market === "KOSDAQ" ? kosdaqPriceLevel(cutoff) : cutoff;
   const at = Date.parse(data.at);
   const asOf = Number.isFinite(at) ? `장중 추정, 지표 ${timeLabel.format(at)}` :
-    data.date ? `${dateLabel(data.date)} ${data.live ? "장중 추정" : "정규장 추정"}` : "조회 대기";
+    data.date ? `${dateLabel(data.date)} ${data.live ? "장중 추정" : "정규장 종가 기준"}` : "조회 대기";
   const price = usablePrice(data.close) && level ? data.close : null;
+  const indicators = [[price, level], [data.turnover, 6], [data.volatility, 1.5]];
+  const known = indicators.filter(([value]) => Number.isFinite(value));
+  const passed = known.filter(([value, target]) => value >= target).length;
+  const status = known.length > passed ? ["miss", "단기과열 지표 미달"] : passed === 3
+    ? ["pending", "3개 지표 도달, 예고 확인 필요"] : ["unknown", "지표 확인 대기"];
   return `<li class="warning-action short-heat">
     <div><h3>단기과열 / 30분 단일가</h3></div>
     <span class="short-heat-as-of">${asOf}</span>
+    <div class="short-heat-overall"><strong class="warning-result is-${status[0]}">${status[1]}</strong>
+      ${known.length === 3 && passed < 3 ? `<span>3개 중 ${passed}개 도달</span>` : ""}</div>
     <table aria-label="단기과열 세 가지 요건">
-      <thead><tr><th scope="col">요건</th><th scope="col">현재</th><th scope="col">기준</th><th scope="col">판정</th></tr></thead>
+      <thead><tr><th scope="col">요건</th><th scope="col">계산값</th><th scope="col">기준</th><th scope="col">지표 판정</th></tr></thead>
       <tbody>
         ${shortHeatRow("주가", price, level, usablePrice(data.close) ? won(data.close) : "—", level ? won(level) + " 이상" : "—")}
         ${shortHeatRow("거래회전율", data.turnover, 6, multiple(data.turnover, 6), "6.00배 이상")}
@@ -188,9 +242,8 @@ function renderShortHeat(view, quote, market, snapshot) {
   </li>`;
 }
 
-function renderPriceOverview(view, quote, market, shortHeat) {
+function renderPriceOverview(view, quote, market, shortHeat, official) {
   const { prices, intraday, liveQuote } = view;
-  const { closest: reference, crossed } = warningActions(prices, market);
   const source = quote?.nxt ? "NXT 프리마켓" : quote?.src === "kiwoom" ? "키움" :
     quote?.src === "naver" ? "네이버 금융" : "종목표 시세";
   const timing = liveQuote ? (quote.src === "kiwoom" ? "실시간" : "장중") : "최근 체결";
@@ -198,10 +251,12 @@ function renderPriceOverview(view, quote, market, shortHeat) {
   const quoteInfo = Number.isFinite(at)
     ? `${source} ${timing} <time datetime="${esc(quote.at)}">${dateLabel(localDay(at))} ${timeLabel.format(at)}</time>`
     : "시세 수신 대기";
-  const basis = intraday ? "오늘 이 가격으로 정규장이 끝난다고 가정" :
-    prices ? `${dateLabel(prices.date)} 정규장 종가 ${won(prices.close)} 기준` : "비교 기준 자료 없음";
-  const attentionCondition = reference?.accounts ? "계좌 매매 조건도 확인해야 합니다." :
-    "경고 지정 여부는 예고와 최고 종가, 지수 요건 등도 봅니다.";
+  const today = localDay(Date.now());
+  const quoteDate = Number.isFinite(at) ? localDay(at) : null;
+  const priorClose = prices && prices.date < today && quoteDate === today;
+  const basis = intraday ? "장중 추정, 현재가를 오늘 정규장 종가로 가정" : prices
+    ? `${priorClose ? "오늘 종가 계산 대기 / " : ""}${dateLabel(prices.date)} ${view.kiwoomClose ? "키움 " : ""}비교 종가 <strong>${won(prices.close)}</strong>`
+    : "예고 요건 비교 자료 없음";
   return `<section class="warning-quote" aria-label="현재가">
     <div><span>현재가</span><strong>${won(quote?.p)}</strong></div>
     <p>${quoteInfo}</p>
@@ -209,9 +264,7 @@ function renderPriceOverview(view, quote, market, shortHeat) {
   <section class="warning-comparison" aria-label="시장경보와 단기과열 요건">
     <p class="warning-basis">${basis}</p>
     <ul>
-      ${actionRow("투자주의 / 경고 예고", reference?.text || "급등 가격 기준", reference?.cutoffPrice,
-        prices?.close, attentionCondition + (crossed.length
-          ? `<span>이미 도달한 가격 요건: ${crossed.map(rule => rule.text).join(", ")}</span>` : ""), reference?.passed)}
+      ${warningEstimate(prices, market, official)}
       ${renderShortHeat(view, quote, market, shortHeat)}
     </ul>
   </section>`;
@@ -251,9 +304,9 @@ export function bindMarketWarnings(dialog) {
 
 export function updateMarketWarningPrices(dialog, feed, stock, quote, indexQuote, shortHeat) {
   const row = feed?.stocks?.[stock.id];
-  const view = warningPriceView(row, quote, indexQuote);
+  const view = warningPriceView(row, quote, indexQuote, Date.now(), shortHeat);
   for (const [selector, content] of [
-    [".warning-overview", renderPriceOverview(view, quote, stock.market, shortHeat)],
+    [".warning-overview", renderPriceOverview(view, quote, stock.market, shortHeat, validOfficial(feed) ? row?.official : null)],
     [".warning-rule-data", priceTable(view.prices, view.intraday)],
   ]) {
     const container = dialog.querySelector(selector);
@@ -275,20 +328,22 @@ export function showMarketWarnings(dialog, feed, stock, quote, indexQuote, short
   const first = active[0] || upcoming[0];
   const officialStatus = !visible ? "공시 확인 대기" : active.length ? noticeLabel(first) :
     !official?.complete ? "공시 확인 대기" : upcoming.length ? `${noticeLabel(first)} (${dateLabel(first.effective)} 적용)` :
-    "지정 내역 없음";
+    "공식 지정 공시 없음";
   const counts = history ? `최근 15거래일 투자주의 공시 ${new Set(history.map(item => item.effective)).size}일` :
     "최근 투자주의 이력 확인 대기";
   const head = dialog.querySelector("h2");
   head.textContent = `${stock.name} 시장경보`;
+  const checkedAt = Date.parse(feed?.checkedAt);
+  const checked = Number.isFinite(checkedAt) ? `${dateLabel(localDay(checkedAt))} ${timeLabel.format(checkedAt).slice(0, 5)} 조회` : "공시 조회";
   dialog.querySelector(".warning-detail").innerHTML = `
     <div class="warning-official${visible && first ? ` is-${first.level}` : ""}">
-      <div><span>KRX 투자주의/경고/위험</span><strong>${esc(officialStatus)}</strong></div>
-      <a href="${kindLink}" target="_blank" rel="noopener noreferrer">${dateLabel(feed?.officialDate) || "공시"} 조회 ↗</a>
+      <div><span>KRX 공식 시장경보</span><strong>${esc(officialStatus)}</strong></div>
+      <a href="${kindLink}" target="_blank" rel="noopener noreferrer">${checked} ↗</a>
     </div>
     <div class="warning-overview"></div>
     <details class="warning-breakdown"><summary>가격 요건 전체 보기</summary>
       <div class="warning-rule-data"></div>
-      <p class="warning-muted">네이버 금융 정규장 수정종가 기준. 장중에는 종목표 시세와 당일 지수로 비교합니다. 요약의 기준가는 코스닥 호가단위로 올림했습니다.</p>
+      <p class="warning-muted">3~15거래일 가격 요건은 키움 KRX 수정종가가 들어오면 반영합니다. 1년 비교와 키움 보완 시세는 네이버 금융 기준입니다. 기준가는 코스닥 호가단위로 올림했습니다.</p>
       <p class="warning-muted">단기과열 추정은 키움 정규장 일봉과 다음 금융의 일별 상장주식수를 사용합니다. 거래회전율은 KRX와 NXT의 정규장 합산 거래대금, 일중 변동성은 KRX 고가와 저가 기준입니다. 가격 기준에는 수정주가를 반영합니다.</p>
       <a href="${overheatLink}" target="_blank" rel="noopener noreferrer">KRX 단기과열 공시 예시 ↗</a>
     </details>

@@ -35,8 +35,16 @@ export function shortHeatMetrics(krx, adjustedKrx, integrated, listedShares, dat
   const adjustedClose = intraday ? close : adjustedByDate.get(date);
   const adjustedHistory = previous.map(row => adjustedByDate.get(row.date));
   // Rebase adjusted history to the test date's original price scale.
-  const averageClose = positive(close) && positive(adjustedClose) && adjustedHistory.every(positive)
-    ? mean(adjustedHistory) * close / adjustedClose : null;
-  return { date, close, averageClose,
+  const scale = positive(close) && positive(adjustedClose) ? close / adjustedClose : null;
+  const averageClose = scale && adjustedHistory.every(positive) ? mean(adjustedHistory) * scale : null;
+  const alertBases = {};
+  for (const days of [3, 5, 15]) {
+    const anchor = previous.at(-days).date;
+    const adjusted = adjustedByDate.get(anchor);
+    if (scale && positive(adjusted)) alertBases[days] = { date: anchor, close: Math.round(adjusted * scale) };
+  }
+  const recentCloses = adjustedHistory.slice(-14);
+  const high14 = scale && recentCloses.every(positive) ? Math.round(Math.max(...recentCloses) * scale) : null;
+  return { date, close, averageClose, alertBases, high14,
     turnover: ratio(turnover), volatility: ratio(volatility) };
 }
