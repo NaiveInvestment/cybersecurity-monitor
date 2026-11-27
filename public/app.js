@@ -112,7 +112,7 @@ let COLUMNS = [
     cell: (s) => ({ html: `<span class="stock" title="${esc(s.market)}, ${esc(s.desc)}">${esc(s.name)}</span>${s.kind === "GL" ? `<span class="code">${esc(s.id)}</span>` : ""}` }) },
   { key: "score", group: "id", label: "점수", cls: "stock-score", sort: s => stockScore(s.id),
     cell: s => ({ html: `<button type="button" class="score-entry" data-edit-score="${esc(s.id)}" aria-label="${esc(s.name)} 점수">${stockScore(s.id) ?? "–"}</button>` }) },
-  { key: "shortBalance", group: "id", label: "공매도<br>잔고율", cls: "stock-short-balance",
+  { key: "shortBalance", group: "monitor", label: "공매도<br>잔고율", cls: "stock-short-balance",
     title: "KRX 공매도 순보유잔고 금액 ÷ 같은 기준일 시가총액",
     sort: stock => balanceRatio(shortBalance?.stocks?.[stock.id]),
     cell: stock => {
@@ -123,7 +123,7 @@ let COLUMNS = [
         title="${esc(shortBalance.asOf)} 기준 잔고 금액 보기" aria-label="${esc(stock.name)} 공매도 잔고율 ${balanceLabel(ratio)}, 상세 보기">${balanceLabel(ratio)}</button>` };
     },
   },
-  { key: "marketWarning", group: "id", label: "시장경보", cls: "market-warning-cell",
+  { key: "marketWarning", group: "monitor", label: "시장경보", cls: "market-warning-cell",
     title: "KRX 공시와 종가 기준 가격 요건", sort: (s) => s.kind === "KR" ? marketWarningBadge(marketWarnings, s.id).rank : null,
     cell: (s) => {
       if (s.kind !== "KR") return { html: "" };
@@ -152,13 +152,15 @@ let COLUMNS = [
   { key: "per", group: "val", label: "PER", sort: (s, d) => (typeof d.per === "number" ? d.per : null),
     cell: (s, d) => ({ html: d.per == null ? '<span title="자료 없음">-</span>' : d.per === "N/M" ? '<span title="최근 4개 분기 순이익이 0 이하라 PER 계산 제외">-</span>' : d.per >= 100 ? Math.round(d.per).toLocaleString("ko-KR") : d.per.toFixed(1), cls: d.per === "N/M" ? "na" : "" }) },
 ];
-const BASE_COLUMNS = COLUMNS;
+const BASE_COLUMNS = COLUMNS.filter(column => column.group !== "monitor");
+const MONITOR_COLUMNS = COLUMNS.filter(column => column.group === "monitor");
 const BASE_GROUPS = GROUPS.map(g=>({...g}));
+const monitorGroup = { id: "monitor", label: "수급과 경보" };
 
-function treasuryColumn(group) {
+function treasuryColumn() {
   const shareCounts = (stock) => treasuryShares?.stocks?.[stock.id];
   return {
-    key: "treasury", group, label: "자사주", cls: "ttm-summary treasury",
+    key: "treasury", group: "monitor", label: "자사주", cls: "ttm-summary treasury",
     title: "분기 말 자기주식 수 ÷ 발행주식 수, 비율을 누르면 공시 원문 열기",
     sort: (stock) => {
       const row = shareCounts(stock);
@@ -190,10 +192,13 @@ function financialColumns() {
     : baseNote;
   const treasuryNote = treasuryShares ? `자사주 ${treasuryShares.asOf} DART` : '자사주 자료 없음';
   $('#financial-date').textContent = state.view === 'KR' ? `${financeNote} / ${treasuryNote}` : financeNote;
+  const trailingColumns = [
+    ...(state.view === 'KR' ? [treasuryColumn()] : []),
+    ...MONITOR_COLUMNS.filter(column => state.view !== 'GL' || column.key !== 'shortBalance'),
+  ];
   if(!active){
-    COLUMNS=state.view==='KR'?[...BASE_COLUMNS,treasuryColumn('val')]:
-      state.view==='GL'?BASE_COLUMNS.filter(c=>c.key!=='shortBalance'):BASE_COLUMNS;
-    GROUPS=BASE_GROUPS.map(g=>({...g}));
+    COLUMNS=[...BASE_COLUMNS, ...trailingColumns];
+    GROUPS=[...BASE_GROUPS, monitorGroup];
     if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
     return;
   }
@@ -201,7 +206,7 @@ function financialColumns() {
   const periods=timelinePeriods(financials.stocks).filter(p=>Number(p.period.slice(0,4))<=2027);
   const basis={threeMonth:'3M 평균',oneMonth:'1M 평균',highest:'3M 최고'}[horizon];
   const metrics=[{id:'revenue',label:`매출 (억원, ${basis})`,field:'revenue'},{id:'operatingIncome',label:`영업이익 (억원, ${basis})`,field:'operatingIncome'},{id:'parentNetIncome',label:`지배순이익 (억원, ${basis})`,field:'parentNetIncome'},{id:'pe',label:'P/E (배, 현재 시총)',valuation:'pe'},{id:'pb',label:'P/B (배, 현재 시총)',valuation:'pb'},{id:'roe',label:'ROE (%)',valuation:'roe'}];
-  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),{id:'ttm',label:'TTM 요약 (억원, 배), 자사주 (%)'},...metrics.map(m=>({id:m.id,label:m.label}))];
+  GROUPS=[...BASE_GROUPS.filter(g=>!['fin','val'].includes(g.id)),{id:'ttm',label:'TTM 요약 (억원, 배)'},...metrics.map(m=>({id:m.id,label:m.label})),monitorGroup];
   COLUMNS=BASE_COLUMNS.filter(c=>!['fin','val'].includes(c.group));
   const summary=[{key:'revTtm',label:'매출'},{key:'opTtm',label:'영업이익'},{key:'niTtm',label:'순이익'},{key:'psr',label:'PSR'},{key:'per',label:'PER'}];
   for(const metric of summary)COLUMNS.push({key:metric.key,group:'ttm',label:metric.label,cls:'ttm-summary',sort:(s,d)=>typeof d[metric.key]==='number'?d[metric.key]:null,cell:(s,d)=>{
@@ -212,12 +217,12 @@ function financialColumns() {
     const display=ratio&&typeof v==='number'?v.toLocaleString('ko-KR',{minimumFractionDigits:1,maximumFractionDigits:1}):timelineNumber(v);
     return {html:`<span class="ttm-value${ratio?' ttm-ratio':''}${typeof v!=='number'?' ttm-missing':''}" data-summary="${metric.key}" title="OpenDART, ${esc(period)}, ${esc(note)}${v==null?', 자료 없음':v==='N/M'?', 순이익이 0 이하라 PER 계산 제외':''}">${display}</span>`,cls:typeof v==='number'&&v<0?'neg':v==='N/M'?'na':''};
   }});
-  COLUMNS.push(treasuryColumn('ttm'));
   const value=(s,d,p,m)=>m.field?financialRow(byId.get(s.id),p.period,horizon)?.[m.field]??null:annualValuation(byId.get(s.id),p.period,d.cap,horizon)[m.valuation];
   for(const m of metrics){
     for(const p of periods)COLUMNS.push({key:`${m.id}-${p.period}`,group:m.id,label:p.label,cls:'financial-year',sort:(s,d)=>{const v=value(s,d,p,m);return typeof v==='number'?v:null;},cell:(s,d)=>{const v=value(s,d,p,m);return {html:`<span class="financial-value ${v==null?'financial-missing':''}" data-metric="${m.id}" data-period="${p.period}" title="${esc(m.label)}, ${p.label}${v==null?', 자료 없음':v==='N/M'?', 이익 또는 자기자본이 0 이하라 계산 제외':''}">${timelineNumber(v)}</span>`,cls:(byId.get(s.id)?.annual?.[p.period]?.kind==='actual'?'actual-cell':'estimate-cell')+(typeof v==='number'&&v<0?' neg':'')};}});
     COLUMNS.push({key:m.id+'-trend',group:m.id,label:'추이',cls:'financial-spark',cell:(s,d)=>({html:trendSvg(periods.map(p=>({period:p.label,value:value(s,d,p,m),forecast:byId.get(s.id)?.annual?.[p.period]?.kind!=='actual'})),m.label)})});
   }
+  COLUMNS.push(...trailingColumns);
   if(!COLUMNS.some(c=>c.key===state.sort.key&&c.sort))state.sort={key:'cap',dir:'desc'};
 }
 
@@ -309,7 +314,7 @@ function fitOverviewColumns() {
   const scroll=wrap.scrollLeft;
   table.querySelector('colgroup')?.remove();
   const heads=[...table.querySelectorAll('.cols th')];
-  const last=heads.findIndex(th=>th.querySelector('[data-sort="treasury"]'));
+  const last=heads.findIndex(th=>th.querySelector('[data-sort="per"]'));
   if(last<0)return;
   const widths=heads.map(th=>th.getBoundingClientRect().width);
   const compact=heads.findIndex(th=>th.classList.contains('drawdown'));
