@@ -4,9 +4,22 @@ import { fileURLToPath } from "node:url";
 export const ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 export function loadSectorMembership() {
-  const membership = JSON.parse(readFileSync(new URL("../data/sector-membership.json", import.meta.url), "utf8"));
-  const extra = JSON.parse(readFileSync(new URL("../data/sector-extra.json", import.meta.url), "utf8"));
-  return { ...membership, groups: [...membership.groups, ...extra.groups] };
+  const read = name => JSON.parse(readFileSync(new URL(`../data/${name}.json`, import.meta.url), "utf8"));
+  const membership = read("sector-membership");
+  const extra = read("sector-extra");
+  const robot = read("kosdaq-robot-membership");
+  const screened = read("kosdaq-sector-additions");
+  const semiconductor = read("semiconductor-additions");
+  const additions = { ...screened.groups, semi: semiconductor.stocks };
+  const groups = [...membership.groups, robot, ...extra.groups].map(group => {
+    const extraStocks = additions[group.id];
+    if (!extraStocks) return group;
+    const source = group.id === "semi" ? semiconductor : screened;
+    const stocks = [...new Map([...group.stocks, ...extraStocks].map(stock => [stock.code, stock])).values()];
+    const supplement = { asOf: source.asOf, source: source.source, count: stocks.length - group.stocks.length };
+    return { ...group, supplement, stocks: stocks.map(({ code, name }) => ({ code, name })) };
+  });
+  return { ...membership, asOf: [membership.asOf, screened.asOf, semiconductor.asOf, robot.asOf, extra.asOf].sort().at(-1), groups };
 }
 
 export function comparisonSectorCodes() {

@@ -60,6 +60,11 @@ test('local 1D uses the current session, previous-close weights and both live in
   assert.equal(liveSectorComparison(data, { ...snapshot, indices: { KOSPI: snapshot.indices.KOSPI } }, 'equal', now), null);
   const closed = Object.fromEntries(Object.entries(snapshot.indices).map(([id, index]) => [id, { ...index, st: 'CLOSE' }]));
   assert.equal(liveSectorComparison(data, { ...snapshot, indices: closed }, 'equal', now + 86400000).open, false);
+  const expanded = { ...data, groups: [...data.groups, { id: "robot", supplement: { count: 1 }, stocks: [members[0], members[1]] }] };
+  const partial = { ...snapshot, indices: closed, quotes: { ...snapshot.quotes } };
+  delete partial.quotes.b;
+  assert.equal(liveSectorComparison(expanded, partial, "cap", now), null);
+  assert.equal(liveSectorComparison(expanded, { ...snapshot, indices: closed }, "cap", now).series[1].included.length, 2);
 });
 
 test('local quote waits for a same-session previous close before applying a Kiwoom tick', () => {

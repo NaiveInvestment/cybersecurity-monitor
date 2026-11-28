@@ -43,6 +43,13 @@ export function liveSectorComparison(data, snapshot, mode, now = Date.now(), max
   const asOf = Math.min(...indices.map((quote) => Date.parse(quote.at)));
   const open = indices.some((quote) => quote.st === "OPEN");
   if (open && now - asOf > maxAgeMs) return null;
+  // A previous close feed can still contain the old ETF-only rosters after an expansion.
+  // When that close is already in daily data, use it for the whole comparison.
+  if (!open && data.benchmarks.every(index => index.history.at(-1)?.date === date)) {
+    const missingClose = data.groups.some(group => group.supplement && group.stocks.some(({code}) =>
+      !snapshot.quotes[code] && data.stocks[code]?.history.at(-1)?.date === date));
+    if (missingClose) return null;
+  }
 
   const dates = ["직전 종가", date];
   const points = (value) => [{ date: dates[0], value: value == null ? null : 100 }, { date, value }];

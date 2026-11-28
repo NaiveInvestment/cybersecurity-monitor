@@ -77,3 +77,11 @@
 @media (max-width: 375px) {
   .market-charts .seg-switch button { padding-inline: 4px; }
 }
+
+.sector-chart .series-robot { stroke: #b29afa; }
+.legend-robot .legend-line { background: #b29afa; }
+:root[data-theme="light"] .sector-chart .series-robot { stroke: #7051a6; }
+:root[data-theme="light"] .legend-robot .legend-line { background: #7051a6; }
+.sector-method details { border-top: 1px solid var(--line); margin-top: 5px; }
+.sector-method details summary { color: var(--ink); font-weight: 650; }
+.sector-method details p { margin: 3px 0 7px; }
