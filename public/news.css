@@ -94,3 +94,6 @@ body.news-page main { max-width: 1240px; }
   .metric-line .unmeasured { font-size: 15px; }
   .compare-track .missing { display: none; }
 }
+
+#wire-alerts:not(:empty) { border-block-start: 1px solid var(--line-strong); background: var(--surface); }
+#wire-alerts .meta strong { color: var(--brand); }

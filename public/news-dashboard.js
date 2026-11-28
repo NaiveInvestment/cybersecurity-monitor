@@ -36,7 +36,7 @@ export function renderPulse(region, end, archive, file) {
   document.querySelector("#pulse-range").textContent = `${fmtKst(mid)} ~ ${fmtKst(end)} KST`;
   const host = document.querySelector("#pulse-metrics");
   const note = document.querySelector("#pulse-method");
-  note.textContent = `수집 기사는 URL 중복을 제거해 최근 168시간과 그 앞 168시간을 비교합니다. 막대 하나는 24시간입니다. 침해사고 보도는 해킹 분류 기사 중 원제목에서 실제 침해나 유출 발생을 언급한 기사입니다. 기사와 자동 감지 보도는 수집 피드의 국내외 분류를 따릅니다. 피해 강도는 사건 기록의 지역과 KST 날짜를 기준으로 유출 규모와 금전 피해를 로그 환산해 국내외 13개 7일 구간과 비교한 지수입니다. 규모 미공개, 보도 후보는 제외합니다.${file ? " 리서치 확인 " + file.researchUntil + "까지, 이후 DeFiLlama 집계 포함." : ""}`;
+  note.textContent = `수집 기사는 URL 중복을 제거해 최근 168시간과 그 앞 168시간을 비교합니다. 막대 하나는 24시간입니다. 속보는 30초마다 조회하며 감지 시각을 표시합니다. 기사 집계에는 정기 수집본만 사용합니다. 침해사고 보도는 해킹 분류 기사 중 원제목에서 실제 침해나 유출 발생을 언급한 기사입니다. 기사와 자동 감지 보도는 수집 피드의 국내외 분류를 따릅니다. 피해 강도는 사건 기록의 지역과 KST 날짜를 기준으로 유출 규모와 금전 피해를 로그 환산해 국내외 13개 7일 구간과 비교한 지수입니다. 규모 미공개, 보도 후보는 제외합니다.${file ? " 리서치 확인 " + file.researchUntil + "까지, 이후 DeFiLlama 집계 포함." : ""}`;
   let counts = '<div class="pulse-message">보관 기사 집계 중</div>';
   if (archive?.failed) counts = `<div class="pulse-message">보관 기사 ${archive.failed}일분을 불러오지 못해 기사 비교를 보류했습니다. <button type="button" id="pulse-retry">다시 조회</button></div>`;
   if (archive && !archive.failed) {
@@ -89,20 +89,28 @@ function flowRow(major, entries) {
 
 // Automatic extraction can name the same postal breach after a headline fragment
 // and round its exposed population differently across outlets.
-function isPostalBreach(major) {
+function isPostalBreach(major, domesticRecords) {
   if (!major.records || !isIncidentCandidate(major.event)) return false;
   return major.sources.some(source => {
     const title = source.t || major.event.atk || "";
-    return /^(?:Korea Post)\b.*(?:breach|leak|expos)/i.test(title) ||
-      /(?:인터넷)?우체국(?:마저|도|이|서|의|에서|으?로|[\s,]|$).{0,70}(?:유출|뚫렸|해킹)/.test(title);
+    if (/^Korea Post\b.*(?:breach|leak|expos)/i.test(title)) return true;
+    if (major.event.r !== "KR") return false;
+    if (/(?:인터넷우체국|우정사업본부).{0,70}(?:유출|뚫렸|해킹)/.test(title)) return true;
+    // A generic "post office" must be the sentence subject, and match a named local record.
+    const postalSubject = /(?:^|[….,!?]\s*)우체국(?:마저|도|이|서|에서|의|[\s,]).{0,70}(?:유출|뚫렸|해킹)/;
+    return postalSubject.test(title) && domesticRecords.some(row =>
+      Math.abs(Date.parse(row.event.d) - Date.parse(major.event.d)) <= 7 * DAY &&
+      Math.abs(row.records-major.records) <= .05 * Math.min(row.records,major.records));
   });
 }
 
 export function majorFlows(events, start, end) {
   const result = [];
   const postal = [];
-  for (const major of majorIncidents(events, [], start, end)) {
-    if (!isPostalBreach(major)) {
+  const majors = majorIncidents(events, [], start, end);
+  const domesticRecords = majors.filter(row => row.event.r === "KR" && /^(인터넷우체국|우정사업본부)$/.test(row.event.n));
+  for (const major of majors) {
+    if (!isPostalBreach(major, domesticRecords)) {
       result.push(major);
       continue;
     }

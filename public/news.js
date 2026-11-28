@@ -2,6 +2,7 @@ import { esc, fmtKst, headlineLink as link, loadJson, initTheme } from "./common
 import { statusTone } from "./lib/status.js";
 import { groupStories } from "./lib/issues.js";
 import { searchArchive, publicationDay } from "./lib/news-search.js";
+import { regionalAlerts, watchWire, wireIndex } from "./lib/news-wire.js";
 import { isIncidentReport } from "./lib/news-pulse.js";
 import { renderPulse, renderFlow } from "./news-dashboard.js";
 import { showIncidentHistory } from "./incidents.js";
@@ -17,6 +18,17 @@ let cards = [], names = {}, segments = {}, news = { items: [] }, events = null;
 let searchResult = null, pulseArchive = null, flowItems = [], pulseRequest = 0;
 let cardsAvailable = false, refreshing = false;
 const archiveCache = new Map();
+let alerts = [], sourceIndex = wireIndex([]), wireMarkup = "";
+function drawAlerts() {
+  const html = regionalAlerts(alerts,sourceIndex,state).map(alert => `<div class="headline">
+    <time class="time num" datetime="${esc(alert.detectedAt)}">${fmtKst(alert.detectedAt,false)}</time>
+    <div><a class="title" href="${esc(alert.url)}" target="_blank" rel="noopener">${esc(alert.title)}</a>
+    <p class="meta"><strong>속보 감지</strong> / ${esc(alert.source)}</p></div></div>`).join("");
+  if (html !== wireMarkup) {
+    $("#wire-alerts").innerHTML = html;
+    wireMarkup = html;
+  }
+}
 const anchor = () => Date.parse(news.updatedAt) || Date.now();
 const kstDate = stamp => publicationDay(new Date(stamp).getTime());
 const inRegion = region => region === state.region;
@@ -50,6 +62,7 @@ function filteredItems() {
 }
 
 function renderFeed() {
+  drawAlerts();
   const focus = state.focus;
   if (state.category === "briefs" && !focus) {
     const briefs = filteredBriefs();
@@ -62,7 +75,7 @@ function renderFeed() {
   const items = focus?.items ?? filteredItems();
   const visible = focus ? items : items.slice(0, state.shown);
   $("#feed-title").textContent = focus ? "관련 기사" : "최신 기사";
-  $("#feed-sub").textContent = `${items.length.toLocaleString("ko-KR")}건`;
+  $("#feed-sub").textContent = `수집 기사 ${items.length.toLocaleString("ko-KR")}건`;
   if (!focus) {
     if (searchResult.pending) $("#feed-sub").textContent += ", 보관 기사 조회 중";
     $("#feed-sub").title = searchResult.coverage || "";
@@ -136,6 +149,8 @@ async function loadPulse() {
   if (request !== pulseRequest) return;
   pulseArchive = result;
   flowItems = flowArchive.items;
+  sourceIndex = wireIndex(flowItems);
+  drawAlerts();
   drawOverview();
 }
 
@@ -187,6 +202,7 @@ async function refresh(first = false) {
   try {
     const [file, eventFile] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events)]);
     news = file;
+    sourceIndex = wireIndex(news.items);
     events = eventFile;
     $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
     if (first && state.query) {
@@ -235,6 +251,7 @@ async function main() {
   names = Object.fromEntries((snapshot?.stocks || []).map(stock => [stock.id, stock.name]));
   segments = Object.fromEntries((snapshot?.segments || []).map(segment => [segment.id, segment.label]));
   bind();
+  watchWire(items => { alerts = items; drawAlerts(); });
   await refresh(true);
   const update = () => { if (!document.hidden) refresh(); };
   window.setInterval(update, 5 * 60000);
