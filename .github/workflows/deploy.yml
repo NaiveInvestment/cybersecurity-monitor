@@ -49,7 +49,7 @@ jobs:
         run: node --test
       - name: Restore state from data branch
         run: |
-          mkdir -p state
+          mkdir -p state _site/data
           if git ls-remote --exit-code --heads origin data >/dev/null; then
             git fetch --depth=1 origin data
             git show FETCH_HEAD:news.json > state/news.json
@@ -61,6 +61,8 @@ jobs:
             git show FETCH_HEAD:ransomware-days.json > state/ransomware-days.json || rm -f state/ransomware-days.json
             git show FETCH_HEAD:defillama-hacks.json > state/defillama-hacks.json || rm -f state/defillama-hacks.json
             git show FETCH_HEAD:short-balance.json > state/short-balance.json || rm -f state/short-balance.json
+            git show FETCH_HEAD:kosdaq-market.json > _site/data/kosdaq-market.json || rm -f _site/data/kosdaq-market.json
+            git show FETCH_HEAD:kosdaq-sector-caps.json > _site/data/kosdaq-sector-caps.json || rm -f _site/data/kosdaq-sector-caps.json
           else
             echo "data 브랜치 없음, 빈 상태로 시작"
           fi
@@ -84,6 +86,10 @@ jobs:
         run: node scripts/build-sectors.mjs
       - name: Assemble site
         run: node scripts/build-site.mjs
+      - name: Build closing KOSDAQ sector market caps
+        run: |
+          python -m pip install duckdb==1.5.0
+          python scripts/build-kosdaq-sector-caps.py --market _site/data/kosdaq-market.json --out _site/data/kosdaq-sector-caps.json
       - name: Verify assembled site
         run: node scripts/verify-site.mjs _site --public
       - name: Save state to data branch

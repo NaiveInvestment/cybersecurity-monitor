@@ -84,7 +84,21 @@ const kosdaqMarket = join(outDir, "data", "kosdaq-market.json");
 if (liveRepo || existsSync(join(outDir, "data", "domestic-market.json"))) {
   await refreshKosdaqMarket(kosdaqMarket).catch(error => console.warn(`[kosdaq-market] ${error.message}`));
 }
+const sectorCaps = join(outDir, "data", "kosdaq-sector-caps.json");
+if (localMode) {
+  const previous = existsSync(sectorCaps) ? JSON.parse(readFileSync(sectorCaps, "utf8")) : null;
+  const url = "https://raw.githubusercontent.com/NaiveInvestment/cybersecurity-monitor/data/kosdaq-sector-caps.json";
+  const remote = await fetch(url, { signal: AbortSignal.timeout(6000) }).then(response =>
+    response.ok ? response.json() : null).catch(() => null);
+  if (remote?.market === "KOSDAQ" && remote.unit === "원" && Array.isArray(remote.bars)
+      && remote.asOf && (!previous?.asOf || remote.asOf >= previous.asOf)) {
+    writeFileSync(sectorCaps, JSON.stringify(remote));
+  } else if (!previous) {
+    writeFileSync(sectorCaps, JSON.stringify({ market: "KOSDAQ", unit: "원", bars: [] }));
+  }
+}
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
+  kosdaqSectorCaps: liveRepo || existsSync(sectorCaps) ? "data/kosdaq-sector-caps.json" : undefined,
   kosdaqMarket: existsSync(kosdaqMarket) ? "data/kosdaq-market.json" : undefined,
   builtAt: new Date().toISOString(),
   stockScores: "data/stock-scores.json",

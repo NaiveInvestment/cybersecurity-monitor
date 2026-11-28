@@ -12,5 +12,7 @@ const commit = pushOrphan("data", [
   { path: "state/defillama-hacks.json", name: "defillama-hacks.json", optional: true },
   { path: "_site/data/snapshot.json", name: "snapshot.json" },
   { path: "_site/data/short-balance.json", name: "short-balance.json", optional: true },
+  { path: "_site/data/kosdaq-market.json", name: "kosdaq-market.json", optional: true },
+  { path: "_site/data/kosdaq-sector-caps.json", name: "kosdaq-sector-caps.json", optional: true },
 ], "state");
 console.log(`data 브랜치 갱신: ${commit}`);

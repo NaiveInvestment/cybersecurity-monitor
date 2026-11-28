@@ -188,8 +188,8 @@ function sparkline(series) {
   return { path, x, y, label: present.length ? `1년 최저 ${number(low)}억원, 최고 ${number(high)}억원` : "자료 없음" };
 }
 
-function createMarketComposition(root, onSelection, market, kosdaqMembers) {
-  const kosdaq = createKosdaqShare(root.querySelector("[data-compose-kosdaq]"), market, kosdaqMembers);
+function createMarketComposition(root, onSelection, market, kosdaqMembers, sectorCaps) {
+  const kosdaq = createKosdaqShare(root.querySelector("[data-compose-kosdaq]"), market, kosdaqMembers, sectorCaps);
   const chart = root.querySelector("[data-compose-chart]");
   const map = root.querySelector("[data-compose-map]");
   const title = root.querySelector("[data-compose-trend-title]");
@@ -433,15 +433,18 @@ async function main() {
   initTheme();
   const root = document.querySelector("#market-composition");
   const status = document.querySelector("#composition-status");
-  let selection = new URLSearchParams(location.search).get("date"), endDate, current, history, stocks, meta, kosdaqMarket;
+  let selection = new URLSearchParams(location.search).get("date"), endDate, current, history, stocks, meta, kosdaqMarket, sectorCaps;
   try {
     const [config, snapshot] = await Promise.all([loadJson("data/meta.json"), loadJson("data/snapshot.json")]);
     meta = config;
     stocks = snapshot.stocks;
-    const marketPath = meta.kosdaqMarket ?? (meta.live?.url === "live.json" ? "data/kosdaq-market.json" : null);
-    [history, kosdaqMarket] = await Promise.all([
+    const local = meta.live?.url === "live.json";
+    const marketPath = meta.kosdaqMarket ?? (local ? "data/kosdaq-market.json" : null);
+    const sectorPath = meta.kosdaqSectorCaps ?? (local ? "data/kosdaq-sector-caps.json" : null);
+    [history, kosdaqMarket, sectorCaps] = await Promise.all([
       meta.domesticMarket ? loadJson(meta.domesticMarket) : null,
       marketPath ? loadJson(marketPath).catch(() => null) : null,
+      sectorPath ? loadJson(sectorPath).catch(() => null) : null,
     ]);
     if (!history?.bars.some(day => day.constituents)) throw new Error("composition unavailable");
   } catch {
@@ -451,7 +454,7 @@ async function main() {
   const names = new Map(stocks.filter(stock => stock.kind === "KR").map(stock => [stock.code ?? stock.id, stock.name]));
   const kosdaqMembers = new Set(stocks.filter(stock => stock.kind === "KR" &&
     stock.market === "KOSDAQ").map(stock => stock.code ?? stock.id));
-  const composition = createMarketComposition(root, date => { selection = date; }, kosdaqMarket, kosdaqMembers);
+  const composition = createMarketComposition(root, date => { selection = date; }, kosdaqMarket, kosdaqMembers, sectorCaps);
 
   function draw() {
     const last = history.bars.at(-1);

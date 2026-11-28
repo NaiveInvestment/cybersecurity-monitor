@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { parseKosdaqCaps } from "../src/kosdaq-market.mjs";
-import { kosdaqComparisonPoints } from "../public/lib/kosdaq-share.js";
+import { kosdaqComparisonPoints, kosdaqSectorSharePoints } from "../public/lib/kosdaq-share.js";
 
 test("market series uses KRX closing index and market capitalization in the chart's units", () => {
   const header = "Date,Close,UpDown,Comp,Change,Open,High,Low,Volume,Amount,MarCap";
@@ -35,4 +35,20 @@ test("a valid index close can display independently of same-date complete securi
     { comparison: null, close: 708.99 }, { comparison, close: null },
   ]);
   assert.deepEqual(kosdaqComparisonPoints([row], { ...market, unit: "원" }, members), [empty]);
+});
+
+test("sector shares use exact-day caps with the same market denominator", () => {
+  const points = ["2026-11-25", "2026-11-26", "2026-11-27", "2026-11-28"].map(date => ({ date }));
+  const market = { market: "KOSDAQ", unit: "억원", bars: points.slice(0, -1).map(({ date }) => ({ date, cap: 100 })) };
+  const sectors = { market: "KOSDAQ", unit: "원", bars: [
+    { date: points[0].date, marketCap: 10_000_000_000, caps: {
+      bio: { cap: 1_800_000_000 }, robot: { cap: 600_000_000 },
+    } },
+    { date: points[1].date, marketCap: 9_000_000_000, caps: { bio: { cap: 1_800_000_000 } } },
+    { date: points[2].date, marketCap: 10_000_000_000, caps: {
+      bio: { cap: 2_000_000_000 }, robot: { cap: 11_000_000_000 },
+    } },
+  ] };
+  assert.deepEqual(kosdaqSectorSharePoints(points, market, sectors),
+    [{ bio: 18, robot: 6 }, {}, { bio: 20 }, {}]);
 });

@@ -60,8 +60,19 @@
           <button type="button" data-kosdaq-toggle aria-expanded="true" aria-controls="kosdaq-share-plot">비교 추이</button>
         </div>
         <div id="kosdaq-share-plot">
+          <div class="kosdaq-sector-controls" role="group" aria-label="시총 비중 비교 섹터">
+            <button class="kosdaq-sector-button kosdaq-bio" type="button" data-kosdaq-sector="bio" aria-pressed="false" disabled><i aria-hidden="true"></i>바이오<b class="num" hidden></b></button>
+            <button class="kosdaq-sector-button kosdaq-robot" type="button" data-kosdaq-sector="robot" aria-pressed="false" disabled><i aria-hidden="true"></i>로봇<b class="num" hidden></b></button>
+            <span class="kosdaq-sector-status" data-kosdaq-sector-status></span>
+          </div>
           <div data-kosdaq-chart></div>
           <p>종가 기준. 보안주 시총은 추정치, 코스닥지수와 전체 시총은 <a href="https://github.com/FinanceData/fdr_krx_data_cache/tree/master/data/index/year_kq11" target="_blank" rel="noopener noreferrer">KRX 시세 (FinanceData)</a>.</p>
+          <details class="kosdaq-sector-method">
+            <summary>바이오와 로봇 종목 기준</summary>
+            <p><a href="https://m.samsungfund.com/api/v1/kodex/product-pdf/2ETF63.do?gijunYMD=2026.11.12" target="_blank" rel="noopener noreferrer">KODEX 바이오 (2026-11-12)</a>,
+              <a href="https://www.samsungfund.com/api/v1/kodex/product-pdf/2ETFH5.do?gijunYMD=2026.11.27" target="_blank" rel="noopener noreferrer">KODEX 로봇액티브 (2026-11-27)</a> 구성에서 그날의 코스닥 상장 종목만 집계합니다.
+              각 종목의 <a href="https://github.com/FinanceData/marcap" target="_blank" rel="noopener noreferrer">종가 시총</a> 합계를 당일 코스닥 전체 시총으로 나눕니다.</p>
+          </details>
         </div>
       </section>
       <figure class="composition-figure">

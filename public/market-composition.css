@@ -34,9 +34,22 @@
 .kosdaq-share-summary button:disabled { opacity:.55; }
 .kosdaq-share p { margin:0 0 1px; color:var(--muted); font-size:11.5px; }
 .kosdaq-share p a { text-decoration:underline; }
+.kosdaq-sector-controls { display:flex; flex-wrap:wrap; align-items:center; gap:5px 7px; margin:5px 0 2px; }
+.kosdaq-sector-button { display:inline-flex; align-items:center; gap:5px; border:1px solid var(--line-strong); border-radius:4px; padding:4px 8px; color:var(--muted); font-size:12px; }
+.kosdaq-sector-button[aria-pressed="true"] { color:var(--ink); border-color:var(--sector-color); background:var(--surface-2); }
+.kosdaq-sector-button:disabled { opacity:.55; }
+.kosdaq-sector-button i { width:12px; border-top:2px solid var(--sector-color); }
+.kosdaq-sector-button b { color:var(--sector-color); }
+.kosdaq-bio { --sector-color:var(--comp-r); }
+.kosdaq-robot { --sector-color:var(--comp-m); }
+.kosdaq-sector-status, .kosdaq-sector-method { color:var(--muted); font-size:11.5px; }
+.kosdaq-sector-method summary { cursor:pointer; }
+.kosdaq-sector-method p { margin:3px 0 0 12px; }
 .kosdaq-series-line { fill:none; stroke-width:2; stroke-linejoin:round; }
 .kosdaq-share-line { stroke:var(--brand); }
 .kosdaq-index-line { stroke:var(--kosdaq-index); stroke-dasharray:5 2; }
+.kosdaq-bio-line { stroke:var(--comp-r); }
+.kosdaq-robot-line { stroke:var(--comp-m); }
 .kosdaq-index-tick { stroke:var(--kosdaq-index); }
 .kosdaq-share .composition-chart .kosdaq-axis-left { fill:var(--brand); }
 .kosdaq-share .composition-chart .kosdaq-axis-right { fill:var(--kosdaq-index); }
@@ -44,6 +57,8 @@
 .kosdaq-series-dot { stroke:var(--surface); stroke-width:1.5; pointer-events:none; }
 .kosdaq-share-dot { fill:var(--brand); }
 .kosdaq-index-dot { fill:var(--kosdaq-index); }
+.kosdaq-bio-dot { fill:var(--comp-r); }
+.kosdaq-robot-dot { fill:var(--comp-m); }
 @media (max-width:550px) {
   .kosdaq-share-readout { order:1; flex-basis:205px; }
   .kosdaq-share-summary button { order:1; }

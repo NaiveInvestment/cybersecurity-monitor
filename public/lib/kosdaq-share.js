@@ -24,6 +24,24 @@ export function kosdaqComparisonPoints(points, market, members) {
   });
 }
 
+const sectorIds = ["bio", "robot"];
+
+export function kosdaqSectorSharePoints(points, market, sectorData) {
+  const totals = new Map(market?.market === "KOSDAQ" && market.unit === "억원"
+    && Array.isArray(market.bars) ? market.bars.map(({ date, cap }) => [date, Math.round(cap * 100_000_000)]) : []);
+  const sectors = new Map(sectorData?.market === "KOSDAQ" && sectorData.unit === "원"
+    && Array.isArray(sectorData.bars) ? sectorData.bars.map(row => [row.date, row]) : []);
+  return points.map(point => {
+    const row = sectors.get(point.date);
+    const total = totals.get(point.date);
+    if (row?.marketCap !== total || !(total > 0)) return {};
+    return Object.fromEntries(sectorIds.flatMap(id => {
+      const cap = row.caps?.[id]?.cap;
+      return Number.isSafeInteger(cap) && cap > 0 && cap <= total ? [[id, cap / total * 100]] : [];
+    }));
+  });
+}
+
 function plotScale(values, minStep) {
   const present = values.filter(value => value != null);
   if (!present.length) return null;
@@ -56,7 +74,7 @@ function drawSeries(values, x, scale, series) {
   const path = values.map((value, i) => value == null ? "" :
     `${values[i - 1] == null ? "M" : "L"}${x(i).toFixed(2)},${scale.y(value).toFixed(2)}`).join("");
   return `<path class="kosdaq-series-line kosdaq-${series}-line" d="${path}"/>
-    <circle class="kosdaq-series-dot kosdaq-${series}-dot" data-kosdaq-${series === "share" ? "dot" : "index-dot"} r="3.5" visibility="hidden"/>`;
+    <circle class="kosdaq-series-dot kosdaq-${series}-dot" data-kosdaq-${series === "share" ? "dot" : series + "-dot"} r="3.5" visibility="hidden"/>`;
 }
 
 function placeDot(dot, value, x, scale) {
@@ -67,69 +85,122 @@ function placeDot(dot, value, x, scale) {
   dot.setAttribute("cy", scale.y(value));
 }
 
-export function createKosdaqShare(panel, market, members) {
+export function createKosdaqShare(panel, market, members, sectorData) {
   const chart = panel.querySelector("[data-kosdaq-chart]");
   const value = panel.querySelector("[data-kosdaq-share]");
   const index = panel.querySelector("[data-kosdaq-index]");
   const status = panel.querySelector("[data-kosdaq-readout]");
   const button = panel.querySelector("[data-kosdaq-toggle]");
   const detail = panel.querySelector("#kosdaq-share-plot");
+  const sectorStatus = panel.querySelector("[data-kosdaq-sector-status]");
+  const controls = [...panel.querySelectorAll("[data-kosdaq-sector]")].map(button => ({
+    button, id: button.dataset.kosdaqSector, value: button.querySelector("b"),
+  }));
+  const active = new Set();
   button.addEventListener("click", () => {
     detail.hidden = !detail.hidden;
     button.setAttribute("aria-expanded", String(!detail.hidden));
   });
 
-  let entries = [], days = [], recent = -1, x, shareScale, indexScale;
+  let days = [], entries = [], sectorShares = [], shares = [], closes = [], recent = -1;
+  let layout, selected = 0, x, shareScale, indexScale;
+  const series = new Map();
+  const latest = new Map();
+
+  function draw() {
+    const hadFocus = chart.contains(document.activeElement);
+    const wasDisabled = button.disabled;
+    const extra = [...active].map(id => [id, series.get(id)]);
+    shareScale = plotScale(shares.concat(...extra.map(([, values]) => values)), .1);
+    indexScale = plotScale(closes, 10);
+    button.disabled = !shareScale && !indexScale;
+    if (button.disabled) {
+      chart.replaceChildren();
+      detail.hidden = true;
+      button.setAttribute("aria-expanded", "false");
+      return;
+    }
+    if (wasDisabled) {
+      detail.hidden = false;
+      button.setAttribute("aria-expanded", "true");
+    }
+    const { width, left, right, spot } = layout;
+    x = position => spot(position).x;
+    chart.innerHTML = `<svg class="composition-chart" viewBox="0 0 ${width} ${height}" tabindex="0"
+      role="img" aria-label="코스닥 내 섹터 시총 비중은 왼쪽 퍼센트 축, 코스닥지수는 오른쪽 포인트 축. 방향키로 조회일 이동">
+      ${drawAxis(shareScale, left, right, "left")}${drawAxis(indexScale, left, right, "right")}
+      <line class="kosdaq-share-cursor" data-kosdaq-cursor x1="0" x2="0" y1="${top}" y2="${bottom}"/>
+      ${drawSeries(closes, x, indexScale, "index")}
+      ${extra.map(([id, values]) => drawSeries(values, x, shareScale, id)).join("")}
+      ${drawSeries(shares, x, shareScale, "share")}
+    </svg>`;
+    if (hadFocus) chart.querySelector("svg").focus({ preventScroll: true });
+  }
+
+  function select(position) {
+    const point = days[position];
+    if (!point) return;
+    selected = position;
+    const { comparison, close } = entries[position];
+    value.textContent = comparison ? `${twoDecimals.format(comparison.share)}%` : "–";
+    index.textContent = close == null ? "–" : `${twoDecimals.format(close)} pt`;
+    status.textContent = comparison
+      ? `${point.date} 보안주 ${twoDecimals.format(comparison.stockCap / 10000)}조원 / 코스닥 ${twoDecimals.format(comparison.marketCap / 10000)}조원`
+      : `${point.date} 비교 자료 없음${recent >= 0 ? ` / 최근 ${days[recent].date}` : ""}`;
+    panel.dataset.date = point.date;
+    const missing = [];
+    for (const control of controls) {
+      const on = active.has(control.id);
+      const share = sectorShares[position][control.id];
+      control.value.hidden = !on;
+      control.value.textContent = share == null ? "–" : `${twoDecimals.format(share)}%`;
+      if (on && share == null && latest.get(control.id) >= 0) {
+        missing.push(days[latest.get(control.id)].date);
+      }
+    }
+    const latestCommon = missing.sort()[0];
+    sectorStatus.textContent = latestCommon
+      ? (point.date > latestCommon ? `비교 섹터 종가 ${latestCommon}까지` : "조회일 비교 섹터 자료 없음") : "";
+    const cursor = chart.querySelector("[data-kosdaq-cursor]");
+    if (!cursor) return;
+    const px = x(position);
+    cursor.setAttribute("transform", `translate(${px} 0)`);
+    placeDot(chart.querySelector("[data-kosdaq-dot]"), comparison?.share, px, shareScale);
+    placeDot(chart.querySelector("[data-kosdaq-index-dot]"), close, px, indexScale);
+    for (const id of active) {
+      placeDot(chart.querySelector(`[data-kosdaq-${id}-dot]`), sectorShares[position][id], px, shareScale);
+    }
+  }
+
+  for (const control of controls) {
+    control.button.addEventListener("click", () => {
+      if (active.has(control.id)) active.delete(control.id);
+      else active.add(control.id);
+      control.button.setAttribute("aria-pressed", String(active.has(control.id)));
+      draw();
+      select(selected);
+    });
+  }
+
   return {
     chart,
-    render(points, layout) {
-      const hadFocus = chart.contains(document.activeElement);
-      const wasDisabled = button.disabled;
+    render(points, nextLayout) {
       days = points;
+      layout = nextLayout;
       entries = kosdaqComparisonPoints(points, market, members);
-      const shares = entries.map(entry => entry.comparison?.share ?? null);
-      const closes = entries.map(entry => entry.close);
+      sectorShares = kosdaqSectorSharePoints(points, market, sectorData);
+      shares = entries.map(entry => entry.comparison?.share ?? null);
+      closes = entries.map(entry => entry.close);
       recent = shares.findLastIndex(share => share != null);
-      shareScale = plotScale(shares, .1);
-      indexScale = plotScale(closes, 10);
-      button.disabled = !shareScale && !indexScale;
-      if (button.disabled) {
-        chart.replaceChildren();
-        detail.hidden = true;
-        button.setAttribute("aria-expanded", "false");
-        return;
+      for (const { id, button } of controls) {
+        const values = sectorShares.map(row => row[id] ?? null);
+        series.set(id, values);
+        const last = values.findLastIndex(share => share != null);
+        latest.set(id, last);
+        button.disabled = last < 0;
       }
-      if (wasDisabled) {
-        detail.hidden = false;
-        button.setAttribute("aria-expanded", "true");
-      }
-      const { width, left, right, spot } = layout;
-      x = position => spot(position).x;
-      chart.innerHTML = `<svg class="composition-chart" viewBox="0 0 ${width} ${height}" tabindex="0"
-        role="img" aria-label="코스닥 내 보안주 비중은 왼쪽 퍼센트 축, 코스닥지수는 오른쪽 포인트 축. 방향키로 조회일 이동">
-        ${drawAxis(shareScale, left, right, "left")}${drawAxis(indexScale, left, right, "right")}
-        <line class="kosdaq-share-cursor" data-kosdaq-cursor x1="0" x2="0" y1="${top}" y2="${bottom}"/>
-        ${drawSeries(closes, x, indexScale, "index")}
-        ${drawSeries(shares, x, shareScale, "share")}
-      </svg>`;
-      if (hadFocus) chart.querySelector("svg").focus({ preventScroll: true });
+      draw();
     },
-    select(position) {
-      const point = days[position];
-      if (!point) return;
-      const { comparison, close } = entries[position];
-      value.textContent = comparison ? `${twoDecimals.format(comparison.share)}%` : "–";
-      index.textContent = close == null ? "–" : `${twoDecimals.format(close)} pt`;
-      status.textContent = comparison
-        ? `${point.date} 보안주 ${twoDecimals.format(comparison.stockCap / 10000)}조원 / 코스닥 ${twoDecimals.format(comparison.marketCap / 10000)}조원`
-        : `${point.date} 비교 자료 없음${recent >= 0 ? ` / 최근 ${days[recent].date}` : ""}`;
-      panel.dataset.date = point.date;
-      const cursor = chart.querySelector("[data-kosdaq-cursor]");
-      if (!cursor) return;
-      const px = x(position);
-      cursor.setAttribute("transform", `translate(${px} 0)`);
-      placeDot(chart.querySelector("[data-kosdaq-dot]"), comparison?.share, px, shareScale);
-      placeDot(chart.querySelector("[data-kosdaq-index-dot]"), close, px, indexScale);
-    },
+    select,
   };
 }
