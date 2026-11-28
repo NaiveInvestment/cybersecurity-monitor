@@ -43,10 +43,11 @@ test("overseas coverage of the same Korean postal breach joins the domestic time
     { ...row, r:"KR", n:"인터넷우체국", src:[{u:"https://kr.example", t:"인터넷우체국 개인정보 유출"}] },
     { ...row, r:"GL", n:"Post", d:"2026-11-28", src:[{u:"https://gl.example", t:"Korea Post confirms data breach"}] },
   ];
+  events.push({ ...row, r:"KR", n:"해킹이", rec:110000, src:[{u:"https://other.example", t:"해킹이 일상이 된 나라…우체국마저 뚫렸다, 하루치만 11만명 정보 유출"}] });
   const rows = majorFlows(events,"2026-11-01","2026-11-28");
   assert.equal(rows.length,1);
   assert.equal(rows[0].event.r,"KR");
-  assert.equal(rows[0].sources.length,2);
+  assert.equal(rows[0].sources.length,3);
   events[1].rec = 140000;
   assert.equal(majorFlows(events,"2026-11-01","2026-11-28").length,2);
 });

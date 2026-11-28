@@ -63,7 +63,7 @@ function flowEntries(major, articles, groups) {
       if (item.r !== match.r || item.c !== "incident") continue;
       entries.set(item.u, { day: publicationDay(Date.parse(item.d)), item });
     }
-    entries.set(source.u, { day: source.d || major.event.d, item: match || {
+    entries.set(source.u, { day: match ? publicationDay(Date.parse(match.d)) : source.d || major.event.d, item: match || {
       u: source.u, t: source.t || source.o, s: source.o,
     } });
   }
@@ -87,26 +87,34 @@ function flowRow(major, entries) {
       ${entries.length > timeline.length ? `<details><summary>같은 날의 다른 원문</summary><ul class="extra-sources">${entries.filter(x => daily.get(x.day) !== x).map(({day,item}) => `<li>${shortDate(day)} ${headlineLink(item)}</li>`).join("")}</ul></details>` : ""}</details></article>`;
 }
 
-// Some automatic records carry the feed region and only the final token of the
-// victim name. Link matching Korean and English reports when the size and dates agree.
+// Automatic extraction can name the same postal breach after a headline fragment
+// and round its exposed population differently across outlets.
+function isPostalBreach(major) {
+  if (!major.records || !isIncidentCandidate(major.event)) return false;
+  return major.sources.some(source => {
+    const title = source.t || major.event.atk || "";
+    return /^(?:Korea Post)\b.*(?:breach|leak|expos)/i.test(title) ||
+      /(?:인터넷)?우체국(?:마저|도|이|서|의|에서|으?로|[\s,]|$).{0,70}(?:유출|뚫렸|해킹)/.test(title);
+  });
+}
+
 export function majorFlows(events, start, end) {
-  const majors = majorIncidents(events, [], start, end);
-  const postal = /인터넷우체국|우정사업본부|\bKorea Post\b/i;
-  const domestic = majors.filter(({ event }) => event.r === "KR" && postal.test(event.n));
   const result = [];
-  for (const major of majors) {
-    const { event } = major;
-    const title = event.src?.[0]?.t || event.atk || "";
-    if (event.r === "GL" && isIncidentCandidate(event) && /^Korea Post\b/i.test(title)) {
-      const same = domestic.find(row => row.records > 0 && row.records === major.records &&
-        Math.abs(Date.parse(row.event.d) - Date.parse(event.d)) <= 7 * DAY);
-      if (same) {
-        same.sources = [...new Map([...same.sources, ...major.sources].map(source => [source.u, source])).values()];
-        continue;
-      }
-      result.push({ ...major, event: { ...event, r: "KR", n: "우정사업본부" } });
-    } else {
+  const postal = [];
+  for (const major of majorIncidents(events, [], start, end)) {
+    if (!isPostalBreach(major)) {
       result.push(major);
+      continue;
+    }
+    const same = postal.find(row =>
+      Math.abs(Date.parse(row.event.d) - Date.parse(major.event.d)) <= 7 * DAY &&
+      Math.abs(row.records - major.records) <= .05 * Math.min(row.records, major.records));
+    if (same) {
+      same.sources = [...new Map([...same.sources, ...major.sources].map(source => [source.u, source])).values()];
+    } else {
+      const row = { ...major, event: { ...major.event, r: "KR", n: "인터넷우체국" } };
+      result.push(row);
+      postal.push(row);
     }
   }
   return result;
