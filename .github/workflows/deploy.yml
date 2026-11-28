@@ -58,6 +58,7 @@ jobs:
               git archive FETCH_HEAD news-archive | tar -x -C state
             fi
             git show FETCH_HEAD:snapshot.json > state/snapshot.json || rm -f state/snapshot.json
+            git show FETCH_HEAD:breach-coverage.json > state/breach-coverage.json || rm -f state/breach-coverage.json
             git show FETCH_HEAD:incident-log.json > state/incident-log.json || rm -f state/incident-log.json
             git show FETCH_HEAD:ransomware-days.json > state/ransomware-days.json || rm -f state/ransomware-days.json
             git show FETCH_HEAD:defillama-hacks.json > state/defillama-hacks.json || rm -f state/defillama-hacks.json

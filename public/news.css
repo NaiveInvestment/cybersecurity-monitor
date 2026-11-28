@@ -137,42 +137,53 @@ body.news-page main { max-width: 1240px; }
 @media(max-width:460px) { .jump-nav { gap:8px; } .jump-link { font-size:12px; } }
 
 
-.impact-layout,.impact-secondary {display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(20px,3vw,42px);margin:12px 0 22px;align-items:start}
-.impact-layout h2,.impact-secondary h2 {margin:0 0 8px;font-size:19px}
-.impact-story {border-top:1px solid var(--line-strong);padding:12px 0}
-.impact-story:first-child {border-top:3px solid var(--brand)}
-.impact-story h3 {margin:4px 0;font-size:18px;line-height:1.36;letter-spacing:-.025em}
-.impact-story p {margin:4px 0;line-height:1.5;overflow-wrap:anywhere}
-.impact-story .case-kicker {font-size:12px;color:var(--brand);font-weight:650}
-.case-kicker span,.case-lens,.case-followup,.case-sources small,.period-list small {color:var(--muted)}
-.case-kicker span {font-weight:400}
-.case-update,.case-scope {font-size:13px}
-.case-lens,.case-followup {font-size:12px}
-.case-update b,.case-lens b,.case-followup b {margin-right:4px;color:var(--ink)}
-.impact-story summary,.period-list summary,.impact-method summary,.period-more {color:var(--brand);font-size:12px;cursor:pointer}
-.impact-story a,.case-sources a,.period-list a,#impact-policy a {text-decoration:underline;text-decoration-color:var(--line-strong);text-underline-offset:3px}
-.impact-story summary {margin-top:5px}
-.impact-timeline,.case-sources,.period-list {padding:0;margin:5px 0;list-style:none}
-.impact-timeline li,.period-list li {display:grid;grid-template-columns:36px minmax(0,1fr);gap:7px}
-.impact-timeline li,.case-sources li,.period-list li {padding:5px 0;border-top:1px solid var(--line);font-size:12px;overflow-wrap:anywhere}
-.impact-layout time {font-variant-numeric:tabular-nums;color:var(--muted)}
-.impact-trends {background:var(--surface);border-block:1px solid var(--line-strong);padding:12px 16px;min-width:0}
+.impact-layout,.impact-secondary {display:grid;grid-template-columns:minmax(0,.91fr) minmax(0,1.15fr);gap:clamp(18px,2.7vw,40px);margin:14px 0 24px;align-items:start}
+.impact-layout h2,.impact-secondary h2 {margin:0 0 9px;font-size:19px}
+.impact-story {border-top:1px solid var(--line);padding:10px 0 9px}
+.impact-story:first-child {border-top:2px solid var(--brand)}
+.impact-story header {display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.impact-story h3 {margin:0;font-size:18px;line-height:1.35;letter-spacing:-.025em;overflow-wrap:anywhere}
+.impact-story header small,.impact-story footer,.case-impact span {color:var(--muted);font-size:12px}
+.impact-story header small {flex-shrink:0;font-variant-numeric:tabular-nums}
+.impact-story .case-attack {font-size:14px;margin:4px 0 3px;font-weight:600}
+.impact-story .case-impact {font-size:13px;margin:2px 0;line-height:1.45}
+.case-impact span {margin-right:4px}
+.impact-story footer {margin-top:3px}
+.impact-story a,#impact-policy a,.coverage-details a {color:var(--brand);text-underline-offset:3px}
+.impact-trends {--ds:#2872a6;--thn:#91b9d2;--signal:#a04914;background:var(--surface);border-block:1px solid var(--line-strong);padding:12px 16px 10px;min-width:0}
+:root[data-theme="dark"] .impact-trends {--ds:#689dc3;--thn:#b4d3e6;--signal:#f2b36d}
 .impact-trends h2 {margin-bottom:0}
-#impact-range,#impact-note {font-size:12px;color:var(--muted);margin:4px 0}
-#impact-stats {margin:9px 0;font-size:13px}
-#impact-stats strong {font-size:24px;letter-spacing:-.04em}
-#impact-stats span {margin-left:8px;color:var(--muted)}
-#impact-chart table {width:100%;table-layout:fixed;border-collapse:collapse;font-size:12px}
-#impact-chart th {font-weight:500;text-align:center;color:var(--muted);padding:4px 1px;white-space:normal}
-#impact-chart th:first-child {width:27%;text-align:left;font-weight:600;color:var(--ink)}
-#impact-chart td {padding:2px}
-.matrix-cell {position:relative;width:100%;min-height:27px;text-align:center;isolation:isolate;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-variant-numeric:tabular-nums;border-radius:2px}
-.matrix-cell .cell-shade {position:absolute;inset:0;width:100%;height:100%;fill:var(--brand);opacity:.2;z-index:-1}
-.matrix-cell[aria-pressed=true] {box-shadow:inset 0 0 0 2px var(--brand);font-weight:750}
-#impact-list h4 {font-size:13px;margin:10px 0 4px}
-.period-list details p,.impact-method p {font-size:12px;line-height:1.55;overflow-wrap:anywhere}
-.period-more {border:1px solid var(--line);padding:3px 9px}
-.impact-method {margin-top:8px}
+#impact-range {font-size:12px;color:var(--muted);margin:2px 0 9px}
+#impact-stats {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:9px}
+#impact-stats>div {display:grid;align-content:start;gap:1px}
+#impact-stats>div+div {border-left:1px solid var(--line);padding-left:14px}
+#impact-stats span,#impact-stats em {font-size:12px;font-style:normal}
+#impact-stats strong {font-size:clamp(24px,2.1vw,32px);line-height:1.13;letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+#impact-stats strong small {font-size:15px;margin-left:2px}
+#impact-stats>div+div strong {color:var(--signal)}
+#impact-stats em,.coverage-legend,#coverage-readout {color:var(--muted)}
+.coverage-legend {display:flex;gap:5px 12px;flex-wrap:wrap;align-items:center;font-size:12px}
+.coverage-legend span {display:inline-flex;align-items:center;gap:4px}
+.coverage-legend span::before {content:"";display:inline-block;width:10px;height:8px;background:var(--ds)}
+.coverage-legend .legend-thn::before {background:var(--thn)}
+.coverage-legend .legend-share::before {height:2px;background:var(--signal)}
+#impact-chart svg {display:block;width:100%;height:auto;overflow:visible}
+#impact-chart text {font-size:12px;fill:var(--muted);font-variant-numeric:tabular-nums}
+.grid-line {stroke:var(--line-strong);stroke-width:1}
+.ds-bar {fill:var(--ds)}
+.thn-bar {fill:var(--thn)}
+.share-line {fill:none;stroke:var(--signal);stroke-width:2.5}
+.share-dot {fill:var(--signal)}
+.week-hit {fill:transparent;stroke:transparent;cursor:pointer}
+#impact-chart g[aria-pressed="true"] .week-hit {fill:var(--brand);fill-opacity:.06;stroke:var(--brand)}
+#impact-chart g:focus-visible .week-hit {stroke-width:2.5}
+#coverage-readout {border-top:1px solid var(--line);padding-top:5px;margin:3px 0;font-size:12px;font-variant-numeric:tabular-nums}
+.coverage-details {font-size:12px}
+.coverage-details details {margin-top:4px}
+.coverage-details summary {color:var(--brand);cursor:pointer;width:fit-content}
+.coverage-details ul {padding-left:17px;margin:6px 0}
+.coverage-details li {margin:4px 0}
+.coverage-details p {line-height:1.55;margin:6px 0}
 #impact-policy h3,.context-stats>summary {margin:0 0 6px;font-size:15px;font-weight:650}
 #impact-policy p {margin:0 0 15px}
 .context-stats {border-block:1px solid var(--line);padding:10px 0}
@@ -184,5 +195,5 @@ body.news-page main { max-width: 1240px; }
  .impact-layout,.impact-secondary {grid-template-columns:1fr;gap:16px}
  .impact-trends {padding:12px 10px}
  .impact-story h3 {font-size:17px}
- #impact-chart th:first-child {width:26%}
+ #impact-chart text {font-size:16px}
 }

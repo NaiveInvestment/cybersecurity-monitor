@@ -20,7 +20,7 @@ const walk = (root) => readdirSync(root).flatMap((name) => {
   return statSync(path).isDirectory() ? walk(path) : [path];
 });
 
-for (const file of ["index.html", "news.html", "styles.css", "theme.js", "common.js", "app.js", "news.js", "lib/calc.js", "lib/status.js", "lib/text.js", "lib/issues.js", "lib/recent-incidents.js", "lib/incident-trend.js", "lib/incident-metrics.js", "incidents.html", "incidents.js", "data/incident-events.json", "data/snapshot.json", "data/news.json", "data/incidents.json", "data/cards.json", "data/meta.json", "robots.txt"]) {
+for (const file of ["index.html", "news.html", "styles.css", "theme.js", "common.js", "app.js", "news.js", "lib/calc.js", "lib/status.js", "lib/text.js", "lib/issues.js", "lib/recent-incidents.js", "lib/incident-trend.js", "lib/incident-metrics.js", "incidents.html", "incidents.js", "data/incident-events.json", "data/breach-coverage.json", "coverage-chart.js", "data/snapshot.json", "data/news.json", "data/incidents.json", "data/cards.json", "data/meta.json", "robots.txt"]) {
   check(existsSync(join(dir, file)), `파일 없음: ${file}`);
 }
 for (const file of ["market-composition.html", "market-composition.css", "market-composition.js", "lib/market-composition.js", "lib/treemap.js"]) {
@@ -114,7 +114,9 @@ if (!failures.length) {
     // 수집한 기사 제목은 원문 그대로 두므로 news.json과 사건 기록 incidents.json은 금지 문자 검사에서 뺀다.
     const archiveHeadlines = /^data[\\/]news-archive[\\/]\d{4}-\d{2}-\d{2}\.json$/.test(name);
     if (!archiveHeadlines && !name.endsWith("news.json") && !name.endsWith("issue-banner.json") && !name.endsWith("incidents.json") && !name.endsWith("incident-events.json")) {
-      check(!/[·‧・]/.test(text), `${name}: 가운뎃점`);
+      const authored = name.endsWith("breach-coverage.json")
+        ? JSON.stringify(JSON.parse(text), (key, value) => key === "title" ? "" : value) : text;
+      check(!/[·‧・]/.test(authored), `${name}: 가운뎃점`);
       check(!/[①-⑳]/.test(text), `${name}: 원문자 숫자`);
     }
     if (/\.(html|js)$/.test(name)) check(!/\sstyle=/.test(text), `${name}: 인라인 style`);

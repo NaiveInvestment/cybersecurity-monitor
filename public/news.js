@@ -7,7 +7,8 @@ import { reportsDisputedImpact } from "./lib/impact-cases.js";
 import { isIncidentReport } from "./lib/news-pulse.js";
 import { newsDay } from "./lib/news-briefing.js";
 import { renderGlobalPulse, renderPulse, renderFlow } from "./news-dashboard.js";
-import { bindImpact, renderImpact } from "./impact-briefing.js";
+import { bindCoverage, renderCoverage } from "./coverage-chart.js";
+import { renderImpact } from "./impact-briefing.js";
 import { showIncidentHistory } from "./incidents.js";
 
 const PAGE = 12;
@@ -155,7 +156,7 @@ function syncControls() {
 
 function drawOverview() {
   renderGlobalPulse(anchor(), pulseArchive, events);
-  renderImpact(events, flowItems, anchor(), cards, flowArchiveStatus);
+  renderImpact(events, flowItems, anchor(), cards);
   drawDay();
   drawDetails();
 }
@@ -190,7 +191,7 @@ function resetFeed() {
 }
 
 function bind() {
-  bindImpact();
+  bindCoverage();
   $("#region-switch").addEventListener("click", event => {
     const region = event.target.closest("button")?.dataset.region;
     if (!region || state.region === region) return;
@@ -230,7 +231,8 @@ async function refresh(first = false) {
   if (refreshing) return;
   refreshing = true;
   try {
-    const [file, eventFile] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events)]);
+    const [file, eventFile, coverage] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events), loadJson("data/breach-coverage.json").catch(() => null)]);
+    renderCoverage(coverage);
     news = file;
     sourceIndex = wireIndex(news.items);
     events = eventFile;

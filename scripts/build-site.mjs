@@ -2,6 +2,7 @@
 // 사용: node scripts/build-site.mjs [--out _site] [--live owner/repo]
 // --live를 주거나 GITHUB_REPOSITORY가 있으면 브라우저가 live 브랜치를 폴링한다. 없으면 스냅샷만 보여 준다.
 import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, renameSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { join, resolve, sep } from "node:path";
 import { ROOT } from "../src/universe.mjs";
@@ -23,6 +24,7 @@ const publicDir = join(ROOT, "public");
 const localDir = join(ROOT, "local");
 mkdirSync(join(outDir, "data"), { recursive: true });
 cpSync(publicDir, outDir, { recursive: true });
+execFileSync(process.platform === "win32" ? "python" : "python3", [join(ROOT, "scripts", "build-breach-coverage.py"), "--out", join(outDir, "data", "breach-coverage.json")], { stdio: "inherit" });
 if (localMode && existsSync(localDir)) {
   cpSync(localDir, outDir, { recursive: true });
   const reportPaths = join(ROOT, "state", "position-library-paths.json");
