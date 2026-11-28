@@ -48,6 +48,19 @@
           <label>조회일 <input type="date" data-compose-date></label>
         </div>
       </div>
+      <section class="kosdaq-share" aria-labelledby="kosdaq-share-label" data-compose-kosdaq>
+        <div class="kosdaq-share-summary">
+          <div class="kosdaq-share-metric">
+            <h3 id="kosdaq-share-label">코스닥 내 보안주 비중</h3><strong class="num" data-kosdaq-share>–</strong>
+          </div>
+          <span class="kosdaq-share-readout num" data-kosdaq-readout></span>
+          <button type="button" data-kosdaq-toggle aria-expanded="true" aria-controls="kosdaq-share-plot">비중 추이</button>
+        </div>
+        <div id="kosdaq-share-plot">
+          <div data-kosdaq-chart></div>
+          <p>종가 기준. 보안주 시총은 추정치, 코스닥 전체 시총은 <a href="https://github.com/FinanceData/fdr_krx_data_cache/tree/master/data/index/year_kq11" target="_blank" rel="noopener noreferrer">KRX 시세 (FinanceData)</a>.</p>
+        </div>
+      </section>
       <figure class="composition-figure">
         <figcaption><span data-compose-trend-title>합계 시가총액과 기업별 구성 (조원)</span><small>최근 1년, 그래프에 올리면 그 날짜의 구성, 누르면 고정</small></figcaption>
         <div class="composition-keys" data-compose-keys aria-label="기업별 색과 조회일 비중"></div>

@@ -1,5 +1,6 @@
 import { esc, initTheme, loadJson } from "./common.js";
 import { marketComposition } from "./lib/market-composition.js";
+import { createKosdaqShare } from "./lib/kosdaq-share.js";
 import { treemap } from "./lib/treemap.js";
 import { currentMarketActivity, marketRangeStart } from "./lib/market-activity.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
@@ -187,7 +188,8 @@ function sparkline(series) {
   return { path, x, y, label: present.length ? `1년 최저 ${number(low)}억원, 최고 ${number(high)}억원` : "자료 없음" };
 }
 
-function createMarketComposition(root, onSelection) {
+function createMarketComposition(root, onSelection, market, kosdaqMembers) {
+  const kosdaq = createKosdaqShare(root.querySelector("[data-compose-kosdaq]"), market, kosdaqMembers);
   const chart = root.querySelector("[data-compose-chart]");
   const map = root.querySelector("[data-compose-map]");
   const title = root.querySelector("[data-compose-trend-title]");
@@ -242,6 +244,7 @@ function createMarketComposition(root, onSelection) {
     selected = Math.max(0, Math.min(index, points.length - 1));
     if (root.hidden || !ready) return;
     const point = points[selected];
+    kosdaq.select(selected);
     const svg = chart.querySelector("svg");
     const tag = svg.querySelector("[data-composition-tag]"), dot = svg.querySelector("[data-composition-dot]");
     const half = Number(tag.dataset.half), spot = trend.spot(selected);
@@ -306,6 +309,9 @@ function createMarketComposition(root, onSelection) {
     const tone = highlighted && (highlighted === "other" || slots.has(highlighted)) ? ` composition-color-${slotOf(highlighted)}` : "";
     trend = drawTrend(points, values, Math.max(260, chart.clientWidth), measure, name, { stack, tone });
     chart.innerHTML = trend.html;
+    const { plotStart, plotWidth, viewWidth } = chart.querySelector("svg").dataset;
+    kosdaq.render(points, { width: Number(viewWidth), left: Number(plotStart),
+      right: Number(plotStart) + Number(plotWidth), spot: trend.spot });
     title.textContent = highlighted ? `${name} 시가총액 (${trend.unit})` : `합계 시가총액과 기업별 구성 (${trend.unit})`;
     if (hadFocus) chart.querySelector("svg").focus({ preventScroll: true });
   }
@@ -393,22 +399,24 @@ function createMarketComposition(root, onSelection) {
     return Math.round((x - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (points.length - 1));
   }
   // 마우스를 올리면 그 날짜의 구성을 미리 보고, 누르거나 끌면 조회일로 고정한다. 그래프를 벗어나면 고정한 날짜로 돌아간다.
-  chart.addEventListener("pointermove", event => {
-    const index = indexAt(event);
-    if (index == null) return;
-    if (event.pointerType === "mouse" && !event.buttons) show(index);
-    else commit(index);
-  });
-  chart.addEventListener("pointerleave", () => { if (ready && selected !== committed) show(committed); });
-  chart.addEventListener("click", event => {
-    const index = indexAt(event);
-    if (index != null) commit(index);
-  });
-  chart.addEventListener("keydown", event => {
-    if (!["ArrowLeft", "ArrowRight"].includes(event.key) || !ready) return;
-    event.preventDefault();
-    commit(committed + (event.key === "ArrowRight" ? 1 : -1));
-  });
+  for (const target of [chart, kosdaq.chart]) {
+    target.addEventListener("pointermove", event => {
+      const index = indexAt(event);
+      if (index == null) return;
+      if (event.pointerType === "mouse" && !event.buttons) show(index);
+      else commit(index);
+    });
+    target.addEventListener("pointerleave", () => { if (ready && selected !== committed) show(committed); });
+    target.addEventListener("click", event => {
+      const index = indexAt(event);
+      if (index != null) commit(index);
+    });
+    target.addEventListener("keydown", event => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key) || !ready) return;
+      event.preventDefault();
+      commit(committed + (event.key === "ArrowRight" ? 1 : -1));
+    });
+  }
 
   return {
     update(nextPoints, nextMembers, nextNames, nextSelected) {
@@ -425,19 +433,25 @@ async function main() {
   initTheme();
   const root = document.querySelector("#market-composition");
   const status = document.querySelector("#composition-status");
-  let selection = new URLSearchParams(location.search).get("date"), endDate, current, history, stocks, meta;
+  let selection = new URLSearchParams(location.search).get("date"), endDate, current, history, stocks, meta, kosdaqMarket;
   try {
     const [config, snapshot] = await Promise.all([loadJson("data/meta.json"), loadJson("data/snapshot.json")]);
     meta = config;
     stocks = snapshot.stocks;
-    history = meta.domesticMarket ? await loadJson(meta.domesticMarket) : null;
+    const marketPath = meta.kosdaqMarket ?? (meta.live?.url === "live.json" ? "data/kosdaq-market.json" : null);
+    [history, kosdaqMarket] = await Promise.all([
+      meta.domesticMarket ? loadJson(meta.domesticMarket) : null,
+      marketPath ? loadJson(marketPath).catch(() => null) : null,
+    ]);
     if (!history?.bars.some(day => day.constituents)) throw new Error("composition unavailable");
   } catch {
     status.textContent = "시총 구성 자료를 불러올 수 없습니다.";
     return;
   }
   const names = new Map(stocks.filter(stock => stock.kind === "KR").map(stock => [stock.code ?? stock.id, stock.name]));
-  const composition = createMarketComposition(root, date => { selection = date; });
+  const kosdaqMembers = new Set(stocks.filter(stock => stock.kind === "KR" &&
+    stock.market === "KOSDAQ").map(stock => stock.code ?? stock.id));
+  const composition = createMarketComposition(root, date => { selection = date; }, kosdaqMarket, kosdaqMembers);
 
   function draw() {
     const last = history.bars.at(-1);

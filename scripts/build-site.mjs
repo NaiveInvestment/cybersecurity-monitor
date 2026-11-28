@@ -7,6 +7,7 @@ import { join, resolve, sep } from "node:path";
 import { ROOT } from "../src/universe.mjs";
 import { groupStories, topIssues } from "../public/lib/issues.js";
 import { publishSearchableNews } from "../src/news-archive.mjs";
+import { refreshKosdaqMarket } from "../src/kosdaq-market.mjs";
 
 const args = process.argv.slice(2);
 const option = (name, fallback) => {
@@ -79,7 +80,12 @@ const bannerIssues = topIssues(stories, { limit: stories.length })
     id, title: lead.t, lang: lead.lang, tKo: lead.tKo, last, count, sources,
   }));
 writeFileSync(join(outDir, "data", "issue-banner.json"), JSON.stringify(bannerIssues));
+const kosdaqMarket = join(outDir, "data", "kosdaq-market.json");
+if (liveRepo || existsSync(join(outDir, "data", "domestic-market.json"))) {
+  await refreshKosdaqMarket(kosdaqMarket).catch(error => console.warn(`[kosdaq-market] ${error.message}`));
+}
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
+  kosdaqMarket: existsSync(kosdaqMarket) ? "data/kosdaq-market.json" : undefined,
   builtAt: new Date().toISOString(),
   stockScores: "data/stock-scores.json",
   securityAlerts: liveRepo ? `https://raw.githubusercontent.com/${liveRepo}/security-alerts/security-alerts.json` : undefined,

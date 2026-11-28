@@ -20,6 +20,23 @@
 .composition-dates { display:flex; flex-wrap:wrap; gap:7px 12px; }
 .composition-dates label { display:flex; align-items:center; gap:5px; font-size:12px; }
 .composition-dates input { min-width:0; border:1px solid var(--line-strong); border-radius:5px; padding:4px 6px; background:var(--surface-2); color:var(--ink); font:inherit; }
+.kosdaq-share { border-top:1px solid var(--line); padding:9px 0 8px; }
+.kosdaq-share-summary { display:flex; flex-wrap:wrap; align-items:center; gap:4px 13px; }
+.kosdaq-share-metric { display:flex; align-items:baseline; gap:8px; }
+.kosdaq-share-metric h3 { margin:0; font-size:12.5px; color:var(--ink); }
+.kosdaq-share-metric strong { color:var(--brand); font-size:19px; line-height:1.3; }
+.kosdaq-share-readout { flex:1 0 min(100%, 255px); color:var(--muted); font-size:11.5px; }
+.kosdaq-share-summary button { margin-left:auto; border:1px solid var(--line-strong); border-radius:4px; padding:3px 7px; color:var(--ink); font-size:11.5px; }
+.kosdaq-share-summary button[aria-expanded="true"] { background:var(--surface-2); }
+.kosdaq-share-summary button:disabled { opacity:.55; }
+.kosdaq-share p { margin:0 0 1px; color:var(--muted); font-size:11.5px; }
+.kosdaq-share p a { text-decoration:underline; }
+.kosdaq-share-line { fill:none; stroke:var(--brand); stroke-width:2; stroke-linejoin:round; }
+.kosdaq-share-cursor { stroke:var(--muted); stroke-dasharray:3 3; pointer-events:none; }
+.kosdaq-share-dot { fill:var(--brand); stroke:var(--surface); stroke-width:1.5; pointer-events:none; }
+@media (max-width:550px) {
+  .kosdaq-share-readout { order:1; }
+}
 .composition-figure { margin:0; padding-top:11px; border-top:1px solid var(--line); }
 .composition-figure + .composition-figure { margin-top:12px; }
 .composition-figure figcaption { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 14px; min-height:20px; padding:0 0 6px 2px; color:var(--ink); font-size:12.5px; font-weight:700; }
