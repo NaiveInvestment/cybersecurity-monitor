@@ -4,7 +4,8 @@ import { groupStories } from "./lib/issues.js";
 import { searchArchive, publicationDay } from "./lib/news-search.js";
 import { regionalAlerts, watchWire, wireIndex } from "./lib/news-wire.js";
 import { isIncidentReport } from "./lib/news-pulse.js";
-import { renderPulse, renderFlow } from "./news-dashboard.js";
+import { newsDay } from "./lib/news-briefing.js";
+import { renderGlobalPulse, renderPulse, renderFlow } from "./news-dashboard.js";
 import { showIncidentHistory } from "./incidents.js";
 
 const PAGE = 12;
@@ -29,6 +30,23 @@ function drawAlerts() {
     wireMarkup = html;
   }
 }
+let dayLimit = 6, dayMarkup = "";
+function drawDay() {
+  if (!news.updatedAt && !alerts.length) return;
+  const rows = newsDay(flowItems.length ? flowItems : news.items, alerts, sourceIndex, Date.now());
+  const display = rows.slice(0,dayLimit);
+  const html = display.map(({item, stamp, region, kind}) => `<li class="headline" data-day-stamp="${stamp}">
+    <time class="time num" datetime="${new Date(stamp).toISOString()}">${fmtKst(stamp,false)}</time>
+    <div>${link(item,"title")}<p class="meta">${REGION[region] || "지역 미분류"} / ${kind} / ${esc(item.s)}</p></div></li>`).join("");
+  if (html !== dayMarkup || !$("#day-wire").dataset.ready) {
+    $("#day-wire").innerHTML = html ? `<ol>${html}</ol>` : '<p class="empty">최근 24시간 안에 수집된 기사와 속보가 없습니다.</p>';
+    $("#day-wire").dataset.ready = "true";
+    dayMarkup = html;
+  }
+  $("#day-more").hidden = rows.length <= display.length;
+  $("#day-more").textContent = `기사 더 보기 (${display.length} / ${rows.length})`;
+}
+
 const anchor = () => Date.parse(news.updatedAt) || Date.now();
 const kstDate = stamp => publicationDay(new Date(stamp).getTime());
 const inRegion = region => region === state.region;
@@ -129,13 +147,19 @@ function syncControls() {
   press("#category-switch", "category", state.category);
   $("#search").value = state.query;
   $("#period").value = String(state.period);
-  $("#news-title").textContent = REGION[state.region] + " 보안 뉴스";
+  $("#news-title").textContent = REGION[state.region] + " 상세 분석";
 }
 
 function drawOverview() {
+  renderGlobalPulse(anchor(), pulseArchive, events);
+  renderFlow(events, flowItems.length ? flowItems : news.items, "ALL", anchor(), cards);
+  drawDay();
+  drawDetails();
+}
+function drawDetails() {
   renderPulse(state.region, anchor(), pulseArchive, events);
   renderFlow(events, flowItems.length ? flowItems : news.items, state.region, anchor());
-  if ($("#history").open) drawHistory();
+  drawHistory();
 }
 
 function drawHistory() {
@@ -171,7 +195,7 @@ function bind() {
     url.searchParams.delete("story");
     history.replaceState(null, "", url);
     resetFeed();
-    drawOverview();
+    drawDetails();
   });
   $("#category-switch").addEventListener("click", event => {
     const category = event.target.closest("button")?.dataset.category;
@@ -187,7 +211,8 @@ function bind() {
   });
   $("#period").addEventListener("change", event => { state.period = Number(event.target.value); resetFeed(); });
   $("#search").addEventListener("input", event => { state.query = event.target.value; resetFeed(); });
-  $("#history").addEventListener("toggle", () => { if ($("#history").open) drawHistory(); });
+  $("#global-metrics").addEventListener("click", event => { if (event.target.id === "global-retry") loadPulse(); });
+  $("#day-more").addEventListener("click", () => { dayLimit += 12; drawDay(); });
   $("#pulse-metrics").addEventListener("click", event => { if (event.target.id === "pulse-retry") loadPulse(); });
   $("#feed").addEventListener("click", event => {
     if (event.target.id === "archive-retry") { searchResult = null; renderFeed(); }
@@ -222,12 +247,13 @@ async function refresh(first = false) {
     }
     syncControls();
     renderFeed();
+    drawDay();
+    drawHistory();
     await loadPulse();
     if (first) {
       const target = document.getElementById(location.hash.slice(1));
       if (target?.closest("#history") || params.get("view") === "incidents") {
-        $("#history").open = true;
-        drawHistory();
+
         (target || $("#history")).scrollIntoView();
       } else if (state.query || state.focus) {
         $("#news-library").scrollIntoView();
@@ -236,7 +262,7 @@ async function refresh(first = false) {
   } catch (error) {
     $("#status-text").textContent = news.updatedAt ? `갱신 지연, 최근 수집 ${fmtKst(news.updatedAt)} KST` : "기사 수집본을 불러오지 못했습니다.";
     if (!news.updatedAt) {
-      for (const id of ["feed","pulse-metrics","major-incidents"]) document.getElementById(id).innerHTML = '<p class="empty">자료를 불러오지 못했습니다.</p>';
+      for (const id of ["feed","pulse-metrics","major-incidents","global-metrics","global-issues","day-wire"]) document.getElementById(id).innerHTML = '<p class="empty">자료를 불러오지 못했습니다.</p>';
     }
   } finally {
     refreshing = false;
@@ -251,7 +277,7 @@ async function main() {
   names = Object.fromEntries((snapshot?.stocks || []).map(stock => [stock.id, stock.name]));
   segments = Object.fromEntries((snapshot?.segments || []).map(segment => [segment.id, segment.label]));
   bind();
-  watchWire(items => { alerts = items; drawAlerts(); });
+  watchWire(items => { alerts = items; drawAlerts(); drawDay(); });
   await refresh(true);
   const update = () => { if (!document.hidden) refresh(); };
   window.setInterval(update, 5 * 60000);

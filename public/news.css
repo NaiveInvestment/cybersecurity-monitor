@@ -8,7 +8,7 @@ body.news-page main { max-width: 1240px; }
 .pulse-head { gap: 3px 12px; margin-bottom: 10px; }
 .pulse-head h3 { font-size: 15px; }
 .pulse-head p, .metric p, .volume-axis, .pulse-method, .compare-line, .flow-rule, .wire-count, .flow-date { color: var(--muted); font-size: 12px; }
-#pulse-metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 20px; }
+.metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 20px; }
 .metric { min-width: 0; }
 .metric + .metric { border-inline-start: 1px solid var(--line); padding-inline-start: 20px; }
 .metric h4 { margin: 0; font-size: 13px; font-weight: 650; }
@@ -63,14 +63,14 @@ body.news-page main { max-width: 1240px; }
 .timeline time { color: var(--muted); font-variant-numeric: tabular-nums; }
 .extra-sources li { padding-block: 3px; font-size: 12px; overflow-wrap: anywhere; }
 .history { margin-top: 18px; border-block: 1px solid var(--line-strong); }
-.history > summary { cursor: pointer; font-size: 15px; font-weight: 700; padding: 13px 0; }
+.history { border: none; }
 #news-incidents-view { padding: 4px 0 12px; }
 @media (max-width: 760px) {
   .news-columns { display: block; margin-top: 17px; }
   .flow { padding: 12px 0 0; margin-top: 16px; border-left: 0; border-top: 1px solid var(--line-strong); }
   .flow-jump { display: inline; }
   .pulse { padding: 10px 12px 6px; }
-  #pulse-metrics { grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+  .metrics { grid-template-columns: 1fr 1fr; gap: 8px 14px; }
   .metric:first-child { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1.15fr; align-items: center; column-gap: 12px; }
   .metric:first-child .metric-line { grid-column: 1; grid-row: 2; flex-wrap: wrap; }
   .metric:first-child .volume-chart { grid-column: 2; grid-row: 1 / 3; }
@@ -97,3 +97,41 @@ body.news-page main { max-width: 1240px; }
 
 #wire-alerts:not(:empty) { border-block-start: 1px solid var(--line-strong); background: var(--surface); }
 #wire-alerts .meta strong { color: var(--brand); }
+
+/* The overview spans both regions. Only the analysis below follows the selector. */
+.regional-metrics { grid-template-columns: repeat(4,minmax(0,1fr)); }
+.briefing-columns { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.2fr); gap: 30px; margin: 20px 0 16px; }
+.briefing-columns h2 { margin: 0 0 7px; font-size: 18px; }
+.briefing-issues { min-width: 0; }
+.briefing-issues .flow-event { padding: 8px 0; }
+.briefing-issues .flow-event h3 { margin: 2px 0; font-size: 15px; }
+.briefing-issues details summary { cursor: pointer; color: var(--brand); font-size: 12px; }
+.briefing-wire { min-width: 0; }
+#day-wire { border-block: 1px solid var(--line-strong); background: var(--surface); }
+#day-wire .headline { padding: 7px 10px; }
+#day-wire ol { margin: 0; padding: 0; list-style: none; }
+#day-more { background: var(--surface); border-bottom: 1px solid var(--line); padding: 6px; }
+#day-more[hidden] { display: none; }
+.jump-link { color: var(--brand); font-size: 13px; }
+#regional { border-top: 2px solid var(--line-strong); padding-top: 14px; }
+.history-axis,.global-foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 3px 10px; color: var(--muted); font-size: 12px; }
+.history-axis { font-size: 11px; }
+.no-value { stroke: var(--muted); stroke-width: 1.5; }
+.global-foot { margin-top: 6px; }
+.global-foot details[open] { flex-basis: 100%; }
+.global-foot .pulse-method { margin-top: 0; }
+#inc-title { margin: 0 0 6px; font-size: 17px; }
+@media (max-width: 760px) {
+  .briefing-columns { grid-template-columns: 1fr; gap: 16px; }
+  .regional-metrics { grid-template-columns: 1fr 1fr; }
+  .regional-metrics .metric:first-child { grid-column: auto; display: block; }
+  .regional-metrics .metric:nth-child(odd) { border-left: none; padding-left: 0; }
+  .regional-metrics .metric:nth-child(even) { padding-left: 10px; border-left: 1px solid var(--line); }
+  .regional-metrics .metric:nth-child(2) { border-top: none; padding-top: 0; }
+  .regional-metrics .metric:first-child .volume-axis { margin-top: 2px; }
+}
+
+.jump-nav,.regional-links { display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; }
+.regional-links { margin:12px 0; }
+.regional-links a { color:var(--brand); font-size:13px; padding-block:3px; }
+@media(max-width:460px) { .jump-nav { gap:8px; } .jump-link { font-size:12px; } }

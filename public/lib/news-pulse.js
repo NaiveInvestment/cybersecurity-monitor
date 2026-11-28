@@ -18,7 +18,7 @@ export function newsPulse(items, region, end) {
   }));
   for (const item of items) {
     const age = end - Date.parse(item.d);
-    if (item.r !== region || !(age >= 0 && age < 14 * DAY)) continue;
+    if ((region !== "ALL" && item.r !== region) || !(age >= 0 && age < 14 * DAY)) continue;
     const bin = bins[13 - Math.floor(age / DAY)];
     bin.count++;
     if (isIncidentReport(item)) bin.hacking++;
@@ -31,12 +31,18 @@ export function newsPulse(items, region, end) {
   return { bins, previous: total(bins.slice(0, 7)), current: total(bins.slice(7)) };
 }
 
-export function damagePulse(file, region, end) {
-  if (!file) return null;
+export function incidentSeries(file, region, end) {
+  if (!file) return [];
   const windows = windowsEnding(publicationDay(end), 13);
-  const confirmed = file.events.filter(event => !isIncidentCandidate(event));
-  return compositeIndex(confirmed, windows)[region].slice(-2).map(point => ({
-    ...point,
-    value: point.end <= file.until && (point.recKnown || point.usdKnown) ? point.index : null,
-  }));
+  const records = file.events.filter(event => !isIncidentCandidate(event));
+  const groups = region === "ALL" ? ["ALL"] : ["KR","GL"];
+  return compositeIndex(records, windows, groups)[region].map(point => {
+    const covered = (!file.since || point.start >= file.since) && point.end <= file.until;
+    return { ...point, count: covered ? point.count : null,
+      value: covered && (point.recKnown || point.usdKnown) ? point.index : null };
+  });
+}
+
+export function damagePulse(file, region, end) {
+  return file ? incidentSeries(file, region, end).slice(-2) : null;
 }

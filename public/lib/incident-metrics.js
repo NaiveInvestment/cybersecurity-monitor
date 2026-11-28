@@ -45,10 +45,9 @@ const recScale = (v) => Math.log10(1 + v / 1e3);
 const usdScale = (v) => Math.log10(1 + v / 1e6);
 
 // 반환: { KR: [{ start, index, c, r, m, partial }], GL: [...], max: { count, rec, usd } }
-export function compositeIndex(events, weeks) {
-  const kr = weeklyStats(events, weeks, "KR");
-  const gl = weeklyStats(events, weeks, "GL");
-  const all = [...kr, ...gl];
+export function compositeIndex(events, weeks, regions = ["KR", "GL"]) {
+  const groups = regions.map(region => [region, weeklyStats(events, weeks, region)]);
+  const all = groups.flatMap(([, stats]) => stats);
   const max = { count: Math.max(1, ...all.map((w) => w.count)), rec: Math.max(1e-9, ...all.map((w) => recScale(w.rec))), usd: Math.max(1e-9, ...all.map((w) => usdScale(w.usd))) };
   const score = (w) => {
     const c = (w.count / max.count) * 100;
@@ -56,7 +55,7 @@ export function compositeIndex(events, weeks) {
     const m = (usdScale(w.usd) / max.usd) * 100;
     return { start: w.start, end: w.end, partial: w.partial, c, r, m, index: (r + m) / 2, count: w.count, rec: w.rec, usd: w.usd, recKnown: w.recKnown, usdKnown: w.usdKnown };
   };
-  return { KR: kr.map(score), GL: gl.map(score), max };
+  return { ...Object.fromEntries(groups.map(([region, stats]) => [region, stats.map(score)])), max };
 }
 
 export const fmtCount = (v) => (v >= 1e8 ? `${(v / 1e8).toLocaleString("ko-KR", { maximumFractionDigits: 1 })}억` : v >= 1e4 ? `${(v / 1e4).toLocaleString("ko-KR", { maximumFractionDigits: v >= 1e6 ? 0 : 1 })}만` : Math.round(v).toLocaleString("ko-KR"));

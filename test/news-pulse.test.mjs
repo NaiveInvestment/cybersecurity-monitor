@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { newsPulse, damagePulse } from "../public/lib/news-pulse.js";
+import { newsPulse, damagePulse, incidentSeries } from "../public/lib/news-pulse.js";
 
 const end = Date.parse("2026-11-28T06:25:00Z");
 const day = 86400000;
@@ -69,4 +69,50 @@ test("live wire routes current alerts by publisher, filters searches and suppres
   assert.deepEqual(regionalAlerts(rows,index,{...state,region:"GL"},end),[foreign]);
   assert.deepEqual(regionalAlerts(rows,index,{...state,category:"policy",query:"개정"},end),[item]);
   assert.deepEqual(regionalAlerts(rows,index,{...state,category:"incident"},end),[]);
+});
+
+
+test("global trends add exposures before index normalization and preserve coverage gaps", () => {
+  const records = [
+    {r:"KR", d:"2026-11-19", rec:1000, via:"리서치"},
+    {r:"GL", d:"2026-11-18", usd:1000000, via:"리서치"},
+    {r:"GL", d:"2026-11-26", rec:1000, usd:0, via:"리서치"},
+    {r:"KR", d:"2026-11-27", rec:500000, via:"자동 감지"},
+  ];
+  const file = {events:records, since:"2026-11-15", until:"2026-11-28"};
+  const series = incidentSeries(file, "ALL", end);
+  assert.equal(series.length,13);
+  assert.deepEqual(series.slice(0,-2).map(x=>x.count),Array(11).fill(null));
+  assert.deepEqual(series.slice(-2).map(x=>[x.count,x.value]),[[2,100],[1,50]]);
+  assert.deepEqual(newsPulse([article(0),article(5,"GL"),article(7*day,"GL")],"ALL",end).current.count,2);
+});
+
+test("24-hour stream uses the wall clock, dates and URLs across publishers and live detections", async () => {
+  const {newsDay} = await import("../public/lib/news-briefing.js");
+  const {wireIndex} = await import("../public/lib/news-wire.js");
+  const items = [article(day-1),article(25,"GL","policy"),article(day),article(-1)]
+    .map((item,i)=>({...item,u:"https://paper.example/"+i,s:"paper"+i}));
+  const live = (age, suffix, extra = {}) => ({title:"Live report", source:"New source",
+    url:"https://live.example/"+suffix, detectedAt:new Date(end-age).toISOString(), ...extra});
+  const alerts = [live(0,"now"),live(10,"dup",{url:items[1].u}), live(0,"old",{first:new Date(end-day).toISOString()}),
+    live(-1,"future"),live(46*60000,"expired"),live(2,"now")];
+  const dayRows = newsDay(items,alerts,wireIndex(items),end);
+  assert.deepEqual(dayRows.map(x=>x.item.u),[alerts[0].url,items[1].u,items[0].u]);
+  assert.deepEqual(dayRows.map(x=>x.region),[null,"GL","KR"]);
+  assert.deepEqual(newsDay(items,[],wireIndex(items),end+2*day),[]);
+});
+
+test("policy issue matches its representative source and falls back to a dated primary document", async () => {
+  const {materialPolicy} = await import("../public/lib/news-briefing.js");
+  const base = {...article(10,"KR","policy"), g:"decision", s:"매체 A", t:"[속보] 개인정보 보호법 개정안 통과", u:"https://one.example/a"};
+  const lead = {...base,s:"매체 B",d:new Date(end-5000).toISOString(),t:"개인정보 보호법 개정안 통과",u:"https://two.example/b"};
+  const issue = materialPolicy([base,lead],[],end);
+  assert.equal(issue.title,lead.t);
+  assert.equal(issue.url,lead.u);
+  assert.equal(issue.entries.length,2);
+  const card = {date:"2026-11-09", category:"policy",region:"GL",title:"공식 시행 결정",
+    sources:[{kind:"official",name:"규제기관",url:"https://official.example/rule"}]};
+  const fallback = materialPolicy([{...base,t:"개인정보 보호법 개정 촉구"}],[card],end);
+  assert.equal(fallback.url,card.sources[0].url);
+  assert.equal(materialPolicy([], [{...card,date:"2026-10-01"}],end),undefined);
 });

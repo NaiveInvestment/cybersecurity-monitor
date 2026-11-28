@@ -129,7 +129,7 @@ function bind() {
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       const now = [...document.querySelectorAll(".inc-chart")].map((el) => el.clientWidth).join(",");
-      if ($("#history").open && now !== widths) renderCharts();
+      if (now !== widths) renderCharts();
     });
   }).observe($("#news-incidents-view"));
 }

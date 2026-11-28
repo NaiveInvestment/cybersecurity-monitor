@@ -30,52 +30,41 @@
   <span class="company-name" lang="en">Capital Research &amp; FOEM Invest</span>
 </header>
 <main>
-  <header class="news-mast">
-    <h2 id="news-title">국내 보안 뉴스</h2>
-    <div class="seg-switch" id="region-switch" role="group" aria-label="뉴스 지역">
+  <header class="news-mast"><h2>국내외 보안 브리핑</h2><nav class="jump-nav" aria-label="브리핑 바로가기"><a class="jump-link" href="#day-wire-title">24시간 뉴스</a><a class="jump-link" href="#regional">지역별 분석 ↓</a></nav></header>
+  <section class="pulse global-pulse" aria-labelledby="global-title">
+    <header class="pulse-head"><h3 id="global-title">최근 7일 동향</h3><p id="global-range"></p></header>
+    <div id="global-metrics" class="metrics"><p class="empty">집계를 불러오는 중</p></div>
+    <div class="global-foot"><span id="global-coverage"></span><details class="pulse-method"><summary>지표 기준</summary><p id="global-method"></p></details></div>
+  </section>
+  <div class="briefing-columns">
+    <section class="briefing-issues" aria-labelledby="issues-title"><h2 id="issues-title">주요 이슈</h2>
+      <div id="global-issues"><p class="empty">주요 이슈를 불러오는 중</p></div>
+    </section>
+    <section class="briefing-wire" aria-labelledby="day-wire-title"><h2 id="day-wire-title">최근 24시간 뉴스</h2>
+      <div id="day-wire"><p class="empty">기사를 불러오는 중</p></div>
+      <button class="more" type="button" id="day-more" hidden>더 보기</button>
+    </section>
+  </div>
+  <header class="news-mast" id="regional" tabindex="-1">
+    <h2 id="news-title">국내 상세 분석</h2>
+    <div class="seg-switch" id="region-switch" role="group" aria-label="상세 분석 지역">
       <button type="button" data-region="KR" aria-pressed="true">국내</button>
       <button type="button" data-region="GL" aria-pressed="false">해외</button>
     </div>
   </header>
   <section class="pulse" aria-labelledby="pulse-title">
     <header class="pulse-head"><h3 id="pulse-title">최근 7일 동향</h3><p id="pulse-range"></p></header>
-    <div id="pulse-metrics" aria-live="polite"><p class="empty">집계를 불러오는 중</p></div>
+    <div class="metrics regional-metrics" id="pulse-metrics" aria-live="polite"><p class="empty">집계를 불러오는 중</p></div>
     <details class="pulse-method"><summary>집계 기준</summary><p id="pulse-method"></p></details>
   </section>
-  <div class="news-columns">
-    <section class="wire" id="news-library" aria-labelledby="feed-title">
-      <header class="wire-head"><h2 id="feed-title" tabindex="-1">최신 기사</h2><a class="flow-jump" href="#flow-title">주요 사고 흐름 ↓</a></header>
-      <div class="wire-tools">
-        <div class="wire-kinds" role="group" aria-label="기사 유형" id="category-switch">
-          <button type="button" data-category="all" aria-pressed="true">전체</button>
-          <button type="button" data-category="incident" aria-pressed="false">침해사고</button>
-          <button type="button" data-category="policy" aria-pressed="false">정책</button>
-          <button type="button" data-category="spending" aria-pressed="false">기업 대응</button>
-          <button type="button" data-category="briefs" aria-pressed="false">출처 확인 자료</button>
-        </div>
-        <div class="wire-search">
-          <input class="search" type="search" id="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
-          <select class="search" id="period" aria-label="기사 기간"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="0">전체 기간</option></select>
-        </div>
-      </div>
-      <p id="feed-sub" class="wire-count" aria-live="polite"></p>
-      <div id="wire-alerts" aria-live="polite"></div>
-      <div id="feed"><p class="empty">기사를 불러오는 중</p></div>
-    </section>
-    <aside class="flow" aria-labelledby="flow-title">
-      <h2 id="flow-title" tabindex="-1">주요 사고 흐름</h2>
-      <p class="flow-rule">최근 4주, 영향 규모 5만 이상 또는 금전 피해 1천만 달러 이상</p>
-      <div id="major-incidents"><p class="empty">사고 기록을 불러오는 중</p></div>
-      <a href="#news-library" class="flow-jump">기사 목록 ↑</a>
-    </aside>
-  </div>
-  <details id="history" class="history">
-    <summary id="inc-title">사고 통계와 사건 목록</summary>
+  <nav class="regional-links" aria-label="지역별 상세 바로가기"><a href="#trend-title">주별 추이</a><a href="#org-title">피해 업권</a><a href="#rw-title">랜섬웨어</a><a href="#rec-title">유출 규모</a><a href="#usd-title">피해액</a><a href="#list-title">사건 목록</a><a href="#news-library">기사 검색</a></nav>
+  <section id="history" class="history" aria-label="지역별 사고 통계">
+    <h2 id="inc-title">사고 통계와 사건 목록</h2>
     <div id="news-incidents-view" class="inc">
     <section class="panel inc-panel" aria-labelledby="trend-title">
       <header><h2 id="trend-title">주별 추이</h2><p>같은 주끼리 위아래로 맞춰 봄. 흐린 표시(*)는 집계 중인 이번 주</p></header>
       <p class="inc-legend" id="idx-legend"></p>
-      <h3 class="inc-sub" id="idx-title">피해 규모(강도 지수, 0~100)<span>리서치 이후 확인된 피해 규모만 표시</span></h3>
+      <h3 class="inc-sub" id="idx-title">피해 규모(강도 지수, 0~100)<span>공개된 유출 규모와 금전 피해 기준</span></h3>
       <div class="inc-chart" id="idx-chart"></div>
       <div class="inc-count-tools">
         <h3 class="inc-sub" id="cnt-title">사고 건수</h3>
@@ -136,7 +125,34 @@
 
       <p class="notes" id="inc-notes"></p>
     </div>
-  </details>
+  </section>
+  <div class="news-columns">
+    <section class="wire" id="news-library" aria-labelledby="feed-title">
+      <header class="wire-head"><h2 id="feed-title" tabindex="-1">최신 기사</h2><a class="flow-jump" href="#flow-title">주요 사고 흐름 ↓</a></header>
+      <div class="wire-tools">
+        <div class="wire-kinds" role="group" aria-label="기사 유형" id="category-switch">
+          <button type="button" data-category="all" aria-pressed="true">전체</button>
+          <button type="button" data-category="incident" aria-pressed="false">침해사고</button>
+          <button type="button" data-category="policy" aria-pressed="false">정책</button>
+          <button type="button" data-category="spending" aria-pressed="false">기업 대응</button>
+          <button type="button" data-category="briefs" aria-pressed="false">출처 확인 자료</button>
+        </div>
+        <div class="wire-search">
+          <input class="search" type="search" id="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
+          <select class="search" id="period" aria-label="기사 기간"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="0">전체 기간</option></select>
+        </div>
+      </div>
+      <p id="feed-sub" class="wire-count" aria-live="polite"></p>
+      <div id="wire-alerts" aria-live="polite"></div>
+      <div id="feed"><p class="empty">기사를 불러오는 중</p></div>
+    </section>
+    <aside class="flow" aria-labelledby="flow-title">
+      <h2 id="flow-title" tabindex="-1">주요 사고 흐름</h2>
+      <p class="flow-rule">최근 4주, 영향 규모 5만 이상 또는 금전 피해 1천만 달러 이상</p>
+      <div id="major-incidents"><p class="empty">사고 기록을 불러오는 중</p></div>
+      <a href="#news-library" class="flow-jump">기사 목록 ↑</a>
+    </aside>
+  </div>
 </main>
 <script type="module" src="news.js"></script>
 </body>

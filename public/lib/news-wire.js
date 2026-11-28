@@ -14,6 +14,12 @@ export function wireIndex(articles) {
   return { sources, urls };
 }
 
+export function wireRegion(alert, index) {
+  const host = new URL(alert.url).hostname;
+  const fallback = host.endsWith(".kr") ? "KR" : host.endsWith(".jp") || host.endsWith(".nhk") ? "GL" : null;
+  return index.sources.get(norm(alert.source)) || fallback;
+}
+
 export function regionalAlerts(alerts, index, state, now = Date.now()) {
   if (state.focus || state.category === "briefs") return [];
   const seen = new Set(index.urls);
@@ -24,9 +30,8 @@ export function regionalAlerts(alerts, index, state, now = Date.now()) {
     let target;
     try { target = new URL(alert.url); } catch { return false; }
     if (!["http:","https:"].includes(target.protocol)) return false;
-    const fallback = target.hostname.endsWith(".kr") ? "KR" : (target.hostname.endsWith(".jp") || target.hostname.endsWith(".nhk")) ? "GL" : null;
-    const region = index.sources.get(norm(alert.source)) || fallback;
-    if (region !== state.region || !`${alert.title} ${alert.source}`.toLowerCase().includes(query)) return false;
+    if (state.region !== "ALL" && wireRegion(alert, index) !== state.region) return false;
+    if (!`${alert.title} ${alert.source}`.toLowerCase().includes(query)) return false;
     if (state.category !== "all") {
       const policy = /법안|입법|법률|시행령|개정안|과징금|규제|정책|감독규정|보안 의무|지침/;
       const category = policy.test(alert.title) ? "policy" : reportsIncident(alert.title) ? "incident" : null;
