@@ -3,7 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { isDeniedIncidentTitle } from "../public/lib/incident-trend.js";
 
-import { priceHeadline } from "../public/lib/news-library.js";
+import { priceHeadline, retainPublication } from "../public/lib/news-library.js";
 
 const DAY = 86400000;
 const archiveDay = (timestamp) => new Date(timestamp + 9 * 3600000).toISOString().slice(0, 10);
@@ -37,7 +37,7 @@ export function archiveArticles(dir, items, now = Date.now()) {
     for (const item of rows) {
       const saved = indexed.get(item.u);
       const translation = saved?.t === item.t && saved.tKo && !item.tKo ? { tKo: saved.tKo, lang: saved.lang } : {};
-      indexed.set(item.u, { ...(typeof saved?.important === "boolean" ? { important:saved.important } : {}), ...item, ...translation });
+      indexed.set(item.u, { ...(typeof saved?.important === "boolean" ? { important:saved.important } : {}), ...retainPublication(item,saved), ...translation });
     }
     const sorted = [...indexed.values()].sort((a, b) => b.d.localeCompare(a.d) || a.u.localeCompare(b.u));
     saveChanged(file, JSON.stringify(sorted));
@@ -48,22 +48,33 @@ export function archiveArticles(dir, items, now = Date.now()) {
 // Only days with extra search results need a browser request. The per-day hash
 // changes when late articles or translations arrive.
 export function buildSearchArchive(stateDir, outDir, current, now = Date.now()) {
-  const seen = new Set(current.map(item => item.u));
+  const latest = new Map(current.map(item => [item.u,item]));
   const cutoff = archiveDay(now - 180 * DAY);
   const days = [];
+  const batches = [];
   mkdirSync(outDir, { recursive: true });
   for (const name of daysIn(stateDir).reverse()) {
     const day = name.slice(0, 10);
     if (day < cutoff) continue;
-    const rows = JSON.parse(readFileSync(join(stateDir, name), "utf8")).filter(item => {
-      if (priceHeadline(item.t) || seen.has(item.u) || (item.c === "incident" && isDeniedIncidentTitle(item.t))) return false;
-      seen.add(item.u);
-      return true;
-    });
-    if (!rows.length) continue;
-    const text = JSON.stringify(rows);
-    saveChanged(join(outDir, name), text);
-    days.push({ day, revision: createHash("sha256").update(text).digest("hex").slice(0, 16) });
+    const rows = [];
+    for (const item of JSON.parse(readFileSync(join(stateDir,name),"utf8"))) {
+      if (priceHeadline(item.t) || (item.c==="incident" && isDeniedIncidentTitle(item.t))) continue;
+      const newer = latest.get(item.u);
+      if (newer) {
+        const merged = retainPublication(newer,item);
+        if (merged !== newer) newer.firstPublishedAt=merged.firstPublishedAt;
+        continue;
+      }
+      latest.set(item.u,item);
+      rows.push(item);
+    }
+    if (rows.length) batches.push({name,day,rows});
+  }
+  // An older archive day can supply the first publication time of a later revision.
+  for (const {name,day,rows} of batches) {
+    const text=JSON.stringify(rows);
+    saveChanged(join(outDir,name),text);
+    days.push({day,revision:createHash("sha256").update(text).digest("hex").slice(0,16)});
   }
   const active = new Set(days.map(({day}) => day + ".json"));
   for (const name of daysIn(outDir)) if (!active.has(name)) unlinkSync(join(outDir, name));

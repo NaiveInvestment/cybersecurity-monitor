@@ -19,5 +19,6 @@ export async function searchArchive(file, period, load, cache, now = Date.now())
   const coverage = items.length
     ? `보관 기사 날짜 ${publicationDay(Date.parse(items.at(-1).d))} ~ ${publicationDay(Date.parse(items[0].d))}, 기사 있는 날 ${dates.size}일`
     : "보관 기사 없음";
-  return { items, coverage, failed: results.filter(result => result.status === "rejected").length };
+  const failedDays = days.filter((_,i)=>results[i].status==="rejected").map(x=>x.day);
+  return { items, coverage, failed:failedDays.length, failedDays };
 }

@@ -18,6 +18,7 @@ const privacy = /개인정보|고객정보|회원정보|주민등록번호|생�
 const infrastructure = /클라우드|금융보안원|전력|결제망|기간통신|송전|공용 인증|항공관제|\b(?:cloud|power grid|payment network|telecom|air traffic)\b/i;
 const majorOrg = /^(?:Microsoft|Amazon|Google|Apple|Oracle|SAP|Cisco|Salesforce|IBM|Meta|삼성전자|SK텔레콤|LG유플러스|현대자동차|한국전력|JPMorgan(?: Chase)?|Visa|Mastercard|1Password|FBI|CIA)$/i;
 const notName = /^(?:트럼프|당국|공격자|지운|올해|해킹이|지주|코스닥|대충격|올해만|단독|해커|hackers?|report|customers?|software|cyberattack|alleged|company|group|officials?)$/i;
+const exploitationReported = /악용 (?:정황|흔적|확인)|악용(?:해|으로).{0,20}(?:침투|탈취)|exploited.{0,30}(?:to breach|to steal|in (?:the|this) (?:attack|breach))/i;
 const directReport = /\b(?:breach|hacked|hacking|cyberattack|attack|data leak|cyber incident|security incident)\b|침해|유출|해킹|보안\s?사고/i;
 const namedReply = /^(?:\[[^\]]+\]\s*)?(?:["'“‘][^"'”’]{1,18}["'”’]\s*)?([A-Z][\w&.’'-]*(?:\s+[A-Z][\w&.’'-]*){0,3}|[가-힣A-Za-z0-9]{2,20})(?:\s+(?:says|denies|disputes|investigates|probes|confirms|reportedly|hit by|suffers)\b|,\s*|[ 는은]\s*["“]|의\s*해킹\s*의혹)/;
 const backgroundRole = /\bSAP (?:customer|client|user)\b|SAP\s*(?:제품\s*사용|고객사)|while (?:a |the )?cyberattack targets|denies? (?:orchestrating|.{0,25}involvement)|배후설.{0,7}부인|(?:고객사|제품|사용\s?기업|협력사|입점사).{0,12}(?:에서|해킹|유출)|\b(?:customer|client|user|reseller) (?:of|using)\b|\b(?:products?|customers?|clients?)\s+(?:hit|breached|hacked)\b/i;
@@ -75,7 +76,8 @@ export function buildImpactCases(file, items, end, notes=impactNotes) {
   for (const note of reviewed) {
     const stamp=Date.parse(note.first);
     const sources = articles.filter(a=>withinEpisode(Date.parse(a.d),stamp) && note.match.test(a.t) && note.topic.test(a.t) &&
-      !background.test(a.t) && !backgroundRole.test(a.t) && !/이어.{0,18}(?:까지|마저)|이번 주|잇단 보안사고/i.test(a.t));
+      !background.test(exploitationReported.test(a.t) ? a.t.replace(/취약점|vulnerabilit(?:y|ies)/gi,"") : a.t) &&
+      !backgroundRole.test(a.t) && !/이어.{0,18}(?:까지|마저)|이번 주|잇단 보안사고|오늘뉴스|주요\s?뉴스|뉴스\s?종합|보안.{0,4}뉴스.{0,4}(?:모음|톱)|daily (?:digest|roundup)/i.test(a.t));
     for (const source of sources) used.add(source.u);
     cases.push({...note, types:note.type, first:Math.min(stamp,...sources.map(a=>Date.parse(a.d))), sources, reviewed:true});
   }

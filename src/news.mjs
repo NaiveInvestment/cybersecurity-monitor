@@ -47,11 +47,14 @@ export function parseFeed(xml) {
   return blocks.map((block) => {
     let link = stripTags(tag(block, "link"));
     if (!link) link = (/<link[^>]*href="([^"]+)"/i.exec(block) || [])[1] || "";
-    const rawDate = stripTags(tag(block, "pubDate") || tag(block, "published") || tag(block, "updated") || tag(block, "dc:date"));
+    const published = tag(block, "pubDate") || tag(block, "published") || tag(block, "dc:date");
+    const rawDate = stripTags(published || tag(block, "updated"));
     const time = Date.parse(rawDate);
     return {
       title: stripTags(tag(block, "title")),
       link: decodeEntities(link).trim(),
+      ...(!published && rawDate ? {dateKind:"updated"} : {}),
+      ...(/^\d{4}-\d{2}-\d{2}$/.test(rawDate) ? {dayOnly:true,calendarDay:rawDate} : {}),
       date: Number.isNaN(time) ? null : new Date(time).toISOString(),
       source: stripTags(tag(block, "source")),
       summary: stripTags(tag(block, "description") || tag(block, "summary")).slice(0, 300),

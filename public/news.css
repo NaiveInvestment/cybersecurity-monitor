@@ -148,7 +148,12 @@ body.news-page main { max-width: 1240px; }
 .impact-story .case-attack {font-size:14px;margin:4px 0 3px;font-weight:600}
 .impact-story .case-impact {font-size:13px;margin:2px 0;line-height:1.45}
 .case-impact span {margin-right:4px}
-.impact-story footer {margin-top:3px}
+.impact-story footer {margin-top:3px;display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 12px}
+.case-press summary {cursor:pointer;color:var(--muted)}
+.case-press[open] {flex-basis:100%}
+.case-press ul {margin:5px 0;padding:0 8px 0 0;max-height:15rem;overflow:auto;list-style:none}
+.case-press li {padding:4px 0;border-top:1px solid var(--line)}
+.case-press li small {display:block;color:var(--muted);font-variant-numeric:tabular-nums}
 .impact-story a,#impact-policy a,.coverage-details a {color:var(--brand);text-underline-offset:3px}
 .impact-trends {--ds:#2872a6;--thn:#91b9d2;--signal:#a04914;background:var(--surface);border-block:1px solid var(--line-strong);padding:10px 16px 8px;min-width:0;margin-top:9px}
 :root[data-theme="dark"] .impact-trends {--ds:#689dc3;--thn:#b4d3e6;--signal:#f2b36d}

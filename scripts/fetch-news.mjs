@@ -80,6 +80,8 @@ async function main() {
       if (alertsPoll && category !== "incident") continue;
       const url = canonicalUrl(entry.link);
       const item = { id: itemId(url), t: split.title, u: url, s: source, d: entry.date, r: feed.region, c: category, k: matchStocks(split.title) };
+      if (entry.dateKind) item.dateKind=entry.dateKind;
+      if (entry.dayOnly) {item.dayPrecision=true;item.calendarDay=entry.calendarDay;}
       if (alertsPoll && !feed.aggregator && entry.summary) item.alertSummary = entry.summary;
       incoming.push(item);
       used += 1;
@@ -104,7 +106,8 @@ async function main() {
   console.log(`한국어 제목 ${translated}/${english}건`);
   const output = { updatedAt: new Date().toISOString(), feeds: report, items };
   const archiveDir = join(dirname(statePath), "news-archive");
-  archiveArticles(archiveDir, retained);
+  // The front-page feed groups near-identical stories. The archive also keeps distinct follow-up URLs.
+  archiveArticles(archiveDir, [...retained, ...incoming]);
   mkdirSync(outDir, { recursive: true });
   publishSearchableNews(archiveDir, outDir, output);
   mkdirSync(join(statePath, ".."), { recursive: true });

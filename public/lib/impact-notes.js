@@ -1,8 +1,9 @@
 // Source-reviewed facts belong to dated episodes. Later reports keep their own attribution.
 export const impactNotes = [
   {
+    pressTitle:"SAP Confirms Cyberattack, Source Code Reportedly Compromised",
     id:"sap-dev-202611", name:"SAP", region:"GL", first:"2026-11-27T04:26:32Z",
-    names:["SAP"], match:/\bSAP\b/i, topic:/GitHub|Project Granite|소스\s?코드|source code|SAP (?:confirms|flags|hit by|finds no signs)|SAP.{0,20}해킹 사고/i,
+    names:["SAP"], match:/\bSAP\b/i, topic:/GitHub|Project Granite|소스\s?코드|source code|SAP (?:security incident|confirms|flags|hit by|finds no signs)|SAP.{0,20}해킹 사고/i,
     type:["infra","technical"], priority:3, role:"기업용 소프트웨어 공급자",
     title:"SAP 개발 환경에서 의심 활동",
     scope:"인증 토큰과 소스코드 접근 보도. 고객 업무 데이터는 별도 조사 대상.",
@@ -13,6 +14,7 @@ export const impactNotes = [
     ],
   },
   {
+    pressTitle:"U.S. Air Force cloud platform breached by hackers, report says",
     id:"cloud-one-202611", name:"미 공군 Cloud One", region:"GL", first:"2026-11-27T12:03:04Z",
     names:["Air Force Cloud One","Cloud One"], match:/cloud\s*one|클라우드\s*원|(?:미(?:국)?\s*공군|air force).{0,35}(?:클라우드|cloud)/i,
     topic:/breach|hack|cyberattack|해킹|침해/i, type:["infra"], priority:3, role:"군 공용 클라우드",
@@ -24,8 +26,9 @@ export const impactNotes = [
     ],
   },
   {
+    pressTitle:"인터넷우체국 등기우편 고객정보 유출…하루치만 11만3천명 확인",
     id:"post-202611", name:"인터넷우체국", region:"KR", first:"2026-11-27T07:03:35Z",
-    names:["인터넷우체국","우정사업본부"], match:/인터넷우체국|우정사업본부|우체국.{0,12}(?:뚫|털|해킹)|\bKorea Post\b/i, topic:/해킹|유출|털렸|breach|leak/i,
+    names:["인터넷우체국","우정사업본부"], match:/인터넷\s*우체국|우정사업본부|우체국.{0,12}(?:뚫|털|해킹)|\bKorea Post\b/i, topic:/해킹|유출|털렸|breach|leak|hack|expos/i,
     type:["personal"], priority:2, role:"등기우편 배달장소 변경 서비스",
     title:"인터넷우체국, 하루치 분석에서 113,855명 유출 확인", scope:"등기 고객 성명, 주소, 전화번호. 113,855명에는 법인이 포함되며 전체 기간 규모는 조사 중입니다.",
     attack:"등기우편 배달장소 변경 서비스 해킹", impact:"성명, 주소, 전화번호 유출. 하루치 113,855명(법인 포함), 전체 규모 조사 중",
@@ -34,6 +37,7 @@ export const impactNotes = [
     ],
   },
   {
+    pressTitle:"'해킹' 다나와, 사흘째 서비스 중단…\"일부 회원 개인정보 유출\"",
     id:"danawa-202611", name:"다나와", region:"KR", first:"2026-11-26T05:56:26Z", names:["다나와"],
     match:/다나와|\bDanawa\b/i, topic:/해킹|침해|보안\s?사고|회원정보|서비스.{0,16}(?:재개|중단)|먹통/,
     type:["operations","personal"], priority:2,role:"가격비교 플랫폼",

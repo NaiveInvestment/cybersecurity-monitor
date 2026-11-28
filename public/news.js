@@ -173,9 +173,15 @@ function syncControls() {
   $("#news-title").textContent = REGION[state.region] + " 상세 분석";
 }
 
+function drawCases() {
+  if (!pulseArchive) return;
+  const wire = alerts.map(a=>({u:a.url,t:a.title,s:a.source,d:a.articleAt || a.first,
+    dayPrecision:a.dayPrecision,dateKind:a.dateKind,calendarDay:a.calendarDay,r:a.region}));
+  renderImpact(events,[...wire,...flowItems],Date.now(),cards,flowArchiveStatus.failedDays);
+}
 function drawOverview() {
   renderGlobalPulse(anchor(), pulseArchive, events);
-  renderImpact(events, flowItems, anchor(), cards);
+  drawCases();
   drawDay();
   drawDetails();
 }
@@ -304,7 +310,7 @@ async function main() {
   names = Object.fromEntries((snapshot?.stocks || []).map(stock => [stock.id, stock.name]));
   segments = Object.fromEntries((snapshot?.segments || []).map(segment => [segment.id, segment.label]));
   bind();
-  watchWire(items => { alerts = items; drawAlerts(); drawDay(); }, data => {
+  watchWire(items => { alerts = items; drawAlerts(); drawDay(); drawCases(); }, data => {
     if (libraryRevision===data.revision) return;
     libraryRevision=data.revision;
     recentLibrary=data.items;

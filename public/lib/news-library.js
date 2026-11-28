@@ -2,15 +2,31 @@ const DAY = 86400000;
 const cleaned = value => String(value || "").normalize("NFKC").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "");
 const isGoogle = url => url.startsWith("https://news.google.com/");
 
-function urlKey(url) {
+export function articleUrlKey(url) {
   try {
     const u = new URL(url);
+    if (u.protocol==="http:") u.protocol="https:";
     u.hash="";
     u.hostname=u.hostname.replace(/^www\./,"");
     for (const k of [...u.searchParams.keys()]) if (/^(utm_|fbclid$|gclid$|ref$|oc$)/i.test(k)) u.searchParams.delete(k);
     u.searchParams.sort();
     return u.href.replace(/\/$/,"");
   } catch { return url; }
+}
+
+export function publicationStamp(row) {
+  if (!row) return NaN;
+  if (/T.*(?:Z|[+-]\d\d:?\d\d)$/i.test(row.firstPublishedAt || "")) return Date.parse(row.firstPublishedAt);
+  if (row.dayPrecision || row.dateKind==="updated" || !/T.*(?:Z|[+-]\d\d:?\d\d)$/i.test(row.d || "")) return NaN;
+  return Date.parse(row.d);
+}
+
+export function retainPublication(row,previous) {
+  const earlier=publicationStamp(previous), current=publicationStamp(row);
+  if (Number.isFinite(earlier) && (!Number.isFinite(current) || earlier<current)) {
+    return {...row,firstPublishedAt:new Date(earlier).toISOString()};
+  }
+  return row;
 }
 
 export function priceHeadline(title) {
@@ -39,10 +55,16 @@ export function mergeLibrary(base, extras=[]) {
   const result=[], byUrl=new Map(), byTitle=new Map();
   for (const row of [...base,...extras]) {
     if (!row?.u || !row.t || priceHeadline(row.t)) continue;
-    const url=urlKey(row.u);
+    const url=articleUrlKey(row.u);
     const title=cleaned(row.s)+"|"+cleaned(row.t);
     const same=byTitle.get(title);
-    const i=byUrl.get(url) ?? (same !== undefined && Math.abs(Date.parse(result[same].d)-Date.parse(row.d))<=2*DAY ? same : undefined);
+    // Two different articles on the same publisher site can carry the same headline.
+    const previousUrl = same===undefined ? null : URL.parse(result[same].u);
+    const currentUrl = same===undefined ? null : URL.parse(row.u);
+    const separateOriginals = previousUrl && currentUrl && previousUrl.hostname===currentUrl.hostname &&
+      !isGoogle(row.u) && !/^(?:n\.)?news\.naver\.com$/.test(currentUrl.hostname) &&
+      articleUrlKey(previousUrl.href)!==url;
+    const i=byUrl.get(url) ?? (same !== undefined && !separateOriginals && Math.abs(Date.parse(result[same].d)-Date.parse(row.d))<=2*DAY ? same : undefined);
     if (i===undefined) {
       byTitle.set(title,result.length); byUrl.set(url,result.length); result.push(row); continue;
     }
@@ -50,8 +72,12 @@ export function mergeLibrary(base, extras=[]) {
     const newest = Date.parse(row.d) >= Date.parse(old.d) ? row : old;
     const prior = newest === row ? old : row;
     const direct = isGoogle(newest.u) && !isGoogle(prior.u) ? prior : newest;
-    const merged = {...prior, ...newest, u:direct.u, id:direct.id,
+    const original = retainPublication(newest,prior);
+    const merged = {...prior, ...original, u:direct.u, id:direct.id,
       k:[...new Set([...(old.k || []), ...(row.k || [])])]};
+    if (Number.isFinite(publicationStamp(original)) && publicationStamp(original)!==publicationStamp(merged)) {
+      merged.firstPublishedAt = new Date(publicationStamp(original)).toISOString();
+    }
     if (prior.t !== newest.t && !newest.tKo) delete merged.tKo;
     result[i]=merged;
     byUrl.set(url,i); byTitle.set(title,i);
