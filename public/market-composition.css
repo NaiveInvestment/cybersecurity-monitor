@@ -20,22 +20,33 @@
 .composition-dates { display:flex; flex-wrap:wrap; gap:7px 12px; }
 .composition-dates label { display:flex; align-items:center; gap:5px; font-size:12px; }
 .composition-dates input { min-width:0; border:1px solid var(--line-strong); border-radius:5px; padding:4px 6px; background:var(--surface-2); color:var(--ink); font:inherit; }
-.kosdaq-share { border-top:1px solid var(--line); padding:9px 0 8px; }
+.kosdaq-share { --kosdaq-index:var(--accent); border-top:1px solid var(--line); padding:9px 0 8px; }
 .kosdaq-share-summary { display:flex; flex-wrap:wrap; align-items:center; gap:4px 13px; }
-.kosdaq-share-metric { display:flex; align-items:baseline; gap:8px; }
-.kosdaq-share-metric h3 { margin:0; font-size:12.5px; color:var(--ink); }
+.kosdaq-share-metric { display:flex; align-items:baseline; gap:5px; white-space:nowrap; }
+.kosdaq-share-metric h3, .kosdaq-share-metric > span { margin:0; font-size:12.5px; font-weight:700; color:var(--ink); }
+.kosdaq-swatch { width:13px; align-self:center; border-top:2px solid var(--brand); }
+.kosdaq-index-metric .kosdaq-swatch { border-color:var(--kosdaq-index); border-top-style:dashed; }
 .kosdaq-share-metric strong { color:var(--brand); font-size:19px; line-height:1.3; }
+.kosdaq-share .kosdaq-index-metric strong { color:var(--kosdaq-index); font-size:16px; }
 .kosdaq-share-readout { flex:1 0 min(100%, 255px); color:var(--muted); font-size:11.5px; }
 .kosdaq-share-summary button { margin-left:auto; border:1px solid var(--line-strong); border-radius:4px; padding:3px 7px; color:var(--ink); font-size:11.5px; }
 .kosdaq-share-summary button[aria-expanded="true"] { background:var(--surface-2); }
 .kosdaq-share-summary button:disabled { opacity:.55; }
 .kosdaq-share p { margin:0 0 1px; color:var(--muted); font-size:11.5px; }
 .kosdaq-share p a { text-decoration:underline; }
-.kosdaq-share-line { fill:none; stroke:var(--brand); stroke-width:2; stroke-linejoin:round; }
+.kosdaq-series-line { fill:none; stroke-width:2; stroke-linejoin:round; }
+.kosdaq-share-line { stroke:var(--brand); }
+.kosdaq-index-line { stroke:var(--kosdaq-index); stroke-dasharray:5 2; }
+.kosdaq-index-tick { stroke:var(--kosdaq-index); }
+.kosdaq-share .composition-chart .kosdaq-axis-left { fill:var(--brand); }
+.kosdaq-share .composition-chart .kosdaq-axis-right { fill:var(--kosdaq-index); }
 .kosdaq-share-cursor { stroke:var(--muted); stroke-dasharray:3 3; pointer-events:none; }
-.kosdaq-share-dot { fill:var(--brand); stroke:var(--surface); stroke-width:1.5; pointer-events:none; }
+.kosdaq-series-dot { stroke:var(--surface); stroke-width:1.5; pointer-events:none; }
+.kosdaq-share-dot { fill:var(--brand); }
+.kosdaq-index-dot { fill:var(--kosdaq-index); }
 @media (max-width:550px) {
-  .kosdaq-share-readout { order:1; }
+  .kosdaq-share-readout { order:1; flex-basis:205px; }
+  .kosdaq-share-summary button { order:1; }
 }
 .composition-figure { margin:0; padding-top:11px; border-top:1px solid var(--line); }
 .composition-figure + .composition-figure { margin-top:12px; }

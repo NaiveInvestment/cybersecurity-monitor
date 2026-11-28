@@ -11,7 +11,8 @@ export function parseKosdaqCaps(csv, year, asOf) {
   const dates = new Set();
   return records.map(line => {
     const columns = line.split(",");
-    const date = columns[0];
+    const [date, rawClose] = columns;
+    const close = /^\d+(?:\.\d+)?$/.test(rawClose) ? Number(rawClose) : null;
     const raw = columns.at(-1);
     const cap = /^\d+(?:\.0+)?$/.test(raw) ? Number(raw) : null;
     const weekday = new Date(date + "T00:00:00Z").getUTCDay();
@@ -21,7 +22,7 @@ export function parseKosdaqCaps(csv, year, asOf) {
       throw new Error(`잘못된 코스닥 시총 행 (${date})`);
     }
     dates.add(date);
-    return { date, cap: cap / KRW_PER_EOK };
+    return { date, cap: cap / KRW_PER_EOK, close: Number.isFinite(close) && close > 0 ? close : null };
   });
 }
 

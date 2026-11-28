@@ -8,8 +8,8 @@ import { startQuoteFeed } from "./lib/quote-feed.js";
 const number = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
 const trillions = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
 
-const TREND = { height: 420, top: 32, left: 46, right: 16, bottom: 40 };
-const TREND_COMPACT = { height: 320, top: 32, left: 38, right: 12, bottom: 40 };
+const TREND = { height: 420, top: 32, left: 46, right: 44, bottom: 40 };
+const TREND_COMPACT = { height: 320, top: 32, left: 43, right: 42, bottom: 40 };
 const MAP = { height: 400, compactHeight: 440 };
 const SPARK = { width: 120, height: 26, points: 64 };
 const STEPS = [.01, .02, .05, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
