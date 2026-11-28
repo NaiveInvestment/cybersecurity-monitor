@@ -1,0 +1,132 @@
+import { esc, fmtKst, headlineLink } from "./common.js";
+import { fmtKrw, fmtUsd, isIncidentCandidate } from "./lib/incident-metrics.js";
+import { majorIncidents } from "./lib/major-incidents.js";
+import { publicationDay } from "./lib/news-search.js";
+import { damagePulse, newsPulse } from "./lib/news-pulse.js";
+
+const DAY = 86400000;
+const n = (value) => value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
+const shortDate = (day) => day.slice(5).replace("-", ".");
+const label = (v, unit) => v == null ? "자료 없음" : n(v) + unit;
+
+function delta(current, previous, unit) {
+  if (current == null || previous == null) return "비교 자료 없음";
+  const change = Math.round((current - previous) * 10) / 10;
+  if (!change) return "직전과 동일";
+  return `직전보다 ${n(Math.abs(change))}${unit} ${change > 0 ? "증가" : "감소"}`;
+}
+
+function compareBars(previous, current, unit) {
+  return [current, previous].map((v, i) => `<div class="compare-line"><span>${i ? "직전" : "최근"}</span>
+    <div class="compare-track">${v == null ? '<span class="missing">자료 없음</span>' : `<svg viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true"><rect class="${i ? "past" : "now"}" width="${v}" height="6"/></svg>`}</div>
+    <b>${v == null ? "—" : label(v, unit)}</b></div>`).join("");
+}
+
+function volumeChart(bins) {
+  const max = Math.max(1, ...bins.map(bin => bin.count));
+  return `<svg class="volume-chart" viewBox="0 0 142 32" preserveAspectRatio="none" role="img" aria-label="직전 7일과 최근 7일의 24시간별 기사 건수">
+    ${bins.map((bin,i) => {
+      const height = 32 * bin.count / max;
+      return `<rect class="${i < 7 ? "past" : "now"}" x="${i * 10 + (i < 7 ? 0 : 3)}" y="${32-height}" width="8" height="${height}"><title>${fmtKst(bin.end)} KST까지 24시간, ${bin.count}건</title></rect>`;
+    }).join("")}</svg><div class="volume-axis"><span>직전 7일</span><span>최근 7일</span></div>`;
+}
+
+export function renderPulse(region, end, archive, file) {
+  const mid = end - 7 * DAY;
+  document.querySelector("#pulse-range").textContent = `${fmtKst(mid)} ~ ${fmtKst(end)} KST`;
+  const host = document.querySelector("#pulse-metrics");
+  const note = document.querySelector("#pulse-method");
+  note.textContent = `수집 기사는 URL 중복을 제거해 최근 168시간과 그 앞 168시간을 비교합니다. 막대 하나는 24시간입니다. 침해사고 보도는 해킹 분류 기사 중 원제목에서 실제 침해나 유출 발생을 언급한 기사입니다. 기사와 자동 감지 보도는 수집 피드의 국내외 분류를 따릅니다. 피해 강도는 사건 기록의 지역과 KST 날짜를 기준으로 유출 규모와 금전 피해를 로그 환산해 국내외 13개 7일 구간과 비교한 지수입니다. 규모 미공개, 보도 후보는 제외합니다.${file ? " 리서치 확인 " + file.researchUntil + "까지, 이후 DeFiLlama 집계 포함." : ""}`;
+  let counts = '<div class="pulse-message">보관 기사 집계 중</div>';
+  if (archive?.failed) counts = `<div class="pulse-message">보관 기사 ${archive.failed}일분을 불러오지 못해 기사 비교를 보류했습니다. <button type="button" id="pulse-retry">다시 조회</button></div>`;
+  if (archive && !archive.failed) {
+    const { bins, previous, current } = newsPulse(archive.items, region, end);
+    counts = `<section class="metric"><h4>수집 기사</h4><div class="metric-line"><strong>${n(current.count)}<small>건</small></strong><span>${delta(current.count, previous.count, "건")}</span></div>
+      ${volumeChart(bins)}<p>직전 7일 ${n(previous.count)}건</p></section>
+      <section class="metric"><h4>침해사고 보도 비중</h4><div class="metric-line"><strong>${label(current.share, "%")}</strong><span>${delta(current.share, previous.share, "%p")}</span></div>
+      ${compareBars(previous.share, current.share, "%")}<p>최근 기사 ${n(current.count)}건 중 침해사고 보도 ${n(current.hacking)}건</p></section>`;
+  }
+  const impact = damagePulse(file, region, end);
+  const prev = impact?.[0].value ?? null, current = impact?.[1].value ?? null;
+  const context = impact ? `${current == null ? "리서치 확인 " + shortDate(file.researchUntil) + "까지" : "100점 기준"}` : "사건 자료를 불러오지 못했습니다.";
+  host.innerHTML = counts + `<section class="metric"><h4>확인 피해 강도</h4><div class="metric-line"><strong class="${current == null ? "unmeasured" : ""}">${current == null ? "규모 자료 없음" : label(current, "점")}</strong></div>
+    ${compareBars(prev, current, "점")}<p>${context}</p></section>`;
+}
+
+// Attach follow-up headlines only through the source URL and its existing story group.
+function flowEntries(major, articles, groups) {
+  const entries = new Map();
+  for (const source of major.sources) {
+    const match = articles.get(source.u);
+    const family = match?.g ? groups.get(match.g) : null;
+    for (const item of family || []) {
+      if (item.r !== match.r || item.c !== "incident") continue;
+      entries.set(item.u, { day: publicationDay(Date.parse(item.d)), item });
+    }
+    entries.set(source.u, { day: source.d || major.event.d, item: match || {
+      u: source.u, t: source.t || source.o, s: source.o,
+    } });
+  }
+  return [...entries.values()].sort((a,b) => a.day.localeCompare(b.day) || (a.item.d || "").localeCompare(b.item.d || ""));
+}
+
+function flowRow(major, entries) {
+  const { event, records, loss } = major;
+  const impact = [records && event.recUnit ? `영향 규모 ${n(records)}${esc(event.recUnit)}` : "", loss ? `금전 피해 ${event.krw ? fmtKrw(event.krw) : fmtUsd(loss)}` : ""].filter(Boolean).join(", ");
+  const meta = isIncidentCandidate(event) ? "보도 기준" : event.via === "DeFiLlama" ? "DeFiLlama 집계" : "리서치 확인";
+  const daily = new Map();
+  for (const entry of entries) daily.set(entry.day, entry);
+  const timeline = [...daily.values()];
+  const latest = entries.at(-1)?.item;
+  const sourceTitle = major.sources.find(source => source.t && source.t !== source.o);
+  return `<article class="flow-event"><div class="flow-date"><time>${shortDate(event.d)}</time><span>${meta}</span></div>
+    <h3>${esc(event.n)}</h3>${impact ? `<p class="impact">${impact}</p>` : ""}
+    ${latest?.t && latest.t !== latest.s ? `<p class="flow-latest">${headlineLink(latest)}</p>` : sourceTitle ? `<p class="flow-latest"><a href="${esc(sourceTitle.u)}" target="_blank" rel="noopener">${esc(sourceTitle.t)}</a></p>` : ""}
+    <details data-event="${esc(event.id)}"><summary>보도 흐름과 원문 ${entries.length}건</summary><ol class="timeline">${timeline.map(({day,item}) =>
+      `<li><time>${shortDate(day)}</time><div>${headlineLink(item)}<p class="meta">${esc(item.s)}</p></div></li>`).join("")}</ol>
+      ${entries.length > timeline.length ? `<details><summary>같은 날의 다른 원문</summary><ul class="extra-sources">${entries.filter(x => daily.get(x.day) !== x).map(({day,item}) => `<li>${shortDate(day)} ${headlineLink(item)}</li>`).join("")}</ul></details>` : ""}</details></article>`;
+}
+
+// Some automatic records carry the feed region and only the final token of the
+// victim name. Link matching Korean and English reports when the size and dates agree.
+export function majorFlows(events, start, end) {
+  const majors = majorIncidents(events, [], start, end);
+  const postal = /인터넷우체국|우정사업본부|\bKorea Post\b/i;
+  const domestic = majors.filter(({ event }) => event.r === "KR" && postal.test(event.n));
+  const result = [];
+  for (const major of majors) {
+    const { event } = major;
+    const title = event.src?.[0]?.t || event.atk || "";
+    if (event.r === "GL" && isIncidentCandidate(event) && /^Korea Post\b/i.test(title)) {
+      const same = domestic.find(row => row.records > 0 && row.records === major.records &&
+        Math.abs(Date.parse(row.event.d) - Date.parse(event.d)) <= 7 * DAY);
+      if (same) {
+        same.sources = [...new Map([...same.sources, ...major.sources].map(source => [source.u, source])).values()];
+        continue;
+      }
+      result.push({ ...major, event: { ...event, r: "KR", n: "우정사업본부" } });
+    } else {
+      result.push(major);
+    }
+  }
+  return result;
+}
+
+export function renderFlow(file, items, region, end) {
+  const host = document.querySelector("#major-incidents");
+  const open = new Set([...host.querySelectorAll("details[data-event][open]")].map(node => node.dataset.event));
+  const openMore = host.querySelector(".flow-more")?.open;
+  const majors = file ? majorFlows(file.events, publicationDay(end - 27 * DAY), publicationDay(end)).filter(({event}) => event.r === region) : [];
+  const articles = new Map(items.map(item => [item.u, item]));
+  const groups = new Map();
+  for (const item of items) {
+    if (!item.g) continue;
+    if (!groups.has(item.g)) groups.set(item.g, []);
+    groups.get(item.g).push(item);
+  }
+  const rows = majors.map(major => flowRow(major, flowEntries(major, articles, groups)));
+  host.innerHTML = rows.slice(0, 3).join("") + (rows.length > 3 ? `<details class="flow-more"><summary>주요 사고 ${rows.length - 3}건 더 보기</summary>${rows.slice(3).join("")}</details>` : "")
+    || `<p class="empty">${file ? "이 기간에 선정 기준을 충족한 사고가 없습니다." : "사고 기록을 불러오지 못했습니다."}</p>`;
+  host.querySelectorAll("details[data-event]").forEach(node => { node.open = open.has(node.dataset.event); });
+  if (openMore && host.querySelector(".flow-more")) host.querySelector(".flow-more").open = true;
+}

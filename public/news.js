@@ -1,40 +1,31 @@
 import { esc, fmtKst, headlineLink as link, loadJson, initTheme } from "./common.js";
 import { statusTone } from "./lib/status.js";
-import { groupStories, topIssues } from "./lib/issues.js";
-import { recentIncidentStories, incidentUpdate } from "./lib/recent-incidents.js";
-import { majorIncidents } from "./lib/major-incidents.js";
-import { fmtCount, fmtKrw } from "./lib/incident-metrics.js";
-import { searchArchive } from "./lib/news-search.js";
-import { initIncidents } from "./incidents.js";
+import { groupStories } from "./lib/issues.js";
+import { searchArchive, publicationDay } from "./lib/news-search.js";
+import { isIncidentReport } from "./lib/news-pulse.js";
+import { renderPulse, renderFlow } from "./news-dashboard.js";
+import { showIncidentHistory } from "./incidents.js";
 
-const PAGE = 40;
-const state = { view: "search", category: "all", region: "KR", period: 30, query: "", shown: PAGE, focus: null, topic: "policy" };
-let cards = [];
-let news = { items: [], updatedAt: null };
-let searchResult = null;
-const archiveCache = new Map();
-let names = {};
-let segments = {};
-
+const PAGE = 12;
 const $ = (selector) => document.querySelector(selector);
 const REGION = { KR: "국내", GL: "해외" };
-const CATEGORY = { incident: "해킹 사례", policy: "정책", spending: "기업 대응과 지출" };
-
-const kstDate = (iso) => {
-  const date = new Date(new Date(iso).getTime() + 9 * 3600000);
-  return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}-${String(date.getUTCDate()).padStart(2, "0")}`;
-};
-const inRegion = (region) => state.region === "ALL" || region === state.region;
-const matches = (text) => {
-  const query = state.query.trim().toLowerCase();
-  return !query || text.toLowerCase().includes(query);
-};
-// 정부, 규제기관, 회사 자료 없이 기사만으로 정리한 항목.
-const mediaOnly = (card) => card.sources.every((source) => source.kind === "media");
-const stockNames = (ids) => ids.map((id) => names[id] || id).join(", ");
+const CATEGORY = { incident: "침해사고", policy: "정책", spending: "기업 대응" };
+const params = new URLSearchParams(location.search);
+const state = { category: "all", region: params.get("r") === "GL" ? "GL" : "KR",
+  period: 7, query: params.get("q") || "", shown: PAGE, focus: null };
+let cards = [], names = {}, segments = {}, news = { items: [] }, events = null;
+let searchResult = null, pulseArchive = null, flowItems = [], pulseRequest = 0;
+let cardsAvailable = false, refreshing = false;
+const archiveCache = new Map();
+const anchor = () => Date.parse(news.updatedAt) || Date.now();
+const kstDate = stamp => publicationDay(new Date(stamp).getTime());
+const inRegion = region => region === state.region;
+const matches = text => text.toLowerCase().includes(state.query.trim().toLowerCase());
+const mediaOnly = card => card.sources.every(source => source.kind === "media");
+const stockNames = ids => ids.map(id => names[id] || id).join(", ");
 
 function filteredBriefs() {
-  const cutoff = state.period ? kstDate(Date.now() - state.period * 86400000) : "";
+  const cutoff = state.period ? kstDate(anchor() - state.period * 86400000) : "";
   return cards.filter((card) => inRegion(card.region) && card.date >= cutoff
     && matches([card.title, card.entity, card.claim, ...(card.facts || []).map((fact) => fact.value),
       stockNames(card.tickers || [])].join(" ")));
@@ -44,119 +35,18 @@ function prepareSearch() {
   if (searchResult?.file === news && searchResult.period === state.period) return searchResult.ready;
   const result = { file: news, period: state.period, items: news.items, pending: true, failed: 0 };
   searchResult = result;
-  result.ready = searchArchive(news, state.period, loadJson, archiveCache).then(data => {
+  result.ready = searchArchive(news, state.period, loadJson, archiveCache, anchor()).then(data => {
     Object.assign(result, data, { pending: false });
-    if (searchResult === result && state.view === "search") renderFeed();
+    if (searchResult === result) renderFeed();
   });
   return result.ready;
 }
 
 function filteredItems() {
-  const cutoff = state.period ? Date.now() - state.period * 86400000 : 0;
-  return searchResult.items.filter((item) => (state.category === "all" || item.c === state.category)
-    && inRegion(item.r) && Date.parse(item.d) >= cutoff
+  const cutoff = state.period ? anchor() - state.period * 86400000 : 0;
+  return searchResult.items.filter((item) => (state.category === "all" || (state.category === "incident" ? isIncidentReport(item) : item.c === state.category))
+    && inRegion(item.r) && Date.parse(item.d) > cutoff && Date.parse(item.d) <= anchor()
     && matches(`${item.t} ${item.tKo || ""} ${item.s} ${stockNames(item.k || [])}`));
-}
-
-function findStory(items, id) {
-  return groupStories(items.filter((item) => String(item.g || item.id) === id))[0];
-}
-
-function recentRow(story, firstReport = false) {
-  const item = firstReport ? story.items.at(-1) : story.lead;
-  const others = story.items.filter((article) => article !== item);
-  const coverage = story.sources > 1 ? `${story.sources}개 매체 보도` : `다른 보도 ${others.length}건`;
-  const related = others.length ? `<details class="related" data-story="${esc(story.id)}">
-    <summary>${coverage}</summary>
-    <ul>${others.map((row) => `<li>${link(row)} <span class="meta">${esc(row.s)}, ${fmtKst(row.d)}</span></li>`).join("")}</ul>
-  </details>` : "";
-  return `<li class="recent-row">${link(item, "recent-title")}
-    <p class="recent-meta meta"><time class="num" datetime="${esc(item.d)}">${fmtKst(item.d)}</time><span>${esc(item.s)}</span>${story.earlier
-      ? `<a href="${esc(story.earlier.u)}" target="_blank" rel="noopener">이전 보도 ${fmtKst(story.earlier.d)}</a>` : ""}</p>
-    ${related}</li>`;
-}
-
-function renderStream(panel, html) {
-  if (panel.renderedHtml === html) return;
-  const open = new Set([...panel.querySelectorAll("details[open]")].map(detail => detail.dataset.story));
-  panel.innerHTML = html;
-  panel.querySelectorAll("details").forEach(detail => { detail.open = open.has(detail.dataset.story); });
-  panel.renderedHtml = html;
-}
-
-function majorRow({ event, records, loss, sources }, items, updates) {
-  const firstDate = [...sources].reverse().find(source => /^\d{4}-\d{2}-\d{2}$/.test(source.d))?.d;
-  const latest = sources[0];
-  const impact = [
-    records ? `${event.recUnit ? "영향 범위" : "보도 규모"} ${fmtCount(records)}${esc(event.recUnit || "")}` : "",
-    loss ? `금전 피해 ${event.krw ? fmtKrw(event.krw) : fmtCount(loss) + " 달러"}` : "",
-  ].filter(Boolean).join(", ");
-  const displayDate = firstDate || event.d;
-  const dateLabel = firstDate && event.via !== "DeFiLlama" ? "확인 출처 기준" : "기록일";
-  const update = sources.map(source => updates.get(source.u)).find(Boolean) ||
-    (event.via === "보도 수집" ? incidentUpdate(items, sources) : null);
-  const basis = event.recUnit || loss ? event.basis : "";
-  const references = sources.length > 1
-    ? `<details class="related major-sources" data-story="${esc(event.id)}"><summary>출처 ${sources.length}개</summary>
-      <ul>${sources.map(source => `<li><a href="${esc(source.u)}" target="_blank" rel="noopener">${esc(source.o)}</a>
-        <span class="meta">${esc(source.d || "")}</span></li>`).join("")}</ul></details>`
-    : "";
-  return `<li class="major-row" data-event="${esc(event.id)}">
-    <div class="major-meta meta"><time datetime="${esc(displayDate)}" title="${dateLabel}">${esc(displayDate.slice(5).replace("-", "."))}</time><span>${REGION[event.r] || ""}</span></div>
-    <h3>${esc(event.n)}</h3>
-    <p class="major-impact">${impact}${basis ? ` <span class="meta">${esc(basis)}</span>` : ""}</p>
-    ${/[가-힣]/.test(event.atk || "") ? `<p class="major-summary">${esc(event.atk)}</p>` : ""}
-    <p class="major-citation meta">${update ? `후속 보도 ${link(update)}` : `<a href="${esc(latest.u)}" target="_blank" rel="noopener">${esc(latest.o)}</a>${latest.d && latest.d !== displayDate ? ` <span>${esc(latest.d.slice(5).replace("-", "."))} 자료</span>` : ""}`}</p>
-    ${references}
-  </li>`;
-}
-
-function watchIncidentStreams(file, events) {
-  let lastFetch = Date.now();
-  let fetching = false;
-  function paint() {
-    const now = Date.now();
-    const stories = recentIncidentStories(file.items, now);
-    const fresh = stories.filter((story) => !story.followUp).sort((a, b) => Date.parse(b.first) - Date.parse(a.first));
-    const followUps = stories.filter((story) => story.followUp);
-    const stale = now - Date.parse(file.updatedAt) >= 86400000;
-    const newReports = fresh.length
-      ? `<ul class="recent-new" aria-label="새 침해사고">${fresh.map((story) => recentRow(story, true)).join("")}</ul>`
-      : `<p class="recent-message">${stale ? `최근 수집은 ${fmtKst(file.updatedAt)} KST입니다. 새 수집을 기다리고 있습니다.` : "최근 24시간 안에 처음 보도된 침해사고가 없습니다."}</p>`;
-    renderStream($("#recent-incidents"), newReports);
-
-    const majors = events ? majorIncidents(events.events, fresh, kstDate(now - 27 * 86400000), kstDate(now)) : [];
-    const updates = new Map(followUps.flatMap(story => [story.earlier, ...story.items]
-      .filter(Boolean).map(item => [item.u, story.lead])));
-    const majorReports = majors.length
-      ? `<ul class="major-list">${majors.map(major => majorRow(major, file.items, updates)).join("")}</ul>`
-      : `<p class="recent-message">${events ? "최근 4주 기록에 해당 규모의 사고가 없습니다." : "주요 사고 기록을 불러오지 못했습니다."}</p>`;
-    const latestOnKnown = followUps.length
-      ? `<details class="recent-followups" data-story=""><summary>후속 보도 ${followUps.length}개 보기</summary><ul>${followUps.map((story) => recentRow(story)).join("")}</ul></details>`
-      : "";
-    renderStream($("#major-incidents"), majorReports + latestOnKnown);
-  }
-  async function update() {
-    if (document.hidden) return;
-    paint();
-    if (fetching || Date.now() - lastFetch < 30 * 60000) return;
-    fetching = true;
-    lastFetch = Date.now();
-    try {
-      [file, events] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events)]);
-      news = file;
-      $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
-      paint();
-      if (state.view === "search") renderFeed();
-    } catch {
-      // 수집본이 잠시 응답하지 않으면 마지막 수집본에서도 지난 기사는 계속 만료한다.
-    } finally {
-      fetching = false;
-    }
-  }
-  paint();
-  window.setInterval(update, 60000);
-  document.addEventListener("visibilitychange", update);
 }
 
 function renderFeed() {
@@ -165,16 +55,17 @@ function renderFeed() {
     const briefs = filteredBriefs();
     $("#feed-title").textContent = "출처 확인 자료";
     $("#feed-sub").textContent = `${briefs.length}건`;
-    $("#feed").innerHTML = briefList(briefs);
+    $("#feed").innerHTML = cardsAvailable ? briefList(briefs) : '<p class="empty">정리 자료를 불러오지 못했습니다.</p>';
     return;
   }
   if (!focus) prepareSearch();
   const items = focus?.items ?? filteredItems();
   const visible = focus ? items : items.slice(0, state.shown);
-  $("#feed-title").textContent = focus ? "관련 기사" : "기사 목록";
+  $("#feed-title").textContent = focus ? "관련 기사" : "최신 기사";
   $("#feed-sub").textContent = `${items.length.toLocaleString("ko-KR")}건`;
   if (!focus) {
-    $("#feed-sub").textContent += searchResult.pending ? ", 보관 기사 조회 중" : `, ${searchResult.coverage}`;
+    if (searchResult.pending) $("#feed-sub").textContent += ", 보관 기사 조회 중";
+    $("#feed-sub").title = searchResult.coverage || "";
     if (searchResult.failed) $("#feed-sub").textContent += `, ${searchResult.failed}일분 조회 실패`;
   }
   let day = "";
@@ -184,12 +75,12 @@ function renderFeed() {
     day = date;
     return `${header}<div class="headline">
       <time class="time num" datetime="${esc(item.d)}">${fmtKst(item.d, false)}</time>
-      <div>${link(item, "title")}<p class="meta">${esc(item.s)}, ${REGION[item.r]}, ${CATEGORY[item.c]}</p></div>
+      <div>${link(item, "title")}<p class="meta">${esc(item.s)} <span class="wire-category">${item.c === "incident" && !isIncidentReport(item) ? "일반 보도" : CATEGORY[item.c]}</span></p></div>
     </div>`;
   }).join("");
   const back = focus ? '<p class="focus-bar"><button type="button" id="focus-clear">기사 목록으로 돌아가기</button></p>' : "";
   const more = items.length > visible.length
-    ? `<button type="button" class="more" id="more">기사 ${items.length - visible.length}건 더 보기</button>` : "";
+    ? `<button type="button" class="more" id="more">기사 더 보기 (${visible.length} / ${items.length.toLocaleString("ko-KR")}건)</button>` : "";
   const retry = !focus && searchResult.failed ? '<button type="button" class="more" id="archive-retry">보관 기사 다시 조회</button>' : "";
   $("#feed").innerHTML = back + (links || '<p class="empty">조건에 맞는 기사가 없습니다.</p>') + more + retry;
 }
@@ -215,149 +106,138 @@ function briefList(list) {
   }).join("") : '<p class="empty">조건에 맞는 정리가 없습니다.</p>';
 }
 
-function renderPolicy() {
-  $("#digest-title").textContent = state.topic === "policy" ? "정책 정리" : "기업 대응과 지출 정리";
-  $("#digest").innerHTML = briefList(cards.filter((card) => card.category === state.topic));
+
+const press = (selector, key, value) => document.querySelectorAll(selector + " button").forEach(button => {
+  button.setAttribute("aria-pressed", String(button.dataset[key] === value));
+});
+
+function syncControls() {
+  press("#region-switch", "region", state.region);
+  press("#category-switch", "category", state.category);
+  $("#search").value = state.query;
+  $("#period").value = String(state.period);
+  $("#news-title").textContent = REGION[state.region] + " 보안 뉴스";
 }
 
-const press = (container, attribute, value) => container.querySelectorAll("button").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset[attribute] === String(value))));
-
-const tabs = [...document.querySelectorAll(".news-tabs [role=tab]")];
-
-function selectView(view) {
-  state.view = view;
-  for (const button of tabs) {
-    const active = button.dataset.view === view;
-    button.setAttribute("aria-selected", String(active));
-    button.tabIndex = active ? 0 : -1;
-    document.getElementById(button.getAttribute("aria-controls")).hidden = !active;
-  }
-  if (view === "search") renderFeed();
-  if (view === "policy") renderPolicy();
+function drawOverview() {
+  renderPulse(state.region, anchor(), pulseArchive, events);
+  renderFlow(events, flowItems.length ? flowItems : news.items, state.region, anchor());
+  if ($("#history").open) drawHistory();
 }
 
-function resetSearchResults() {
-  state.focus = null;
+function drawHistory() {
+  if (events) showIncidentHistory(events, state.region);
+  else $("#inc-notes").textContent = "사건 자료를 불러오지 못했습니다.";
+}
+
+async function loadPulse() {
+  const request = ++pulseRequest;
+  const [result, flowArchive] = await Promise.all([14, 28].map(days => searchArchive(news, days, loadJson, archiveCache, anchor())));
+  if (request !== pulseRequest) return;
+  pulseArchive = result;
+  flowItems = flowArchive.items;
+  drawOverview();
+}
+
+function resetFeed() {
   state.shown = PAGE;
+  state.focus = null;
+  syncControls();
   renderFeed();
 }
 
-function selectSearchFilters() {
-  press($("#region-switch"), "region", state.region);
-  press($("#period-switch"), "period", state.period);
-  $("#search-category").value = state.category;
-  $("#search").value = state.query;
-}
-
 function bind() {
-  tabs.forEach((button, index) => {
-    button.addEventListener("click", () => selectView(button.dataset.view));
-    button.addEventListener("keydown", (event) => {
-      const shortcuts = { ArrowLeft: (index + tabs.length - 1) % tabs.length, ArrowRight: (index + 1) % tabs.length, Home: 0, End: tabs.length - 1 };
-      if (!Object.hasOwn(shortcuts, event.key)) return;
-      event.preventDefault();
-      const next = tabs[shortcuts[event.key]];
-      next.focus();
-      selectView(next.dataset.view);
-    });
-  });
-  $("#region-switch").addEventListener("click", (event) => {
+  $("#region-switch").addEventListener("click", event => {
     const region = event.target.closest("button")?.dataset.region;
-    if (!region) return;
+    if (!region || state.region === region) return;
     state.region = region;
-    press($("#region-switch"), "region", region);
-    resetSearchResults();
+    const url = new URL(location.href);
+    url.searchParams.set("r", region);
+    url.searchParams.delete("story");
+    history.replaceState(null, "", url);
+    resetFeed();
+    drawOverview();
   });
-  $("#period-switch").addEventListener("click", (event) => {
-    const period = event.target.closest("button")?.dataset.period;
-    if (period == null) return;
-    state.period = Number(period);
-    press($("#period-switch"), "period", period);
-    resetSearchResults();
+  $("#category-switch").addEventListener("click", event => {
+    const category = event.target.closest("button")?.dataset.category;
+    if (!category) return;
+    if (category === "briefs" && state.category !== "briefs") {
+      state.articlePeriod = state.period;
+      state.period = 0;
+    } else if (category !== "briefs" && state.category === "briefs") {
+      state.period = state.articlePeriod ?? 7;
+    }
+    state.category = category;
+    resetFeed();
   });
-  $("#search").addEventListener("input", (event) => {
-    state.query = event.target.value;
-    resetSearchResults();
-  });
-  $("#search-category").addEventListener("change", (event) => {
-    state.category = event.target.value;
-    resetSearchResults();
-  });
-  $("#policy-switch").addEventListener("click", (event) => {
-    const topic = event.target.closest("button")?.dataset.topic;
-    if (!topic) return;
-    state.topic = topic;
-    press($("#policy-switch"), "topic", topic);
-    renderPolicy();
-  });
-  $("#policy-to-search").addEventListener("click", () => {
-    Object.assign(state, { category: state.topic, region: "ALL", period: 30, query: "", focus: null, shown: PAGE });
-    selectSearchFilters();
-    selectView("search");
-    $("#search").focus();
-  });
-  $("#feed").addEventListener("click", (event) => {
+  $("#period").addEventListener("change", event => { state.period = Number(event.target.value); resetFeed(); });
+  $("#search").addEventListener("input", event => { state.query = event.target.value; resetFeed(); });
+  $("#history").addEventListener("toggle", () => { if ($("#history").open) drawHistory(); });
+  $("#pulse-metrics").addEventListener("click", event => { if (event.target.id === "pulse-retry") loadPulse(); });
+  $("#feed").addEventListener("click", event => {
     if (event.target.id === "archive-retry") { searchResult = null; renderFeed(); }
     if (event.target.id === "more") { state.shown += PAGE; renderFeed(); }
-    if (event.target.id === "focus-clear") {
-      state.focus = null;
-      renderFeed();
-      $("#feed-title").focus({ preventScroll: true });
-    }
+    if (event.target.id === "focus-clear") { resetFeed(); $("#feed-title").focus(); }
   });
+}
+
+async function refresh(first = false) {
+  if (refreshing) return;
+  refreshing = true;
+  try {
+    const [file, eventFile] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events)]);
+    news = file;
+    events = eventFile;
+    $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
+    if (first && state.query) {
+      state.period = 0;
+      await prepareSearch();
+      if (!params.has("r")) {
+        const match = searchResult.items.find(item => matches(`${item.t} ${item.tKo || ""} ${item.s} ${stockNames(item.k || [])}`));
+        const card = cards.find(item => matches(item.title + " " + item.entity + " " + stockNames(item.tickers || [])));
+        state.region = match?.r || card?.region || state.region;
+      }
+      if (!filteredItems().length && filteredBriefs().length) state.category = "briefs";
+    }
+    if (first && params.has("story")) {
+      const id = params.get("story");
+      const story = groupStories(news.items.filter(item => String(item.g || item.id) === id))[0];
+      if (story) { state.region = story.r; state.focus = story; }
+    }
+    syncControls();
+    renderFeed();
+    await loadPulse();
+    if (first) {
+      const target = document.getElementById(location.hash.slice(1));
+      if (target?.closest("#history") || params.get("view") === "incidents") {
+        $("#history").open = true;
+        drawHistory();
+        (target || $("#history")).scrollIntoView();
+      } else if (state.query || state.focus) {
+        $("#news-library").scrollIntoView();
+      }
+    }
+  } catch (error) {
+    $("#status-text").textContent = news.updatedAt ? `갱신 지연, 최근 수집 ${fmtKst(news.updatedAt)} KST` : "기사 수집본을 불러오지 못했습니다.";
+    if (!news.updatedAt) {
+      for (const id of ["feed","pulse-metrics","major-incidents"]) document.getElementById(id).innerHTML = '<p class="empty">자료를 불러오지 못했습니다.</p>';
+    }
+  } finally {
+    refreshing = false;
+  }
 }
 
 async function main() {
   initTheme();
-  if (new URLSearchParams(location.search).get("view") === "incidents") {
-    $("#news-feed-view").hidden = true;
-    $("#news-incidents-view").hidden = false;
-    $('[data-news-page="feed"]').removeAttribute("aria-current");
-    $('[data-news-page="incidents"]').setAttribute("aria-current", "page");
-    document.title = "사이버보안 모니터, 보안 사고";
-    await initIncidents();
-    document.getElementById(location.hash.slice(1))?.scrollIntoView();
-    return;
-  }
+  const [cardFile, snapshot] = await Promise.all([loadJson("data/cards.json").catch(() => null), loadJson("data/snapshot.json").catch(() => null)]);
+  cardsAvailable = !!cardFile;
+  cards = cardFile?.cards || [];
+  names = Object.fromEntries((snapshot?.stocks || []).map(stock => [stock.id, stock.name]));
+  segments = Object.fromEntries((snapshot?.segments || []).map(segment => [segment.id, segment.label]));
   bind();
-  try {
-    const [cardFile, newsFile, snapshot, eventFile] = await Promise.all([
-      loadJson("data/cards.json"), loadJson("data/news.json"), loadJson("data/snapshot.json"),
-      loadJson("data/incident-events.json").catch(() => null),
-    ]);
-    cards = cardFile.cards;
-    news = newsFile;
-    names = Object.fromEntries(snapshot.stocks.map((stock) => [stock.id, stock.name]));
-    segments = Object.fromEntries(snapshot.segments.map((segment) => [segment.id, segment.label]));
-    $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
-    $("#notes").textContent = "영문 제목은 자동 번역을 기본으로 합니다. 제목을 누르면 원문이 열립니다.";
-    watchIncidentStreams(news, eventFile);
-  } catch {
-    $("#status-text").textContent = "데이터를 불러오지 못했습니다.";
-    $("#recent-incidents").innerHTML = '<p class="recent-message">침해사고 기사를 불러오지 못했습니다.</p>';
-    $("#major-incidents").innerHTML = '<p class="recent-message">사고 기록을 불러오지 못했습니다.</p>';
-    renderFeed();
-    renderPolicy();
-    return;
-  }
-  const params = new URLSearchParams(location.search);
-  const storyId = params.get("story");
-  const linkedStory = storyId && findStory(news.items, storyId);
-  const query = params.get("q");
-  if (linkedStory && topIssues([linkedStory]).length) {
-    Object.assign(state, { view: "search", region: linkedStory.r, category: linkedStory.c, focus: linkedStory });
-  } else if (query) {
-    Object.assign(state, { view: "search", query, region: "ALL", period: 0 });
-    await prepareSearch();
-    if (!filteredItems().length && filteredBriefs().length) state.category = "briefs";
-  }
-  selectSearchFilters();
-  selectView(state.view);
-  if (state.focus || query) {
-    const target = state.focus ? $("#feed-title") : $("#search");
-    target.focus({ preventScroll: true });
-    $("#news-library").scrollIntoView({ block: "start" });
-  }
+  await refresh(true);
+  const update = () => { if (!document.hidden) refresh(); };
+  window.setInterval(update, 5 * 60000);
+  document.addEventListener("visibilitychange", update);
 }
-
 main();

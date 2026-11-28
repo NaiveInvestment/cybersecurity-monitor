@@ -1,40 +1,96 @@
-body.news-page main { max-width: 1280px; }
-.news-view-nav { display:flex; gap:2px; margin-bottom:18px; border-bottom:1px solid var(--line-strong); }
-.news-view-nav a { padding:6px 13px 8px; color:var(--muted); font-size:14px; font-weight:700; border-bottom:2px solid transparent; }
-.news-view-nav a[aria-current="page"] { color:var(--ink); border-color:var(--accent); }
-.news-view-nav a:hover { color:var(--ink); text-decoration:none; }
-.news-overview { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 20px; margin-bottom: 24px; }
-.news-section-head { min-height: 57px; padding-bottom: 10px; }
-.news-section-head h2 { margin-bottom: 3px; font-size: 18px; font-weight: 800; }
-.news-section-head p { color: var(--muted); font-size: 12px; }
-.news-stream {
-  max-height: clamp(330px, calc(100svh - 230px), 610px);
-  overflow: auto;
-  scrollbar-gutter: stable;
-  background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
+body.news-page main { max-width: 1240px; }
+.news-mast, .pulse-head, .wire-head, .metric-line { display: flex; align-items: baseline; flex-wrap: wrap; }
+.news-mast { justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.news-mast h2 { font-size: 23px; letter-spacing: -.04em; }
+.news-mast .seg-switch button { padding: 7px 20px; }
+.news-mast .seg-switch button[aria-pressed="true"] { color: var(--surface); background: var(--ink); }
+.pulse { padding: 13px 19px 9px; background: var(--surface); border-block: 1px solid var(--line-strong); }
+.pulse-head { gap: 3px 12px; margin-bottom: 10px; }
+.pulse-head h3 { font-size: 15px; }
+.pulse-head p, .metric p, .volume-axis, .pulse-method, .compare-line, .flow-rule, .wire-count, .flow-date { color: var(--muted); font-size: 12px; }
+#pulse-metrics { display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 20px; }
+.metric { min-width: 0; }
+.metric + .metric { border-inline-start: 1px solid var(--line); padding-inline-start: 20px; }
+.metric h4 { margin: 0; font-size: 13px; font-weight: 650; }
+.metric-line { gap: 0 9px; margin-block: 2px 5px; align-items: center; }
+.metric-line strong { font-size: 26px; line-height: 1.3; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.metric-line small { font-size: 14px; margin-left: 3px; }
+.metric-line span { color: var(--muted); font-size: 12px; }
+.metric-line .unmeasured { font-size: 18px; line-height: 1.85; }
+.volume-chart { width: 100%; display: block; height: 32px; border-bottom: 1px solid var(--line-strong); }
+.metric .now { fill: var(--brand); }
+.metric .past { fill: var(--muted); }
+.volume-axis { display: flex; justify-content: space-around; margin: 2px 0; font-size: 11px; }
+.compare-line { display: grid; grid-template-columns: 26px minmax(10px,1fr) 42px; align-items: center; gap: 5px; line-height: 18px; }
+.compare-line b { color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.compare-track { position: relative; height: 6px; background: var(--surface-2); }
+.compare-track svg { display: block; height: 100%; width: 100%; }
+.compare-track .missing { position: absolute; left: 0; top: 50%; transform: translateY(-50%); background: var(--surface); padding-right: 6px; font-size: 11px; }
+.metric > p { margin-top: 4px; }
+.pulse-method { margin-top: 7px; }
+.pulse-method summary, .flow details summary { cursor: pointer; }
+.pulse-method p { max-width: 95ch; line-height: 1.6; padding-block: 4px; }
+.pulse-message { grid-column: span 2; color: var(--muted); padding-block: 16px; }
+.pulse-message button, .flow-jump { color: var(--brand); text-decoration: underline; }
+.news-columns { display: grid; grid-template-columns: minmax(0, 2fr) minmax(250px, .9fr); gap: 28px; align-items: start; margin-top: 22px; }
+.wire-head { justify-content: space-between; gap: 8px; }
+.wire-head h2, .flow h2 { font-size: 18px; letter-spacing: -.025em; }
+.flow-jump { display: none; font-size: 12px; }
+.wire-tools { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; margin: 8px 0 5px; }
+.wire-kinds { display: flex; flex-wrap: wrap; gap: 3px 9px; }
+.wire-kinds button { color: var(--muted); border-block-end: 2px solid transparent; padding: 5px 1px; font-size: 13px; }
+.wire-kinds button[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); font-weight: 750; }
+.wire-search { display: flex; min-width: 0; gap: 5px; }
+.wire-search input { min-width: 80px; width: 150px; }
+.wire-search select { width: auto; }
+.wire-count { padding: 4px 0 7px; }
+#feed { border-block: 1px solid var(--line-strong); background: var(--surface); }
+#feed .day { padding: 5px 12px; }
+#feed .headline { padding: 8px 12px; border-left: 0; }
+.wire-category::before { content: " / "; color: var(--muted); }
+.flow { border-left: 1px solid var(--line-strong); padding-left: 21px; min-width: 0; }
+.flow-rule { margin-top: 4px; }
+.flow-event { border-top: 1px solid var(--line); padding: 11px 0; }
+#major-incidents { margin-top: 9px; }
+.flow-date { display: flex; gap: 9px; align-items: baseline; }
+.flow-date time { color: var(--brand); font-weight: 700; font-variant-numeric: tabular-nums; }
+.flow-event h3 { font-size: 16px; margin: 1px 0; overflow-wrap: anywhere; }
+.flow-event .impact { font-size: 13px; }
+.flow-latest { margin: 4px 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.flow details summary { color: var(--brand); font-size: 12.5px; padding-block: 4px; }
+.timeline { margin-top: 4px; padding-left: 8px; border-left: 2px solid var(--line-strong); }
+.timeline li { display: grid; grid-template-columns: 36px 1fr; gap: 4px; padding: 3px 0; font-size: 12.5px; overflow-wrap: anywhere; }
+.timeline time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.extra-sources li { padding-block: 3px; font-size: 12px; overflow-wrap: anywhere; }
+.history { margin-top: 18px; border-block: 1px solid var(--line-strong); }
+.history > summary { cursor: pointer; font-size: 15px; font-weight: 700; padding: 13px 0; }
+#news-incidents-view { padding: 4px 0 12px; }
+@media (max-width: 760px) {
+  .news-columns { display: block; margin-top: 17px; }
+  .flow { padding: 12px 0 0; margin-top: 16px; border-left: 0; border-top: 1px solid var(--line-strong); }
+  .flow-jump { display: inline; }
+  .pulse { padding: 10px 12px 6px; }
+  #pulse-metrics { grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+  .metric:first-child { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1.15fr; align-items: center; column-gap: 12px; }
+  .metric:first-child .metric-line { grid-column: 1; grid-row: 2; flex-wrap: wrap; }
+  .metric:first-child .volume-chart { grid-column: 2; grid-row: 1 / 3; }
+  .metric:first-child .volume-axis { grid-column: 2; grid-row: 3; }
+  .metric:first-child > p { grid-column: 1; grid-row: 3; margin-top: 0; }
+  .metric:nth-child(2) { border-left: 0; padding-left: 0; }
+  .metric + .metric { padding-top: 7px; border-top: 1px solid var(--line); }
+  .metric:last-child { padding-left: 12px; }
+  .metric-line strong { font-size: 22px; }
+  .compare-line { grid-template-columns: 24px 1fr 40px; gap: 3px; }
+  .wire-search { flex: 1 1 250px; }
+  .wire-search input { flex: 1; }
 }
-.news-stream:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
-#recent-incidents { border-top: 2px solid var(--brand); }
-#major-incidents { border-top: 2px solid var(--accent); }
-.major-row { padding: 11px 15px; overflow-wrap: anywhere; }
-.major-row + .major-row { border-top: 1px solid var(--line); }
-.major-row h3 { margin: 3px 0; font-size: 15px; font-weight: 800; }
-.major-meta { display: flex; gap: 10px; align-items: baseline; font-variant-numeric: tabular-nums; }
-.major-impact { font-weight: 700; }
-.major-impact .meta { font-weight: 400; }
-.major-summary { margin-top: 3px; font-size: 13px; }
-.major-citation { margin-top: 5px; }
-.major-citation a { color: var(--brand); }
-
-@media (max-width: 850px) {
-  .news-overview { grid-template-columns: minmax(0, 1fr); gap: 17px; }
-  .news-section-head { min-height: 0; }
-  .news-stream { max-height: clamp(260px, 42svh, 420px); }
-}
-
 @media (max-width: 460px) {
-  .major-row { padding: 10px 12px; }
-  .news-section-head h2 { font-size: 16px; }
+  .news-mast h2 { font-size: 19px; }
+  .news-mast { margin-bottom: 8px; }
+  .pulse-head { margin-bottom: 6px; }
+  .pulse-head p { font-size: 11px; }
+  .wire-tools { margin-top: 3px; }
+  .metric-line { gap: 1px 6px; }
+  .metric-line .unmeasured { font-size: 15px; }
+  .compare-track .missing { display: none; }
 }

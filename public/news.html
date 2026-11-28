@@ -30,94 +30,47 @@
   <span class="company-name" lang="en">Capital Research &amp; FOEM Invest</span>
 </header>
 <main>
-  <nav class="news-view-nav" aria-label="뉴스 보기">
-    <a href="news.html" data-news-page="feed" aria-current="page">뉴스 피드</a>
-    <a href="news.html?view=incidents" data-news-page="incidents">보안 사고</a>
-  </nav>
-  <div id="news-feed-view">
-    <div class="news-overview">
-      <section aria-labelledby="recent-title">
-        <header class="news-section-head">
-          <h2 id="recent-title">최근 24시간 새 침해사고</h2>
-          <p>국내외 첫 보도, 최신순 (KST)</p>
-        </header>
-        <div class="news-stream" id="recent-incidents" role="region" aria-labelledby="recent-title" tabindex="0">
-          <p class="recent-message">기사를 불러오는 중</p>
-        </div>
-      </section>
-      <section aria-labelledby="major-title">
-        <header class="news-section-head">
-          <h2 id="major-title">그간의 주요 침해사고</h2>
-          <p>최근 4주, 영향 범위 5만 이상 또는 금전 피해 1천만 달러 이상</p>
-        </header>
-        <div class="news-stream" id="major-incidents" role="region" aria-labelledby="major-title" tabindex="0">
-          <p class="recent-message">사고 기록을 불러오는 중</p>
-        </div>
-      </section>
+  <header class="news-mast">
+    <h2 id="news-title">국내 보안 뉴스</h2>
+    <div class="seg-switch" id="region-switch" role="group" aria-label="뉴스 지역">
+      <button type="button" data-region="KR" aria-pressed="true">국내</button>
+      <button type="button" data-region="GL" aria-pressed="false">해외</button>
     </div>
-
-    <div class="tabs news-tabs" id="news-library" role="tablist" aria-label="기사와 정책 자료">
-      <button id="tab-search" type="button" role="tab" aria-selected="true" aria-controls="view-search" data-view="search">기사 검색</button>
-      <button id="tab-policy" type="button" role="tab" aria-selected="false" aria-controls="view-policy" data-view="policy" tabindex="-1">정책과 기업 대응</button>
-    </div>
-
-    <section id="view-search" role="tabpanel" aria-labelledby="tab-search">
-      <div class="tools news-tools">
-        <input class="search" id="search" type="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
-        <div class="seg-switch" role="group" aria-label="지역" id="region-switch">
-          <button type="button" data-region="ALL" aria-pressed="false">전체</button>
-          <button type="button" data-region="KR" aria-pressed="true">국내</button>
-          <button type="button" data-region="GL" aria-pressed="false">해외</button>
+  </header>
+  <section class="pulse" aria-labelledby="pulse-title">
+    <header class="pulse-head"><h3 id="pulse-title">최근 7일 동향</h3><p id="pulse-range"></p></header>
+    <div id="pulse-metrics" aria-live="polite"><p class="empty">집계를 불러오는 중</p></div>
+    <details class="pulse-method"><summary>집계 기준</summary><p id="pulse-method"></p></details>
+  </section>
+  <div class="news-columns">
+    <section class="wire" id="news-library" aria-labelledby="feed-title">
+      <header class="wire-head"><h2 id="feed-title" tabindex="-1">최신 기사</h2><a class="flow-jump" href="#flow-title">주요 사고 흐름 ↓</a></header>
+      <div class="wire-tools">
+        <div class="wire-kinds" role="group" aria-label="기사 유형" id="category-switch">
+          <button type="button" data-category="all" aria-pressed="true">전체</button>
+          <button type="button" data-category="incident" aria-pressed="false">침해사고</button>
+          <button type="button" data-category="policy" aria-pressed="false">정책</button>
+          <button type="button" data-category="spending" aria-pressed="false">기업 대응</button>
+          <button type="button" data-category="briefs" aria-pressed="false">출처 확인 자료</button>
         </div>
-        <div class="seg-switch" role="group" aria-label="기사 기간" id="period-switch">
-          <button type="button" data-period="7" aria-pressed="false">7일</button>
-          <button type="button" data-period="30" aria-pressed="true">30일</button>
-          <button type="button" data-period="0" aria-pressed="false">전체 기간</button>
+        <div class="wire-search">
+          <input class="search" type="search" id="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
+          <select class="search" id="period" aria-label="기사 기간"><option value="7">최근 7일</option><option value="30">최근 30일</option><option value="0">전체 기간</option></select>
         </div>
-        <select class="search" id="search-category" aria-label="기사 유형">
-          <option value="all">모든 기사</option>
-          <option value="incident">해킹 사례</option>
-          <option value="policy">정책</option>
-          <option value="spending">기업 대응과 지출</option>
-          <option value="briefs">출처 확인 자료</option>
-        </select>
       </div>
-      <section class="panel" aria-labelledby="feed-title">
-        <header><h2 id="feed-title" tabindex="-1">기사 목록</h2><p id="feed-sub" aria-live="polite"></p></header>
-        <div id="feed"></div>
-      </section>
+      <p id="feed-sub" class="wire-count" aria-live="polite"></p>
+      <div id="feed"><p class="empty">기사를 불러오는 중</p></div>
     </section>
-
-    <section id="view-policy" role="tabpanel" aria-labelledby="tab-policy" hidden>
-      <div class="tools policy-tools">
-        <div class="seg-switch" role="group" aria-label="정리 유형" id="policy-switch">
-          <button type="button" data-topic="policy" aria-pressed="true">정책</button>
-          <button type="button" data-topic="spending" aria-pressed="false">기업 대응과 지출</button>
-        </div>
-        <button type="button" id="policy-to-search">관련 최신 기사 보기</button>
-      </div>
-      <section class="panel" aria-labelledby="digest-title">
-        <header><h2 id="digest-title">정책 정리</h2><p>원문 출처와 진행 상황</p></header>
-        <div id="digest"></div>
-      </section>
-    </section>
-    <p class="notes" id="notes"></p>
+    <aside class="flow" aria-labelledby="flow-title">
+      <h2 id="flow-title" tabindex="-1">주요 사고 흐름</h2>
+      <p class="flow-rule">최근 4주, 영향 규모 5만 이상 또는 금전 피해 1천만 달러 이상</p>
+      <div id="major-incidents"><p class="empty">사고 기록을 불러오는 중</p></div>
+      <a href="#news-library" class="flow-jump">기사 목록 ↑</a>
+    </aside>
   </div>
-  <div id="news-incidents-view" class="inc" hidden>
-    <section class="inc-top" aria-labelledby="inc-title">
-      <header class="sec-head inc-head">
-        <p class="inc-eyebrow" id="inc-range">보안 사고 동향</p>
-        <div class="seg-switch" role="group" aria-label="지역" id="inc-region">
-          <button type="button" data-region="ALL" aria-pressed="true">통합</button>
-          <button type="button" data-region="KR" aria-pressed="false">국내</button>
-          <button type="button" data-region="GL" aria-pressed="false">해외</button>
-        </div>
-      </header>
-      <h2 class="inc-headline" id="inc-title">최근 7일 보안 사고 강도</h2>
-      <div class="inc-brief" id="inc-brief"></div>
-      <p class="inc-rule" id="inc-rule"></p>
-    </section>
-
+  <details id="history" class="history">
+    <summary id="inc-title">사고 통계와 사건 목록</summary>
+    <div id="news-incidents-view" class="inc">
     <section class="panel inc-panel" aria-labelledby="trend-title">
       <header><h2 id="trend-title">주별 추이</h2><p>같은 주끼리 위아래로 맞춰 봄. 흐린 표시(*)는 집계 중인 이번 주</p></header>
       <p class="inc-legend" id="idx-legend"></p>
@@ -165,7 +118,7 @@
       <div class="inc-chart" id="usd-chart"></div>
     </section>
 
-    <div class="inc-grid wide-left">
+
       <section class="panel inc-panel" aria-labelledby="list-title">
         <header><h2 id="list-title">사건 목록</h2><p id="list-sub"></p></header>
         <div class="inc-tools">
@@ -179,14 +132,10 @@
         <div class="inc-table-wrap"><table class="inc-table" id="inc-table"></table></div>
         <button type="button" class="more" id="inc-more" hidden></button>
       </section>
-      <section class="panel inc-panel" aria-labelledby="press-title">
-        <header><h2 id="press-title">최근 7일 보도</h2><p>해킹 사례 기사, 같은 사건을 다룬 매체 수 순</p></header>
-        <ol class="inc-press" id="inc-press"></ol>
-        <p class="inc-more-link"><a href="news.html">뉴스에서 기사 보기</a></p>
-      </section>
+
+      <p class="notes" id="inc-notes"></p>
     </div>
-    <p class="notes" id="inc-notes"></p>
-  </div>
+  </details>
 </main>
 <script type="module" src="news.js"></script>
 </body>

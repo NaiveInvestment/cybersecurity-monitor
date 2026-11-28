@@ -1,19 +1,15 @@
-// 보안 사고 페이지: 통합, 국내, 해외를 바꿔 보며 최근 7일 강도, 강도 지수, 건수, 유출 규모, 탈취 금액, 업권, 사건 목록, 최근 보도를 본다.
-import { esc, fmtKst, headlineLink, loadJson } from "./common.js";
-import { groupStories } from "./lib/issues.js";
-import { isDeniedIncidentTitle } from "./lib/incident-trend.js";
-import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, brief, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw, isIncidentCandidate } from "./lib/incident-metrics.js";
+import { esc } from "./common.js";
+import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw, isIncidentCandidate } from "./lib/incident-metrics.js";
 
 const $ = (s) => document.querySelector(s);
+const fmt1 = (v) => v == null ? "-" : v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const PAGE = 15;
 const state = { region: "ALL", query: "", sort: "d", shown: PAGE, countMode: "confirmed" };
 let data = null;
-let news = { items: [] };
 let weeks = [];
 let widths = "";
 let confirmed = [], candidates = [];
 
-const fmt1 = (v) => v == null ? "-" : v.toLocaleString("ko-KR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 // 화면 기간은 13주 칸의 첫날부터. 그 앞 자료는 쓰지 않는다.
 const first = () => weeks[0].start;
 const inView = (e) => e.d >= first() && e.d <= data.until;
@@ -23,66 +19,6 @@ const regionList = () => (state.region === "ALL" ? ["KR", "GL"] : [state.region]
 // 안쪽 여백을 뺀 실제 그림 폭
 const width = (el) => { const cs = getComputedStyle(el); return Math.max(260, Math.floor(el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight))); };
 const legend = (keys) => keys.map((k) => `<span class="${k}"><i></i>${REGION_LABEL[k]}</span>`).join("");
-
-const md = (day) => day.slice(5).replace("-", ".");
-// 사고 하나의 규모 글: 유출과 금액 중 발표된 것
-const sizeText = (e) => [hasRec(e) && e.rec ? `유출 ${fmtCount(e.rec)}${e.recUnit || "건"}` : "", knownUsd(e) ? (e.krw ? fmtKrw(e.krw) : fmtUsd(e.usd)) : ""].filter(Boolean).join(", ");
-const eventLink = (e) => (e.src[0] ? `<a href="${esc(e.src[0].u)}" target="_blank" rel="noopener">${esc(e.n)}</a>` : esc(e.n));
-
-// 13개 7일 구간 막대(key: "size" 피해 규모 | "count" 건수). 마지막(최근 7일)만 지역 색.
-function sparkline(b, key) {
-  const max = Math.max(1, ...b.series.map((w) => w[key]));
-  const bw = 8, gap = 3, H = 26;
-  const bars = b.series.map((w, i) => {
-    const h = Math.max(1.5, (w[key] / max) * H);
-    const v = key === "size" ? `피해 규모 ${Math.round(w.size)}` : `${w.count}건`;
-    return `<rect class="${i === b.series.length - 1 ? `cur ${b.region}` : "past"}" x="${i * (bw + gap)}" y="${(H - h).toFixed(1)}" width="${bw}" height="${h.toFixed(1)}"><title>${md(w.start)}~${md(w.end)} ${v}</title></rect>`;
-  }).join("");
-  return `<svg class="brief-spark" viewBox="0 0 ${b.series.length * (bw + gap) - gap} ${H}" preserveAspectRatio="none" role="img" aria-label="최근 13개 7일 구간의 ${key === "size" ? "피해 규모" : "사고 건수"}, 마지막이 최근 7일">${bars}</svg>`;
-}
-
-// 판정 한 줄: 이름, 단계, 순위, 13구간 막대
-const verdict = (b, key) => {
-  const isSize = key === "size";
-  if (!b.count) return `<div class="vd"><span class="vd-name">${isSize ? "피해 규모" : "사고 수"}</span><span class="na">확인 자료 없음</span></div>`;
-  const level = isSize ? b.level : b.countLevel, label = isSize ? b.label : b.countLabel, rank = isSize ? b.rank : b.countRank;
-  return `<div class="vd"><span class="vd-name">${isSize ? "피해 규모" : "사고 수"}</span><b class="lv ${level}">${label}</b><span class="rank">13구간 중 <b class="num">${rank}</b>위</span>${sparkline(b, key)}</div>`;
-};
-
-// 금전 피해 합계: 모두 원화로 발표됐으면 원화, 아니면 달러(원화는 환산)
-function moneyText(b) {
-  const paid = b.series.at(-1).events.filter((e) => knownUsd(e));
-  if (!paid.length) return "<small>발표 없음</small>";
-  return paid.every((e) => e.krw) ? fmtKrw(paid.reduce((t, e) => t + e.krw, 0)) : fmtUsd(b.usd);
-}
-
-function briefCard(b) {
-  const today = b.today.length ? `오늘(${md(data.until)}) 확인 집계 ${b.today.length}건: ${b.today.slice(0, 4).map(eventLink).join(", ")}${b.today.length > 4 ? ` 외 ${b.today.length - 4}건` : ""}` : `오늘(${md(data.until)}) 확인 자료 없음`;
-  return `<article class="brief-card ${b.region}">
-    <header><span class="rg ${b.region}">${REGION_LABEL[b.region]}</span><span class="win num">${md(b.start)}~${md(b.end)}</span></header>
-    <div class="vds">${verdict(b, "count")}${verdict(b, "size")}</div>
-    <div class="brief-body">
-      <dl class="brief-nums">
-        <div><dt>새 사고</dt><dd class="num">${b.count}<small>건</small></dd></div>
-        <div><dt>발표된 유출</dt><dd class="num">${b.rec ? `${fmtCount(b.rec)}<small>건</small>` : "<small>발표 없음</small>"}</dd></div>
-        <div><dt>금전 피해</dt><dd class="num">${moneyText(b)}</dd></div>
-      </dl>
-    </div>
-    ${b.top.length ? `<ol class="brief-top">${b.top.map((e) => `<li>${eventLink(e)}<span class="sz num">${esc(sizeText(e))}</span><span class="d num">${md(e.d)}</span></li>`).join("")}</ol>` : '<p class="brief-none">규모가 발표된 사고 없음</p>'}
-    <p class="brief-today">${today}</p>
-  </article>`;
-}
-
-function renderTop() {
-  const b = brief(confirmed.filter(inView), data.until);
-  const list = regionList();
-  $("#inc-range").textContent = `${state.region === "ALL" ? "국내외" : REGION_LABEL[state.region]} 보안 사고, 최근 7일 ${md(b.KR.start)}~${md(b.KR.end)}`;
-  $("#inc-title").textContent = `최근 7일 확인 집계, ${list.map(region => b[region].count ? `${REGION_LABEL[region]} ${b[region].count}건` : `${REGION_LABEL[region]} 확인 자료 없음`).join(", ")}`;
-  const brief1 = $("#inc-brief");
-  brief1.classList.toggle("single", list.length === 1);
-  brief1.innerHTML = list.map((r) => briefCard(b[r])).join("");
-  $("#inc-rule").textContent = `리서치 확인은 ${data.researchUntil}까지. DeFiLlama 집계 포함. 순위는 최근 7일을 앞선 12개 구간과 비교합니다.`;
-}
 
 function renderIndex() {
   const index = compositeIndex(confirmed, weeks);
@@ -156,13 +92,6 @@ function renderTable() {
   more.textContent = `${rows.length - shown.length}건 더 보기`;
 }
 
-function renderPress() {
-  const cutoff = Date.now() - 7 * 86400000;
-  const items = news.items.filter((i) => i.c === "incident" && regionList().includes(i.r) && Date.parse(i.d) >= cutoff && !isDeniedIncidentTitle(i.t));
-  const stories = groupStories(items).sort((a, b) => b.sources - a.sources || b.last.localeCompare(a.last)).slice(0, 8);
-  $("#inc-press").innerHTML = stories.length ? stories.map((s) => `<li>${headlineLink(s.lead)}<p class="meta"><span class="rg ${s.r}">${s.r === "KR" ? "국내" : "해외"}</span>${s.sources}개 매체, ${s.count}건, 최근 ${fmtKst(s.last)}</p></li>`).join("") : '<li class="empty">최근 7일 기사 없음</li>';
-}
-
 function renderCharts() {
   widths = [...document.querySelectorAll(".inc-chart")].map((el) => el.clientWidth).join(",");
   renderIndex();
@@ -171,26 +100,13 @@ function renderCharts() {
 }
 
 function render() {
-  renderTop();
   renderCharts();
   renderOrgs();
   renderTable();
-  renderPress();
 }
 
 function bind() {
   const press = (group, attr, value) => group.querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset[attr] === value)));
-  $("#inc-region").addEventListener("click", (event) => {
-    const region = event.target.closest("button")?.dataset.region;
-    if (!region) return;
-    state.region = region;
-    state.shown = PAGE;
-    press($("#inc-region"), "region", region);
-    const url = new URL(location.href);
-    if (region === "ALL") url.searchParams.delete("r"); else url.searchParams.set("r", region);
-    history.replaceState(null, "", url);
-    render();
-  });
   $("#inc-sort").addEventListener("click", (event) => {
     const sort = event.target.closest("button")?.dataset.sort;
     if (!sort) return;
@@ -213,29 +129,22 @@ function bind() {
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       const now = [...document.querySelectorAll(".inc-chart")].map((el) => el.clientWidth).join(",");
-      if (now !== widths) renderCharts();
+      if ($("#history").open && now !== widths) renderCharts();
     });
   }).observe($("#news-incidents-view"));
 }
 
-export async function initIncidents() {
-  try {
-    [data, news] = await Promise.all([loadJson("data/incident-events.json"), loadJson("data/news.json").catch(() => ({ items: [] }))]);
-  } catch (error) {
-    $("#status-text").textContent = "데이터를 불러오지 못함";
-    $("#inc-brief").innerHTML = `<p class="empty">${esc(error.message)}</p>`;
-    return;
+export function showIncidentHistory(file, region) {
+  if (!file) return;
+  if (!data) bind();
+  if (data !== file) {
+    data = file;
+    weeks = weeksEnding(data.until, 13);
+    confirmed = data.events.filter(event => !isIncidentCandidate(event));
+    candidates = data.events.filter(isIncidentCandidate);
   }
-  weeks = weeksEnding(data.until, 13);
-  confirmed = data.events.filter(event => !isIncidentCandidate(event));
-  candidates = data.events.filter(isIncidentCandidate);
-  const r = new URLSearchParams(location.search).get("r");
-  if (r === "KR" || r === "GL") {
-    state.region = r;
-    document.querySelectorAll("#inc-region button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.region === r)));
-  }
-  $("#status-text").textContent = `사건 자료 ${fmtKst(data.updatedAt)} KST`;
-  $("#inc-notes").textContent = `리서치 확인은 ${data.researchUntil}까지입니다. 보도 수집과 제목 자동 감지는 보도 후보로 표시합니다. 출처는 사고 리서치 원문, 공개 보도, DeFiLlama(1천만 달러 이상 가상자산 해킹), ransomware.live(유출 사이트 공개일 기준)입니다.`;
-  bind();
+  if (state.region !== region) state.shown = PAGE;
+  state.region = region;
+  $("#inc-notes").textContent = `리서치 확인은 ${data.researchUntil}까지입니다. 보도 수집과 자동 감지는 후보로 표시합니다. 출처는 사고 리서치 원문, 공개 보도, DeFiLlama, ransomware.live입니다.`;
   render();
 }
