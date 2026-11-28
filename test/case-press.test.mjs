@@ -40,6 +40,8 @@ test("a curated publication overrides portal timing across the 24-hour boundary"
   const wrapper=news(original.s,original.t,"https://news.google.com/rss/articles/other");
   const row={pressTitle:original.t,milestones:[["11.27","보도","",original.s,original.u,original.d]],sources:[wrapper]};
   assert.equal(casePress(row,end).articles.length,0);
+  const separate=news(original.s,original.t,"https://www.hani.co.kr/arti/distinct");
+  assert.deepEqual(casePress({...row,sources:[separate]},end).articles.map(a=>a.u),[separate.u]);
   assert.equal(casePress({...row,sources:[]},end-day/2).articles[0].u,original.u);
 });
 

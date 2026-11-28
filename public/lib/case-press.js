@@ -25,8 +25,9 @@ export function casePress(caseRow,end) {
   });
   const start = end-86400000;
   const articles = mergeLibrary(reports).map(a=>{
+    const wrapper=/^(?:news\.google\.com|(?:n\.)?news\.naver\.com)$/.test(new URL(a.u).hostname);
     const known = ref?.[5] && (articleUrlKey(a.u)===reviewedUrl ||
-      (caseRow.pressTitle && key(a.s)===key(ref[3]) && key(a.t)===key(caseRow.pressTitle)));
+      (wrapper && caseRow.pressTitle && key(a.s)===key(ref[3]) && key(a.t)===key(caseRow.pressTitle)));
     const at = known ? publicationStamp({d:ref[5]}) : publicationStamp(a);
     return {...a,at};
   }).filter(a=>a.at>start && a.at<=end).sort((a,b)=>b.at-a.at || a.u.localeCompare(b.u));
