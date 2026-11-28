@@ -37,3 +37,12 @@ test("피해 미확인과 공격자 규모 주장은 최고 강도로 처리하�
   assert.equal(reportedEdition({title:"고객 120만 명 개인정보 유출 확인"}).grade,4);
   assert.equal(reportedEdition({title:"공식 홈페이지 변조"}).grade,1);
 });
+
+test("피해 인원과 회원 모집단, 금전 탈취와 사후 회수액을 구별",()=>{
+  const grade=title=>reportedEdition({title}).grade;
+  assert.equal(grade("회원 11만명 넘는 대한치과위생사협회, 개인정보 유출"),2);
+  assert.equal(grade("바이낸스 해킹 탈취 자산 27억 달러 이상 동결, 12억 달러 이상 압류"),0);
+  assert.equal(grade("프랑스 국세청 납세자 67만8천명 개인정보 유출"),3);
+  assert.equal(grade("거래소 25억원 탈취 확인"),3);
+  assert.equal(grade("고객 계좌 잔액 27억 원 노출"),0);
+});
