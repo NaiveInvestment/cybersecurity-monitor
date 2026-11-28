@@ -9,6 +9,7 @@
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="security-alerts.css">
+<link rel="stylesheet" href="stock-overview.css">
 </head>
 <body class="app">
 <header class="top">
@@ -32,8 +33,9 @@
 </header>
 <a class="issue-bar" id="issue-bar" href="news.html" hidden></a>
 <main>
-  <section aria-label="섹터 요약">
+  <section class="stock-overview" aria-labelledby="overview-heading">
     <div class="kpi-controls">
+      <h2 id="overview-heading">보안주 시장 현황</h2>
       <div class="seg-switch" role="group" aria-label="국내외 요약 수익률 가중 방식" id="kpi-weight-switch">
         <button type="button" data-weight="equal" aria-pressed="false">동일가중</button>
         <button type="button" data-weight="cap" aria-pressed="true" title="기간 시작 시가총액 추정치 기준, 해외는 원화 환산">시총가중</button>

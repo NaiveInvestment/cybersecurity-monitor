@@ -1,5 +1,6 @@
 import { krxDate } from "./sector-index.js";
 
+export const marketPeriodLabels = { "1D": "1일", "1W": "1주", "1M": "1개월", "3M": "3개월", "6M": "6개월", "YTD": "연초 이후", "1Y": "1년" };
 export const marketMonthRanges = { "1M": 1, "3M": 3, "6M": 6, "1Y": 12 };
 
 export function marketRangeStart(end, period) {

@@ -2,7 +2,7 @@ import { esc, initTheme, loadJson } from "./common.js";
 import { marketComposition, compositionHistory, compositionWindow, zoomMonths } from "./lib/market-composition.js";
 import { createKosdaqShare } from "./lib/kosdaq-share.js";
 import { treemap } from "./lib/treemap.js";
-import { currentMarketActivity, marketRangeStart, shiftMarketMonths } from "./lib/market-activity.js";
+import { currentMarketActivity, marketMonthRanges, marketRangeStart, shiftMarketMonths } from "./lib/market-activity.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
 
 const number = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
@@ -213,7 +213,10 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
     return button;
   });
   const periodLabel = root.querySelector("[data-compose-period-label]");
-  let months = DEFAULT_MONTHS, anchor = null;
+  const period = new URLSearchParams(location.search).get("period");
+  const periodMonths = { ...marketMonthRanges, "2Y": 24, "3Y": 36 };
+  let months = Object.hasOwn(periodMonths, period) ? periodMonths[period] : DEFAULT_MONTHS;
+  let anchor = null;
   let firstVisible = 0, lastVisible = 0, annualStart = 0;
   const keys = root.querySelector("[data-compose-keys]");
   // selected는 화면에 보이는 날짜, committed는 고정된 조회일이다. 마우스를 올린 동안만 둘이 달라진다.

@@ -351,7 +351,7 @@ function renderKpis() {
   $("#kpis").innerHTML = blocks.map(({ kind, title, index }) => {
     const rows = snapshot.stocks.filter((stock) => stock.kind === kind).map(derive);
     const capSum = rows.reduce((total, d) => total + (d.cap || 0), 0);
-    const keys = [["chg", "오늘"], ["w1", "1W"], ["m1", "1M"], ["ytd", "YTD"]];
+    const keys = [["chg", "오늘"], ["w1", "1주"], ["m1", "1개월"], ["ytd", "연초 이후"]];
     const basket = keys.map(([key]) => capWeighted ? capWeightedReturn(rows, key) : mean(rows.map((d) => d[key])));
     const iq = index?.q || {};
     const ib = index?.b || {};
@@ -359,11 +359,12 @@ function renderKpis() {
     const cells = (values, digits = 1) => values.map((value) => `<td class="${signClass(value)}">${fmtPct(value, digits)}</td>`).join("");
     const gap = basket.map((value, i) => (value == null || bench[i] == null ? null : value - bench[i]));
     return `<article class="kpi">
-      <div><h2>${title} ${rows.length}종목 합산 시가총액</h2><p class="cap">${fmtEok(capSum)}</p></div>
-      <table><thead><tr><td></td>${keys.map(([, label]) => `<th scope="col">${label}</th>`).join("")}</tr></thead>
+      <header class="market-kpi-head"><div><h3>${title}</h3><span class="market-members">${rows.length}종목</span></div>
+        <div class="market-cap"><span>합산 시가총액</span><p class="cap">${fmtEok(capSum)}<small>원</small></p></div></header>
+      <table aria-label="${title} 기간별 수익률과 시장 대비 차이"><thead><tr><th scope="col">수익률</th>${keys.map(([, label]) => `<th scope="col">${label}</th>`).join("")}</tr></thead>
       <tbody><tr><th scope="row">${capWeighted ? "시총가중 평균" : "동일가중 평균"}</th>${cells(basket)}</tr>
       <tr><th scope="row">${esc(index?.name || "지수")}</th>${cells(bench)}</tr>
-      <tr><th scope="row">차이(%p)</th>${gap.map((value) => `<td class="${signClass(Math.abs(value ?? 1) < 0.05 ? 0 : value)}">${value == null ? "-" : Math.abs(value) < 0.05 ? "0.0" : `${value > 0 ? "+" : ""}${value.toFixed(1)}`}</td>`).join("")}</tr></tbody></table>
+      <tr><th scope="row">시장 대비 (%p)</th>${gap.map((value) => `<td class="${signClass(Math.abs(value ?? 1) < 0.05 ? 0 : value)}">${value == null ? "-" : Math.abs(value) < 0.05 ? "0.0" : `${value > 0 ? "+" : ""}${value.toFixed(1)}`}</td>`).join("")}</tr></tbody></table>
     </article>`;
   }).join("");
 }
