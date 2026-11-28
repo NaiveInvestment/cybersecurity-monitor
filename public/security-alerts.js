@@ -14,14 +14,14 @@ function stored() {
 
 function activeAlerts(alerts) {
   const now = Date.now();
-  const urls = new Set();
+  const ids = new Set();
   return alerts.filter(alert => {
     if (!alert) return false;
     const age = now - Date.parse(alert.detectedAt);
     return age >= -60000 && age <= MAX_AGE && alert.id && alert.title && /^https?:\/\//i.test(alert.url);
   }).sort((a, b) => Date.parse(b.detectedAt) - Date.parse(a.detectedAt)).filter(alert => {
-    if (urls.has(alert.url)) return false;
-    urls.add(alert.url);
+    if (ids.has(alert.id)) return false;
+    ids.add(alert.id);
     return true;
   });
 }
