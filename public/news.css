@@ -197,3 +197,5 @@ body.news-page main { max-width: 1240px; }
  .impact-story h3 {font-size:17px}
  #impact-chart text {font-size:16px}
 }
+
+.news-important { display:inline-block; margin-inline-end:.32em; padding:.02em .4em; border:1px solid currentColor; border-radius:.24em; color:var(--text); font-size:.82em; line-height:1.35; vertical-align:.07em; }

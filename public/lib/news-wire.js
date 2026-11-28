@@ -43,9 +43,9 @@ export function regionalAlerts(alerts, index, state, now = Date.now()) {
   });
 }
 
-export function watchWire(onAlerts) {
+export function watchWire(onAlerts, onLibrary) {
   const local = ["localhost","127.0.0.1"].includes(location.hostname);
-  let endpoint, loading = false, alerts = [];
+  let endpoint, loading = false, alerts = [], librarySlot = -1;
   async function update() {
     if (document.hidden || loading) return;
     loading = true;
@@ -61,6 +61,21 @@ export function watchWire(onAlerts) {
       if (!endpoint) return;
       const url = new URL(endpoint, location.href);
       if (!local) url.searchParams.set("slot", String(Math.floor(Date.now()/30000)));
+      const slot=Math.floor(Date.now()/300000);
+      if (onLibrary && librarySlot!==slot) {
+        const libraryUrl=new URL("news-recent.json",url);
+        libraryUrl.searchParams.set("slot",String(slot));
+        try {
+          const source=await fetch(libraryUrl,{cache:"no-store",signal:AbortSignal.timeout(6000)});
+          if (source.ok) {
+            const data=await source.json();
+            if (Array.isArray(data.items) && data.revision) {
+              onLibrary(data);
+              librarySlot=slot;
+            }
+          }
+        } catch { /* Keep the last confirmed public edition on a temporary failure. */ }
+      }
       const response = await fetch(url, { cache:"no-store", signal:AbortSignal.timeout(5000) });
       if (!response.ok) return;
       const file = await response.json();

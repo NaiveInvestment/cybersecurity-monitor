@@ -11,6 +11,14 @@ import { bindCoverage, renderCoverage } from "./coverage-chart.js";
 import { renderImpact } from "./impact-briefing.js";
 import { showIncidentHistory } from "./incidents.js";
 
+import { mergeLibrary, importanceMark } from "./lib/news-library.js";
+let baseNews = null, recentLibrary = [], libraryRevision;
+function integrateRecent() {
+  if (!baseNews) return;
+  const items=mergeLibrary(baseNews.items,recentLibrary);
+  const last=recentLibrary.reduce((value,item)=>Math.max(value,Date.parse(item.d)||0),0);
+  news={...baseNews,items,updatedAt:new Date(Math.max(Date.parse(baseNews.updatedAt),Math.min(Date.now(),last))).toISOString()};
+}
 const PAGE = 12;
 const $ = (selector) => document.querySelector(selector);
 const REGION = { KR: "국내", GL: "해외" };
@@ -27,7 +35,7 @@ let alerts = [], sourceIndex = wireIndex([]), wireMarkup = "";
 function drawAlerts() {
   const html = regionalAlerts(alerts,sourceIndex,state).map(alert => `<div class="headline">
     <time class="time num" datetime="${esc(alert.detectedAt)}">${fmtKst(alert.detectedAt,false)}</time>
-    <div><a class="title" href="${esc(alert.url)}" target="_blank" rel="noopener">${esc(alert.title)}</a>
+    <div>${importanceMark({t:alert.title,important:alert.important})}<a class="title" href="${esc(alert.url)}" target="_blank" rel="noopener">${esc(alert.title)}</a>
     <p class="meta"><strong>속보 감지</strong> / ${esc(alert.source)}</p></div></div>`).join("");
   if (html !== wireMarkup) {
     $("#wire-alerts").innerHTML = html;
@@ -41,7 +49,7 @@ function drawDay() {
   const display = rows.slice(0,dayLimit);
   const html = display.map(({item, stamp, region, kind}) => `<li class="headline" data-day-stamp="${stamp}">
     <time class="time num" datetime="${new Date(stamp).toISOString()}">${fmtKst(stamp,false)}</time>
-    <div>${link(item,"title")}<p class="meta">${REGION[region] || "지역 미분류"} / ${kind} / ${esc(item.s)}</p></div></li>`).join("");
+    <div>${importanceMark(item)}${link(item,"title")}<p class="meta">${REGION[region] || "지역 미분류"} / ${kind} / ${esc(item.s)}</p></div></li>`).join("");
   if (html !== dayMarkup || !$("#day-wire").dataset.ready) {
     $("#day-wire").innerHTML = html ? `<ol>${html}</ol>` : '<p class="empty">최근 24시간 안에 수집된 기사와 속보가 없습니다.</p>';
     $("#day-wire").dataset.ready = "true";
@@ -110,7 +118,7 @@ function renderFeed() {
     day = date;
     return `${header}<div class="headline">
       <time class="time num" datetime="${esc(item.d)}">${fmtKst(item.d, false)}</time>
-      <div>${link(item, "title")}<p class="meta">${esc(item.s)} <span class="wire-category">${reportsDisputedImpact(item.t) ? "침해 관련 보도" : item.c === "incident" && !isIncidentReport(item) ? "일반 보도" : CATEGORY[item.c]}</span></p></div>
+      <div>${importanceMark(item)}${link(item, "title")}<p class="meta">${esc(item.s)} <span class="wire-category">${reportsDisputedImpact(item.t) ? "침해 관련 보도" : item.c === "incident" && !isIncidentReport(item) ? "일반 보도" : CATEGORY[item.c]}</span></p></div>
     </div>`;
   }).join("");
   const back = focus ? '<p class="focus-bar"><button type="button" id="focus-clear">기사 목록으로 돌아가기</button></p>' : "";
@@ -233,7 +241,8 @@ async function refresh(first = false) {
   try {
     const [file, eventFile, coverage] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events), loadJson("data/breach-coverage.json").catch(() => null)]);
     renderCoverage(coverage);
-    news = file;
+    baseNews = file;
+    integrateRecent();
     sourceIndex = wireIndex(news.items);
     events = eventFile;
     $("#status-text").textContent = `기사 수집 ${fmtKst(news.updatedAt)} KST`;
@@ -284,7 +293,17 @@ async function main() {
   names = Object.fromEntries((snapshot?.stocks || []).map(stock => [stock.id, stock.name]));
   segments = Object.fromEntries((snapshot?.segments || []).map(segment => [segment.id, segment.label]));
   bind();
-  watchWire(items => { alerts = items; drawAlerts(); drawDay(); });
+  watchWire(items => { alerts = items; drawAlerts(); drawDay(); }, data => {
+    if (libraryRevision===data.revision) return;
+    libraryRevision=data.revision;
+    recentLibrary=data.items;
+    if (!baseNews) return;
+    integrateRecent();
+    sourceIndex=wireIndex(news.items);
+    renderFeed();
+    drawDay();
+    loadPulse();
+  });
   await refresh(true);
   const update = () => { if (!document.hidden) refresh(); };
   window.setInterval(update, 5 * 60000);

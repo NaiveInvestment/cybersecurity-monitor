@@ -1,3 +1,4 @@
+import { mergeLibrary } from "./news-library.js";
 const DAY = 86400000;
 export const publicationDay = (timestamp) => new Date(timestamp + 9 * 3600000).toISOString().slice(0, 10);
 
@@ -16,7 +17,7 @@ export async function searchArchive(file, period, load, cache, now = Date.now())
     if (result.status === "fulfilled") for (const row of result.value) indexed.set(row.u, row);
   }
   for (const item of file.items) indexed.set(item.u, item);
-  const items = [...indexed.values()].filter(item => Date.parse(item.d) >= since)
+  const items = mergeLibrary([...indexed.values()]).filter(item => Date.parse(item.d) >= since)
     .sort((a, b) => b.d.localeCompare(a.d));
   const dates = new Set(items.map(item => publicationDay(Date.parse(item.d))));
   const coverage = items.length

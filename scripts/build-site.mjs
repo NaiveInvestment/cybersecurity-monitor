@@ -8,6 +8,7 @@ import { join, resolve, sep } from "node:path";
 import { ROOT } from "../src/universe.mjs";
 import { groupStories, topIssues } from "../public/lib/issues.js";
 import { publishSearchableNews } from "../src/news-archive.mjs";
+import { importNewsLibrary } from "../src/import-news-library.mjs";
 import { refreshKosdaqMarket } from "../src/kosdaq-market.mjs";
 
 const args = process.argv.slice(2);
@@ -72,7 +73,8 @@ for (const required of ["snapshot.json", "news.json", "incidents.json", "inciden
 
 // 첫 화면에 필요한 기사 묶음의 요약만 내려보낸다. 최신 기사가 72시간을 넘긴 묶음은 브라우저에서도 걸러 낸다.
 const newsPath = join(outDir, "data", "news.json");
-const news = JSON.parse(readFileSync(newsPath, "utf8"));
+const news = await importNewsLibrary(JSON.parse(readFileSync(newsPath, "utf8")),
+  option("--news-archive", join(ROOT,"state","news-archive")), liveRepo);
 const headlines = news.items;
 publishSearchableNews(option("--news-archive", join(ROOT, "state", "news-archive")), join(outDir, "data"), news);
 const stories = groupStories(headlines);
