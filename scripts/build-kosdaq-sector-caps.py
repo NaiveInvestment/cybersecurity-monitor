@@ -10,6 +10,8 @@ from urllib.request import urlopen
 
 import duckdb
 
+from kosdaq_closing import SOURCE, closing_caps
+
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = "https://raw.githubusercontent.com/FinanceData/marcap/master/data"
 
@@ -90,7 +92,10 @@ def main():
         prior = {row["date"]: row for row in cached["bars"]
                  if days.get(row["date"]) == row["marketCap"] and set(row["caps"]) == set(groups)}
     pending = {}
-    for day in days.keys() - prior.keys():
+    # Revisit same-day observations until the dated annual archive confirms or replaces them.
+    for day in days:
+        if day in prior and prior[day].get("source") != SOURCE:
+            continue
         pending.setdefault(day[:4], {})[day] = days[day]
     with TemporaryDirectory() as tmp:
         for year, expected in sorted(pending.items()):
@@ -103,6 +108,21 @@ def main():
                 prior.update(aggregate(path, expected, codes))
             except (OSError, duckdb.Error) as exc:
                 print(f"KOSDAQ sector cap {year}: {exc}")
+
+    latest = max(days, default=None)
+    if latest and latest not in prior and not args.archive_dir:
+        try:
+            stocks = closing_caps(latest, days[latest])
+            if stocks:
+                caps = {}
+                for key, members in codes.items():
+                    included = [stocks[code] for code in members if code in stocks]
+                    if not included:
+                        raise ValueError(f"No closing stocks for {key}")
+                    caps[key] = {"cap": sum(included), "count": len(included)}
+                prior[latest] = {"date": latest, "marketCap": days[latest], "caps": caps, "source": SOURCE}
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print(f"KOSDAQ same-day close {latest}: {exc}")
 
     rows = [prior[day] for day in sorted(prior)]
     result = {"market": "KOSDAQ", "unit": "원", "membership": membership, "revision": additions["revision"],
