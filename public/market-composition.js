@@ -203,7 +203,15 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
   const lowest = root.querySelector("[data-compose-low]");
   const dateInput = root.querySelector("[data-compose-date]");
   const zoomControls = root.querySelector(".composition-range");
-  const scaleLabel = zoomControls.querySelector("[data-compose-scale]");
+  const rangeButtons = zoomMonths.map(value => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.dataset.months = String(value);
+    const label = value % 12 === 0 ? value / 12 + "년" : value + "개월";
+    button.textContent = value === zoomMonths.at(-1) ? label + " 전체" : label;
+    zoomControls.append(button);
+    return button;
+  });
   const periodLabel = root.querySelector("[data-compose-period-label]");
   let months = DEFAULT_MONTHS, anchor = null;
   let firstVisible = 0, lastVisible = 0, annualStart = 0;
@@ -326,18 +334,16 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
 
   function applyZoom() {
     [firstVisible, lastVisible] = compositionWindow(points, months, anchor);
-    const all = firstVisible === 0 && lastVisible === points.length - 1;
-    zoomControls.querySelector('[data-compose-zoom="out"]').disabled = all;
-    zoomControls.querySelector('[data-compose-zoom="in"]').disabled = months === zoomMonths[0];
-    scaleLabel.textContent = months % 12 === 0 ? (months / 12) + "년" : months + "개월";
+    for (const button of rangeButtons) {
+      button.setAttribute("aria-pressed", String(Number(button.dataset.months) === months));
+    }
     periodLabel.textContent = points[firstVisible].date + " ~ " + points[lastVisible].date;
   }
 
   zoomControls.addEventListener("click", event => {
-    const action = event.target.closest("[data-compose-zoom]")?.dataset.composeZoom;
-    if (!ready || !action) return;
-    const index = zoomMonths.indexOf(months);
-    months = action === "all" ? zoomMonths.at(-1) : zoomMonths[index + (action === "in" ? -1 : 1)];
+    const button = event.target.closest("button[data-months]");
+    if (!ready || !button || Number(button.dataset.months) === months) return;
+    months = Number(button.dataset.months);
     anchor = committed === points.length - 1 ? null : points[committed].date;
     applyZoom();
     paintTrend();
