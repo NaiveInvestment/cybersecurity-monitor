@@ -1,4 +1,4 @@
-"""Aggregate reference ETF stocks' KRX closing caps within KOSDAQ."""
+"""Aggregate screened biotech and robotics stocks' KRX closing caps within KOSDAQ."""
 import argparse
 from datetime import date, timedelta
 import hashlib
@@ -21,11 +21,17 @@ def read_json(path, default):
         return default
 
 
-def baskets():
+def baskets(additions):
     configured = read_json(ROOT / "data/sector-membership.json", {})
     bio = next(group for group in configured["groups"] if group["id"] == "bio")
     robot = read_json(ROOT / "data/kosdaq-robot-membership.json", {})
-    return {group["id"]: group for group in (bio, robot)}
+    return {
+        group["id"]: {
+            **group,
+            "stocks": group["stocks"] + additions["groups"][group["id"]],
+        }
+        for group in (bio, robot)
+    }
 
 
 def aggregate(path, expected, codes):
@@ -62,7 +68,8 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--archive-dir", type=Path, help="Read a local copy of the annual KRX parquet files.")
     args = parser.parse_args()
-    groups = baskets()
+    additions = json.loads((ROOT / "data/kosdaq-sector-additions.json").read_text(encoding="utf-8"))
+    groups = baskets(additions)
     codes = {key: sorted({stock["code"] for stock in group["stocks"]}) for key, group in groups.items()}
     metadata = {key: {field: group[field] for field in ("name", "reference", "asOf", "source")}
                 for key, group in groups.items()}
@@ -98,7 +105,7 @@ def main():
                 print(f"KOSDAQ sector cap {year}: {exc}")
 
     rows = [prior[day] for day in sorted(prior)]
-    result = {"market": "KOSDAQ", "unit": "원", "membership": membership,
+    result = {"market": "KOSDAQ", "unit": "원", "membership": membership, "revision": additions["revision"],
               "baskets": metadata, "asOf": rows[-1]["date"] if rows else None, "bars": rows}
     args.out.parent.mkdir(parents=True, exist_ok=True)
     staged = args.out.with_suffix(".tmp")

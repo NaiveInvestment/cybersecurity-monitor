@@ -1,7 +1,7 @@
 // 정적 사이트 조립: public/ → _site/, 큐레이션 카드 복사, 자산 URL에 내용 해시, 검색 차단, meta.json.
 // 사용: node scripts/build-site.mjs [--out _site] [--live owner/repo]
 // --live를 주거나 GITHUB_REPOSITORY가 있으면 브라우저가 live 브랜치를 폴링한다. 없으면 스냅샷만 보여 준다.
-import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, renameSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, resolve, sep } from "node:path";
 import { ROOT } from "../src/universe.mjs";
@@ -85,16 +85,26 @@ if (liveRepo || existsSync(join(outDir, "data", "domestic-market.json"))) {
   await refreshKosdaqMarket(kosdaqMarket).catch(error => console.warn(`[kosdaq-market] ${error.message}`));
 }
 const sectorCaps = join(outDir, "data", "kosdaq-sector-caps.json");
+const sectorAdditions = join(ROOT, "data", "kosdaq-sector-additions.json");
+const { revision: sectorRevision } = JSON.parse(readFileSync(sectorAdditions, "utf8"));
+cpSync(sectorAdditions, join(outDir, "data", "kosdaq-sector-additions.json"));
 if (localMode) {
   const previous = existsSync(sectorCaps) ? JSON.parse(readFileSync(sectorCaps, "utf8")) : null;
   const url = "https://raw.githubusercontent.com/NaiveInvestment/cybersecurity-monitor/data/kosdaq-sector-caps.json";
   const remote = await fetch(url, { signal: AbortSignal.timeout(6000) }).then(response =>
     response.ok ? response.json() : null).catch(() => null);
-  if (remote?.market === "KOSDAQ" && remote.unit === "원" && Array.isArray(remote.bars)
-      && remote.asOf && (!previous?.asOf || remote.asOf >= previous.asOf)) {
-    writeFileSync(sectorCaps, JSON.stringify(remote));
-  } else if (!previous) {
-    writeFileSync(sectorCaps, JSON.stringify({ market: "KOSDAQ", unit: "원", bars: [] }));
+  const matches = data => data?.revision === sectorRevision;
+  let next = null;
+  if (matches(remote) && remote.market === "KOSDAQ" && remote.unit === "원" && Array.isArray(remote.bars) &&
+      remote.asOf && (!matches(previous) || !previous.asOf || remote.asOf >= previous.asOf)) {
+    next = remote;
+  } else if (!matches(previous)) {
+    next = { market: "KOSDAQ", unit: "원", revision: sectorRevision, bars: [] };
+  }
+  if (next) {
+    const staged = sectorCaps + "." + process.pid + ".tmp";
+    writeFileSync(staged, JSON.stringify(next));
+    renameSync(staged, sectorCaps);
   }
 }
 writeFileSync(join(outDir, "data", "meta.json"), JSON.stringify({
