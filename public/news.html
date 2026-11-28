@@ -30,17 +30,18 @@
   <span class="company-name" lang="en">Capital Research &amp; FOEM Invest</span>
 </header>
 <main>
-  <header class="news-mast"><h2>국내외 보안 브리핑</h2><nav class="jump-nav" aria-label="브리핑 바로가기"><a class="jump-link" href="#impact-title">보도 추이</a><a class="jump-link" href="#day-wire-title">24시간 뉴스</a><a class="jump-link" href="#regional">지역별 분석 ↓</a></nav></header>
-    <section class="impact-trends" aria-labelledby="impact-title">
-      <header class="trend-head"><div><h2 id="impact-title">침해 보도 추이</h2>
-      <p id="impact-range" class="meta">발행 기록을 불러오는 중</p></div>
-      <div id="impact-stats"></div></header>
-      <div class="coverage-legend"><span class="legend-ds">데일리시큐</span><span class="legend-thn">The Hacker News</span><span class="legend-share">주요 피해 비중</span></div>
-      <div id="impact-chart"></div>
-      <div class="trend-foot"><p id="coverage-readout" aria-live="polite"></p>
-      <div class="coverage-details"><details id="coverage-examples" hidden><summary>선택한 주의 주요 피해 보도</summary><ul></ul></details>
-      <details class="impact-method"><summary>집계 기준</summary><p>같은 두 매체의 발행 제목에서 해킹, 침해, 실제 공격 보도를 자동 선별합니다. 막대는 기사 수로, 같은 사건의 후속 보도를 포함합니다. 선은 그중 10만 명, 건 또는 계정 이상 유출, 서비스나 생산 중단, 100억 원 또는 1천만 달러 이상 탈취를 언급한 기사 비중입니다. 의혹과 공격자 주장도 포함합니다. 제목의 표현에 따라 일부 보도는 집계에서 빠질 수 있습니다.</p><p>한국시간 기준, 마지막 수집 시각에서 168시간씩 나눈 17개 구간. 출처 <a href="https://www.dailysecu.com/news/articleList.html?sc_section_code=S1N2" target="_blank" rel="noopener">데일리시큐 이슈</a>, <a href="https://thehackernews.com/" target="_blank" rel="noopener">The Hacker News</a></p></details></div></div>
-    </section>
+  <header class="news-mast"><h2>국내외 보안 브리핑</h2><nav class="jump-nav" aria-label="브리핑 바로가기"><a class="jump-link" href="#case-trend-title">사건 추이</a><a class="jump-link" href="#day-wire-title">24시간 뉴스</a><a class="jump-link" href="#regional">지역별 분석 ↓</a></nav></header>
+  <section class="impact-trends case-trends" aria-labelledby="case-trend-title">
+    <header class="trend-head"><div><h2 id="case-trend-title">해킹 사건 수와 피해 강도</h2>
+    <p id="case-trend-range" class="meta">공개 사건 기록을 불러오는 중</p></div><div id="case-trend-stats"></div></header>
+    <div id="case-trend-plot"></div>
+    <div class="case-trend-caption"><span id="trend-selection" aria-live="polite"></span><span id="trend-leaders"></span></div>
+    <div class="case-trend-notes"><details id="trend-cases" hidden><summary>사건과 출처</summary><ul></ul></details>
+    <details><summary>강도와 집계 범위</summary><p>국내외 공개 자료에서 피해 대상과 경위를 식별한 사건을 첫 공개 기록 주에 한 번 셉니다. 의혹 보도도 출처와 함께 포함합니다. 후속 보도는 같은 사건의 피해 정보를 갱신합니다. 시각이 없는 기록은 한국시간 공개일 시작에 배정합니다.</p>
+    <p>강도는 공개된 근거 중 가장 높은 등급을 씁니다. 1은 홈페이지 변조 등 제한된 피해, 2는 정보 유출이나 서비스 차질, 주요 기업 또는 금융회사 침해, 3은 핵심 인프라 침해, 주민등록번호나 결제카드 등 고위험 정보 노출, 생산 차질, 대외 서비스 장기 중단 또는 10만 명, 건, 계정 이상 피해입니다. 4는 고객 환경으로의 공급망 전파, 여러 핵심 공공 서비스 차질 또는 100만 명, 건, 계정 이상 피해입니다. 금전 피해는 100만 달러부터 3, 1억 달러부터 4입니다. 원화 피해는 주간 비교를 위해 1달러당 1,400원을 고정 적용합니다.</p>
+    <p>주별 평균은 등급이 있는 사건만 포함합니다. 공격자 단독 주장과 추정 규모는 수치 등급에서 제외합니다. 대상만으로 높은 등급을 받은 사건은 목록에 근거를 표시합니다.</p></details></div>
+    <p class="case-scope">공개 자료에서 식별한 사건 기준. 8월 18일부터 원문 조사, 11월 18일부터 선별 보도와 자동 판정 기록 중심. 기간별 수집 범위가 다릅니다.</p>
+  </section>
   <div class="impact-secondary">
     <section class="briefing-wire" aria-labelledby="day-wire-title"><h2 id="day-wire-title">최근 24시간 뉴스</h2>
       <div id="day-wire"><p class="empty">기사를 불러오는 중</p></div>
@@ -51,6 +52,16 @@
       <div id="global-issues"><p class="empty">사건 보도를 불러오는 중</p></div>
     </section>
       <section id="impact-policy" hidden></section>
+      <details class="context-stats"><summary>두 전문매체의 침해 보도량</summary>    <section class="impact-trends" aria-labelledby="impact-title">
+      <header class="trend-head"><div><h2 id="impact-title">침해 보도 추이</h2>
+      <p id="impact-range" class="meta">발행 기록을 불러오는 중</p></div>
+      <div id="impact-stats"></div></header>
+      <div class="coverage-legend"><span class="legend-ds">데일리시큐</span><span class="legend-thn">The Hacker News</span><span class="legend-share">주요 피해 비중</span></div>
+      <div id="impact-chart"></div>
+      <div class="trend-foot"><p id="coverage-readout" aria-live="polite"></p>
+      <div class="coverage-details"><details id="coverage-examples" hidden><summary>선택한 주의 주요 피해 보도</summary><ul></ul></details>
+      <details class="impact-method"><summary>집계 기준</summary><p>같은 두 매체의 발행 제목에서 해킹, 침해, 실제 공격 보도를 자동 선별합니다. 막대는 기사 수로, 같은 사건의 후속 보도를 포함합니다. 선은 그중 10만 명, 건 또는 계정 이상 유출, 서비스나 생산 중단, 100억 원 또는 1천만 달러 이상 탈취를 언급한 기사 비중입니다. 의혹과 공격자 주장도 포함합니다. 제목의 표현에 따라 일부 보도는 집계에서 빠질 수 있습니다.</p><p>한국시간 기준, 마지막 수집 시각에서 168시간씩 나눈 17개 구간. 출처 <a href="https://www.dailysecu.com/news/articleList.html?sc_section_code=S1N2" target="_blank" rel="noopener">데일리시큐 이슈</a>, <a href="https://thehackernews.com/" target="_blank" rel="noopener">The Hacker News</a></p></details></div></div>
+    </section></details>
       <details class="context-stats"><summary>기사량과 확인 피해 통계</summary>
   <section class="pulse global-pulse" aria-labelledby="global-title">
     <header class="pulse-head"><h3 id="global-title">최근 7일 동향</h3><p id="global-range"></p></header>

@@ -1,0 +1,409 @@
+{
+  "events": [
+    {
+      "id": "a-2cd12e8668db",
+      "date": "2026-11-27",
+      "name": "동아대",
+      "grade": 2,
+      "impact": "도서관 전자책 시스템 개인정보 65,895건 유출",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTE8td3JuMDh2U0ZuUU5UdWxMOUc4WjRzYW90UVlxUEpQUXdsaFdPM0c1QkFpR2s2RkxBQ0I2NmFBWk9GOU05TXUxSTZiNUl0MGZ1Rl9XQ0lIUFVVUG5zbzRXQ3ZQR2JzRm1jcFd30gFrQVVfeXFMTy13cm4wOHZTRm5RTlR1bEw5RzhaNHNhb3RRWXFQSlBRd2xoV08zRzVCQWlHazZGTEFDQjY2YUFaT0Y5TTlNdTFJNmI1SXQwZnVGX1dDSUhQVVVQbnNvNFdDdlBHYnNGbWNwV3c"
+    },
+    {
+      "id": "a-e1cf51d9c525",
+      "date": "2026-11-27",
+      "name": "이나인페이",
+      "grade": 3,
+      "impact": "해킹으로 25억 원 탈취 보도",
+      "reason": "25억 원 탈취 보도, 100만 달러 이상",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE9CZHh1VWtHelVkR2F0SGVUNGZYc2trMno3cFFjZGV2TzNLVnllVHhOVDB0cVpha1R2LVhCd24xQzV5MTdUZ25VNnB6WmJhUV9WWllkVnd6aDgxS0F4"
+    },
+    {
+      "id": "a-0e1943b5e4da",
+      "date": "2026-11-26",
+      "name": "1Password",
+      "grade": 3,
+      "impact": "직원의 GitHub 계정 침해로 고객 데이터 탈취 보도",
+      "reason": "인증 서비스 공급자 침해",
+      "url": "https://bleepingcomputer.com/news/security/1password-customer-data-stolen-after-employee-github-account-breach"
+    },
+    {
+      "id": "a-081580631943",
+      "date": "2026-11-26",
+      "name": "경남대",
+      "grade": 2,
+      "impact": "교직원과 학생 개인정보 1,202건 유출",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5vb2dyeXhhUFc4THdidVBBeDNFa3FSVGxRNDNYYjNXak56bjE5dUxGYmRBMVU1djlrem1udmJLYnZ0dGFPUHRjLU1zUzFsT1FyUEhMdmlLY05hZWhYM3hwetIBYEFVX3lxTE5vb2dyeXhhUFc4THdidVBBeDNFa3FSVGxRNDNYYjNXak56bjE5dUxGYmRBMVU1djlrem1udmJLYnZ0dGFPUHRjLU1zUzFsT1FyUEhMdmlLY05hZWhYM3hweg"
+    },
+    {
+      "id": "a-b3c091b94d63",
+      "date": "2026-11-26",
+      "name": "수협은행",
+      "grade": 2,
+      "impact": "고객 54명 정보 유출",
+      "reason": "금융회사 고객정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5aemFMMFV0QmN3bUpjcTFFVWVfeV9TYUJpQmFseWRDa05qYnd1eHlpSzFfeHpLUHFWNmRqTEJYcGxpblpEa1RleVFuYXNQZEUxcDlqWWd3XzlhUU9Hb05TTDc1YVRVRzUtT3ktUGJsTDc"
+    },
+    {
+      "id": "a-fbb990c358d0",
+      "date": "2026-11-26",
+      "name": "전북은행",
+      "grade": 2,
+      "impact": "해킹으로 정보 467건 유출 보도",
+      "reason": "금융회사 정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE56YUVYQ29QREVONGhOclR3TjlCX0QzU2JvYW01cXFmd1VBeVBhREk2WjdLVnBJMWZyVUdkbE1CNGhQMGRiNExCR1JQZUJad1F2NEhrMHVkVW05elVVSG1HaHJXZExDQ3p3M1ctNTlxNXBjTmVmWDYwadIBfkFVX3lxTFBzeWNfR25hYUtfVFZYV1l4c2JHY0drVDItbmtQNVFIaGhBZTYzbXhrYXl4OFQwQ1RNVXFUd3dXQ3hUMDl2aF9jZ2dfZm5HWW1HMkozVTFoYW5Wb0pmS3lKU0tSc0pJMTZIUDJ6eDdfLWNrSHV0YXFWZXlBUWM0QQ"
+    },
+    {
+      "id": "a-dbfa2402c895",
+      "date": "2026-11-26",
+      "name": "FIFA",
+      "grade": 2,
+      "impact": "개인정보와 사업 자료에 무단 접근",
+      "reason": "개인정보와 업무 자료 접근",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTE4xaEhFSlhHN09LYXdIQ2FLLU4yYjhvbFV2U3N2Mk8yMl8wOVU2ejFjb2c4WTJzU0Y2NjlQdlBfUEFfWlNqbU5VN1dlbmxjYUFQaGhZVFBjUURpOGhJbjZJYW1maVo1UWMtRXh3YUZwdTlTbmc"
+    },
+    {
+      "id": "a-96565c6a9844",
+      "date": "2026-11-25",
+      "name": "오사키전기공업",
+      "grade": 3,
+      "impact": "랜섬웨어로 스마트미터 생산 차질",
+      "reason": "생산 중단 또는 차질",
+      "url": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxQQWRWMldwZ2ZPLTJuQjFxOTVRUjYxY2MyLU1nX3JDXzRFMkE1MHJ6NWU1T3BwWU85MDc5b0tGc2c3eDRnb3o4QWNqb1lZS2M3MDdHREdWQmJmMjZJbTVjanpZb1pDX3QxX18tVV9lZFprc3A4dFl5TlZseHd4b0kwN1RLdTB1eGVjZlFrbTlMdGRCQThJcmd0QnR3ZXRkTTlKakdPYVRoQkEwd3pidUpTN2F1U1NjMFhUd21JUG5MTDJ6R0JIa3RkaDFvaGl2clpBWlBVV2U3Wk1oRjNWX1RIMkRMTWh5enVSR193QkhGdTZ3X1k2a1Y1OQ"
+    },
+    {
+      "id": "a-687974bbc837",
+      "date": "2026-11-25",
+      "name": "한국투자저축은행",
+      "grade": 2,
+      "impact": "고객 86,433명 정보 유출",
+      "reason": "금융회사 고객정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMiXEFVX3lxTFBuNXY0bGU2eGdfZC1CZEx0MW5ta2RzcEMzSlhDZ3ZiWEY3X1dZMWhaSHRtSVhGT2VZaExod0VfUVBYQTVoYUdkWVJPcUNhajY4eGtmejUwX0wzamdz"
+    },
+    {
+      "id": "a-3f3db136fb92",
+      "date": "2026-11-23",
+      "name": "Tower Records Japan",
+      "grade": 4,
+      "impact": "1,020만 계정 유출 보도",
+      "reason": "100만 계정 이상",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxOM21uaTREU0t3WTdBdEhXTnZ5R3pwVDlFdDFRemk0dUZDeU5TVGFOOHdVOVctMjcyNmVQUkhnTnBuTUVkVWtGdXVMU3loYTA3NlF4cVBnZXRlTjBwWUlWTktTMTBma0JVcUhKTGlhTWgtcWh0ekVYbGVqVmJuQnczeUZIRzI"
+    },
+    {
+      "id": "a-82b03971cc97",
+      "date": "2026-11-22",
+      "name": "한국전력",
+      "grade": 4,
+      "impact": "고객 152만 명의 주민번호와 계좌번호 유출 보도",
+      "reason": "100만 명 이상",
+      "url": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE5JcGJjR05xZUppbk05QTJjVzBJQkxRbDdtVnhVSW5BTjFvTVpSaXZUbDVHRmc3SGhEalF0WTBSc1ZESXRpWU9mV2RWNWNrUQ"
+    },
+    {
+      "id": "a-662021687d93",
+      "date": "2026-11-19",
+      "name": "European Commission",
+      "grade": 3,
+      "impact": "유럽 집행위원회 사이버 공격 확인",
+      "reason": "정부 핵심 기관 침해",
+      "url": "https://news.google.com/rss/articles/CBMipgFBVV95cUxQa094dTlnMllBSWhQejRVZEtfaVJnZ2U3U0RHUVFqbFlnd0k1SGtLOXk3ZWw2OGhmYkVZMGZ0ZkJ5akRTaGVpTHVqNUd3a2ZjYk16eXZYblJTOG9BZWM2SUgwZHQ3d01KOWV4RmRnTm94SFBNLW9ZNVk3Qy1nY08xbnptUUJ4N014cVFHNE1wdGV0VEQzRTF6dDREc3UxckRkOXlLeDRB"
+    },
+    {
+      "id": "a-d07c04090412",
+      "date": "2026-11-21",
+      "name": "Bell Canada",
+      "grade": 3,
+      "impact": "기업 고객 데이터 탈취 보도",
+      "reason": "통신 인프라 사업자 침해",
+      "url": "https://bleepingcomputer.com/news/security/bell-canada-says-agentic-hacker-stole-enterprise-customer-data"
+    },
+    {
+      "id": "a-a7bd82a3e23e",
+      "date": "2026-11-20",
+      "name": "케어링",
+      "grade": 2,
+      "impact": "돌봄 서비스 이용자 개인정보 유출",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE83ODZoZlNfSFZOMDFjSW5MRFdwWXJvRzdlNXB4X2tJR1JjVjBKQU9lMTdPeWpsMXFpTHJNX3ljM2JlQkJYRVZYRVZjcjR0X2Vpd01sOUZNc05QZw"
+    },
+    {
+      "id": "a-80e91af80472",
+      "date": "2026-11-20",
+      "name": "포항공대",
+      "grade": 2,
+      "impact": "개인정보 19,978건 유출, 연구실 서버 악성 프로그램 발견",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE42MHNFVkRwN0hnbVllY3duYVkyUzc1T0tmSTAwMWl4VUEwM3VfcFd4ZjV6OXkzbGxoeGRDZjY0MVhfNF9keDBCbVE4aGxtcmd1bl9hR1lxQkhSZUc1cUlqSXFybVZTc0h0bUppNQ"
+    },
+    {
+      "id": "a-c2d04bf44247",
+      "date": "2026-11-19",
+      "name": "다우오피스",
+      "grade": 4,
+      "impact": "메신저 업데이트 경로 침해로 고객사 PC에 악성코드 설치",
+      "reason": "공급망을 통해 고객 환경에 전파",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5SeEdMYVNvMmFobFk4cTJlVDkxUlE0R2xCTlp6VlZYLWk1S2QwZFdmUlhYQnN5UzEtUUZzMUl6OWhjSHpQZjJhUEt6YWxaM0NKak1mQlhFVHU4NnBQY0R5Z3htZlFhdG5tRVkyNQ"
+    },
+    {
+      "id": "a-a7bf8c82a696",
+      "date": "2026-11-18",
+      "name": "전주대",
+      "grade": 3,
+      "impact": "개인정보 약 18만 건 유출, 주민번호 약 2.5만 건 포함",
+      "reason": "10만 건 이상",
+      "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFAwV1Z2Y3czNzU0eEhGVXIzczFFeldKU0NLcXgya09Qdm00YTF2c2JhYkQ1SEdXU2VPSTZkN0lkWEVaZlVNS21jTklxaG9EU0laRFBVWUlFRmFpNVpuZEZuemlKQkJCcTZHa3pV0gFvQVVfeXFMTmtXa1YzYl9nVC1iRzRGQ2NrMmI2dmVxUEhqTkxOV1RIUHZIaUZmd21fWkcxX1pKS1dMNENycHJzbXBJSEU0X0J2NFFhUnJMdFFxMUo4YUxzMzJ4MUZjX1k3aGEtVmNzaWNvQVRLcUNn"
+    },
+    {
+      "id": "press-21c089fbbcc4194d4057",
+      "date": "2026-11-27T00:38:46+00:00",
+      "name": "과학기술인공제회",
+      "grade": 3,
+      "impact": "회원정보 약 21만 건 유출 보도",
+      "reason": "10만 건 이상",
+      "url": "https://signal.sedaily.com/article/20119766",
+      "aliases": [
+        "press-0addeccee43ce5085491",
+        "press-21c089fbbcc4194d4057"
+      ]
+    },
+    {
+      "id": "press-8dfc935a067d890de41f",
+      "date": "2026-11-26T22:30:00+00:00",
+      "name": "CJ올리브영",
+      "grade": 4,
+      "impact": "790명 개인정보, 회원번호 자료 약 234만 건 유출 보도",
+      "reason": "100만 건 이상, 회원번호 자료 기준",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE00UEMxbkRsT3lPYVdWR0RCOFlfT29VUkY3RjQ3UFZkWlBNUnZpd29tdWh1Y3ZFMy0yWGNIRTFCOEdfSkFITk1ZVVpTTGxXREhMQnFXTEE0MDB5YjYtM0dEV2xXbnQ1Um9HdXU1bQ",
+      "aliases": [
+        "press-5cbc9740716efa6f591c",
+        "press-8dfc935a067d890de41f"
+      ]
+    },
+    {
+      "id": "press-36ab93cdd42d85bc8ae3",
+      "date": "2026-11-27T08:24:37+00:00",
+      "name": "장볼지도",
+      "grade": 0,
+      "impact": "정부 AI 프로젝트 서버 침입 보도, 피해 규모 미공개",
+      "reason": "피해 판정 자료 부족",
+      "url": "https://ddaily.co.kr/page/view/2026112717110446779",
+      "aliases": [
+        "press-36ab93cdd42d85bc8ae3"
+      ]
+    },
+    {
+      "id": "press-c06a14af0f6aa3f17acc",
+      "date": "2026-11-28T08:18:13+00:00",
+      "name": "펠리시모",
+      "grade": 0,
+      "impact": "이메일 주소 등 최대 166만여 건 유출 가능성 보도",
+      "reason": "추정 규모로 등급 보류",
+      "url": "https://news.web.nhk/newsweb/na/nd-20261128de82980",
+      "aliases": [
+        "press-c06a14af0f6aa3f17acc"
+      ]
+    },
+    {
+      "id": "press-bbe39a84965d649edfec",
+      "date": "2026-11-28T09:28:23+00:00",
+      "name": "케냐 전자정부",
+      "grade": 3,
+      "impact": "전자정부 포털 개인정보 유출 보도",
+      "reason": "핵심 공공 플랫폼 침해",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9wSVRRcVBCMTNTZ0ZoNjdrSlZ3MERlZDEyNXZST3RzWUdqT0xEUlBWSVhTbkFHd2hBYm1odnViWGxqNFRuVmp3LUZDLTlqRndqTzA5VWdaZVFJeVAzMmlsVEdjOUc2NEhE0gFuQVVfeXFMTTJfY25oMEZwNlI5SHNzN3ZFYXlxQUFDemp0b1d1ZUR4WTh2aVVjaE1FbDZ1aEVXZF9lSnRGZHhFYmMxeFdXYVlVejh1ZHgyQ1pjSUxibFYwV0RBZzcwYXRkUnFxbE1uSzU1SzB1dHc",
+      "aliases": [
+        "press-bbe39a84965d649edfec"
+      ]
+    },
+    {
+      "id": "press-9cc99a92e28e7e68f562",
+      "date": "2026-11-28T08:53:00+00:00",
+      "name": "순창군립도서관",
+      "grade": 2,
+      "impact": "외부 침해로 이용자 개인정보 유출",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE9GSnNHN3V1Nng3YmFnUDdTZ1poZTZfbDAxZU8yR0swODAwUDJXWW9NTFdXSkVNTW81ZnRnMEg3LURyVF94UklPQQ",
+      "aliases": [
+        "press-9cc99a92e28e7e68f562"
+      ]
+    },
+    {
+      "id": "press-eaa6e6c463d7bdba84a9",
+      "date": "2026-11-28T10:43:54+00:00",
+      "name": "홍콩 건설업계",
+      "grade": 2,
+      "impact": "등록 근로자의 85% 영향 보도, 절대 인원 미공개",
+      "reason": "근로자 데이터 피해 보도",
+      "url": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQS0dZUTNhN1A2dVZhNFEwTTdjRndEeXRYZU5JeU0zVVNqQTg0eEZlVGZhU1J3QVM3bHhwXzVNRUxZaTJYUzNPcFNLLW5OYXJpc0ZPc3hpTjM0X1VsYTVHVmdWWDVVTUkxa1BkUUJjMTU5dVZILWJScHdNaUI3N2FjcDU1WUdRd2diWDN0eUJxMjF5eENfbTctRU01ZGRHNWxzT20taXhSWk9OM0pJVDBCUmRQbGtIWDF5cGRvaHVmUmpEdllTSEQ2ZVdQWDZKbHdybmIw",
+      "aliases": [
+        "press-eaa6e6c463d7bdba84a9"
+      ]
+    },
+    {
+      "id": "press-48dde0c139b0c283e6a9",
+      "date": "2026-11-28T11:23:20+00:00",
+      "name": "안도라 경찰",
+      "grade": 1,
+      "impact": "공식 홈페이지 변조",
+      "reason": "공개 홈페이지 변조",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPQWZRX3I0dWNjMmwtSGlJNnZiVVFmVGRYTlpPaWpudGlvQzNXekxFbHF0MVY5ZEpOSWlfdnpFNC12eTNHVDJ2bGI4anU5SXU4TXdPcGh1NVpZRXdtWHVVSUpsSzNFU2R3MzQtVjg1Q21KTXJScDMyR3psLTVDQV9NTC1qWHB3ams",
+      "aliases": [
+        "press-48dde0c139b0c283e6a9"
+      ]
+    },
+    {
+      "id": "a-192eb6cb67a0",
+      "date": "2026-11-25",
+      "name": "CIA",
+      "grade": 3,
+      "impact": "핵심 정보 시스템에 대한 사이버 공격 보도",
+      "reason": "국가 정보기관 핵심 시스템 침해",
+      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPS1pvNTZXV2w0YVJlUFVoT2tUcFF5U2VwREotWkJMekVGRndqQmJGVGRyN3hzY05zLTdGcHMyZ2Q3d2tOa0tJT19waUVNdFl1ZjBoRnF3dWlhUi1KXy1SUEFCRHpGcGZMN3hMT3U2Y2R2SWdUOExSNUdRUGR2MFN0N2FTOFRJeXlaQjY4"
+    },
+    {
+      "id": "a-a1b7590c15a6",
+      "date": "2026-11-23",
+      "name": "Microsoft",
+      "grade": 3,
+      "impact": "Entra Connect Health 서비스 관련 침해 공개",
+      "reason": "기업 인증 서비스 공급자 침해",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxOVHJvTmFjYW5yVktOZXhGSnRzQzMtbldGc0Z3OEtYOGxkUWdEcFpvMHNWR0FiUldIMkhrXzBaM3Z0azNRVkxhS2JsVEVqY19PajdFUUtzYkhmNVdId1JQUXNKU2thelVYUUxBcm9PVHNTbGhZYjh4TVg5dDZVcjVrbzR3c2xpUGRpXzJYX1Z5Wk5ZenFwUHdkRm53WERBQ0RjZ3c"
+    },
+    {
+      "id": "a-90cc45490d0d",
+      "date": "2026-11-27",
+      "name": "Flight Centre",
+      "grade": 3,
+      "impact": "사이버 공격으로 여권 정보 접근 보도",
+      "reason": "여권 정보 접근",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxOTXNLSGJYTi1FZ3ZxUXBxVkcwUXRUc09CTFF4ZWtSMzVCeEIyd0l2T3REek9JSzJwRFRGdGZkS0VLWm9mQzRzVWI1a3hOMjAzbjlZYmROYnZrZENRTEoxZVFTSjRjakwxMHA5Vlh2eldtaEhlOXlubndYTGpRTC1ZUURkZGVYOVRTcjlNZXZJbXQ0X3p0TkpkSmVTdWplT1dIdTVHenpxNURqUXJX"
+    },
+    {
+      "id": "a-b4ca09b74b09",
+      "date": "2026-11-27",
+      "name": "Hong Kong’s Octopus",
+      "grade": 2,
+      "impact": "이용자와 가맹점 약 3만 곳 영향 보도",
+      "reason": "전자결제 서비스 이용자 피해",
+      "url": "https://news.google.com/rss/articles/CBMizAFBVV95cUxQRmwycFB3YzRXaUZtVVdlRDUwSVNkbU9Dcm5seTNYN3lHT1NOS1djVjRzcFdUQlhCXzhZZW42cFVEdGd0ZGRocFVNdGZVZ0JIODFndXV5VHZPdDFWLUVXQkg1NUhaRDhPS0lwMDhqWG5UUDltT2MzM3ByaUhHWmgxX0JtZ25mTUJXcFRvanNiOUZoLUlsaGZnc3lSVDN6RXR2ZFpEUjhxS1FLX0xCSGZ3aFJNbThmUUtiMEVJN2E0eTlQNi1veUZzTXZacFTSAcwBQVVfeXFMTVpiejdfbzZCUzA2QUpEakNGdWwwbUpBUzZOQXJUNnNCMEZWejRCQ09ydl9vUG9LN091TEdPUjBKTlFHZmFueTNrd0lwRkRyQUU4R2JoY0Q1dlFWMmE4elRjd25TVUVRS2hITUNmVWNYUnRVaGN0aGlxQWJsYXVDVl9GMVowZGY1SnJKTkhHR1VfRkdlMnF0VU91ZDNUM2R0eVhWZXBEWXZ6SHRiMXpxaXVkS0dwcUpaSmJ0bWNfLUVYSF84ZWQtNWdNNmVr"
+    },
+    {
+      "id": "a-868d5f5b430f",
+      "date": "2026-11-26",
+      "name": "Radware",
+      "grade": 3,
+      "impact": "클라우드 관리 API 관련 데이터 침해 보도",
+      "reason": "보안 서비스 공급자 관리 시스템 침해",
+      "url": "https://news.google.com/rss/articles/CBMinAFBVV95cUxNLWlHRkFWa1ZibU53cC0xT1lyMFhPOG9laXdBOWpUUHBkYXBPWG43VXhiUUlIRzZ6cWQyMjkyT0E1ckIxa2dQcExWT3BCWmgweVFPZU9XNUZDZVFTMlZWOUJubGVUMXphY0JMbERUaHZBck5NS1A0OEVYV0l3ZDJVWHZOblZ4ejBvVWZYQ2Jja1BORlZEWnRIT3A5Y0o"
+    },
+    {
+      "id": "a-991600ce2144",
+      "date": "2026-11-26",
+      "name": "Zodia Custody",
+      "grade": 2,
+      "impact": "가상자산 수탁 고객 데이터 유출 보도",
+      "reason": "금융회사 고객 데이터 유출",
+      "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQNlVZcnUyY1dIUjZuMXp4T2ZNRmhRM1Rmdnp0akhCanBueS1CWVF0a2xYRDBmV2c0WVdRajM5ZmRad3doRHdzb1ZMOUpQN0otd3YxMlRCdXZTTVpmZklzcU5CQzdQOENQSmFPZkdGQklmYVNSYkh0M2NoWGQ0NzFuZHRtNUdFZDlDSWQ2OGZCMA"
+    },
+    {
+      "id": "a-3e729557a15d",
+      "date": "2026-11-26",
+      "name": "패스오더",
+      "grade": 2,
+      "impact": "휴대폰 번호와 프로필 이미지 등 유출 보도",
+      "reason": "고객정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMic0FVX3lxTFBtNmdVSGFRNjJ6YUdqQXlaRzNMZGtqM2h4TlJGR01pY19KSlcxcTd6X21WbFJJRVVrbWV5Mk1WRXA0R0lkVEN0NVpyVmdrNV9qbzVpMk5CdmxPdVVXVHdET19hNXZQSXN0ZHRGQUd3VWZBMEE"
+    },
+    {
+      "id": "a-ea31f1d77d6d",
+      "date": "2026-11-26",
+      "name": "팸텍",
+      "grade": 2,
+      "impact": "랜섬웨어 공격으로 주주와 임직원 개인정보 유출 보도",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE5JZXl1Uk03UUkxakpfZjBIRmdhZkZvME04d3FZVGVtTjdKd3BRQld1ME1ucm9ieGctWFRqMmI0MDg2bTI5MkdkRTgwa28xR1JVUzF1VkZuampHdnpaclFqZjR5VkxoZW94WG11SQ"
+    },
+    {
+      "id": "a-26cd97e45ea6",
+      "date": "2026-11-25",
+      "name": "국립순천대학교",
+      "grade": 0,
+      "impact": "구 학사시스템의 개인정보 유출 정황 보도",
+      "reason": "피해 규모 미확정",
+      "url": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9RcmcyU2RTMUp2ci1lWmJnMExkdnVYV3YtY3dKNU13a2dTTWJEcDFPNjJVbjUwRENad2RQUkNTTlNOc1dKblJnNkRlU21rOEtlYmh5eU9XSk4xUTMyMjBfSlI3UGJGMWRMcEMwMA"
+    },
+    {
+      "id": "a-d748689a7fe1",
+      "date": "2026-11-25",
+      "name": "Todoist",
+      "grade": 2,
+      "impact": "고객 6%의 정보 탈취 확인, 절대 인원 미공개",
+      "reason": "고객정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxQREVJMUVJSTZLTUdJcWNYZU5fXzVlQ2FKTXJnSmREWVQwWUE5OWpyVGwzZURYYk9tbi1aQ1FRbTBZRXpISWE3aUl3bTNMb21NOUlsRTlfRGpVc1RkQnJMcGtFNE1SMF9ocmdyUUZTRElBU1k2ZVJWSWFmNjJzb0NiZEhfWFZLSjZJUk4wcE03U1dLVURGOUFGYjBoVUFYTEtlSjVr"
+    },
+    {
+      "id": "a-2e0c7ab67376",
+      "date": "2026-11-23",
+      "name": "GoFundMe",
+      "grade": 2,
+      "impact": "기부자 개인정보 노출 보도",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFAwN0VYZE4yejlfTThMMXZabWNvMTN1SHVOOS1DOEY0SjhzY3FiV2FnaV9POUhQaFMxTkVua3JlbzlRT3JibkZlcjRPNk5pXzFNSGFXRkZtRHRWQ1J1dDgzV29n"
+    },
+    {
+      "id": "a-7531e4ea513e",
+      "date": "2026-11-23",
+      "name": "Cleverbridge",
+      "grade": 3,
+      "impact": "결제카드 정보 침해 보도",
+      "reason": "결제카드 정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxPdmp6d1lfNnRYM1VmejNqczRrWmYwSXZzYi10aEJwSDNhR2ctQW1DNWlmWFpKbmttcVdnb2E4NWp0dUpFWDREWXFhZnh3ZGV2d0lvWnUwX3pRNWF2NlVPYjBCVXVmRWJ1MEM5N3NmRGUwdldFMkhCMGdtWEpTYnROQjl1VWhRQ3Z0YjZUX2xsMlpWVEk0WjZyYUY4SEVzdw"
+    },
+    {
+      "id": "a-c7a945bf40b5",
+      "date": "2026-11-23",
+      "name": "Persistent Systems",
+      "grade": 2,
+      "impact": "미국 위탁 법률사무소에서 직원 이민 자료 유출 보도",
+      "reason": "위탁처 직원정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMioAJBVV95cUxPNE1IQnppRG16SUZYYXB5Tm5WYnpyT3hHMmZhQWp5WEpmaGtoZUJZOFRUNDBPRHQ4LWtqbEhjS2sxZUNScWZtMHF4OThwNV96aTVhdnQxMldrb0N2VUpPTHdwU2NnRHBQZF9nd3dBVkNxOGJ3YkpfWXI3cXdzMmw4VmhTQk1TWHRVcW1CYnQ1SGhueXcxVm5mQzFDNmt6aHBKWU8wNkE2WW5wY3FvZHpId25nemFYODRfdVdKYWJjeGNxT0RfS1NnS2VjTGloZnl4S2dHQzhJc28tVGFneG8wUTY1ZkVHeFpaQ2VFV3NnWWx3ZE5NVDhMaHlkT1pqUTFWX0ZSUWdzOFkwWlJGLVNwLWd2ODQ2dEI0Q21Sb2tqUDjSAaYCQVVfeXFMTjV6WUFqV0JVaVpwX010RTc1Nm52T2hlRXpoU3lXck1zSllDWDlxM2ljQUpBN0NxVzV1T0c4dkRmYmc1T2xSUGpRNkg1b1FCQzZRWWJaczRBaDkzTjFoSF9SNk5IT1REamNyUlZmNjFYOVZqSVdwQTViTk9IdV9UczFPZUFCSkJMUFRRNEJkemEzMUt5eVg5WkREWGlnNmFvem4xcWpZY01fQlVuRTkxRW1EekdqaWhETWw4V0pFbHNxdW9vbFJyclRxZy1BbkpLQWNCX3p3bXpfMk54RE9mb196MHVHZGpITzJqV0g2c2RpVnlXaE1ZUVRoRThfRDA4OVN4MGxKemlPRDh3VGV6b1hGeXFBY2FaVmxlWGRPS2hCRmJ0bTd3"
+    },
+    {
+      "id": "a-22f430104183",
+      "date": "2026-11-21",
+      "name": "Carnegie Endowment",
+      "grade": 2,
+      "impact": "위탁처 침해로 기부자 데이터 노출 보도",
+      "reason": "개인정보 유출",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxNNVR3dE9LTWNPMlBTUm1mNjRybmtJQU5HaFJodDRMSFRRMWxDMDBFMnJEOGJtdzBtM2xPYmdiVEE1RmZtMmo1cVpDSmlFSkVqZlhFUnZuVFVXYlg2NTZkWkQxSDMtOUFjTGJYOHJOOFRJQ1ZGY0dIUlMwRnZ3TEx2MlRlSy03VDA"
+    },
+    {
+      "id": "a-f921898777c3",
+      "date": "2026-11-20",
+      "name": "Ethiopian Airlines",
+      "grade": 0,
+      "impact": "침해 공개, 고객정보 노출 가능성 안내",
+      "reason": "고객 피해 확인 중",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1uYkIyU0R4V2U1eGNlLTM4LVAtNkh5WUFsOHVrREdPNHE0MjAzQ1BmQVdXcDF6WWQwZGpzaGZzZ0k2Zmk3SzYtRWozZVA4WVlOQjdlc3NhZmVObkhqZkVHY2sxRDE"
+    },
+    {
+      "id": "a-2f99e3ac2673",
+      "date": "2026-11-25",
+      "name": "Colorado",
+      "grade": 3,
+      "impact": "주정부 앱 중단, 약 15만 명 데이터 탈취 보도",
+      "reason": "10만 명 이상",
+      "url": "https://therecord.media/mycolorado-app-down-data-breach"
+    }
+  ],
+  "aliases": {
+    "post-202611": [
+      "press-32fc3ad09e83dcd2eb37",
+      "press-906c42f035fd4332b151",
+      "press-d5d1c53ee9fb15255e55"
+    ],
+    "danawa-202611": [
+      "press-f86572cd0cc7dce21ebf"
+    ]
+  }
+}

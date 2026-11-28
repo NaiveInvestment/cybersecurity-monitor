@@ -71,6 +71,8 @@ for (const required of ["snapshot.json", "news.json", "incidents.json", "inciden
   if (!existsSync(join(outDir, "data", required))) throw new Error(`data/${required}가 없다. build-data와 fetch-news를 먼저 실행할 것.`);
 }
 
+execFileSync(process.execPath,[join(ROOT,"scripts","build-incident-series.mjs"),join(outDir,"data")],{stdio:"inherit"});
+
 // 첫 화면에 필요한 기사 묶음의 요약만 내려보낸다. 최신 기사가 72시간을 넘긴 묶음은 브라우저에서도 걸러 낸다.
 const newsPath = join(outDir, "data", "news.json");
 const news = await importNewsLibrary(JSON.parse(readFileSync(newsPath, "utf8")),

@@ -7,6 +7,7 @@ import { reportsDisputedImpact } from "./lib/impact-cases.js";
 import { isIncidentReport } from "./lib/news-pulse.js";
 import { newsDay } from "./lib/news-briefing.js";
 import { renderGlobalPulse, renderPulse, renderFlow } from "./news-dashboard.js";
+import { bindSeries, showSeries, updateEditions } from "./incident-chart.js";
 import { bindCoverage, renderCoverage } from "./coverage-chart.js";
 import { renderImpact } from "./impact-briefing.js";
 import { showIncidentHistory } from "./incidents.js";
@@ -217,6 +218,7 @@ function resetFeed() {
 
 function bind() {
   bindCoverage();
+  bindSeries();
   $("#region-switch").addEventListener("click", event => {
     const region = event.target.closest("button")?.dataset.region;
     if (!region || state.region === region) return;
@@ -256,7 +258,8 @@ async function refresh(first = false) {
   if (refreshing) return;
   refreshing = true;
   try {
-    const [file, eventFile, coverage] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events), loadJson("data/breach-coverage.json").catch(() => null)]);
+    const [file, eventFile, coverage, series] = await Promise.all([loadJson("data/news.json"), loadJson("data/incident-events.json").catch(() => events), loadJson("data/breach-coverage.json").catch(() => null), loadJson("data/incident-series.json").catch(() => null)]);
+    showSeries(series);
     renderCoverage(coverage);
     baseNews = file;
     integrateRecent();
@@ -313,6 +316,7 @@ async function main() {
   watchWire(items => { alerts = items; drawAlerts(); drawDay(); drawCases(); }, data => {
     if (libraryRevision===data.revision) return;
     libraryRevision=data.revision;
+    updateEditions(data.incidentEditions);
     recentLibrary=data.items;
     if (!baseNews) return;
     integrateRecent();
