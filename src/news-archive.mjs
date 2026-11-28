@@ -3,6 +3,8 @@ import { createHash, randomUUID } from "node:crypto";
 import { join } from "node:path";
 import { isDeniedIncidentTitle } from "../public/lib/incident-trend.js";
 
+import { priceHeadline } from "../public/lib/news-library.js";
+
 const DAY = 86400000;
 const archiveDay = (timestamp) => new Date(timestamp + 9 * 3600000).toISOString().slice(0, 10);
 const daysIn = (dir) => existsSync(dir) ? readdirSync(dir).filter(name => /^\d{4}-\d{2}-\d{2}\.json$/.test(name)).sort() : [];
@@ -54,7 +56,7 @@ export function buildSearchArchive(stateDir, outDir, current, now = Date.now()) 
     const day = name.slice(0, 10);
     if (day < cutoff) continue;
     const rows = JSON.parse(readFileSync(join(stateDir, name), "utf8")).filter(item => {
-      if (seen.has(item.u) || (item.c === "incident" && isDeniedIncidentTitle(item.t))) return false;
+      if (priceHeadline(item.t) || seen.has(item.u) || (item.c === "incident" && isDeniedIncidentTitle(item.t))) return false;
       seen.add(item.u);
       return true;
     });

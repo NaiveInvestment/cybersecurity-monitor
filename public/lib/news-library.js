@@ -13,6 +13,15 @@ function urlKey(url) {
   } catch { return url; }
 }
 
+export function priceHeadline(title) {
+  if (/(?:股价|股價|概念股|板块).{0,24}(?:大涨|上涨|涨停|拉升|下跌|暴跌|漲停|上漲)/u.test(title)) return true;
+  const stockMove = /(?:급등락|급등|급락|상한가|하한가|장중.{0,15}(?:강세|약세|%))|\d+(?:\.\d+)?\s*%\s*(?:올라|뛰어|↑|↓)/u;
+  const operatingMetric = /계약\s*금액|수주\s*액|공급\s*액|매출|피해|도입률|차단율|탐지율|수요|공격\s*(?:건수|횟수)|사용량/u;
+  if (stockMove.test(title) && !operatingMetric.test(title) &&
+      /(?:주가|관련주|종목|보안주|테마주|장중|상한가|하한가|기대감|\d+(?:\.\d+)?\s*%)/u.test(title)) return true;
+  return /\[\s*(?:특징주|주가동향|급등주)\s*\]|(?:주가|관련주|보안주|보안株|주식|테마주|株).{0,32}(?:급등|급락|강세|약세|상승|하락|상한가|신고가|반등)|(?:주가|종목).{0,14}(?:목표가|목표주가)|\b(?:shares|stocks?|share price)\s+(?:(?:of|in)\s+.{1,35}?\s+)?(?:jump|soar|surge|rally|rallie|climb|rise|gain|dip|fall|tumble|drop|slide|plunge|spike|up\b|down\b)/iu.test(title);
+}
+
 export function veryImportant(item) {
   if (typeof item.important === "boolean") return item.important;
   if (!item.confirmed) return false;
@@ -29,7 +38,7 @@ export function veryImportant(item) {
 export function mergeLibrary(base, extras=[]) {
   const result=[], byUrl=new Map(), byTitle=new Map();
   for (const row of [...base,...extras]) {
-    if (!row?.u || !row.t) continue;
+    if (!row?.u || !row.t || priceHeadline(row.t)) continue;
     const url=urlKey(row.u);
     const title=cleaned(row.s)+"|"+cleaned(row.t);
     const same=byTitle.get(title);

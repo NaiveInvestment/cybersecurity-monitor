@@ -33,3 +33,9 @@ test("a later correction replaces the original headline and can remove importanc
     assert.equal(result.tKo,undefined);
   }
 });
+
+test("archived stock-movement reports stay out while security contracts stay searchable", () => {
+  const quote = {...row,t:"[특징주] 안랩, 해킹 소식에 주가 9% 급등",u:"https://press.kr/1"};
+  const contract = {...row,t:"안랩, 공공기관 보안 솔루션 공급계약 체결",u:"https://press.kr/2"};
+  assert.deepEqual(mergeLibrary([quote,contract]),[contract]);
+});
