@@ -2,7 +2,6 @@ import { esc, fmtKst, headlineLink } from "./common.js";
 import { fmtKrw, fmtUsd, isIncidentCandidate } from "./lib/incident-metrics.js";
 import { majorIncidents } from "./lib/major-incidents.js";
 import { publicationDay } from "./lib/news-search.js";
-import { materialPolicy } from "./lib/news-briefing.js";
 import { incidentSeries, newsPulse } from "./lib/news-pulse.js";
 
 const DAY = 86400000;
@@ -164,12 +163,11 @@ export function majorFlows(events, start, end) {
   return result;
 }
 
-export function renderFlow(file, items, region, end, cards = []) {
-  const global = region === "ALL";
-  const host = document.querySelector(global ? "#global-issues" : "#major-incidents");
+export function renderFlow(file, items, region, end) {
+  const host = document.querySelector("#major-incidents");
   const open = new Set([...host.querySelectorAll("details[data-event][open]")].map(node => node.dataset.event));
   const openMore = host.querySelector(".flow-more")?.open;
-  const majors = file ? majorFlows(file.events, publicationDay(end - 27 * DAY), publicationDay(end)).filter(({event}) => global || event.r === region) : [];
+  const majors = file ? majorFlows(file.events, publicationDay(end - 27 * DAY), publicationDay(end)).filter(({event}) => event.r === region) : [];
   const articles = new Map(items.map(item => [item.u, item]));
   const groups = new Map();
   for (const item of items) {
@@ -177,47 +175,10 @@ export function renderFlow(file, items, region, end, cards = []) {
     if (!groups.has(item.g)) groups.set(item.g, []);
     groups.get(item.g).push(item);
   }
-  if (global) {
-    const policy = materialPolicy(items,cards,end);
-    const cutoff = publicationDay(end-6*DAY);
-    const from = publicationDay(end-27*DAY), through = publicationDay(end);
-    const outage = (file?.events || []).filter(event => event.d >= from && event.d <= through &&
-      event.src?.some(s => /^https?:\/\//i.test(s.u)) &&
-      /(?:서비스|업무|운영|시스템).{0,12}(?:중단됐다|중단됐|중단되|중단$|마비)|(?:shut down|disrupt(?:ed|s)|suspend(?:ed|s)).{0,24}(?:services|operations)/i.test(event.atk || "") &&
-      !/가능성|예정|훈련|예방|우려|may |could /i.test(event.atk || "") &&
-      !majors.some(row => row.event.id === event.id || row.sources.some(s => event.src.some(t=>t.u===s.u))))
-      .map(event => ({event,records:0,loss:0,sources:event.src.filter(s=>/^https?:\/\//i.test(s.u))}));
-    const scored = [...majors,...outage].map(major => {
-      const entries = flowEntries(major,articles,groups).filter(e=>e.day <= through);
-      const updated = entries.at(-1)?.day || major.event.d;
-      return { major, entries, updated, scale:Math.max(major.records/50000,major.loss/10000000,1) };
-    }).sort((a,b) => Number(b.updated >= cutoff)-Number(a.updated >= cutoff) ||
-      (b.updated >= cutoff && a.updated >= cutoff ? b.scale-a.scale : 0) || b.updated.localeCompare(a.updated));
-    const seen = new Set();
-    const distinct = scored.filter(({major,entries}) => {
-      const urls = entries.map(({item})=>item.u);
-      if (!urls.length || urls.some(u=>seen.has(u))) return false;
-      for (const url of urls) seen.add(url);
-      return true;
-    });
-    const first = distinct[0];
-    const rest = distinct.slice(1).sort((a,b) => b.updated.localeCompare(a.updated) ||
-      b.entries.length-a.entries.length || b.scale-a.scale);
-    const selected = first ? [first,...rest.slice(0,policy ? 1 : 2)] : [];
-    let html = selected.map(({major,entries})=>flowRow(major,entries,true)).join("");
-    if (policy) {
-      const ordered = [...policy.entries].sort((a,b)=>a.d.localeCompare(b.d));
-      html += `<article class="flow-event policy-issue"><div class="flow-date"><time>${shortDate(publicationDay(Date.parse(policy.date)))}</time><span>${policy.region === "KR" ? "국내" : "해외"} / ${policy.kind}</span></div>
-        <h3><a href="${esc(policy.url)}" target="_blank" rel="noopener">${esc(policy.title)}</a></h3>${policy.claim ? `<p class="flow-latest">${esc(policy.claim)}</p>` : ""}
-        <details data-event="policy-${esc(policy.entries[0].u)}"><summary>보도 흐름과 원문 ${ordered.length}건</summary><ol class="timeline">
-        ${ordered.map(item=>`<li><time>${shortDate(publicationDay(Date.parse(item.d)))}</time><div>${headlineLink(item)}<p class="meta">${esc(item.s)}</p></div></li>`).join("")}</ol></details></article>`;
-    }
-    host.innerHTML = html || '<p class="empty">최근 4주 자료에서 선정 기준을 충족한 이슈가 없습니다.</p>';
-  } else {
-    const rows = majors.map(major => flowRow(major, flowEntries(major, articles, groups)));
-    host.innerHTML = rows.slice(0, 3).join("") + (rows.length > 3 ? `<details class="flow-more"><summary>주요 사고 ${rows.length - 3}건 더 보기</summary>${rows.slice(3).join("")}</details>` : "")
-      || `<p class="empty">${file ? "이 기간에 선정 기준을 충족한 사고가 없습니다." : "사고 기록을 불러오지 못했습니다."}</p>`;
-  }
+  const rows = majors.map(major => flowRow(major, flowEntries(major, articles, groups)));
+  host.innerHTML = rows.slice(0, 3).join("") + (rows.length > 3 ? `<details class="flow-more"><summary>주요 사고 ${rows.length - 3}건 더 보기</summary>${rows.slice(3).join("")}</details>` : "")
+    || `<p class="empty">${file ? "이 기간에 선정 기준을 충족한 사고가 없습니다." : "사고 기록을 불러오지 못했습니다."}</p>`;
+
   host.querySelectorAll("details[data-event]").forEach(node => { node.open = open.has(node.dataset.event); });
   if (openMore && host.querySelector(".flow-more")) host.querySelector(".flow-more").open = true;
 }

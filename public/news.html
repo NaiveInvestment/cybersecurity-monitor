@@ -30,20 +30,33 @@
   <span class="company-name" lang="en">Capital Research &amp; FOEM Invest</span>
 </header>
 <main>
-  <header class="news-mast"><h2>국내외 보안 브리핑</h2><nav class="jump-nav" aria-label="브리핑 바로가기"><a class="jump-link" href="#day-wire-title">24시간 뉴스</a><a class="jump-link" href="#regional">지역별 분석 ↓</a></nav></header>
+  <header class="news-mast"><h2>국내외 보안 브리핑</h2><nav class="jump-nav" aria-label="브리핑 바로가기"><a class="jump-link" href="#impact-title">보도 추이</a><a class="jump-link" href="#day-wire-title">24시간 뉴스</a><a class="jump-link" href="#regional">지역별 분석 ↓</a></nav></header>
+  <div class="impact-layout">
+    <section class="impact-lead" aria-labelledby="issues-title"><h2 id="issues-title">주요 침해 보도</h2>
+      <div id="global-issues"><p class="empty">사건 보도를 불러오는 중</p></div>
+    </section>
+    <section class="impact-trends" aria-labelledby="impact-title"><h2 id="impact-title">주요 사건 보도 추이</h2>
+      <p id="impact-range" class="meta"></p><p id="impact-stats"></p>
+      <div id="impact-chart"></div><p id="impact-note" class="meta"></p>
+      <div id="impact-list" aria-live="polite"></div>
+      <details class="impact-method"><summary>선정 및 집계 기준</summary><p>국내외 보도 중 공용 인프라와 주요 기업의 침해, 운영 중단, 인증정보나 코드 관련 보도, 공개된 대규모 피해 및 당사자의 반박을 추적합니다. 영향 규모가 알려지지 않은 주요 기업, 당사자 입장과 복수 매체의 사건 보도도 포함합니다. 최근 네 구간은 기사 수집본 시각에서 168시간씩 거슬러 계산하며, 기사 시각을 확인할 수 있는 사건을 집계합니다. 주제는 보도가 다룬 쟁점입니다.</p></details>
+    </section>
+  </div>
+  <div class="impact-secondary">
+    <section class="briefing-wire" aria-labelledby="day-wire-title"><h2 id="day-wire-title">최근 24시간 뉴스</h2>
+      <div id="day-wire"><p class="empty">기사를 불러오는 중</p></div>
+      <button class="more" type="button" id="day-more" hidden>더 보기</button>
+    </section>
+    <div class="impact-context">
+      <section id="impact-policy" hidden></section>
+      <details class="context-stats"><summary>기사량과 확인 피해 통계</summary>
   <section class="pulse global-pulse" aria-labelledby="global-title">
     <header class="pulse-head"><h3 id="global-title">최근 7일 동향</h3><p id="global-range"></p></header>
     <div id="global-metrics" class="metrics"><p class="empty">집계를 불러오는 중</p></div>
     <div class="global-foot"><span id="global-coverage"></span><details class="pulse-method"><summary>지표 기준</summary><p id="global-method"></p></details></div>
   </section>
-  <div class="briefing-columns">
-    <section class="briefing-issues" aria-labelledby="issues-title"><h2 id="issues-title">주요 이슈</h2>
-      <div id="global-issues"><p class="empty">주요 이슈를 불러오는 중</p></div>
-    </section>
-    <section class="briefing-wire" aria-labelledby="day-wire-title"><h2 id="day-wire-title">최근 24시간 뉴스</h2>
-      <div id="day-wire"><p class="empty">기사를 불러오는 중</p></div>
-      <button class="more" type="button" id="day-more" hidden>더 보기</button>
-    </section>
+      </details>
+    </div>
   </div>
   <header class="news-mast" id="regional" tabindex="-1">
     <h2 id="news-title">국내 상세 분석</h2>

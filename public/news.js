@@ -3,9 +3,11 @@ import { statusTone } from "./lib/status.js";
 import { groupStories } from "./lib/issues.js";
 import { searchArchive, publicationDay } from "./lib/news-search.js";
 import { regionalAlerts, watchWire, wireIndex } from "./lib/news-wire.js";
+import { reportsDisputedImpact } from "./lib/impact-cases.js";
 import { isIncidentReport } from "./lib/news-pulse.js";
 import { newsDay } from "./lib/news-briefing.js";
 import { renderGlobalPulse, renderPulse, renderFlow } from "./news-dashboard.js";
+import { bindImpact, renderImpact } from "./impact-briefing.js";
 import { showIncidentHistory } from "./incidents.js";
 
 const PAGE = 12;
@@ -17,6 +19,7 @@ const state = { category: "all", region: params.get("r") === "GL" ? "GL" : "KR",
   period: 7, query: params.get("q") || "", shown: PAGE, focus: null };
 let cards = [], names = {}, segments = {}, news = { items: [] }, events = null;
 let searchResult = null, pulseArchive = null, flowItems = [], pulseRequest = 0;
+let flowArchiveStatus = {};
 let cardsAvailable = false, refreshing = false;
 const archiveCache = new Map();
 let alerts = [], sourceIndex = wireIndex([]), wireMarkup = "";
@@ -74,7 +77,7 @@ function prepareSearch() {
 
 function filteredItems() {
   const cutoff = state.period ? anchor() - state.period * 86400000 : 0;
-  return searchResult.items.filter((item) => (state.category === "all" || (state.category === "incident" ? isIncidentReport(item) : item.c === state.category))
+  return searchResult.items.filter((item) => (state.category === "all" || (state.category === "incident" ? (isIncidentReport(item) || reportsDisputedImpact(item.t)) : item.c === state.category))
     && inRegion(item.r) && Date.parse(item.d) > cutoff && Date.parse(item.d) <= anchor()
     && matches(`${item.t} ${item.tKo || ""} ${item.s} ${stockNames(item.k || [])}`));
 }
@@ -106,7 +109,7 @@ function renderFeed() {
     day = date;
     return `${header}<div class="headline">
       <time class="time num" datetime="${esc(item.d)}">${fmtKst(item.d, false)}</time>
-      <div>${link(item, "title")}<p class="meta">${esc(item.s)} <span class="wire-category">${item.c === "incident" && !isIncidentReport(item) ? "일반 보도" : CATEGORY[item.c]}</span></p></div>
+      <div>${link(item, "title")}<p class="meta">${esc(item.s)} <span class="wire-category">${reportsDisputedImpact(item.t) ? "침해 관련 보도" : item.c === "incident" && !isIncidentReport(item) ? "일반 보도" : CATEGORY[item.c]}</span></p></div>
     </div>`;
   }).join("");
   const back = focus ? '<p class="focus-bar"><button type="button" id="focus-clear">기사 목록으로 돌아가기</button></p>' : "";
@@ -152,7 +155,7 @@ function syncControls() {
 
 function drawOverview() {
   renderGlobalPulse(anchor(), pulseArchive, events);
-  renderFlow(events, flowItems.length ? flowItems : news.items, "ALL", anchor(), cards);
+  renderImpact(events, flowItems, anchor(), cards, flowArchiveStatus);
   drawDay();
   drawDetails();
 }
@@ -173,6 +176,7 @@ async function loadPulse() {
   if (request !== pulseRequest) return;
   pulseArchive = result;
   flowItems = flowArchive.items;
+  flowArchiveStatus = flowArchive;
   sourceIndex = wireIndex(flowItems);
   drawAlerts();
   drawOverview();
@@ -186,6 +190,7 @@ function resetFeed() {
 }
 
 function bind() {
+  bindImpact();
   $("#region-switch").addEventListener("click", event => {
     const region = event.target.closest("button")?.dataset.region;
     if (!region || state.region === region) return;

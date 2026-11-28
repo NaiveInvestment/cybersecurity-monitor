@@ -1,3 +1,4 @@
+import { reportsDisputedImpact } from "./impact-cases.js";
 import { reportsIncident } from "./recent-incidents.js";
 
 const FRESH = 45 * 60000;
@@ -34,7 +35,7 @@ export function regionalAlerts(alerts, index, state, now = Date.now()) {
     if (!`${alert.title} ${alert.source}`.toLowerCase().includes(query)) return false;
     if (state.category !== "all") {
       const policy = /법안|입법|법률|시행령|개정안|과징금|규제|정책|감독규정|보안 의무|지침/;
-      const category = policy.test(alert.title) ? "policy" : reportsIncident(alert.title) ? "incident" : null;
+      const category = policy.test(alert.title) ? "policy" : (reportsIncident(alert.title) || reportsDisputedImpact(alert.title)) ? "incident" : null;
       if (state.category !== category) return false;
     }
     seen.add(alert.url);

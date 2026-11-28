@@ -1,4 +1,5 @@
 import { groupStories } from "./issues.js";
+import { reportsDisputedImpact } from "./impact-cases.js";
 import { isIncidentReport } from "./news-pulse.js";
 import { regionalAlerts, wireRegion } from "./news-wire.js";
 
@@ -11,7 +12,7 @@ export function newsDay(items, alerts, index, now) {
     const stamp = Date.parse(item.d);
     if (!inDay(stamp) || seen.has(item.u)) continue;
     rows.push({ item, stamp, region: item.r,
-      kind: item.c === "policy" ? "정책" : item.c === "spending" ? "기업 대응" : isIncidentReport(item) ? "침해사고" : "일반 보도" });
+      kind: item.c === "policy" ? "정책" : item.c === "spending" ? "기업 대응" : reportsDisputedImpact(item.t) ? "침해 관련 보도" : isIncidentReport(item) ? "침해사고" : "일반 보도" });
     seen.add(item.u);
   }
   const accepted = regionalAlerts(alerts, index, {region:"ALL",category:"all",query:""}, now);
