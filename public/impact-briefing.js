@@ -1,5 +1,6 @@
-import { esc } from "./common.js";
-import { buildImpactCases, dateLabel } from "./lib/impact-cases.js";
+import { esc, fmtKst } from "./common.js";
+import { buildImpactCases } from "./lib/impact-cases.js";
+import { publicationDay } from "./lib/news-search.js";
 import { materialPolicy } from "./lib/news-briefing.js";
 import { fmtKrw, fmtUsd } from "./lib/incident-metrics.js";
 
@@ -13,14 +14,24 @@ function reportedScale(event) {
   return facts.join(", ");
 }
 
+function publicationTime(value) {
+  if (!value) return "시각 미공개";
+  const dayOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  const label = dayOnly ? value.slice(5).replace("-",".")+" 시각 미공개" : fmtKst(value).replace("-",".");
+  return '<time datetime="'+esc(value)+'">'+esc(label)+'</time>';
+}
+
 function caseCard(row) {
   const original = row.sources[0];
   const reviewed = row.milestones?.at(-1);
   const source = reviewed ? link(reviewed[4],reviewed[3]+" ↗") : link(original.u,original.s+" ↗");
+  const article = reviewed ? row.sources.find(item=>item.u===reviewed[4]) : original;
+  const feedDate = article?.dayPrecision ? article.calendarDay || publicationDay(Date.parse(article.d)) : article?.d;
+  const published = reviewed?.[5] || feedDate;
   const attack = row.attack || original.tKo || original.t;
   const impact = row.impact || reportedScale(row.event);
   return '<article class="impact-story flow-event" data-case="'+esc(row.id)+'">'+
-    '<header><h3>'+esc(row.name)+'</h3><small>'+(row.region==="KR"?"국내":"해외")+' / '+dateLabel(row.first)+'</small></header>'+
+    '<header><h3>'+esc(row.name)+'</h3><small>'+(row.region==="KR"?"국내":"해외")+' / '+publicationTime(published)+'</small></header>'+
     '<p class="case-attack">'+esc(attack)+'</p>'+
     '<p class="case-impact"><span>피해</span> '+esc(impact || "규모 미공개")+'</p>'+
     '<footer>'+source+'</footer></article>';

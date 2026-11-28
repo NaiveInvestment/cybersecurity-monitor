@@ -137,8 +137,8 @@ body.news-page main { max-width: 1240px; }
 @media(max-width:460px) { .jump-nav { gap:8px; } .jump-link { font-size:12px; } }
 
 
-.impact-layout,.impact-secondary {display:grid;grid-template-columns:minmax(0,.91fr) minmax(0,1.15fr);gap:clamp(18px,2.7vw,40px);margin:14px 0 24px;align-items:start}
-.impact-layout h2,.impact-secondary h2 {margin:0 0 9px;font-size:19px}
+.impact-secondary {display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(18px,2.7vw,36px);margin:16px 0 22px;align-items:start}
+.impact-trends h2,.impact-secondary h2 {margin:0 0 9px;font-size:19px}
 .impact-story {border-top:1px solid var(--line);padding:10px 0 9px}
 .impact-story:first-child {border-top:2px solid var(--brand)}
 .impact-story header {display:flex;align-items:baseline;justify-content:space-between;gap:10px}
@@ -150,9 +150,18 @@ body.news-page main { max-width: 1240px; }
 .case-impact span {margin-right:4px}
 .impact-story footer {margin-top:3px}
 .impact-story a,#impact-policy a,.coverage-details a {color:var(--brand);text-underline-offset:3px}
-.impact-trends {--ds:#2872a6;--thn:#91b9d2;--signal:#a04914;background:var(--surface);border-block:1px solid var(--line-strong);padding:12px 16px 10px;min-width:0}
+.impact-trends {--ds:#2872a6;--thn:#91b9d2;--signal:#a04914;background:var(--surface);border-block:1px solid var(--line-strong);padding:10px 16px 8px;min-width:0;margin-top:9px}
 :root[data-theme="dark"] .impact-trends {--ds:#689dc3;--thn:#b4d3e6;--signal:#f2b36d}
-.impact-trends h2 {margin-bottom:0}
+.trend-head,.briefing-heading {display:flex;align-items:baseline;justify-content:space-between;gap:8px 20px}
+.trend-head {align-items:center}
+.trend-head #impact-stats {margin:0;column-gap:20px}
+.impact-trends h2 {margin:0}
+.briefing-heading small {color:var(--muted);font-size:12px}
+.impact-context {min-width:0}
+.impact-context #impact-policy {border-top:1px solid var(--line);padding-top:8px}
+.trend-foot {display:flex;align-items:baseline;gap:4px 20px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:4px}
+.trend-foot .coverage-details {flex:1;display:flex;justify-content:flex-end;flex-wrap:wrap;gap:2px 18px}
+.trend-foot .coverage-details details[open] {flex-basis:100%}
 #impact-range {font-size:12px;color:var(--muted);margin:2px 0 9px}
 #impact-stats {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:9px}
 #impact-stats>div {display:grid;align-content:start;gap:1px}
@@ -177,9 +186,9 @@ body.news-page main { max-width: 1240px; }
 .week-hit {fill:transparent;stroke:transparent;cursor:pointer}
 #impact-chart g[aria-pressed="true"] .week-hit {fill:var(--brand);fill-opacity:.06;stroke:var(--brand)}
 #impact-chart g:focus-visible .week-hit {stroke-width:2.5}
-#coverage-readout {border-top:1px solid var(--line);padding-top:5px;margin:3px 0;font-size:12px;font-variant-numeric:tabular-nums}
+#coverage-readout {margin:2px 0;font-size:12px;font-variant-numeric:tabular-nums}
 .coverage-details {font-size:12px}
-.coverage-details details {margin-top:4px}
+.coverage-details details {margin:0}
 .coverage-details summary {color:var(--brand);cursor:pointer;width:fit-content}
 .coverage-details ul {padding-left:17px;margin:6px 0}
 .coverage-details li {margin:4px 0}
@@ -192,10 +201,15 @@ body.news-page main { max-width: 1240px; }
 .context-stats .metric {display:block;border:0;padding:8px 0}
 .context-stats .metric+.metric {border-top:1px solid var(--line)}
 @media(max-width:760px){
- .impact-layout,.impact-secondary {grid-template-columns:1fr;gap:16px}
+ .impact-secondary {grid-template-columns:1fr;gap:16px}
+ .trend-head {display:block}
+ .trend-head #impact-stats {margin:5px 0 8px}
+ .trend-foot {display:block}
+ .trend-foot .coverage-details {justify-content:flex-start}
+ .briefing-heading {flex-wrap:wrap}
  .impact-trends {padding:12px 10px}
  .impact-story h3 {font-size:17px}
- #impact-chart text {font-size:16px}
+ #impact-chart text {font-size:11px}
 }
 
 .news-important { display:inline-block; margin-inline-end:.32em; padding:.02em .4em; border:1px solid currentColor; border-radius:.24em; color:var(--text); font-size:.82em; line-height:1.35; vertical-align:.07em; }

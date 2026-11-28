@@ -5,7 +5,7 @@ const short = value => fmtKst(value).slice(0,5).replace("-",".");
 const pct = week => week.count ? 100 * week.severe.length / week.count : null;
 const share = week => week.count ? pct(week).toFixed(1)+"%" : "—";
 const delta = (n,unit) => n===0 ? "변동 없음" : (n>0?"+":"−")+Math.abs(n)+unit;
-let archive, index;
+let archive, index, plottedWidth;
 
 function choose(i) {
   index = i;
@@ -23,7 +23,9 @@ function choose(i) {
 }
 
 function plot(weeks) {
-  const left=37, right=529, step=(right-left)/weeks.length;
+  const chart = $("#impact-chart");
+  plottedWidth = Math.max(1,chart.clientWidth);
+  const left=35, right=plottedWidth-8, step=(right-left)/weeks.length;
   const x = i => left+(i+.5)*step;
   const top=10, base=80, lowTop=105, bottom=148;
   const max = Math.max(10,Math.ceil(Math.max(...weeks.map(w=>w.count))/20)*20);
@@ -34,7 +36,7 @@ function plot(weeks) {
   let svg = grid(top,max)+grid((top+base)/2,max/2)+grid(base,0)+grid(lowTop,high+"%")+grid(bottom,"0%");
   let curve="", next="M";
   for (const [i,w] of weeks.entries()) {
-    const cx=x(i), bar=step*.63;
+    const cx=x(i), bar=Math.min(40,step*.63);
     svg+='<rect class="ds-bar" x="'+(cx-bar/2)+'" y="'+y(w.sources.DS)+'" width="'+bar+'" height="'+(base-y(w.sources.DS))+'"/>'+
       '<rect class="thn-bar" x="'+(cx-bar/2)+'" y="'+y(w.count)+'" width="'+bar+'" height="'+(y(w.sources.DS)-y(w.count))+'"/>';
     const p=pct(w);
@@ -50,11 +52,18 @@ function plot(weeks) {
     const label=short(w.start)+"부터 "+short(w.end)+"까지, 보도 "+w.count+"건, 주요 피해 "+share(w);
     svg+='<g role="button" data-week="'+i+'" aria-label="'+esc(label)+'"><rect class="week-hit" x="'+(cx-step/2+1)+'" y="3" width="'+(step-2)+'" height="149" rx="2"/></g>';
   }
-  $("#impact-chart").innerHTML='<svg viewBox="0 0 540 176" role="group" aria-label="주별 침해 보도량과 주요 피해 보도 비중. 방향키로 주 선택">'+svg+'</svg>';
+  $("#impact-chart").innerHTML='<svg viewBox="0 0 '+plottedWidth+' 176" role="group" aria-label="주별 침해 보도량과 주요 피해 보도 비중. 방향키로 주 선택">'+svg+'</svg>';
 }
 
 export function bindCoverage() {
   const chart=$("#impact-chart");
+  new ResizeObserver(()=>{
+    if (!archive || !chart.clientWidth || chart.clientWidth===plottedWidth) return;
+    const restoreFocus = chart.contains(document.activeElement);
+    plot(archive.weeks);
+    choose(index);
+    if (restoreFocus) chart.querySelector('[aria-pressed="true"]').focus({preventScroll:true});
+  }).observe(chart);
   chart.addEventListener("click",e=>{
     const hit=e.target.closest("[data-week]");
     if(hit) choose(Number(hit.dataset.week));
