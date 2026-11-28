@@ -15,8 +15,8 @@ const SPARK = { width: 120, height: 26, points: 64 };
 const STEPS = [.01, .02, .05, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000];
 // 누적 그래프에서 따로 색을 주는 기업 수(1년 마감일 평균 시총 순). 나머지는 기타로 묶는다. CSS의 composition-color-0..6이 이 수를 따른다.
 const TOP = 7;
-// 화면은 늘 최근 1년을 보여 준다.
-const RANGE = "1Y";
+// 연간 요약, 기업 색과 표의 작은 추이선은 항상 1년 이력을 사용한다.
+const HISTORY_RANGE = "1Y";
 
 function textMeasure(fontFamily) {
   const context = document.createElement("canvas").getContext("2d");
@@ -202,6 +202,9 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
   const highest = root.querySelector("[data-compose-high]");
   const lowest = root.querySelector("[data-compose-low]");
   const dateInput = root.querySelector("[data-compose-date]");
+  const periods = [...root.querySelectorAll("[data-compose-period]")];
+  const periodLabel = root.querySelector("[data-compose-period-label]");
+  let period = HISTORY_RANGE, firstVisible = 0;
   const keys = root.querySelector("[data-compose-keys]");
   // selected는 화면에 보이는 날짜, committed는 고정된 조회일이다. 마우스를 올린 동안만 둘이 달라진다.
   // model은 따로 색을 주는 상위 기업과 기타의 날짜별 시총, slots는 상위 기업의 색 번호다.
@@ -241,13 +244,13 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
   }
 
   function show(index) {
-    selected = Math.max(0, Math.min(index, points.length - 1));
+    selected = Math.max(firstVisible, Math.min(index, points.length - 1));
     if (root.hidden || !ready) return;
     const point = points[selected];
-    kosdaq.select(selected);
+    kosdaq.select(selected - firstVisible);
     const svg = chart.querySelector("svg");
     const tag = svg.querySelector("[data-composition-tag]"), dot = svg.querySelector("[data-composition-dot]");
-    const half = Number(tag.dataset.half), spot = trend.spot(selected);
+    const half = Number(tag.dataset.half), spot = trend.spot(selected - firstVisible);
     svg.querySelector("[data-composition-cursor]").setAttribute("transform", `translate(${spot.x} 0)`);
     tag.setAttribute("transform", `translate(${Math.max(half + 1, Math.min(spot.x, Number(svg.dataset.viewWidth) - half - 1))} 0)`);
     tag.querySelector("text").textContent = point.date;
@@ -300,20 +303,44 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
 
   function paintTrend() {
     const hadFocus = chart.contains(document.activeElement);
-    const pick = group => model.amounts.map(amounts => amounts ? amounts[group] : null);
-    const values = points.map((point, i) => !model.amounts[i] ? null
-      : !highlighted ? point.cap : highlighted === "other" ? model.amounts[i].at(-1) : point.constituents[highlighted] ?? null);
+    const visible = points.slice(firstVisible);
+    const amounts = model.amounts.slice(firstVisible);
+    const pick = group => amounts.map(amounts => amounts ? amounts[group] : null);
+    const values = visible.map((point, i) => !amounts[i] ? null
+      : !highlighted ? point.cap : highlighted === "other" ? amounts[i].at(-1) : point.constituents[highlighted] ?? null);
     const name = highlighted ? label(highlighted) : "합계";
     // 고른 종목이 없으면 합계선 아래에 상위 기업을 큰 순서로 아래부터 쌓고 기타를 맨 위에 둔다.
     const stack = highlighted ? null : model.groups.map((code, group) => ({ code, slot: slotOf(code), values: pick(group) }));
     const tone = highlighted && (highlighted === "other" || slots.has(highlighted)) ? ` composition-color-${slotOf(highlighted)}` : "";
-    trend = drawTrend(points, values, Math.max(260, chart.clientWidth), measure, name, { stack, tone });
+    trend = drawTrend(visible, values, Math.max(260, chart.clientWidth), measure, name, { stack, tone });
     chart.innerHTML = trend.html;
     const { plotStart, plotWidth, viewWidth } = chart.querySelector("svg").dataset;
-    kosdaq.render(points, { width: Number(viewWidth), left: Number(plotStart),
+    const ticks = timeTicks(visible, i => trend.spot(i).x, Number(viewWidth) < 550);
+    kosdaq.render(visible, { ticks, width: Number(viewWidth), left: Number(plotStart),
       right: Number(plotStart) + Number(plotWidth), spot: trend.spot });
     title.textContent = highlighted ? `${name} 시가총액 (${trend.unit})` : `합계 시가총액과 기업별 구성 (${trend.unit})`;
     if (hadFocus) chart.querySelector("svg").focus({ preventScroll: true });
+  }
+
+  function applyPeriod() {
+    const cutoff = marketRangeStart(points.at(-1).date, period);
+    firstVisible = points.findIndex(point => point.date >= cutoff);
+    dateInput.min = points[firstVisible].date;
+    for (const button of periods) {
+      const active = button.dataset.composePeriod === period;
+      button.setAttribute("aria-pressed", String(active));
+      if (active) periodLabel.textContent = "최근 " + button.textContent;
+    }
+  }
+
+  for (const button of periods) {
+    button.addEventListener("click", () => {
+      if (!ready || period === button.dataset.composePeriod) return;
+      period = button.dataset.composePeriod;
+      applyPeriod();
+      paintTrend();
+      commit(committed);
+    });
   }
 
   function render() {
@@ -331,7 +358,7 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
       result.textContent = "조회 기간의 구성 자료가 없습니다.";
       return;
     }
-    dateInput.min = points[0].date;
+    applyPeriod();
     dateInput.max = points.at(-1).date;
     // 1년 동안 합산 시총이 가장 컸던 날과 가장 작았던 날
     const stat = (node, day) => { node.innerHTML = `${trillions(day.cap / 10000)}<small>조원</small><small class="composition-when">${day.date}</small>`; };
@@ -348,7 +375,7 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
     measure ??= textMeasure(getComputedStyle(chart).fontFamily);
     sparks = new Map();
     paintTrend();
-    show(selected);
+    commit(selected);
   }
 
   function toggle(code) {
@@ -396,7 +423,7 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
     if (!svg || !ready) return null;
     const bounds = svg.getBoundingClientRect();
     const x = (event.clientX - bounds.left) * Number(svg.dataset.viewWidth) / bounds.width;
-    return Math.round((x - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (points.length - 1));
+    return firstVisible + Math.round((x - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (points.length - 1 - firstVisible));
   }
   // 마우스를 올리면 그 날짜의 구성을 미리 보고, 누르거나 끌면 조회일로 고정한다. 그래프를 벗어나면 고정한 날짜로 돌아간다.
   for (const target of [chart, kosdaq.chart]) {
@@ -460,7 +487,7 @@ async function main() {
     const last = history.bars.at(-1);
     const points = current?.date > last.date ? [...history.bars, current] : history.bars;
     const end = points.at(-1).date;
-    const start = marketRangeStart(end, RANGE);
+    const start = marketRangeStart(end, HISTORY_RANGE);
     const visible = points.filter(point => point.date >= start);
     const index = selection && selection !== endDate ? visible.findIndex(point => point.date === selection) : -1;
     endDate = end;

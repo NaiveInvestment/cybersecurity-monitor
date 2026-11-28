@@ -36,6 +36,11 @@
     <section class="composition-chart-panel" aria-labelledby="composition-trend">
       <div class="composition-toolbar">
         <h2 id="composition-trend">시가총액 추이와 구성</h2>
+        <div class="composition-range" role="group" aria-label="차트 표시 기간">
+          <button type="button" data-compose-period="3M" aria-pressed="false">3개월</button>
+          <button type="button" data-compose-period="6M" aria-pressed="false">6개월</button>
+          <button type="button" data-compose-period="1Y" aria-pressed="true">1년</button>
+        </div>
       </div>
       <div class="composition-summary">
         <div><span data-compose-status>조회일 합산 시총</span><strong data-compose-total class="num"></strong></div>
@@ -60,6 +65,7 @@
         </div>
         <div id="kosdaq-share-plot">
           <div class="kosdaq-sector-controls" role="group" aria-label="시총 비중 비교 섹터">
+            <span class="kosdaq-sector-label">비교 섹터</span>
             <button class="kosdaq-sector-button kosdaq-bio" type="button" data-kosdaq-sector="bio" aria-pressed="false" disabled><i aria-hidden="true"></i>바이오<b class="num" hidden></b></button>
             <button class="kosdaq-sector-button kosdaq-robot" type="button" data-kosdaq-sector="robot" aria-pressed="false" disabled><i aria-hidden="true"></i>로봇<b class="num" hidden></b></button>
             <span class="kosdaq-sector-status" data-kosdaq-sector-status></span>
@@ -77,7 +83,7 @@
         </div>
       </section>
       <figure class="composition-figure">
-        <figcaption><span data-compose-trend-title>합계 시가총액과 기업별 구성 (조원)</span><small>최근 1년, 그래프에 올리면 그 날짜의 구성, 누르면 고정</small></figcaption>
+        <figcaption><span data-compose-trend-title>합계 시가총액과 기업별 구성 (조원)</span><small><span data-compose-period-label>최근 1년</span>, 그래프에 올리면 그 날짜의 구성, 누르면 고정</small></figcaption>
         <div class="composition-keys" data-compose-keys aria-label="기업별 색과 조회일 비중"></div>
         <div data-compose-chart></div>
       </figure>

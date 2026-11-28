@@ -130,9 +130,9 @@ export function createKosdaqShare(panel, market, members, sectorData) {
   function draw() {
     const hadFocus = chart.contains(document.activeElement);
     const wasDisabled = button.disabled;
-    const { width, left, right, spot } = layout;
+    const { width, left, right, spot, ticks } = layout;
     const height = width < 550 ? 220 : 276;
-    const top = 31, bottom = height - 17;
+    const top = 31, bottom = height - 25;
     const extra = [...active].map(id => [id, series.get(id)]);
     shareScale = kosdaqShareLogScale(shares.concat(...extra.map(([, values]) => values)), { top, bottom });
     indexScale = plotScale(closes, 10, { top, bottom });
@@ -152,6 +152,7 @@ export function createKosdaqShare(panel, market, members, sectorData) {
       role="img" aria-label="왼쪽은 섹터 시총 비중 퍼센트 로그 눈금, 오른쪽은 코스닥지수 포인트 선형 눈금. 방향키로 조회일 이동">
       ${shareScale ? '<text class="kosdaq-axis-left kosdaq-chart-label" y="13">시총 비중 (%, 로그)</text>' : ""}
       ${indexScale ? `<text class="kosdaq-axis-right kosdaq-chart-label" x="${width - 1}" y="13" text-anchor="end">코스닥지수 (pt)</text>` : ""}
+      ${ticks.map(({ index, label }) => `<text class="composition-tick" x="${x(index).toFixed(1)}" y="${height - 5}" text-anchor="middle">${label}</text>`).join("")}
       ${drawAxis(shareScale, left, right, "left")}${drawAxis(indexScale, left, right, "right")}
       <line class="kosdaq-share-cursor" data-kosdaq-cursor x1="0" x2="0" y1="${top}" y2="${bottom}"/>
       ${drawSeries(closes, x, indexScale, "index")}
