@@ -42,7 +42,7 @@ test("피해 인원과 회원 모집단, 금전 탈취와 사후 회수액을 �
   const grade=title=>reportedEdition({title}).grade;
   assert.equal(grade("회원 11만명 넘는 대한치과위생사협회, 개인정보 유출"),2);
   assert.equal(grade("바이낸스 해킹 탈취 자산 27억 달러 이상 동결, 12억 달러 이상 압류"),0);
-  assert.equal(grade("프랑스 국세청 납세자 67만8천명 개인정보 유출"),3);
+  assert.equal(grade("프랑스 국세청 해킹…납세자 67만8천명 세금\u00b7개인정보 유출"),3);
   assert.equal(grade("거래소 25억원 탈취 확인"),3);
   assert.equal(grade("고객 계좌 잔액 27억 원 노출"),0);
 });

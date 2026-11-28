@@ -1,8 +1,9 @@
 // Only explicit impact in an editor-accepted incident headline enters the severity calculation.
 export function reportedEdition(row) {
   const title=String(row.title || "");
-  const clean=title.replace(/\[[^\]]+\]\s*/g,"").replace(/[\u00b7\u2027\u30fb]/g,", ");
-  const result={id:row.id, date:row.date, name:clean, url:row.url, impact:clean, grade:0, reason:"공개 피해 정보로 등급 미정"};
+  const display=title.replace(/\[[^\]]+\]\s*/g,"");
+  const clean=display.replace(/[\u00b7\u2027\u30fb]/g," ");
+  const result={id:row.id, date:row.date, name:display, url:row.url, impact:display, grade:0, reason:"공개 피해 정보로 등급 미정"};
   const give=(grade,reason)=>{ if (grade>result.grade) Object.assign(result,{grade,reason}); };
   if (/클라우드|상시평가|군사|군용|공공 인증/.test(clean) && /공군|군 공용|금융보안원|인증 인프라/.test(clean)) give(3,"핵심 공용 인프라 침해 보도");
   if (/주요 인증 서비스|공공 인증 플랫폼|군 정보 시스템/.test(clean)) give(3,"핵심 인프라 침해 보도");
