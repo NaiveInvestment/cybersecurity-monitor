@@ -21,6 +21,12 @@ const noteGrade = {
   "fsi-202611":[3,"금융회사 상시평가 시스템 침해"],
   "danawa-202611":[3,"대외 서비스 다일 중단"]
 };
+// Source timelines explicitly describe customer-facing interruptions across multiple days.
+const sustainedOutages = new Map([
+  ["佐川急便 (Sagawa Express)|2026-09-30","배송 조회와 접수 서비스 중단, 9월 30일부터 10월 23일 이후까지"],
+  ["ヤマト運輸 (Yamato Transport)|2026-09-29","후불 결제 서비스 중단, 9월 28일부터 10월 9일까지"],
+  ["미래에셋생명|2026-10-26","대외 홈페이지 나흘째 중단"]
+]);
 function researchEvent(x) {
   if (unsupported.has(x.name+"|"+x.date) || x.name === "금융보안원" && x.date==="2026-11-10") return null;
   const links=x.sources.filter(s=>/^https?:\/\//.test(s.url));
@@ -46,6 +52,8 @@ function researchEvent(x) {
   if (x.name==="Brevo" && x.date==="2026-09-15" || x.name==="Digitaliseringsdirektoratet (Digdir)") add(4,text(x.spread) || attack);
   if (scope && /중단|차질|정지|오프라인|폐쇄|제한/.test(scope) && !/중단.{0,6}(없|않)|중단되지/.test(scope)) add(/글로벌 업무|생산|다수 브랜드/.test(scope)?3:2,scope);
   if (/유출|탈취|무단 접근|자료 반출/.test(attack) && !/가능성|의심|의혹|주장|정황/.test(attack)) add(2,attack);
+  const sustained=sustainedOutages.get(x.name+"|"+x.date);
+  if (sustained) add(3,sustained);
   const sensitive=text(x.sensitive);
   const exposedSensitive = !claim && !possible && sensitive.split(/[,，]/).some(part=>!/부분|앞.{0,2}자리|암호화|마스킹|가능성|주장|조사|의심|끝.{0,2}자리/.test(part) && /주민등록번호|여권|\bSSN\b|평문.{0,3}비밀번호|카드번호/.test(part));
   if (exposedSensitive) add(3,"고위험 식별정보 또는 결제정보 노출");
