@@ -5,6 +5,7 @@ import { recentIncidentStories, incidentUpdate } from "./lib/recent-incidents.js
 import { majorIncidents } from "./lib/major-incidents.js";
 import { fmtCount, fmtKrw } from "./lib/incident-metrics.js";
 import { searchArchive } from "./lib/news-search.js";
+import { initIncidents } from "./incidents.js";
 
 const PAGE = 40;
 const state = { view: "search", category: "all", region: "KR", period: 30, query: "", shown: PAGE, focus: null, topic: "policy" };
@@ -308,6 +309,16 @@ function bind() {
 
 async function main() {
   initTheme();
+  if (new URLSearchParams(location.search).get("view") === "incidents") {
+    $("#news-feed-view").hidden = true;
+    $("#news-incidents-view").hidden = false;
+    $('[data-news-page="feed"]').removeAttribute("aria-current");
+    $('[data-news-page="incidents"]').setAttribute("aria-current", "page");
+    document.title = "사이버보안 모니터, 보안 사고";
+    await initIncidents();
+    document.getElementById(location.hash.slice(1))?.scrollIntoView();
+    return;
+  }
   bind();
   try {
     const [cardFile, newsFile, snapshot, eventFile] = await Promise.all([

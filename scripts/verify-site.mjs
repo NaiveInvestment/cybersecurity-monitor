@@ -120,7 +120,7 @@ if (!failures.length) {
     if (/\.(html|js)$/.test(name)) check(!/\sstyle=/.test(text), `${name}: 인라인 style`);
     if (name.endsWith(".html")) {
       check(/<meta name="robots" content="noindex/.test(text), `${name}: noindex 없음`);
-      for (const [, ref] of text.matchAll(/(?:src|href)="([^"#:]+?)(?:\?v=[0-9a-f]+)?"/g)) check(existsSync(join(dir, ref)), `${name}: 참조 파일 없음 ${ref}`);
+      for (const [, ref] of text.matchAll(/(?:src|href)="([^"#:?]+)(?:[?#][^"]*)?"/g)) check(existsSync(join(dir, ref)), `${name}: 참조 파일 없음 ${ref}`);
     }
   }
 

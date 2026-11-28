@@ -592,7 +592,6 @@ body.app .table-wrap::-webkit-scrollbar { display:none; }
 }
 
 /* ---- 해킹 사건 페이지: 국내 노랑(accent), 해외 파랑(brand). 차트는 실제 폭으로 그려 글자가 줄지 않는다 ---- */
-main.inc { max-width: 1340px; margin: 0 auto; padding: 18px 22px 44px; }
 .inc-top { margin-bottom: 14px; }
 .inc-head { margin-bottom: 4px; }
 .inc-eyebrow { color: var(--muted); font-size: 12.5px; font-weight: 700; }
@@ -697,7 +696,6 @@ main.inc { max-width: 1340px; margin: 0 auto; padding: 18px 22px 44px; }
   .inc-brief { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 640px) {
-  main.inc { padding: 12px 10px 28px; }
   .inc-headline { font-size: 18px; }
   .brief-card { padding: 11px 12px; }
   .vd { grid-template-columns: 62px 66px minmax(0, 1fr); row-gap: 4px; }

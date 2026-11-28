@@ -53,6 +53,7 @@
 .kosdaq-index-tick { stroke:var(--kosdaq-index); }
 .kosdaq-share .composition-chart .kosdaq-axis-left { fill:var(--brand); }
 .kosdaq-share .composition-chart .kosdaq-axis-right { fill:var(--kosdaq-index); }
+.kosdaq-share .composition-chart .kosdaq-chart-label { font-weight:700; }
 .kosdaq-share-cursor { stroke:var(--muted); stroke-dasharray:3 3; pointer-events:none; }
 .kosdaq-series-dot { stroke:var(--surface); stroke-width:1.5; pointer-events:none; }
 .kosdaq-share-dot { fill:var(--brand); }

@@ -1,6 +1,25 @@
 const twoDecimals = new Intl.NumberFormat("ko-KR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const indexTick = new Intl.NumberFormat("ko-KR");
-const height = 124, top = 11, bottom = 111;
+const percentTick = new Intl.NumberFormat("ko-KR", { maximumSignificantDigits: 3 });
+
+export function kosdaqShareLogScale(values, { top, bottom }) {
+  const present = values.filter(value => Number.isFinite(value) && value > 0);
+  if (!present.length) return null;
+  const min = Math.log10(Math.min(...present)), max = Math.log10(Math.max(...present));
+  const span = max - min;
+  const margin = Math.max(.1, span * .07);
+  const low = min - margin, high = max + margin;
+  const steps = span > .9 ? [1, 2, 5] : [1, 1.25, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
+  const ticks = [];
+  const minTick = 10 ** low, maxTick = 10 ** high;
+  for (let order = Math.floor(low); order <= Math.ceil(high); order += 1) {
+    for (const step of steps) {
+      const tick = step * 10 ** order;
+      if (tick > 0 && tick >= minTick && tick <= maxTick) ticks.push(tick);
+    }
+  }
+  return { ticks, y: value => value > 0 ? bottom - (Math.log10(value) - low) / (high - low) * (bottom - top) : null };
+}
 
 function shareOnDate(point, marketCap, members) {
   if (!Number.isFinite(marketCap) || marketCap <= 0 || point.live || !point.constituents ||
@@ -42,7 +61,7 @@ export function kosdaqSectorSharePoints(points, market, sectorData) {
   });
 }
 
-function plotScale(values, minStep) {
+function plotScale(values, minStep, { top, bottom }) {
   const present = values.filter(value => value != null);
   if (!present.length) return null;
   const min = Math.min(...present), max = Math.max(...present);
@@ -63,7 +82,7 @@ function drawAxis(scale, left, right, side) {
   const isLeft = side === "left";
   return scale.ticks.map(tick => {
     const y = scale.y(tick).toFixed(1);
-    const label = isLeft ? `${Number(tick.toFixed(2))}%` : indexTick.format(tick);
+    const label = isLeft ? `${percentTick.format(tick)}%` : indexTick.format(tick);
     return `<line class="${isLeft ? "chart-grid" : "kosdaq-index-tick"}" x1="${isLeft ? left : right}" x2="${isLeft ? right : right + 4}" y1="${y}" y2="${y}"/>
       <text class="kosdaq-axis-${side}" x="${isLeft ? left - 6 : right + 7}" y="${y}" text-anchor="${isLeft ? "end" : "start"}" dominant-baseline="central">${label}</text>`;
   }).join("");
@@ -79,10 +98,11 @@ function drawSeries(values, x, scale, series) {
 
 function placeDot(dot, value, x, scale) {
   if (!dot) return;
-  dot.setAttribute("visibility", value == null ? "hidden" : "visible");
-  if (value == null) return;
+  const y = value == null ? null : scale.y(value);
+  dot.setAttribute("visibility", y == null ? "hidden" : "visible");
+  if (y == null) return;
   dot.setAttribute("cx", x);
-  dot.setAttribute("cy", scale.y(value));
+  dot.setAttribute("cy", y);
 }
 
 export function createKosdaqShare(panel, market, members, sectorData) {
@@ -110,9 +130,12 @@ export function createKosdaqShare(panel, market, members, sectorData) {
   function draw() {
     const hadFocus = chart.contains(document.activeElement);
     const wasDisabled = button.disabled;
+    const { width, left, right, spot } = layout;
+    const height = width < 550 ? 220 : 276;
+    const top = 31, bottom = height - 17;
     const extra = [...active].map(id => [id, series.get(id)]);
-    shareScale = plotScale(shares.concat(...extra.map(([, values]) => values)), .1);
-    indexScale = plotScale(closes, 10);
+    shareScale = kosdaqShareLogScale(shares.concat(...extra.map(([, values]) => values)), { top, bottom });
+    indexScale = plotScale(closes, 10, { top, bottom });
     button.disabled = !shareScale && !indexScale;
     if (button.disabled) {
       chart.replaceChildren();
@@ -124,10 +147,11 @@ export function createKosdaqShare(panel, market, members, sectorData) {
       detail.hidden = false;
       button.setAttribute("aria-expanded", "true");
     }
-    const { width, left, right, spot } = layout;
     x = position => spot(position).x;
     chart.innerHTML = `<svg class="composition-chart" viewBox="0 0 ${width} ${height}" tabindex="0"
-      role="img" aria-label="코스닥 내 섹터 시총 비중은 왼쪽 퍼센트 축, 코스닥지수는 오른쪽 포인트 축. 방향키로 조회일 이동">
+      role="img" aria-label="왼쪽은 섹터 시총 비중 퍼센트 로그 눈금, 오른쪽은 코스닥지수 포인트 선형 눈금. 방향키로 조회일 이동">
+      ${shareScale ? '<text class="kosdaq-axis-left kosdaq-chart-label" y="13">시총 비중 (%, 로그)</text>' : ""}
+      ${indexScale ? `<text class="kosdaq-axis-right kosdaq-chart-label" x="${width - 1}" y="13" text-anchor="end">코스닥지수 (pt)</text>` : ""}
       ${drawAxis(shareScale, left, right, "left")}${drawAxis(indexScale, left, right, "right")}
       <line class="kosdaq-share-cursor" data-kosdaq-cursor x1="0" x2="0" y1="${top}" y2="${bottom}"/>
       ${drawSeries(closes, x, indexScale, "index")}
@@ -189,7 +213,7 @@ export function createKosdaqShare(panel, market, members, sectorData) {
       layout = nextLayout;
       entries = kosdaqComparisonPoints(points, market, members);
       sectorShares = kosdaqSectorSharePoints(points, market, sectorData);
-      shares = entries.map(entry => entry.comparison?.share ?? null);
+      shares = entries.map(entry => entry.comparison?.share > 0 ? entry.comparison.share : null);
       closes = entries.map(entry => entry.close);
       recent = shares.findLastIndex(share => share != null);
       for (const { id, button } of controls) {

@@ -18,11 +18,10 @@
   </a>
   <nav aria-label="페이지">
     <a href="index.html">종목</a>
-    <a href="positions.html">밸류체인</a>
     <a href="news.html" aria-current="page">뉴스</a>
-    <a href="incidents.html">보안 사고</a>
-    <a href="events.html">주요 이벤트</a>
     <a href="market-composition.html">시총 구성</a>
+    <a href="events.html">주요 이벤트</a>
+    <a href="positions.html">밸류체인</a>
   </nav>
   <div class="status" aria-live="polite">
     <span id="status-text">불러오는 중</span>
@@ -31,73 +30,163 @@
   <span class="company-name" lang="en">Capital Research &amp; Foem Invest</span>
 </header>
 <main>
-  <div class="news-overview">
-    <section aria-labelledby="recent-title">
-      <header class="news-section-head">
-        <h2 id="recent-title">최근 24시간 새 침해사고</h2>
-        <p>국내외 첫 보도, 최신순 (KST)</p>
-      </header>
-      <div class="news-stream" id="recent-incidents" role="region" aria-labelledby="recent-title" tabindex="0">
-        <p class="recent-message">기사를 불러오는 중</p>
-      </div>
-    </section>
-    <section aria-labelledby="major-title">
-      <header class="news-section-head">
-        <h2 id="major-title">그간의 주요 침해사고</h2>
-        <p>최근 4주, 영향 범위 5만 이상 또는 금전 피해 1천만 달러 이상</p>
-      </header>
-      <div class="news-stream" id="major-incidents" role="region" aria-labelledby="major-title" tabindex="0">
-        <p class="recent-message">사고 기록을 불러오는 중</p>
-      </div>
-    </section>
-  </div>
-
-  <div class="tabs news-tabs" id="news-library" role="tablist" aria-label="기사와 정책 자료">
-    <button id="tab-search" type="button" role="tab" aria-selected="true" aria-controls="view-search" data-view="search">기사 검색</button>
-    <button id="tab-policy" type="button" role="tab" aria-selected="false" aria-controls="view-policy" data-view="policy" tabindex="-1">정책과 기업 대응</button>
-  </div>
-
-  <section id="view-search" role="tabpanel" aria-labelledby="tab-search">
-    <div class="tools news-tools">
-      <input class="search" id="search" type="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
-      <div class="seg-switch" role="group" aria-label="지역" id="region-switch">
-        <button type="button" data-region="ALL" aria-pressed="false">전체</button>
-        <button type="button" data-region="KR" aria-pressed="true">국내</button>
-        <button type="button" data-region="GL" aria-pressed="false">해외</button>
-      </div>
-      <div class="seg-switch" role="group" aria-label="기사 기간" id="period-switch">
-        <button type="button" data-period="7" aria-pressed="false">7일</button>
-        <button type="button" data-period="30" aria-pressed="true">30일</button>
-        <button type="button" data-period="0" aria-pressed="false">전체 기간</button>
-      </div>
-      <select class="search" id="search-category" aria-label="기사 유형">
-        <option value="all">모든 기사</option>
-        <option value="incident">해킹 사례</option>
-        <option value="policy">정책</option>
-        <option value="spending">기업 대응과 지출</option>
-        <option value="briefs">출처 확인 자료</option>
-      </select>
+  <nav class="news-view-nav" aria-label="뉴스 보기">
+    <a href="news.html" data-news-page="feed" aria-current="page">뉴스 피드</a>
+    <a href="news.html?view=incidents" data-news-page="incidents">보안 사고</a>
+  </nav>
+  <div id="news-feed-view">
+    <div class="news-overview">
+      <section aria-labelledby="recent-title">
+        <header class="news-section-head">
+          <h2 id="recent-title">최근 24시간 새 침해사고</h2>
+          <p>국내외 첫 보도, 최신순 (KST)</p>
+        </header>
+        <div class="news-stream" id="recent-incidents" role="region" aria-labelledby="recent-title" tabindex="0">
+          <p class="recent-message">기사를 불러오는 중</p>
+        </div>
+      </section>
+      <section aria-labelledby="major-title">
+        <header class="news-section-head">
+          <h2 id="major-title">그간의 주요 침해사고</h2>
+          <p>최근 4주, 영향 범위 5만 이상 또는 금전 피해 1천만 달러 이상</p>
+        </header>
+        <div class="news-stream" id="major-incidents" role="region" aria-labelledby="major-title" tabindex="0">
+          <p class="recent-message">사고 기록을 불러오는 중</p>
+        </div>
+      </section>
     </div>
-    <section class="panel" aria-labelledby="feed-title">
-      <header><h2 id="feed-title" tabindex="-1">기사 목록</h2><p id="feed-sub" aria-live="polite"></p></header>
-      <div id="feed"></div>
-    </section>
-  </section>
 
-  <section id="view-policy" role="tabpanel" aria-labelledby="tab-policy" hidden>
-    <div class="tools policy-tools">
-      <div class="seg-switch" role="group" aria-label="정리 유형" id="policy-switch">
-        <button type="button" data-topic="policy" aria-pressed="true">정책</button>
-        <button type="button" data-topic="spending" aria-pressed="false">기업 대응과 지출</button>
-      </div>
-      <button type="button" id="policy-to-search">관련 최신 기사 보기</button>
+    <div class="tabs news-tabs" id="news-library" role="tablist" aria-label="기사와 정책 자료">
+      <button id="tab-search" type="button" role="tab" aria-selected="true" aria-controls="view-search" data-view="search">기사 검색</button>
+      <button id="tab-policy" type="button" role="tab" aria-selected="false" aria-controls="view-policy" data-view="policy" tabindex="-1">정책과 기업 대응</button>
     </div>
-    <section class="panel" aria-labelledby="digest-title">
-      <header><h2 id="digest-title">정책 정리</h2><p>원문 출처와 진행 상황</p></header>
-      <div id="digest"></div>
+
+    <section id="view-search" role="tabpanel" aria-labelledby="tab-search">
+      <div class="tools news-tools">
+        <input class="search" id="search" type="search" placeholder="기업, 키워드 검색" aria-label="뉴스 검색">
+        <div class="seg-switch" role="group" aria-label="지역" id="region-switch">
+          <button type="button" data-region="ALL" aria-pressed="false">전체</button>
+          <button type="button" data-region="KR" aria-pressed="true">국내</button>
+          <button type="button" data-region="GL" aria-pressed="false">해외</button>
+        </div>
+        <div class="seg-switch" role="group" aria-label="기사 기간" id="period-switch">
+          <button type="button" data-period="7" aria-pressed="false">7일</button>
+          <button type="button" data-period="30" aria-pressed="true">30일</button>
+          <button type="button" data-period="0" aria-pressed="false">전체 기간</button>
+        </div>
+        <select class="search" id="search-category" aria-label="기사 유형">
+          <option value="all">모든 기사</option>
+          <option value="incident">해킹 사례</option>
+          <option value="policy">정책</option>
+          <option value="spending">기업 대응과 지출</option>
+          <option value="briefs">출처 확인 자료</option>
+        </select>
+      </div>
+      <section class="panel" aria-labelledby="feed-title">
+        <header><h2 id="feed-title" tabindex="-1">기사 목록</h2><p id="feed-sub" aria-live="polite"></p></header>
+        <div id="feed"></div>
+      </section>
     </section>
-  </section>
-  <p class="notes" id="notes"></p>
+
+    <section id="view-policy" role="tabpanel" aria-labelledby="tab-policy" hidden>
+      <div class="tools policy-tools">
+        <div class="seg-switch" role="group" aria-label="정리 유형" id="policy-switch">
+          <button type="button" data-topic="policy" aria-pressed="true">정책</button>
+          <button type="button" data-topic="spending" aria-pressed="false">기업 대응과 지출</button>
+        </div>
+        <button type="button" id="policy-to-search">관련 최신 기사 보기</button>
+      </div>
+      <section class="panel" aria-labelledby="digest-title">
+        <header><h2 id="digest-title">정책 정리</h2><p>원문 출처와 진행 상황</p></header>
+        <div id="digest"></div>
+      </section>
+    </section>
+    <p class="notes" id="notes"></p>
+  </div>
+  <div id="news-incidents-view" class="inc" hidden>
+    <section class="inc-top" aria-labelledby="inc-title">
+      <header class="sec-head inc-head">
+        <p class="inc-eyebrow" id="inc-range">보안 사고 동향</p>
+        <div class="seg-switch" role="group" aria-label="지역" id="inc-region">
+          <button type="button" data-region="ALL" aria-pressed="true">통합</button>
+          <button type="button" data-region="KR" aria-pressed="false">국내</button>
+          <button type="button" data-region="GL" aria-pressed="false">해외</button>
+        </div>
+      </header>
+      <h2 class="inc-headline" id="inc-title">최근 7일 보안 사고 강도</h2>
+      <div class="inc-brief" id="inc-brief"></div>
+      <p class="inc-rule" id="inc-rule"></p>
+    </section>
+
+    <section class="panel inc-panel" aria-labelledby="trend-title">
+      <header><h2 id="trend-title">주별 추이</h2><p>같은 주끼리 위아래로 맞춰 봄. 흐린 표시(*)는 집계 중인 이번 주</p></header>
+      <p class="inc-legend" id="idx-legend"></p>
+      <h3 class="inc-sub" id="idx-title">피해 규모(강도 지수, 0~100)<span>리서치 이후 확인된 피해 규모만 표시</span></h3>
+      <div class="inc-chart" id="idx-chart"></div>
+      <div class="inc-count-tools">
+        <h3 class="inc-sub" id="cnt-title">사고 건수</h3>
+        <div class="seg-switch" id="inc-count-mode" role="group" aria-label="사고 건수 범위">
+          <button type="button" data-count-mode="confirmed" aria-pressed="true">확인 집계</button>
+          <button type="button" data-count-mode="candidates" aria-pressed="false">보도 후보</button>
+        </div>
+      </div>
+      <p class="inc-count-note" id="cnt-note"></p>
+      <div class="inc-chart" id="cnt-chart"></div>
+      <details class="inc-method">
+        <summary>계산 방법</summary>
+        <ul>
+          <li>유출 = log10(1 + 그 주 발표된 유출 건수 합 / 1천) / 기간 최댓값 x 100</li>
+          <li>금액 = log10(1 + 그 주 발표된 금전 피해액 합 / 100만 달러) / 기간 최댓값 x 100</li>
+          <li>강도 = 두 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
+          <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 지수에 들어가지 않음</li>
+          <li>확인 집계와 피해 규모에는 원문을 검토한 사고와 DeFiLlama 집계만 사용. 기사에서 찾은 후보는 별도 건수로 표시</li>
+        </ul>
+      </details>
+    </section>
+
+    <div class="inc-grid even">
+      <section class="panel inc-panel" aria-labelledby="org-title">
+        <header><h2 id="org-title">피해 업권</h2><p>주당 사고 수, 최근 4주와 그 전 9주</p></header>
+        <div id="org-table"></div>
+      </section>
+      <section class="panel inc-panel" aria-labelledby="rw-title">
+        <header><h2 id="rw-title">랜섬웨어 피해 공개</h2><p id="rw-sub">랜섬웨어 조직이 유출 사이트에 올린 피해 기관 수(ransomware.live)</p></header>
+        <div class="inc-chart" id="rw-chart"></div>
+      </section>
+    </div>
+
+    <section class="panel inc-panel" aria-labelledby="rec-title">
+      <header><h2 id="rec-title">개인정보 유출 규모</h2><p id="rec-sub"></p></header>
+      <div class="inc-chart" id="rec-chart"></div>
+    </section>
+
+    <section class="panel inc-panel" aria-labelledby="usd-title">
+      <header><h2 id="usd-title">금전 피해액</h2><p id="usd-sub"></p></header>
+      <div class="inc-chart" id="usd-chart"></div>
+    </section>
+
+    <div class="inc-grid wide-left">
+      <section class="panel inc-panel" aria-labelledby="list-title">
+        <header><h2 id="list-title">사건 목록</h2><p id="list-sub"></p></header>
+        <div class="inc-tools">
+          <input class="search" id="inc-search" type="search" placeholder="기관, 업권, 공격 검색" aria-label="사건 검색">
+          <div class="seg-switch" role="group" aria-label="정렬" id="inc-sort">
+            <button type="button" data-sort="d" aria-pressed="true">최신순</button>
+            <button type="button" data-sort="rec" aria-pressed="false">유출순</button>
+            <button type="button" data-sort="usd" aria-pressed="false">금액순</button>
+          </div>
+        </div>
+        <div class="inc-table-wrap"><table class="inc-table" id="inc-table"></table></div>
+        <button type="button" class="more" id="inc-more" hidden></button>
+      </section>
+      <section class="panel inc-panel" aria-labelledby="press-title">
+        <header><h2 id="press-title">최근 7일 보도</h2><p>해킹 사례 기사, 같은 사건을 다룬 매체 수 순</p></header>
+        <ol class="inc-press" id="inc-press"></ol>
+        <p class="inc-more-link"><a href="news.html">뉴스에서 기사 보기</a></p>
+      </section>
+    </div>
+    <p class="notes" id="inc-notes"></p>
+  </div>
 </main>
 <script type="module" src="news.js"></script>
 </body>

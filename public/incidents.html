@@ -4,115 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>사이버보안 모니터, 보안 사고</title>
+<title>보안 사고 | 사이버보안 모니터</title>
 <link rel="icon" href="data:,">
 <script src="theme.js"></script>
 <link rel="stylesheet" href="styles.css">
+<script src="incidents-redirect.js"></script>
 </head>
 <body class="reading">
-<header class="top">
-  <a class="brand" href="index.html" aria-label="사이버보안 모니터 첫 화면">
-    <svg width="20" height="22" viewBox="0 0 20 22" aria-hidden="true"><path d="M10 1 2 4v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m6.5 11 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <h1>사이버보안 <span>모니터</span></h1>
-  </a>
-  <nav aria-label="페이지">
-    <a href="index.html">종목</a>
-    <a href="positions.html">밸류체인</a>
-    <a href="news.html">뉴스</a>
-    <a href="incidents.html" aria-current="page">보안 사고</a>
-    <a href="events.html">주요 이벤트</a>
-    <a href="market-composition.html">시총 구성</a>
-  </nav>
-  <div class="status" aria-live="polite">
-    <span id="status-text">불러오는 중</span>
-    <button type="button" class="theme-btn" data-theme-toggle>라이트 모드</button>
-  </div>
-  <span class="company-name" lang="en">Capital Research &amp; Foem Invest</span>
-</header>
-<main class="inc">
-  <section class="inc-top" aria-labelledby="inc-title">
-    <header class="sec-head inc-head">
-      <p class="inc-eyebrow" id="inc-range">보안 사고 동향</p>
-      <div class="seg-switch" role="group" aria-label="지역" id="inc-region">
-        <button type="button" data-region="ALL" aria-pressed="true">통합</button>
-        <button type="button" data-region="KR" aria-pressed="false">국내</button>
-        <button type="button" data-region="GL" aria-pressed="false">해외</button>
-      </div>
-    </header>
-    <h2 class="inc-headline" id="inc-title">최근 7일 보안 사고 강도</h2>
-    <div class="inc-brief" id="inc-brief"></div>
-    <p class="inc-rule" id="inc-rule"></p>
-  </section>
-
-  <section class="panel inc-panel" aria-labelledby="trend-title">
-    <header><h2 id="trend-title">주별 추이</h2><p>같은 주끼리 위아래로 맞춰 봄. 흐린 표시(*)는 집계 중인 이번 주</p></header>
-    <p class="inc-legend" id="idx-legend"></p>
-    <h3 class="inc-sub" id="idx-title">피해 규모(강도 지수, 0~100)<span>리서치 이후 확인된 피해 규모만 표시</span></h3>
-    <div class="inc-chart" id="idx-chart"></div>
-    <div class="inc-count-tools">
-      <h3 class="inc-sub" id="cnt-title">사고 건수</h3>
-      <div class="seg-switch" id="inc-count-mode" role="group" aria-label="사고 건수 범위">
-        <button type="button" data-count-mode="confirmed" aria-pressed="true">확인 집계</button>
-        <button type="button" data-count-mode="candidates" aria-pressed="false">보도 후보</button>
-      </div>
-    </div>
-    <p class="inc-count-note" id="cnt-note"></p>
-    <div class="inc-chart" id="cnt-chart"></div>
-    <details class="inc-method">
-      <summary>계산 방법</summary>
-      <ul>
-        <li>유출 = log10(1 + 그 주 발표된 유출 건수 합 / 1천) / 기간 최댓값 x 100</li>
-        <li>금액 = log10(1 + 그 주 발표된 금전 피해액 합 / 100만 달러) / 기간 최댓값 x 100</li>
-        <li>강도 = 두 요소 평균. 최댓값은 국내와 해외의 모든 주에서 찾으므로 두 지역을 같은 잣대로 비교함</li>
-        <li>로그를 쓰는 이유: 한 건의 초대형 사건이 지수를 혼자 끌고 가지 않게 하기 위함. 규모 미공개 사건은 지수에 들어가지 않음</li>
-        <li>확인 집계와 피해 규모에는 원문을 검토한 사고와 DeFiLlama 집계만 사용. 기사에서 찾은 후보는 별도 건수로 표시</li>
-      </ul>
-    </details>
-  </section>
-
-  <div class="inc-grid even">
-    <section class="panel inc-panel" aria-labelledby="org-title">
-      <header><h2 id="org-title">피해 업권</h2><p>주당 사고 수, 최근 4주와 그 전 9주</p></header>
-      <div id="org-table"></div>
-    </section>
-    <section class="panel inc-panel" aria-labelledby="rw-title">
-      <header><h2 id="rw-title">랜섬웨어 피해 공개</h2><p id="rw-sub">랜섬웨어 조직이 유출 사이트에 올린 피해 기관 수(ransomware.live)</p></header>
-      <div class="inc-chart" id="rw-chart"></div>
-    </section>
-  </div>
-
-  <section class="panel inc-panel" aria-labelledby="rec-title">
-    <header><h2 id="rec-title">개인정보 유출 규모</h2><p id="rec-sub"></p></header>
-    <div class="inc-chart" id="rec-chart"></div>
-  </section>
-
-  <section class="panel inc-panel" aria-labelledby="usd-title">
-    <header><h2 id="usd-title">금전 피해액</h2><p id="usd-sub"></p></header>
-    <div class="inc-chart" id="usd-chart"></div>
-  </section>
-
-  <div class="inc-grid wide-left">
-    <section class="panel inc-panel" aria-labelledby="list-title">
-      <header><h2 id="list-title">사건 목록</h2><p id="list-sub"></p></header>
-      <div class="inc-tools">
-        <input class="search" id="inc-search" type="search" placeholder="기관, 업권, 공격 검색" aria-label="사건 검색">
-        <div class="seg-switch" role="group" aria-label="정렬" id="inc-sort">
-          <button type="button" data-sort="d" aria-pressed="true">최신순</button>
-          <button type="button" data-sort="rec" aria-pressed="false">유출순</button>
-          <button type="button" data-sort="usd" aria-pressed="false">금액순</button>
-        </div>
-      </div>
-      <div class="inc-table-wrap"><table class="inc-table" id="inc-table"></table></div>
-      <button type="button" class="more" id="inc-more" hidden></button>
-    </section>
-    <section class="panel inc-panel" aria-labelledby="press-title">
-      <header><h2 id="press-title">최근 7일 보도</h2><p>해킹 사례 기사, 같은 사건을 다룬 매체 수 순</p></header>
-      <ol class="inc-press" id="inc-press"></ol>
-      <p class="inc-more-link"><a href="news.html">뉴스에서 기사 보기</a></p>
-    </section>
-  </div>
-  <p class="notes" id="inc-notes"></p>
+<main>
+  <h1>보안 사고</h1>
+  <p><a href="news.html?view=incidents">뉴스에서 보안 사고 보기</a></p>
 </main>
-<script type="module" src="incidents.js"></script>
 </body>
 </html>

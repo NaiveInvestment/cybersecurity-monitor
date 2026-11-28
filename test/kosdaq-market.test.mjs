@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { parseKosdaqCaps } from "../src/kosdaq-market.mjs";
-import { kosdaqComparisonPoints, kosdaqSectorSharePoints } from "../public/lib/kosdaq-share.js";
+import { kosdaqComparisonPoints, kosdaqSectorSharePoints, kosdaqShareLogScale } from "../public/lib/kosdaq-share.js";
 
 test("market series uses KRX closing index and market capitalization in the chart's units", () => {
   const header = "Date,Close,UpDown,Comp,Change,Open,High,Low,Volume,Amount,MarCap";
@@ -51,4 +51,12 @@ test("sector shares use exact-day caps with the same market denominator", () => 
   ] };
   assert.deepEqual(kosdaqSectorSharePoints(points, market, sectors),
     [{ bio: 18, robot: 6 }, {}, { bio: 20 }, {}]);
+});
+
+test("the share axis spaces equal ratios equally and retains percent tick values", () => {
+  const scale = kosdaqShareLogScale([0, null, 0.6, 1, 2, 4, 8, 24], { top: 30, bottom: 260 });
+  assert.ok(Math.abs((scale.y(1) - scale.y(2)) - (scale.y(2) - scale.y(4))) < 1e-9);
+  assert.ok(scale.ticks.includes(1) && scale.ticks.includes(10));
+  assert.equal(scale.y(0), null);
+  assert.equal(kosdaqShareLogScale([null, 0], { top: 30, bottom: 260 }), null);
 });

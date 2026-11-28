@@ -1,5 +1,5 @@
 // 보안 사고 페이지: 통합, 국내, 해외를 바꿔 보며 최근 7일 강도, 강도 지수, 건수, 유출 규모, 탈취 금액, 업권, 사건 목록, 최근 보도를 본다.
-import { esc, fmtKst, headlineLink, loadJson, initTheme } from "./common.js";
+import { esc, fmtKst, headlineLink, loadJson } from "./common.js";
 import { groupStories } from "./lib/issues.js";
 import { isDeniedIncidentTitle } from "./lib/incident-trend.js";
 import { REGION_LABEL, weeksEnding, weeklyStats, compositeIndex, brief, orgBreakdown, indexChart, countChart, sizeChart, hasRec, hasUsd, knownRec, knownUsd, fmtCount, fmtUsd, fmtKrw, isIncidentCandidate } from "./lib/incident-metrics.js";
@@ -215,11 +215,10 @@ function bind() {
       const now = [...document.querySelectorAll(".inc-chart")].map((el) => el.clientWidth).join(",");
       if (now !== widths) renderCharts();
     });
-  }).observe($("main"));
+  }).observe($("#news-incidents-view"));
 }
 
-async function main() {
-  initTheme();
+export async function initIncidents() {
   try {
     [data, news] = await Promise.all([loadJson("data/incident-events.json"), loadJson("data/news.json").catch(() => ({ items: [] }))]);
   } catch (error) {
@@ -240,5 +239,3 @@ async function main() {
   bind();
   render();
 }
-
-main();
