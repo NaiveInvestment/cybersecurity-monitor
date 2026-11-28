@@ -38,10 +38,12 @@ export function mergeLibrary(base, extras=[]) {
       byTitle.set(title,result.length); byUrl.set(url,result.length); result.push(row); continue;
     }
     const old=result[i];
-    const preferred=isGoogle(old.u) && !isGoogle(row.u) ? row : old;
-    const merged={...old,...row,u:preferred.u,id:preferred.id,t:preferred.t,
-      k:[...new Set([...(old.k || []),...(row.k || [])])]};
-    if (old.important===true || row.important===true) merged.important=true;
+    const newest = Date.parse(row.d) >= Date.parse(old.d) ? row : old;
+    const prior = newest === row ? old : row;
+    const direct = isGoogle(newest.u) && !isGoogle(prior.u) ? prior : newest;
+    const merged = {...prior, ...newest, u:direct.u, id:direct.id,
+      k:[...new Set([...(old.k || []), ...(row.k || [])])]};
+    if (prior.t !== newest.t && !newest.tKo) delete merged.tKo;
     result[i]=merged;
     byUrl.set(url,i); byTitle.set(title,i);
   }

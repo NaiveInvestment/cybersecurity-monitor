@@ -12,12 +12,8 @@ export async function searchArchive(file, period, load, cache, now = Date.now())
     }
     return cache.get(url);
   }));
-  const indexed = new Map();
-  for (const result of results) {
-    if (result.status === "fulfilled") for (const row of result.value) indexed.set(row.u, row);
-  }
-  for (const item of file.items) indexed.set(item.u, item);
-  const items = mergeLibrary([...indexed.values()]).filter(item => Date.parse(item.d) >= since)
+  const archived = results.flatMap(result => result.status === "fulfilled" ? result.value : []);
+  const items = mergeLibrary(archived, file.items).filter(item => Date.parse(item.d) >= since)
     .sort((a, b) => b.d.localeCompare(a.d));
   const dates = new Set(items.map(item => publicationDay(Date.parse(item.d))));
   const coverage = items.length

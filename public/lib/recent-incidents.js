@@ -86,8 +86,7 @@ export function incidentUpdate(items, sources, now = Date.now()) {
     && /^https?:\/\//i.test(item.u) && reportsIncident(item.t)) || null;
 }
 
-export function recentIncidentStories(items, now = Date.now()) {
-  const cutoff = now - DAY;
+export function recentIncidentStories(items, now = Date.now(), cutoff = now - DAY) {
   const groups = new Map();
   const seenUrls = new Set();
   const historical = new Map();

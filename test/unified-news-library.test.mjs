@@ -21,3 +21,15 @@ test("priority is reserved for confirmed high impact",()=>{
   assert.equal(veryImportant({confirmed:true,t:"11만명 유출 과징금 취소소송 1심 판결"}),false);
   assert.equal(importanceMark({t:"보안 솔루션 공급계약 체결"}),"");
 });
+
+test("a later correction replaces the original headline and can remove importance", () => {
+  const initial = {...row,u:"https://publisher.net/story",important:true,tKo:"초기 피해 규모"};
+  const revised = {...initial,d:"2026-11-28T09:00:00Z",t:"Publisher corrects incident scope",important:false};
+  delete revised.tKo;
+  for (const rows of [[initial,revised],[revised,initial]]) {
+    const [result] = mergeLibrary(rows);
+    assert.equal(result.t,revised.t);
+    assert.equal(result.important,false);
+    assert.equal(result.tKo,undefined);
+  }
+});

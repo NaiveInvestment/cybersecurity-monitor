@@ -35,7 +35,7 @@ export function archiveArticles(dir, items, now = Date.now()) {
     for (const item of rows) {
       const saved = indexed.get(item.u);
       const translation = saved?.t === item.t && saved.tKo && !item.tKo ? { tKo: saved.tKo, lang: saved.lang } : {};
-      indexed.set(item.u, { ...item, ...translation });
+      indexed.set(item.u, { ...(typeof saved?.important === "boolean" ? { important:saved.important } : {}), ...item, ...translation });
     }
     const sorted = [...indexed.values()].sort((a, b) => b.d.localeCompare(a.d) || a.u.localeCompare(b.u));
     saveChanged(file, JSON.stringify(sorted));

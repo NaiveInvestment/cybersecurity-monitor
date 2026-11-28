@@ -19,7 +19,7 @@ export function newsDay(items, alerts, index, now) {
   for (const alert of accepted) {
     const detected = Date.parse(alert.detectedAt), published = Date.parse(alert.first);
     if (!inDay(detected) || (Number.isFinite(published) && !inDay(published)) || seen.has(alert.url)) continue;
-    rows.push({item:{t:alert.title, s:alert.source, u:alert.url}, region:wireRegion(alert,index), kind:"속보 감지", stamp:detected});
+    rows.push({item:{t:alert.title, s:alert.source, u:alert.url, important:alert.important}, region:wireRegion(alert,index), kind:"속보 감지", stamp:detected});
     seen.add(alert.url);
   }
   return rows.sort((a,b) => b.stamp - a.stamp || a.item.u.localeCompare(b.item.u));

@@ -42,13 +42,24 @@ function drawAlerts() {
     wireMarkup = html;
   }
 }
+function articleClock(item, fallback) {
+  const stamp = item.d || fallback;
+  if (item.dayPrecision) return '<span class="time" title="원문에 게시 시각 없음">시각 미공개</span>';
+  if (item.sourceClock && !/(?:Z|[+-]\d{2}:?\d{2})$/i.test(item.sourceClock)) {
+    return '<span class="time" title="원문 시간대 미표기">' + esc(item.sourceClock.slice(11,16)) + ' 현지</span>';
+  }
+  const label = item.dateKind === "updated" ? "수정 " : "";
+  return '<time class="time num" datetime="' + esc(new Date(stamp).toISOString()) + '" title="' +
+    esc(label + fmtKst(stamp) + ' KST') + '">' + label + fmtKst(stamp,false) + '</time>';
+}
+
 let dayLimit = 6, dayMarkup = "";
 function drawDay() {
   if (!news.updatedAt && !alerts.length) return;
   const rows = newsDay(flowItems.length ? flowItems : news.items, alerts, sourceIndex, Date.now());
   const display = rows.slice(0,dayLimit);
   const html = display.map(({item, stamp, region, kind}) => `<li class="headline" data-day-stamp="${stamp}">
-    <time class="time num" datetime="${new Date(stamp).toISOString()}">${fmtKst(stamp,false)}</time>
+    ${articleClock(item, stamp)}
     <div>${importanceMark(item)}${link(item,"title")}<p class="meta">${REGION[region] || "지역 미분류"} / ${kind} / ${esc(item.s)}</p></div></li>`).join("");
   if (html !== dayMarkup || !$("#day-wire").dataset.ready) {
     $("#day-wire").innerHTML = html ? `<ol>${html}</ol>` : '<p class="empty">최근 24시간 안에 수집된 기사와 속보가 없습니다.</p>';
@@ -113,11 +124,11 @@ function renderFeed() {
   }
   let day = "";
   const links = visible.map((item) => {
-    const date = kstDate(item.d);
+    const date = item.dayPrecision && item.calendarDay ? item.calendarDay : kstDate(item.d);
     const header = date !== day ? `<p class="day">${date}</p>` : "";
     day = date;
     return `${header}<div class="headline">
-      <time class="time num" datetime="${esc(item.d)}">${fmtKst(item.d, false)}</time>
+      ${articleClock(item, item.d)}
       <div>${importanceMark(item)}${link(item, "title")}<p class="meta">${esc(item.s)} <span class="wire-category">${reportsDisputedImpact(item.t) ? "침해 관련 보도" : item.c === "incident" && !isIncidentReport(item) ? "일반 보도" : CATEGORY[item.c]}</span></p></div>
     </div>`;
   }).join("");

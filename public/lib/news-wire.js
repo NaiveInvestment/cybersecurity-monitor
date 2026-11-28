@@ -16,6 +16,7 @@ export function wireIndex(articles) {
 }
 
 export function wireRegion(alert, index) {
+  if (["KR","GL"].includes(alert.region)) return alert.region;
   const host = new URL(alert.url).hostname;
   const fallback = host.endsWith(".kr") ? "KR" : host.endsWith(".jp") || host.endsWith(".nhk") ? "GL" : null;
   return index.sources.get(norm(alert.source)) || fallback;
@@ -35,7 +36,7 @@ export function regionalAlerts(alerts, index, state, now = Date.now()) {
     if (!`${alert.title} ${alert.source}`.toLowerCase().includes(query)) return false;
     if (state.category !== "all") {
       const policy = /법안|입법|법률|시행령|개정안|과징금|규제|정책|감독규정|보안 의무|지침/;
-      const category = policy.test(alert.title) ? "policy" : (reportsIncident(alert.title) || reportsDisputedImpact(alert.title)) ? "incident" : null;
+      const category = alert.category || (policy.test(alert.title) ? "policy" : (reportsIncident(alert.title) || reportsDisputedImpact(alert.title)) ? "incident" : null);
       if (state.category !== category) return false;
     }
     seen.add(alert.url);
@@ -66,7 +67,12 @@ export function watchWire(onAlerts, onLibrary) {
         const libraryUrl=new URL("news-recent.json",url);
         libraryUrl.searchParams.set("slot",String(slot));
         try {
-          const source=await fetch(libraryUrl,{cache:"no-store",signal:AbortSignal.timeout(6000)});
+          let source=await fetch(libraryUrl,{cache:"no-store",signal:AbortSignal.timeout(6000)});
+          if (local && source.status === 404) {
+            const mirror = new URL("https://raw.githubusercontent.com/NaiveInvestment/cybersecurity-monitor/security-alerts/news-recent.json");
+            mirror.search = libraryUrl.search;
+            source = await fetch(mirror,{cache:"no-store",signal:AbortSignal.timeout(6000)});
+          }
           if (source.ok) {
             const data=await source.json();
             if (Array.isArray(data.items) && data.revision) {
