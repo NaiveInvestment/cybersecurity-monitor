@@ -3,10 +3,14 @@ import { krxDate } from "./sector-index.js";
 export const marketMonthRanges = { "1M": 1, "3M": 3, "6M": 6, "1Y": 12 };
 
 export function marketRangeStart(end, period) {
+  return shiftMarketMonths(end, -marketMonthRanges[period]);
+}
+
+export function shiftMarketMonths(end, months) {
   const date = new Date(`${end}T00:00:00Z`);
   const day = date.getUTCDate();
   date.setUTCDate(1);
-  date.setUTCMonth(date.getUTCMonth() - marketMonthRanges[period]);
+  date.setUTCMonth(date.getUTCMonth() + months);
   const days = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0)).getUTCDate();
   date.setUTCDate(Math.min(day, days));
   return date.toISOString().slice(0, 10);

@@ -1,8 +1,8 @@
 import { esc, initTheme, loadJson } from "./common.js";
-import { marketComposition } from "./lib/market-composition.js";
+import { marketComposition, compositionHistory, compositionWindow, zoomMonths } from "./lib/market-composition.js";
 import { createKosdaqShare } from "./lib/kosdaq-share.js";
 import { treemap } from "./lib/treemap.js";
-import { currentMarketActivity, marketRangeStart } from "./lib/market-activity.js";
+import { currentMarketActivity, marketRangeStart, shiftMarketMonths } from "./lib/market-activity.js";
 import { startQuoteFeed } from "./lib/quote-feed.js";
 
 const number = value => value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
@@ -16,7 +16,7 @@ const STEPS = [.01, .02, .05, .1, .2, .5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 10
 // 누적 그래프에서 따로 색을 주는 기업 수(1년 마감일 평균 시총 순). 나머지는 기타로 묶는다. CSS의 composition-color-0..6이 이 수를 따른다.
 const TOP = 7;
 // 연간 요약, 기업 색과 표의 작은 추이선은 항상 1년 이력을 사용한다.
-const HISTORY_RANGE = "1Y";
+const DEFAULT_MONTHS = 12;
 
 function textMeasure(fontFamily) {
   const context = document.createElement("canvas").getContext("2d");
@@ -202,9 +202,11 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
   const highest = root.querySelector("[data-compose-high]");
   const lowest = root.querySelector("[data-compose-low]");
   const dateInput = root.querySelector("[data-compose-date]");
-  const periods = [...root.querySelectorAll("[data-compose-period]")];
+  const zoomControls = root.querySelector(".composition-range");
+  const scaleLabel = zoomControls.querySelector("[data-compose-scale]");
   const periodLabel = root.querySelector("[data-compose-period-label]");
-  let period = HISTORY_RANGE, firstVisible = 0;
+  let months = DEFAULT_MONTHS, anchor = null;
+  let firstVisible = 0, lastVisible = 0, annualStart = 0;
   const keys = root.querySelector("[data-compose-keys]");
   // selected는 화면에 보이는 날짜, committed는 고정된 조회일이다. 마우스를 올린 동안만 둘이 달라진다.
   // model은 따로 색을 주는 상위 기업과 기타의 날짜별 시총, slots는 상위 기업의 색 번호다.
@@ -237,14 +239,14 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
   }
 
   function spark(code) {
-    if (!sparks.has(code)) sparks.set(code, sparkline(points.map(point => point.constituents?.[code] ?? null)));
+    if (!sparks.has(code)) sparks.set(code, sparkline(points.slice(annualStart).map(point => point.constituents?.[code] ?? null)));
     const { path, x, y, label: spoken } = sparks.get(code), value = points[selected].constituents?.[code];
     return `<svg class="composition-spark" viewBox="0 0 ${SPARK.width} ${SPARK.height}" role="img" aria-label="${spoken}"><path d="${path}"/>
-      ${value == null ? "" : `<circle cx="${x(selected).toFixed(1)}" cy="${y(value).toFixed(1)}" r="2.4"/>`}</svg>`;
+      ${value == null || selected < annualStart ? "" : `<circle cx="${x(selected - annualStart).toFixed(1)}" cy="${y(value).toFixed(1)}" r="2.4"/>`}</svg>`;
   }
 
   function show(index) {
-    selected = Math.max(firstVisible, Math.min(index, points.length - 1));
+    selected = Math.max(firstVisible, Math.min(index, lastVisible));
     if (root.hidden || !ready) return;
     const point = points[selected];
     kosdaq.select(selected - firstVisible);
@@ -258,7 +260,7 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
     dot.setAttribute("cx", spot.x);
     dot.setAttribute("cy", spot.y ?? 0);
     if (document.activeElement !== dateInput) dateInput.value = point.date;
-    headline.textContent = point.live ? "당일 합산 시총 (잠정)" : "조회일 합산 시총 (추정)";
+    headline.textContent = point.live ? "당일 합산 시총 (잠정)" : point.verifiedClose ? "조회일 합산 시총 (종가)" : "조회일 합산 시총 (추정)";
     details = new Map();
     const amounts = model.amounts[selected];
     if (!amounts) {
@@ -303,8 +305,8 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
 
   function paintTrend() {
     const hadFocus = chart.contains(document.activeElement);
-    const visible = points.slice(firstVisible);
-    const amounts = model.amounts.slice(firstVisible);
+    const visible = points.slice(firstVisible, lastVisible + 1);
+    const amounts = model.amounts.slice(firstVisible, lastVisible + 1);
     const pick = group => amounts.map(amounts => amounts ? amounts[group] : null);
     const values = visible.map((point, i) => !amounts[i] ? null
       : !highlighted ? point.cap : highlighted === "other" ? amounts[i].at(-1) : point.constituents[highlighted] ?? null);
@@ -322,32 +324,33 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
     if (hadFocus) chart.querySelector("svg").focus({ preventScroll: true });
   }
 
-  function applyPeriod() {
-    const cutoff = marketRangeStart(points.at(-1).date, period);
-    firstVisible = points.findIndex(point => point.date >= cutoff);
-    dateInput.min = points[firstVisible].date;
-    for (const button of periods) {
-      const active = button.dataset.composePeriod === period;
-      button.setAttribute("aria-pressed", String(active));
-      if (active) periodLabel.textContent = "최근 " + button.textContent;
-    }
+  function applyZoom() {
+    [firstVisible, lastVisible] = compositionWindow(points, months, anchor);
+    const all = firstVisible === 0 && lastVisible === points.length - 1;
+    zoomControls.querySelector('[data-compose-zoom="out"]').disabled = all;
+    zoomControls.querySelector('[data-compose-zoom="in"]').disabled = months === zoomMonths[0];
+    scaleLabel.textContent = months % 12 === 0 ? (months / 12) + "년" : months + "개월";
+    periodLabel.textContent = points[firstVisible].date + " ~ " + points[lastVisible].date;
   }
 
-  for (const button of periods) {
-    button.addEventListener("click", () => {
-      if (!ready || period === button.dataset.composePeriod) return;
-      period = button.dataset.composePeriod;
-      applyPeriod();
-      paintTrend();
-      commit(committed);
-    });
-  }
+  zoomControls.addEventListener("click", event => {
+    const action = event.target.closest("[data-compose-zoom]")?.dataset.composeZoom;
+    if (!ready || !action) return;
+    const index = zoomMonths.indexOf(months);
+    months = action === "all" ? zoomMonths.at(-1) : zoomMonths[index + (action === "in" ? -1 : 1)];
+    anchor = committed === points.length - 1 ? null : points[committed].date;
+    applyZoom();
+    paintTrend();
+    commit(committed);
+  });
 
   function render() {
     if (root.hidden || !points?.length) return;
-    model = marketComposition(points, members, TOP);
+    const cutoff = marketRangeStart(points.at(-1).date, "1Y");
+    annualStart = points.findIndex(point => point.date >= cutoff);
+    model = marketComposition(points, members, TOP, annualStart);
     ready = Boolean(model);
-    const days = points.filter((point, i) => model?.amounts[i]);
+    const days = points.filter((point, i) => i >= annualStart && model?.amounts[i]);
     if (!ready) {
       keys.innerHTML = "";
       chart.innerHTML = "";
@@ -358,12 +361,17 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
       result.textContent = "조회 기간의 구성 자료가 없습니다.";
       return;
     }
-    applyPeriod();
+    applyZoom();
+    if (selected < firstVisible || selected > lastVisible) {
+      anchor = points[selected].date;
+      applyZoom();
+    }
+    dateInput.min = points[0].date;
     dateInput.max = points.at(-1).date;
     // 1년 동안 합산 시총이 가장 컸던 날과 가장 작았던 날
-    const stat = (node, day) => { node.innerHTML = `${trillions(day.cap / 10000)}<small>조원</small><small class="composition-when">${day.date}</small>`; };
-    stat(highest, days.reduce((best, day) => day.cap > best.cap ? day : best));
-    stat(lowest, days.reduce((best, day) => day.cap < best.cap ? day : best));
+    const stat = (node, day) => { if (!day) { node.textContent = "–"; return; } node.innerHTML = `${trillions(day.cap / 10000)}<small>조원</small><small class="composition-when">${day.date}</small>`; };
+    stat(highest, days.reduce((best, day) => !best || day.cap > best.cap ? day : best, null));
+    stat(lowest, days.reduce((best, day) => !best || day.cap < best.cap ? day : best, null));
     if (highlighted && highlighted !== "other" && !members.includes(highlighted)) highlighted = null;
     slots = new Map(model.groups.slice(0, -1).map((code, slot) => [code, slot]));
     // 범례는 다시 그리지 않고 값만 바꾼다(누르는 도중에 단추가 사라지지 않게). 기업 구성이 바뀔 때만 새로 만든다.
@@ -415,7 +423,14 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
 
   dateInput.addEventListener("change", () => {
     if (!ready) return;
-    commit(points.findLastIndex(point => point.date <= dateInput.value));
+    if (!dateInput.value) { dateInput.value = points[committed].date; return; }
+    const index = Math.max(0, points.findLastIndex(point => point.date <= dateInput.value));
+    if (index < firstVisible || index > lastVisible) {
+      anchor = points[index].date;
+      applyZoom();
+      paintTrend();
+    }
+    commit(index);
     dateInput.value = points[selected].date;
   });
   function indexAt(event) {
@@ -423,7 +438,7 @@ function createMarketComposition(root, onSelection, market, kosdaqMembers, secto
     if (!svg || !ready) return null;
     const bounds = svg.getBoundingClientRect();
     const x = (event.clientX - bounds.left) * Number(svg.dataset.viewWidth) / bounds.width;
-    return firstVisible + Math.round((x - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (points.length - 1 - firstVisible));
+    return firstVisible + Math.round((x - Number(svg.dataset.plotStart)) / Number(svg.dataset.plotWidth) * (lastVisible - firstVisible));
   }
   // 마우스를 올리면 그 날짜의 구성을 미리 보고, 누르거나 끌면 조회일로 고정한다. 그래프를 벗어나면 고정한 날짜로 돌아간다.
   for (const target of [chart, kosdaq.chart]) {
@@ -469,11 +484,13 @@ async function main() {
     const marketPath = meta.kosdaqMarket ?? (local ? "data/kosdaq-market.json" : null);
     const sectorPath = meta.kosdaqSectorCaps ?? (local ? "data/kosdaq-sector-caps.json" : null);
     [history, kosdaqMarket, sectorCaps] = await Promise.all([
-      meta.domesticMarket ? loadJson(meta.domesticMarket) : null,
+      meta.domesticMarket ? loadJson(meta.domesticMarket).catch(() => null) : null,
       marketPath ? loadJson(marketPath).catch(() => null) : null,
       sectorPath ? loadJson(sectorPath).catch(() => null) : null,
     ]);
-    if (!history?.bars.some(day => day.constituents)) throw new Error("composition unavailable");
+    const bars = compositionHistory(history?.bars ?? [], kosdaqMarket, sectorCaps);
+    if (!bars.some(day => day.constituents)) throw new Error("composition unavailable");
+    history = { bars, members: history?.members ?? stocks.filter(s => s.kind === "KR").map(s => s.code ?? s.id) };
   } catch {
     status.textContent = "시총 구성 자료를 불러올 수 없습니다.";
     return;
@@ -487,7 +504,7 @@ async function main() {
     const last = history.bars.at(-1);
     const points = current?.date > last.date ? [...history.bars, current] : history.bars;
     const end = points.at(-1).date;
-    const start = marketRangeStart(end, HISTORY_RANGE);
+    const start = shiftMarketMonths(end, -36);
     const visible = points.filter(point => point.date >= start);
     const index = selection && selection !== endDate ? visible.findIndex(point => point.date === selection) : -1;
     endDate = end;

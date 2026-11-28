@@ -1,6 +1,7 @@
 """Aggregate screened biotech and robotics stocks' KRX closing caps within KOSDAQ."""
 import argparse
-from datetime import date, timedelta
+from calendar import monthrange
+from datetime import date
 import hashlib
 import json
 from pathlib import Path
@@ -36,7 +37,7 @@ def baskets(additions):
     }
 
 
-def aggregate(path, expected, codes):
+def aggregate(path, expected, codes, security):
     with duckdb.connect() as db:
         rows = db.execute("""
             SELECT Date::DATE::VARCHAR, SUM(Marcap)::BIGINT, COUNT(*),
@@ -44,14 +45,16 @@ def aggregate(path, expected, codes):
                    SUM(Marcap) FILTER (WHERE list_contains(?, Code))::BIGINT,
                    COUNT(*) FILTER (WHERE list_contains(?, Code)),
                    SUM(Marcap) FILTER (WHERE list_contains(?, Code))::BIGINT,
-                   COUNT(*) FILTER (WHERE list_contains(?, Code))
+                   COUNT(*) FILTER (WHERE list_contains(?, Code)),
+                   list(Code ORDER BY Code) FILTER (WHERE list_contains(?, Code) AND NOT regexp_matches(Name, '스팩|기업인수목적')),
+                   list(Marcap::BIGINT ORDER BY Code) FILTER (WHERE list_contains(?, Code) AND NOT regexp_matches(Name, '스팩|기업인수목적'))
             FROM read_parquet(?)
             WHERE MarketId = 'KSQ' AND list_contains(?, Date::DATE::VARCHAR)
             GROUP BY Date::DATE
         """, [codes["bio"], codes["bio"], codes["robot"], codes["robot"],
-              str(path), list(expected)]).fetchall()
+              security, security, str(path), list(expected)]).fetchall()
     results = {}
-    for day, market, count, distinct, present, minimum, bio, n_bio, robot, n_robot in rows:
+    for day, market, count, distinct, present, minimum, bio, n_bio, robot, n_robot, member_codes, member_caps in rows:
         if market != expected[day] or not count == distinct == present or minimum < 0:
             continue
         caps = {
@@ -59,8 +62,9 @@ def aggregate(path, expected, codes):
             for key, cap, size in (("bio", bio, n_bio), ("robot", robot, n_robot))
             if cap is not None and 0 < cap <= market and 0 < size <= len(codes[key])
         }
-        if caps:
-            results[day] = {"date": day, "marketCap": market, "caps": caps}
+        if caps and member_codes:
+            results[day] = {"date": day, "marketCap": market, "caps": caps,
+                            "constituentsWon": dict(zip(member_codes, member_caps))}
     return results
 
 
@@ -73,22 +77,25 @@ def main():
     additions = json.loads((ROOT / "data/kosdaq-sector-additions.json").read_text(encoding="utf-8"))
     groups = baskets(additions)
     codes = {key: sorted({stock["code"] for stock in group["stocks"]}) for key, group in groups.items()}
+    security = sorted(stock["code"] for stock in read_json(ROOT / "universe.json", {})["domestic"])
     metadata = {key: {field: group[field] for field in ("name", "reference", "asOf", "source")}
                 for key, group in groups.items()}
-    membership = hashlib.sha256(json.dumps(codes, sort_keys=True).encode()).hexdigest()
+    membership = hashlib.sha256(json.dumps({**codes, "security": security}, sort_keys=True).encode()).hexdigest()
     market = read_json(args.market, {})
     cached = read_json(args.out, {})
     days = {}
     if market.get("market") == "KOSDAQ" and market.get("unit") == "억원" and market.get("bars"):
-        start = date.fromisoformat(market["asOf"]) - timedelta(days=370)
+        end = date.fromisoformat(market["asOf"])
+        year = end.year - 3
+        start = end.replace(year=year, day=min(end.day, monthrange(year, end.month)[1]))
         days = {bar["date"]: round(bar["cap"] * 100_000_000)
                 for bar in market["bars"] if bar["date"] >= start.isoformat()}
 
     prior = {}
+    if not days:
+        print("KOSDAQ index data unavailable; retained the previous sector caps")
+        return
     if cached.get("membership") == membership:
-        if not days:
-            print("KOSDAQ index data unavailable; retained the previous sector caps")
-            return
         prior = {row["date"]: row for row in cached["bars"]
                  if days.get(row["date"]) == row["marketCap"] and set(row["caps"]) == set(groups)}
     pending = {}
@@ -105,7 +112,7 @@ def main():
                 if not args.archive_dir:
                     with urlopen(f"{ARCHIVE}/{name}", timeout=30) as source, path.open("wb") as out:
                         copyfileobj(source, out)
-                prior.update(aggregate(path, expected, codes))
+                prior.update(aggregate(path, expected, codes, security))
             except (OSError, duckdb.Error) as exc:
                 print(f"KOSDAQ sector cap {year}: {exc}")
 
@@ -120,7 +127,8 @@ def main():
                     if not included:
                         raise ValueError(f"No closing stocks for {key}")
                     caps[key] = {"cap": sum(included), "count": len(included)}
-                prior[latest] = {"date": latest, "marketCap": days[latest], "caps": caps, "source": SOURCE}
+                prior[latest] = {"date": latest, "marketCap": days[latest], "caps": caps, "source": SOURCE,
+                                 "constituentsWon": {code: stocks[code] for code in security if code in stocks}}
         except (OSError, ValueError, KeyError, TypeError) as exc:
             print(f"KOSDAQ same-day close {latest}: {exc}")
 

@@ -9,7 +9,12 @@
 .composition-toolbar h2, .composition-breakdown h2 { font-size:17px; letter-spacing:-.015em; }
 .composition-range { display:inline-flex; gap:2px; padding:2px; border:1px solid var(--line-strong); border-radius:6px; background:var(--surface-2); }
 .composition-range button { min-width:45px; min-height:32px; padding:3px 9px; border-radius:4px; font-size:13px; font-weight:650; color:var(--ink); }
-.composition-range button[aria-pressed="true"] { color:var(--surface); background:var(--brand); }
+.composition-range { align-items:center; }
+.composition-range [data-compose-scale] { min-width:37px; text-align:center; color:var(--brand); font-size:13px; font-weight:700; }
+.composition-range button:not([data-compose-zoom="all"]) { font-size:18px; line-height:1; min-width:36px; }
+.composition-range button[data-compose-zoom="all"] { border-left:1px solid var(--line-strong); border-radius:0 3px 3px 0; }
+.composition-range button:disabled { opacity:.45; cursor:default; }
+.composition-range button:enabled:hover { background:var(--surface); }
 .composition-range button:focus-visible, .kosdaq-sector-button:focus-visible { outline:2px solid var(--brand); outline-offset:2px; }
 .composition-summary { display:grid; grid-template-columns:minmax(140px,auto) minmax(180px,1fr) auto; gap:14px 27px; align-items:end; padding:18px 0 14px; }
 .composition-summary > div:not(.composition-dates) { display:grid; align-content:start; }

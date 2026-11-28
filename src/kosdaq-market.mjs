@@ -28,7 +28,7 @@ export function parseKosdaqCaps(csv, year, asOf) {
 
 export async function refreshKosdaqMarket(target, { asOf = krxDate(new Date().toISOString()), request = fetch } = {}) {
   const year = Number(asOf.slice(0, 4));
-  const files = await Promise.all([year - 1, year].map(async value => {
+  const files = await Promise.all([year - 3, year - 2, year - 1, year].map(async value => {
     const response = await request(`${archive}/${value}.csv`, {
       signal: AbortSignal.timeout(10000),
     });
@@ -36,7 +36,7 @@ export async function refreshKosdaqMarket(target, { asOf = krxDate(new Date().to
     return parseKosdaqCaps(await response.text(), value, asOf);
   }));
   const bars = files.flat().sort((a, b) => a.date.localeCompare(b.date));
-  if (files[0].length < 200 || !bars.length) throw new Error("코스닥 1년 시총 범위가 부족합니다.");
+  if (files.slice(0, -1).some(rows => rows.length < 200) || !bars.length) throw new Error("코스닥 3년 시총 범위가 부족합니다.");
   const prior = await readFile(target, "utf8").then(JSON.parse).catch(() => null);
   const data = { market: "KOSDAQ", unit: "억원", asOf: bars.at(-1).date, bars };
   if (prior?.asOf > data.asOf) return prior;

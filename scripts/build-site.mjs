@@ -96,7 +96,7 @@ if (localMode) {
   const matches = data => data?.revision === sectorRevision;
   let next = null;
   if (matches(remote) && remote.market === "KOSDAQ" && remote.unit === "원" && Array.isArray(remote.bars) &&
-      remote.asOf && (!matches(previous) || !previous.asOf || remote.asOf >= previous.asOf)) {
+      remote.asOf && (!matches(previous) || !previous.asOf || (remote.asOf >= previous.asOf && (remote.bars.some(row => row.constituentsWon) || !previous.bars?.some(row => row.constituentsWon))))) {
     next = remote;
   } else if (!matches(previous)) {
     next = { market: "KOSDAQ", unit: "원", revision: sectorRevision, bars: [] };

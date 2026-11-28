@@ -29,7 +29,7 @@
 <main>
   <header class="composition-intro">
     <h1>국내 보안주 시총 구성</h1>
-    <p>최근 1년의 합산 시총과, 그 안에서 어느 기업이 얼마를 차지했는지 봅니다.</p>
+    <p>최근 3년간 보안주 시가총액과 기업별 비중을 조회합니다.</p>
   </header>
   <p id="composition-status" role="status">시총 이력을 불러오는 중입니다.</p>
   <div id="market-composition" hidden>
@@ -37,9 +37,10 @@
       <div class="composition-toolbar">
         <h2 id="composition-trend">시가총액 추이와 구성</h2>
         <div class="composition-range" role="group" aria-label="차트 표시 기간">
-          <button type="button" data-compose-period="3M" aria-pressed="false">3개월</button>
-          <button type="button" data-compose-period="6M" aria-pressed="false">6개월</button>
-          <button type="button" data-compose-period="1Y" aria-pressed="true">1년</button>
+          <button type="button" data-compose-zoom="out" aria-label="기간 축소" title="기간 축소">−</button>
+          <span data-compose-scale aria-live="polite">1년</span>
+          <button type="button" data-compose-zoom="in" aria-label="기간 확대" title="기간 확대">＋</button>
+          <button type="button" data-compose-zoom="all" title="전체 기간 보기">전체</button>
         </div>
       </div>
       <div class="composition-summary">
@@ -71,7 +72,7 @@
             <span class="kosdaq-sector-status" data-kosdaq-sector-status></span>
           </div>
           <div data-kosdaq-chart></div>
-          <p>종가 기준. 보안주 시총은 추정치, 코스닥지수와 전체 시총은 <a href="https://github.com/FinanceData/fdr_krx_data_cache/tree/master/data/index/year_kq11" target="_blank" rel="noopener noreferrer">KRX 시세 (FinanceData)</a>.</p>
+          <p>종가 기준. 코스닥지수와 전체 시총은 <a href="https://github.com/FinanceData/fdr_krx_data_cache/tree/master/data/index/year_kq11" target="_blank" rel="noopener noreferrer">KRX 시세 (FinanceData)</a>.</p>
           <details class="kosdaq-sector-method">
             <summary>바이오와 로봇 종목 기준</summary>
             <p><a href="https://m.samsungfund.com/api/v1/kodex/product-pdf/2ETF63.do?gijunYMD=2026.11.12" target="_blank" rel="noopener noreferrer">KODEX 바이오</a> 구성에 의약품, 기초 의약물질 업종과 주요 사업이 신약 개발, 진단, 바이오 개발 서비스인 종목을 더했습니다.
@@ -101,7 +102,7 @@
         <thead><tr><th scope="col">종목</th><th scope="col">시총 (억원)</th><th scope="col">비중</th><th scope="col">1년 추이</th></tr></thead>
         <tbody></tbody>
       </table>
-      <p class="composition-source">색을 따로 주는 기업은 최근 1년 마감일 평균 시총 상위 7개사이고 나머지는 기타로 묶습니다. 표의 1년 추이는 종목마다 그 종목의 최저와 최고에 맞춥니다. 과거 시총은 수정 종가와 환산 주식수로 추정하고, 당일은 시세로 계산한 잠정값입니다.</p>
+      <p class="composition-source">색을 따로 주는 기업은 최근 1년 마감일 평균 시총 상위 7개사이고 나머지는 기타로 묶습니다. 표의 1년 추이는 종목마다 그 종목의 최저와 최고에 맞춥니다. 과거 시총은 현재 추적하는 종목 중 해당 거래일 코스닥 상장 종목의 종가 시총입니다. 종가 시총이 없으면 추정치로, 장중 시세는 잠정값으로 표시합니다.</p>
     </section>
   </div>
 </main>
